@@ -146,6 +146,7 @@ HFSMEditor *HFSMEditor::create_hfsm_editor() {
     r->mask_panel->set_anchors_preset(LayoutPreset::PRESET_FULL_RECT);
     r->mask_panel->set_self_modulate(Color(0, 0, 0, 0.6));
     r->add_child(r->mask_panel);
+    
     r->not_hfsm_label = memnew(Label);
     r->not_hfsm_label->set_text(String("请选中一个 HFSM 节点开始编辑"));
     r->not_hfsm_label->set_vertical_alignment(VERTICAL_ALIGNMENT_CENTER);

@@ -29,7 +29,7 @@ protected:
 
 public:
     HfsmInspectorPlugin();
-    bool _can_handle(const Variant &object) const override;
+    [[nodiscard]] bool _can_handle(const Variant &object) const override;
     bool _parse_property(Object *object, int64_t type, const String &name, int64_t hint_type, const String &hint_string, int64_t usage_flags, bool wide) override;
 };
 
@@ -75,7 +75,7 @@ protected:
         ClassDB::bind_method(D_METHOD("exit_tree_action"), &HfsmEditorPlugin::exit_tree_action);
     }
 
-    String _to_string() const { return String("[HfsmEditorPlugin:{0}]").replace("{0}", itos(get_instance_id())); }
+    [[nodiscard]] String _to_string() const { return String("[HfsmEditorPlugin:{0}]").replace("{0}", uitos(get_instance_id())); }
 
 private:
     static HfsmEditorPlugin *instance;
@@ -87,11 +87,11 @@ private:
 
     EditorPlugin *plugin;
 
-    HashMap<String, char *> translation;
+    HashMap<String, const char *> translation;
 
 public:
     HfsmEditorPlugin() {
-        translation.insert({"HFSM Editor"}, "HFSM 编辑器");
+        translation.insert("HFSM Editor", "HFSM 编辑器");
         translation.insert("Plese select a 'HFSM' node to start edit.", "请选中一个 HFSM 节点开始编辑");
         translation.insert("HFSM: has duplicated State name: ", "HFSM: 存在重复的状态名称: ");
         translation.insert("Change state name", "改变状态名称");
@@ -120,9 +120,9 @@ public:
         translation.insert("Edit Sub-FSM", "编辑子状态机");
         translation.insert("Select State Transitions", "选择转换");
         translation.insert("Deselect", "取消选择");
-        translation.insert("\"value\" can't convert to the type of \"HFSMVariableRes\".", "\"value\"的无法转化为\"HFSMVariableRes\"的类型");
-        translation.insert("\"value\" is not a valid \"HFSMVariableRes\".", "\"value\" 不是一个有效的 \"HFSMVariableRes\"");
-        translation.insert("\"value\" can't convert to the type of \"variable_res\".", "\"value\"的无法转化为\"variable_res\"的类型");
+        translation.insert(R"("value" can't convert to the type of "HFSMVariableRes".)", "\"value\"的无法转化为\"HFSMVariableRes\"的类型");
+        translation.insert(R"("value" is not a valid "HFSMVariableRes".)", "\"value\" 不是一个有效的 \"HFSMVariableRes\"");
+        translation.insert(R"("value" can't convert to the type of "variable_res".)", "\"value\"的无法转化为\"variable_res\"的类型");
         translation.insert("Trigger: ", "触发器: ");
         translation.insert("Solo Trigger: ", "独立触发器: ");
         translation.insert("Union Trigger: ", "联合触发器: ");

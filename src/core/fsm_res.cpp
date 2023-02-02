@@ -41,8 +41,8 @@ void FsmRes::_bind_methods() {
     ClassDB::bind_method(D_METHOD("remove_variable_res", "remove_variable_res"), &FsmRes::remove_variable_res);
 }
 
-FsmRes::FsmRes() {}
-FsmRes::~FsmRes() {}
+FsmRes::FsmRes() = default;
+FsmRes::~FsmRes() = default;
 
 void FsmRes::set_nested_state_res(const Ref<StateRes> &state_res) {
     _nested_state_res = state_res;
