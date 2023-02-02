@@ -30,7 +30,7 @@ protected:
 public:
     HfsmInspectorPlugin();
     [[nodiscard]] bool _can_handle(const Variant &object) const override;
-    bool _parse_property(Object *object, int64_t type, const String &name, int64_t hint_type, const String &hint_string, int64_t usage_flags, bool wide) override;
+    bool _parse_property(Object *object, Variant::Type type, const String &name, PropertyHint hint_type, const String &hint_string, BitField<PropertyUsageFlags> usage_flags, bool wide) override;
 };
 
 #ifndef HACK
@@ -196,7 +196,7 @@ public:
         return en_key;
     }
 
-    static Ref<EditorUndoRedoManager> create_action(const String &action_name) {
+    static EditorUndoRedoManager *create_action(const String &action_name) {
         auto undo_redo = get_singleton()->plugin->get_undo_redo();
         undo_redo->create_action(str_localize(action_name), UndoRedo::MERGE_DISABLE, get_singleton()->get_hfsm_editor()->get_editing_hfsm());
         return undo_redo;

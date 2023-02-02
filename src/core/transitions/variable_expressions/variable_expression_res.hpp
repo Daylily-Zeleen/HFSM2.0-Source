@@ -79,6 +79,7 @@ private:
 
 } // namespace Hfsm
 
-VARIANT_ENUM_CAST(Hfsm::VariableExpressionRes, TriggerType);
-VARIANT_ENUM_CAST(Hfsm::VariableExpressionRes, Op);
+VARIANT_ENUM_CAST(Hfsm::VariableExpressionRes::TriggerType);
+VARIANT_ENUM_CAST(Hfsm::VariableExpressionRes::Op);
+
 #endif

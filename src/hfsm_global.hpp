@@ -4,6 +4,17 @@
 #ifndef HFSM_GLOBAL_H
 #define HFSM_GLOBAL_H
 
+
+#define DEV_ENABLED
+// 以 DEV_ENABLED 宏确定为 完整版
+#ifdef DEV_ENABLED
+
+#define FULL_VERSION
+
+#endif
+
+
+
 // 字符常量以 utf8 进行编译
 #pragma execution_character_set("utf-8")
 

@@ -193,6 +193,6 @@ inline Array &HFSM::get_expression_objs() { return _expression_objs; }
 
 }; // namespace Hfsm
 
-VARIANT_ENUM_CAST(Hfsm::HFSM, UpdateType);
+VARIANT_ENUM_CAST(Hfsm::HFSM::UpdateType);
 
 #endif

@@ -8,12 +8,15 @@
 
 #include <godot_cpp/classes/editor_plugin.hpp>
 
+#include "godot_cpp/core/binder_common.hpp"
+#include "godot_cpp/core/method_ptrcall.hpp"
 #include "godot_cpp/variant/variant.hpp"
 #include "inspector_plugin/variable_res_selector.hpp"
 #include "src/core/hfsm.hpp"
 #include "src/core/transitions/variable_expressions/variable_expression_res.hpp"
 
 using namespace godot;
+
 namespace Hfsm {
 
 void HfsmInspectorPlugin::_bind_methods() {}
@@ -26,7 +29,9 @@ bool HfsmInspectorPlugin::_can_handle(const Variant &object) const {
     return Object::cast_to<VariableExpressionRes>(object) != nullptr;
 }
 
-bool HfsmInspectorPlugin::_parse_property(Object *object, int64_t type, const String &name, int64_t hint_type, const String &hint_string, int64_t usage_flags, bool wide) {
+bool HfsmInspectorPlugin::_parse_property(Object *object, Variant::Type type, const String &name, PropertyHint hint_type, const String &hint_string, BitField<PropertyUsageFlags> usage_flags,
+                                          bool wide) {
+
     ERR_FAIL_COND_V(object == nullptr, false);
     if (auto ver = Object::cast_to<VariableExpressionRes>(object)) {
         if (auto hfsm = HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {

@@ -118,6 +118,7 @@ inline State::StateType State::get_type() const { return _type; }
 #pragma endregion
 
 }; // namespace Hfsm
-VARIANT_ENUM_CAST(Hfsm::State, StateType);
+
+VARIANT_ENUM_CAST(Hfsm::State::StateType);
 
 #endif // ! EXAMPLE_CLASS_H
