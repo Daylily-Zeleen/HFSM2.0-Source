@@ -9,6 +9,7 @@
 
 namespace Hfsm {
 enum AuotoTtransitMode {
+    AUTO_TRANSIT_MODE_ANIMATION_FINISH,
     AUTO_TRANSIT_MODE_DELAY_TIMER,
     AUTO_TRANSIT_MODE_FSM_EXIT,
     AUTO_TRANSIT_MODE_MANUAL,
@@ -30,7 +31,7 @@ public:
     void _load_state(const Variant &state) override;
 #endif
 private:
-    uint8_t _mode = AUTO_TRANSIT_MODE_DELAY_TIMER;
+    uint8_t _mode = AUTO_TRANSIT_MODE_ANIMATION_FINISH;
     uint64_t _delay_msec = 1000;
     uint64_t _times = 5;
 
@@ -57,6 +58,8 @@ inline void AutoTransition::refresh() {
 }
 inline bool AutoTransition::can_transit() {
     switch (_mode) {
+        case AUTO_TRANSIT_MODE_ANIMATION_FINISH:
+            return !get_from_state()->is_animation_playing();
         case AUTO_TRANSIT_MODE_DELAY_TIMER:
             return Time::get_singleton()->get_ticks_msec() > _next_delay_transit_tick;
         case AUTO_TRANSIT_MODE_FSM_EXIT: {

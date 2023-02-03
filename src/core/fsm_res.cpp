@@ -156,7 +156,7 @@ Fsm *FsmRes::create_fsm(HFSM *hfsm, const Ref<State> &nested_state, const Vector
     return r;
 }
 
-void FsmRes::_set_variable_res_list(Array variable_res_list) {
+void FsmRes::_set_variable_res_list(const Array &variable_res_list) {
     _variable_res_list = TypedArray<HFSMVariableRes>(variable_res_list);
     for (size_t i = 0; i < _variable_res_list.size(); i++) {
         Ref<HFSMVariableRes> vr = Object::cast_to<HFSMVariableRes>(_variable_res_list[i]);

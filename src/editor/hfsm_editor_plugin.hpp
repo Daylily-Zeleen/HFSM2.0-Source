@@ -29,7 +29,7 @@ protected:
 
 public:
     HfsmInspectorPlugin();
-    [[nodiscard]] bool _can_handle(const Variant &object) const override;
+    bool _can_handle(const Variant &object) const override;
     bool _parse_property(Object *object, Variant::Type type, const String &name, PropertyHint hint_type, const String &hint_string, BitField<PropertyUsageFlags> usage_flags, bool wide) override;
 };
 
@@ -75,7 +75,7 @@ protected:
         ClassDB::bind_method(D_METHOD("exit_tree_action"), &HfsmEditorPlugin::exit_tree_action);
     }
 
-    [[nodiscard]] String _to_string() const { return String("[HfsmEditorPlugin:{0}]").replace("{0}", uitos(get_instance_id())); }
+    String _to_string() const { return String("[HfsmEditorPlugin:{0}]").replace("{0}", uitos(get_instance_id())); }
 
 private:
     static HfsmEditorPlugin *instance;

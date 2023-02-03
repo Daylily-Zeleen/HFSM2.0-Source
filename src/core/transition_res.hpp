@@ -6,7 +6,7 @@
 #include <godot_cpp/classes/script.hpp>
 #include <godot_cpp/templates/vector.hpp>
 
-#include <godot_cpp/variant/utility_functions.hpp>
+#include "hfsm_global.hpp"
 
 using namespace godot;
 
@@ -25,19 +25,19 @@ class TransitionRes : public Resource {
 protected:
     static void _bind_methods();
 
-    String _to_string() const {
-        return String("[TransitionRes:{0}]")
-            .replace("{0}", itos(get_instance_id()));
-    }
+    String _to_string() const { return String("[TransitionRes:{0}]").replace("{0}", uitos(get_instance_id())); }
 
 public:
     enum TransitionType {
+#ifdef FULL_VERSION
         TRANSITION_TYPE_SCRIPT,
+#endif
         TRANSITION_TYPE_VARIABLE,
         TRANSITION_TYPE_EXPRESSION,
         TRANSITION_TYPE_AUTO,
     };
     enum AuotoTtransitMode {
+        AUTO_TRANSIT_MODE_ANIMATION_FINISH,
         AUTO_TRANSIT_MODE_DELAY_TIMER,
         AUTO_TRANSIT_MODE_FSM_EXIT,
         AUTO_TRANSIT_MODE_MANUAL,
@@ -46,10 +46,8 @@ public:
         AUTO_TRANSIT_MODE_MAX,
     };
     TransitionRes();
-    ~TransitionRes();
-    TransitionBase *create_transition(HFSM *hfsm,
-                                                 Ref<StateRes> &from_state_res,
-                                                 Ref<StateRes> &to_state_res);
+    ~TransitionRes() override;
+    TransitionBase *create_transition(HFSM *hfsm, Ref<StateRes> &from_state_res, Ref<StateRes> &to_state_res);
 
     bool _set(const StringName &p_name, const Variant &p_property);
     bool _get(const StringName &p_name, Variant &r_property) const;
@@ -83,12 +81,11 @@ public:
     void set_variable_expression_res_list(Array variable_expression_res_list);
     TypedArray<VariableExpressionRes> get_variable_expression_res_list() const;
 
+#ifdef FULL_VERSION
     // 脚本
     void set_transition_script(Ref<Script> transition_script);
     Ref<Script> get_transition_script() const;
-
-    // 编辑器方法
-    // Dictionary get_valid_and_texts();
+#endif
 
 private:
     // 共有属性
@@ -105,8 +102,10 @@ private:
     String _expression_text = "";
     String _expression_comment = "";
 
+#ifdef FULL_VERSION
     // 脚本
     Ref<Script> _transition_script;
+#endif
 
     // 变量表达式
     bool _variable_and_mode = true;
@@ -117,7 +116,7 @@ private:
 
 }; // namespace Hfsm
 
-VARIANT_ENUM_CAST(Hfsm::TransitionRes, TransitionType);
-VARIANT_ENUM_CAST(Hfsm::TransitionRes, AuotoTtransitMode);
+VARIANT_ENUM_CAST(Hfsm::TransitionRes::TransitionType);
+VARIANT_ENUM_CAST(Hfsm::TransitionRes::AuotoTtransitMode);
 
 #endif

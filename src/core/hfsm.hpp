@@ -1,6 +1,7 @@
 ﻿#ifndef HFSM_H
 #define HFSM_H
 
+#include <godot_cpp/classes/animation_player.hpp>
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/resource.hpp>
@@ -8,6 +9,7 @@
 #include <godot_cpp/templates/vmap.hpp>
 
 #include "../hfsm_global.hpp"
+#include "godot_cpp/templates/pair.hpp"
 #include "state.hpp"
 
 #include <godot_cpp/variant/utility_functions.hpp>
@@ -31,7 +33,7 @@ protected:
 
 public:
     HFSM();
-    ~HFSM();
+    ~HFSM() override;
 
     bool _set(const StringName &p_name, const Variant &p_property);
     bool _get(const StringName &p_name, Variant &r_property) const;
@@ -95,6 +97,9 @@ public:
     void set_root_fsm_res(const Ref<FsmRes> &root_fsm_res);
     Ref<FsmRes> get_root_fsm_res() const;
 
+    void set_animation_player(AnimationPlayer *p_animtion_player);
+    AnimationPlayer *get_animation_player() const;
+
     // ExpressiontTransition 专用
     PackedStringArray &get_expression_objs_names();
     Array &get_expression_objs();
@@ -145,6 +150,8 @@ private:
 
     Vector<Fsm *> *_active_fsm_list = nullptr;
 
+    AnimationPlayer *animation_player = nullptr;
+
     // 新增 上下文
     Dictionary _context;
 
@@ -159,6 +166,9 @@ private:
     void transited(Ref<State> &from_state, Ref<State> &to_state);
     void entered(Ref<State> &state);
     void exited(Ref<State> &state);
+
+    // 新特性：动画状态机
+    void __on_animation_finished(const StringName &p_anim_name);
 
     friend class Fsm;
 };
@@ -189,6 +199,25 @@ inline Ref<State> HFSM::get_previous_state() { return _previous_state; }
 inline PackedStringArray &HFSM::get_expression_objs_names() { return _expression_objs_names; }
 inline Array &HFSM::get_expression_objs() { return _expression_objs; }
 
+// 新特性：动画状态机
+void HFSM::set_animation_player(AnimationPlayer *p_animtion_player) {
+    static const StringName sn = {"animation_finished"};
+    static const StringName mn = {"__on_animation_finished"};
+    if (animation_player && animation_player->is_connected(sn, Callable(this, mn))) {
+        animation_player->disconnect(sn, Callable(this, mn));
+    }
+    animation_player = p_animtion_player;
+    if (animation_player && !animation_player->is_connected(sn, Callable(this, mn))) {
+        animation_player->connect(sn, Callable(this, mn));
+    }
+}
+AnimationPlayer *HFSM::get_animation_player() const { return animation_player; }
+
+void HFSM::__on_animation_finished(const StringName &p_anim_name) {
+    if (_current_state.is_valid() && _current_state->get_animation_name_for_playing() == p_anim_name) {
+        _current_state->_animation_playing = false;
+    }
+}
 #pragma endregion
 
 }; // namespace Hfsm

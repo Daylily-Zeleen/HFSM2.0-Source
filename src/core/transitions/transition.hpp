@@ -16,7 +16,7 @@ protected:
 
     String _to_string() { return String("[Transition:{0}]").replace("{0}", itos(get_instance_id()));}
 public:
-    Transition(){}
+    Transition()= default;
     // TODO:: call 是否会引发错误？
     // 能否不走 call 调用真正的虚方法？
     void refresh() override{
