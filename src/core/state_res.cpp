@@ -1,7 +1,9 @@
 ﻿#include "state_res.hpp"
+#include "editor/hfsm_editor_plugin.hpp"
 #include "fsm.hpp"
 #include "fsm_res.hpp"
 #include "hfsm.hpp"
+
 namespace Hfsm {
 
 #pragma region StateRes
@@ -11,6 +13,9 @@ StateRes::~StateRes() = default;
 bool StateRes::_set(const StringName &p_name, const Variant &p_property) {
 	if (p_name == StringName("state_node") && Object::cast_to<Node>(p_property)) {
 		set_meta({ "state_node" }, Object::cast_to<Node>(p_property));
+		return true;
+	} else if (p_name == StringName{ "animation_name" }) {
+		set_animation_name(p_property);
 		return true;
 	}
 	return false;
@@ -26,10 +31,24 @@ bool StateRes::_get(const StringName &p_name, Variant &r_property) const {
 		}
 		r_property = Variant();
 		return true;
+	} else if (p_name == StringName{ "animation_name" }) {
+		r_property = get_animation_name();
+		return true;
 	}
 	return false;
 }
-void StateRes::_get_property_list(List<PropertyInfo> *p_list) const { p_list->push_back(PropertyInfo(Variant::OBJECT, "state_node", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR)); }
+void StateRes::_get_property_list(List<PropertyInfo> *p_list) const {
+	p_list->push_back(PropertyInfo(Variant::OBJECT, "state_node", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
+
+	String animations;
+	auto anim_player = HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()->get_animation_player();
+	if (anim_player) {
+		for (auto &&anim : anim_player->get_animation_list()) {
+			animations += "," + anim;
+		}
+	}
+	p_list->push_back(PropertyInfo(Variant::OBJECT, "animation_name", PROPERTY_HINT_ENUM_SUGGESTION, animations));
+}
 
 void StateRes::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_name"), &StateRes::get_name);
@@ -67,10 +86,6 @@ void StateRes::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_size_in_editor"), &StateRes::get_size_in_editor);
 	ClassDB::bind_method(D_METHOD("set_size_in_editor", "new_size"), &StateRes::set_size_in_editor);
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "size_in_editor"), "set_size_in_editor", "get_size_in_editor");
-
-	ClassDB::bind_method(D_METHOD("get_animation_name"), &StateRes::get_animation_name);
-	ClassDB::bind_method(D_METHOD("set_animation_name", "anim_name"), &StateRes::set_animation_name);
-	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "animation_name"), "set_animation_name", "get_animation_name");
 
 #ifdef FULL_VERSION
 	ClassDB::bind_method(D_METHOD("get_animation_blend_time"), &StateRes::get_animation_blend_time);

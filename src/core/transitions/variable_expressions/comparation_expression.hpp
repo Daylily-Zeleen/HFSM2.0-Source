@@ -1,5 +1,4 @@
-﻿#ifndef COMPARATION_EXPRESSION_H
-#define COMPARATION_EXPRESSION_H
+﻿#pragma once
 
 #include "variable_expression.hpp"
 
@@ -11,9 +10,9 @@ namespace Hfsm {
  */
 class ComparationExpression : public VariableExpression {
 protected:
-    ComparationExpression(const Ref<HFSMVariable> &variable, uint8_t op);
+	ComparationExpression(const Ref<HFSMVariable> &variable, uint8_t op);
 
-    uint8_t _op = OP_EQUAL;
+	uint8_t _op = OP_EQUAL;
 };
 /**
  * @brief 与常量比较的表达式
@@ -21,12 +20,12 @@ protected:
  */
 class ConstantComparationExpression : public ComparationExpression {
 public:
-    ConstantComparationExpression(const Ref<HFSMVariable> &variable, uint8_t op,
-                                  const Variant &value);
-    bool get_result(bool and_mode, bool &r_result) override;
+	ConstantComparationExpression(const Ref<HFSMVariable> &variable, uint8_t op,
+			const Variant &value);
+	bool get_result(bool and_mode, bool &r_result) override;
 
 private:
-    Variant _value;
+	Variant _value;
 };
 /**
  * @brief 与变量比较的表达式
@@ -34,39 +33,35 @@ private:
  */
 class VariableComparationExpression : public ComparationExpression {
 public:
-    VariableComparationExpression(Ref<HFSMVariable> variable, uint8_t op,
-                                  Ref<HFSMVariable> value);
+	VariableComparationExpression(Ref<HFSMVariable> variable, uint8_t op,
+			Ref<HFSMVariable> value);
 
-    bool get_result(bool and_mode, bool &r_result) override;
+	bool get_result(bool and_mode, bool &r_result) override;
 
 private:
-    Ref<HFSMVariable> _value;
+	Ref<HFSMVariable> _value;
 };
-
 
 #pragma region 内联实现
 
-
 inline bool ConstantComparationExpression::get_result(bool and_mode,
-                                                      bool &r_result) {
-    r_result = _variable->compare_with(_value, _op);
-    // 与 + 假  or 或 + 真
-    if ((and_mode && !r_result) || (!and_mode && r_result))
-        return true;
-    else
-        return false;
+		bool &r_result) {
+	r_result = _variable->compare_with(_value, _op);
+	// 与 + 假  or 或 + 真
+	if ((and_mode && !r_result) || (!and_mode && r_result))
+		return true;
+	else
+		return false;
 }
 inline bool VariableComparationExpression::get_result(bool and_mode,
-                                                      bool &r_result) {
-    r_result = _variable->compare_with(_value.ptr(), _op);
-    // 与 + 假  or 或 + 真
-    if ((and_mode && !r_result) || (!and_mode && r_result))
-        return true;
-    else
-        return false;
+		bool &r_result) {
+	r_result = _variable->compare_with(_value.ptr(), _op);
+	// 与 + 假  or 或 + 真
+	if ((and_mode && !r_result) || (!and_mode && r_result))
+		return true;
+	else
+		return false;
 }
 
 #pragma endregion
 } // namespace Hfsm
-
-#endif

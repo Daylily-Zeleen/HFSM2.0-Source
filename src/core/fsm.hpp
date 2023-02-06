@@ -1,5 +1,4 @@
-﻿#ifndef FSM_H
-#define FSM_H
+﻿#pragma once
 
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
@@ -101,5 +100,3 @@ inline bool Fsm::is_running() { return _running; }
 #pragma endregion
 
 }; // namespace Hfsm
-
-#endif

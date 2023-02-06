@@ -1,5 +1,5 @@
-﻿#ifndef STATE_H
-#define STATE_H
+﻿#pragma once
+
 #include "../hfsm_global.hpp"
 
 #include <godot_cpp/classes/ref_counted.hpp>
@@ -146,5 +146,3 @@ inline bool State::is_animation_playing() const { return _animation_playing; }
 }; // namespace Hfsm
 
 VARIANT_ENUM_CAST(Hfsm::State::StateType);
-
-#endif // ! EXAMPLE_CLASS_H

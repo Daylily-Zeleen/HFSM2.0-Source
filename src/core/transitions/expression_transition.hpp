@@ -1,5 +1,4 @@
-﻿#ifndef EXPRESSION_TRANSITION_H
-#define EXPRESSION_TRANSITION_H
+﻿#pragma once
 
 #include <godot_cpp/classes/expression.hpp>
 
@@ -9,29 +8,25 @@ namespace Hfsm {
 // 表达式转换
 class ExpressionTransition : public TransitionBase {
 public:
+	bool can_transit() override;
 
-    bool can_transit() override;
+	void set_expression_text(const String &expression_text);
 
-    void set_expression_text(const String &expression_text);
+	bool is_vaild_expression() const;
 
-    bool is_vaild_expression() const;
 private:
-    HFSM *_hfsm = nullptr;
-    
-    Expression _expression;
-    // String _expression_text = "";
-    bool _valid = false;
+	HFSM *_hfsm = nullptr;
 
-    friend class TransitionRes;
+	Expression _expression;
+	// String _expression_text = "";
+	bool _valid = false;
+
+	friend class TransitionRes;
 };
 
-
 #pragma region 内联实现
-
 
 inline bool ExpressionTransition::is_vaild_expression() const { return _valid; }
 
 #pragma endregion
 } // namespace Hfsm
-
-#endif

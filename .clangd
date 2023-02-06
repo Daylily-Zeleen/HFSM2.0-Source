@@ -1,0 +1,37 @@
+﻿CompileFlags:
+    Add:
+      [
+        -std=c++17,
+        -Wno-documentation,
+        -Wno-missing-prototypes,
+        "--include-directory=H:/godot-cpp/include/",
+        "--include-directory=H:/godot-cpp/gdextension/",
+        "--include-directory=H:/godot-cpp/gen/include/",
+        "--include-directory=H:/godot-cpp/src/",
+        "--include-directory=H:/hfsm_4.0/src/",
+        "--include-directory=H:/godot-cpp/",
+        "--include-directory=H:/hfsm_4.0"
+      ]
+Diagnostics:
+  ClangTidy:
+    Add:
+    [
+        performance-*,
+        bugprone-*,
+        modernize-*,
+        clang-analyzer-*,
+        readability-identifier*,
+    ]
+    Remove:
+    [
+        modernize-use-nodiscard,
+        modernize-use-trailing-return-type,
+        readability-identifier-length,
+        bugprone-easily-swappable-parameters,
+        bugprone-reserved-identifier,
+    ]
+    CheckOptions:
+    {
+      readability-identifier-naming.VariableCase: camelCase,
+      modernize-use-override.IgnoreDestructors: true
+    }

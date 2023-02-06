@@ -1,5 +1,4 @@
-﻿#ifndef FSM_RES_H
-#define FSM_RES_H
+﻿#pragma once
 
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/resource.hpp>
@@ -103,5 +102,3 @@ private:
 };
 
 }; // namespace Hfsm
-
-#endif

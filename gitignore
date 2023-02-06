@@ -4,6 +4,9 @@
 
 # 生成文件
 *.obj
+*.pdb
+.sconsign.dblite
+vc140.pdb
 
 # Godot 4+ specific ignores
 .godot/

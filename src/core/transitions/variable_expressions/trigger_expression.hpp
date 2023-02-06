@@ -1,5 +1,4 @@
-﻿#ifndef TRIGGER_EXPRESSION_H
-#define TRIGGER_EXPRESSION_H
+﻿#pragma once
 
 #include "variable_expression.hpp"
 
@@ -11,9 +10,9 @@ namespace Hfsm {
  */
 class TriggerExpression : public VariableExpression {
 public:
-    TriggerExpression(const Ref<HFSMVariable> &variable);
+	TriggerExpression(const Ref<HFSMVariable> &variable);
 
-    virtual bool get_result(bool and_mode, bool &r_result) override;
+	virtual bool get_result(bool and_mode, bool &r_result) override;
 };
 
 /**
@@ -22,10 +21,10 @@ public:
  */
 class SoloTriggerExpression : public TriggerExpression {
 public:
-    SoloTriggerExpression(const Ref<HFSMVariable> &variable);
-    //  独立触发器只关注自己
-    bool get_result(bool and_mode, bool &r_result) override;
-    ExpressionType get_expression_type() override;
+	SoloTriggerExpression(const Ref<HFSMVariable> &variable);
+	//  独立触发器只关注自己
+	bool get_result(bool and_mode, bool &r_result) override;
+	ExpressionType get_expression_type() override;
 };
 
 /**
@@ -34,47 +33,48 @@ public:
  */
 class UnionTriggerExpression : public TriggerExpression {
 public:
-    UnionTriggerExpression(const Ref<HFSMVariable> &variable);
+	UnionTriggerExpression(const Ref<HFSMVariable> &variable);
 
-    bool get_result(bool and_mode, bool &r_result) override;
-    ExpressionType get_expression_type() override;
+	bool get_result(bool and_mode, bool &r_result) override;
+	ExpressionType get_expression_type() override;
 };
 
 #pragma region 内联实现
 
 inline bool TriggerExpression::get_result(bool and_mode, bool &r_result) {
-    r_result = _variable->get_value();
-    // 与 + 假  or 或 + 真
-    if ((and_mode && !r_result) || (!and_mode && r_result))
-        return true;
-    else
-        return false;
+	r_result = _variable->get_value();
+	// 与 + 假  or 或 + 真
+	if ((and_mode && !r_result) || (!and_mode && r_result)) {
+		return true;
+	} else {
+		return false;
+	}
 }
 //  独立触发器只关注自己
 inline bool SoloTriggerExpression::get_result(bool and_mode, bool &r_result) {
-    r_result = _variable->get_value();
-    if (r_result)
-        return true;
-    else
-        return false;
+	r_result = _variable->get_value();
+	if (r_result) {
+		return true;
+	} else {
+		return false;
+	}
 }
 inline VariableExpression::ExpressionType
 SoloTriggerExpression::get_expression_type() {
-    return ExpressionType::SOLO_TRIGGER;
+	return ExpressionType::SOLO_TRIGGER;
 }
 inline bool UnionTriggerExpression::get_result(bool and_mode, bool &r_result) {
-    r_result = _variable->get_value();
-    if (!r_result)
-        return true;
-    return false;
+	r_result = _variable->get_value();
+	if (!r_result) {
+		return true;
+	}
+	return false;
 }
 inline VariableExpression::ExpressionType
 UnionTriggerExpression::get_expression_type() {
-    return ExpressionType::UNION_TRIGGER;
+	return ExpressionType::UNION_TRIGGER;
 }
 
 #pragma endregion
 
 } // namespace Hfsm
-
-#endif

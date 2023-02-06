@@ -1,5 +1,4 @@
-﻿#ifndef STATE_RES_H
-#define STATE_RES_H
+﻿#pragma once
 
 #include <godot_cpp/classes/Resource.hpp>
 #include <godot_cpp/classes/ref.hpp>
@@ -97,5 +96,3 @@ private:
 };
 
 }; // namespace Hfsm
-
-#endif
