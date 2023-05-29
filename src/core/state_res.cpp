@@ -18,6 +18,18 @@ bool StateRes::_set(const StringName &p_name, const Variant &p_property) {
 		set_animation_name(p_property);
 		return true;
 	}
+#ifdef FULL_VERSION
+	else if (p_name == StringName{ "animation_blend_time" }) {
+		set_animation_blend_time(p_property);
+		return true;
+	} else if (p_name == StringName{ "animation_speed" }) {
+		set_animation_speed(p_property);
+		return true;
+	} else if (p_name == StringName{ "animation_reverse" }) {
+		set_animation_reverse(p_property);
+		return true;
+	}
+#endif
 	return false;
 }
 bool StateRes::_get(const StringName &p_name, Variant &r_property) const {
@@ -35,25 +47,49 @@ bool StateRes::_get(const StringName &p_name, Variant &r_property) const {
 		r_property = get_animation_name();
 		return true;
 	}
+#ifdef FULL_VERSION
+	else if (p_name == StringName{ "animation_blend_time" }) {
+		r_property = get_animation_blend_time();
+		return true;
+	} else if (p_name == StringName{ "animation_speed" }) {
+		r_property = get_animation_speed();
+		return true;
+	} else if (p_name == StringName{ "animation_reverse" }) {
+		r_property = get_animation_reverse();
+		return true;
+	}
+#endif
 	return false;
 }
 void StateRes::_get_property_list(List<PropertyInfo> *p_list) const {
 	p_list->push_back(PropertyInfo(Variant::OBJECT, "state_node", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
 
+	p_list->push_back(PropertyInfo(Variant::NIL, "animation", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_GROUP));
 	String animations;
-	auto anim_player = HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()->get_animation_player();
-	if (anim_player) {
-		for (auto &&anim : anim_player->get_animation_list()) {
-			animations += "," + anim;
+	if (HfsmEditorPlugin::get_singleton()) {
+		if (HfsmEditorPlugin::get_singleton()->get_hfsm_editor()) {
+			if (HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
+				if (HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()->get_animation_player()) {
+					for (auto &&anim : HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()->get_animation_player()->get_animation_list()) {
+						animations += "," + anim;
+					}
+				}
+			}
 		}
 	}
-	p_list->push_back(PropertyInfo(Variant::OBJECT, "animation_name", PROPERTY_HINT_ENUM_SUGGESTION, animations));
+	p_list->push_back(PropertyInfo(Variant::STRING_NAME, "animation_name", PROPERTY_HINT_ENUM_SUGGESTION, animations));
+
+#ifdef FULL_VERSION
+	p_list->push_back(PropertyInfo(Variant::FLOAT, "animation_blend_time"));
+	p_list->push_back(PropertyInfo(Variant::FLOAT, "animation_speed"));
+	p_list->push_back(PropertyInfo(Variant::BOOL, "animation_reverse"));
+#endif
 }
 
 void StateRes::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_name"), &StateRes::get_name);
-	ClassDB::bind_method(D_METHOD("set_name", "name"), &StateRes::set_name);
-	ADD_PROPERTY(PropertyInfo(Variant::STRING, "name"), "set_name", "get_name");
+	ClassDB::bind_method(D_METHOD("get_state_name"), &StateRes::get_state_name);
+	ClassDB::bind_method(D_METHOD("set_state_name", "name"), &StateRes::set_state_name);
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "state_name"), "set_state_name", "get_state__name");
 
 	ClassDB::bind_method(D_METHOD("get_type"), &StateRes::get_type);
 	ClassDB::bind_method(D_METHOD("set_type", "name"), &StateRes::set_type);
@@ -86,78 +122,63 @@ void StateRes::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_size_in_editor"), &StateRes::get_size_in_editor);
 	ClassDB::bind_method(D_METHOD("set_size_in_editor", "new_size"), &StateRes::set_size_in_editor);
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "size_in_editor"), "set_size_in_editor", "get_size_in_editor");
-
-#ifdef FULL_VERSION
-	ClassDB::bind_method(D_METHOD("get_animation_blend_time"), &StateRes::get_animation_blend_time);
-	ClassDB::bind_method(D_METHOD("set_animation_blend_time", "anim_blend_time"), &StateRes::set_animation_blend_time);
-	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "animation_blend_time"), "set_animation_blend_time", "get_animation_blend_time");
-
-	ClassDB::bind_method(D_METHOD("get_animation_speed"), &StateRes::get_animation_speed);
-	ClassDB::bind_method(D_METHOD("set_animation_speed", "anim_speed"), &StateRes::set_animation_speed);
-	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "animation_speed"), "set_animation_speed", "get_animation_speed");
-
-	ClassDB::bind_method(D_METHOD("get_animation_reverse"), &StateRes::get_animation_reverse);
-	ClassDB::bind_method(D_METHOD("set_animation_reverse", "anim_revers"), &StateRes::set_animation_reverse);
-	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "animation_reverse"), "set_animation_reverse", "get_animation_reverse");
-#endif
 }
 
-void StateRes::set_name(const StringName &name) {
+void StateRes::set_state_name(const StringName &name) {
 	_name = name;
-	emit_signal("changed");
-
+	emit_changed();
 	// notify_property_list_changed();
 }
-StringName StateRes::get_name() const { return _name; }
+StringName StateRes::get_state_name() const { return _name; }
 
 void StateRes::set_type(State::StateType state_type) {
 	_type = state_type;
-	emit_signal("changed");
+	emit_changed();
 	// notify_property_list_changed();
 }
 State::StateType StateRes::get_type() const { return _type; }
 void StateRes::set_state_script(const Ref<Script> &script) {
 	_script = script;
-	emit_signal("changed");
+	emit_changed();
 	// notify_property_list_changed();
 }
 Ref<Script> StateRes::get_state_script() const { return _script; }
 
 void StateRes::set_nested(bool nested) {
 	_nested = nested;
-	emit_signal("changed");
+	emit_changed();
 	// notify_property_list_changed();
 }
 bool StateRes::is_nested() const { return _nested; }
 
 void StateRes::set_fsm_res(const Ref<FsmRes> &fsm_res) {
 	_fsm_res = fsm_res;
-	emit_signal("changed");
+	emit_changed();
 	// notify_property_list_changed();
 }
 Ref<FsmRes> StateRes::get_fsm_res() const { return _fsm_res; }
 
 void StateRes::set_editor_offset(Vector2 offset) {
 	_editor_offset = offset;
-	emit_signal("changed");
+	emit_changed();
 	// notify_property_list_changed();
 }
 Vector2 StateRes::get_editor_offet() const { return _editor_offset; }
 void StateRes::set_reset_properties_when_entry(bool v) {
 	_reset_properties_when_entry = v;
-	emit_signal("changed");
+	emit_changed();
 	// notify_property_list_changed();
 }
 bool StateRes::get_reset_properties_when_entry() const { return _reset_properties_when_entry; }
 void StateRes::set_reset_nested_fsm_when_entry(bool v) {
 	_reset_nested_fsm_when_entry = v;
-	emit_signal("changed");
+	emit_changed();
 	// notify_property_list_changed();
 }
 bool StateRes::get_reset_nested_fsm_when_entry() const { return _reset_nested_fsm_when_entry; }
 
-String StateRes::get_animation_name() const { return _animation_name; }
-void StateRes::set_animation_name(const String &p_anim_name) { _animation_name = p_anim_name; }
+StringName StateRes::get_animation_name() const { return _animation_name; }
+void StateRes::set_animation_name(const StringName &p_anim_name) { _animation_name = p_anim_name; }
 #ifdef FULL_VERSION
 double StateRes::get_animation_blend_time() const { return _animation_blend_time; }
 void StateRes::set_animation_blend_time(double p_blend_time) { _animation_blend_time = p_blend_time; }
@@ -209,10 +230,11 @@ Ref<RefCounted> StateRes::create_state(HFSM *hfsm, const Fsm *fsm) {
 			}
 		} else {
 			String path_text;
-			for (size_t i = 0; i < r->get_path().size(); i++) {
+			for (auto i = 0; i < r->get_path().size(); i++) {
 				path_text = path_text + Ref<State>(r->get_path()[i])->get_name();
-				if (i != i < r->get_path().size() - 1)
+				if (i != i < r->get_path().size() - 1) {
 					path_text = path_text + String("/");
+				}
 			}
 			ERR_FAIL_V_MSG(r, path_text + String(": Script is not extends from 'State'."));
 		}

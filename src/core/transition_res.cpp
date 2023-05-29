@@ -57,14 +57,16 @@ bool TransitionRes::_get(const StringName &p_name, Variant &r_property) const {
 	if (p_name == StringName("from")) {
 		if (_from_res.is_valid()) {
 			r_property = StringName(_from_res->get("name"));
-		} else
+		} else {
 			r_property = "";
+		}
 		return true;
 	} else if (p_name == StringName("to")) {
 		if (_to_res.is_valid()) {
 			r_property = StringName(_to_res->get("name"));
-		} else
+		} else {
 			r_property = "";
+		}
 		return true;
 	} else if (p_name == StringName("type")) {
 		r_property = get_type();
@@ -210,13 +212,13 @@ void TransitionRes::_bind_methods() {
 TransitionRes::TransitionRes() = default;
 TransitionRes::~TransitionRes() = default;
 
-void TransitionRes::set_from_state_res(Ref<StateRes> from_state_res) {
+void TransitionRes::set_from_state_res(const Ref<StateRes> &from_state_res) {
 	_from_res = from_state_res;
 	notify_property_list_changed();
 }
 Ref<StateRes> TransitionRes::get_from_state_res() { return _from_res; }
 
-void TransitionRes::set_to_state_res(Ref<StateRes> to_state_res) {
+void TransitionRes::set_to_state_res(const Ref<StateRes> &to_state_res) {
 	_to_res = to_state_res;
 	notify_property_list_changed();
 }
@@ -271,7 +273,7 @@ void TransitionRes::set_and_mode(bool and_mode) {
 }
 bool TransitionRes::is_and_mode() const { return _variable_and_mode; }
 
-void TransitionRes::set_variable_expression_res_list(Array variable_expression_res_list) {
+void TransitionRes::set_variable_expression_res_list(const Array &variable_expression_res_list) {
 	auto emit_changed_callable = Callable(this, "emit_changed");
 
 	auto incoming_connections = get_incoming_connections();
@@ -309,7 +311,7 @@ TypedArray<VariableExpressionRes> TransitionRes::get_variable_expression_res_lis
 
 #ifdef FULL_VERSION
 // 脚本
-void TransitionRes::set_transition_script(Ref<Script> transition_script) {
+void TransitionRes::set_transition_script(const Ref<Script> &transition_script) {
 	_transition_script = transition_script;
 	if (_transition_script.is_valid() && Engine::get_singleton()->is_editor_hint()) {
 		GDScript *s = Object::cast_to<GDScript>(_transition_script.ptr());
@@ -393,8 +395,9 @@ TransitionBase *TransitionRes::create_transition(HFSM *hfsm, Ref<StateRes> &from
 			r = at;
 		} break;
 		default: {
-			if (!Engine::get_singleton()->is_editor_hint())
+			if (!Engine::get_singleton()->is_editor_hint()) {
 				CRASH_NOW_MSG("Illegal transition type.");
+			}
 		} break;
 	}
 	from_state_res = get_from_state_res();

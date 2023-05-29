@@ -53,7 +53,7 @@ public:
 	Array get_vars();
 	Variant get_var_value(const StringName &variable_name);
 	Dictionary get_vars_value();
-	void set_var(const StringName &variable_name, Variant value = Variant());
+	void set_var(const StringName &variable_name, const Variant &value = Variant());
 	void set_trigger(const StringName &trigger_name);
 	void set_boolean(const StringName &boolean_name, bool value);
 	void set_integer(const StringName &interger_name, int64_t value);
@@ -61,7 +61,7 @@ public:
 	void set_string(const StringName &string_name, const String &value);
 
 	Dictionary get_context() { return _context; }
-	void set_context(Dictionary context) { _context = context; }
+	void set_context(const Dictionary &p_context) { _context = p_context; }
 	// // 以下段落考虑弃用
 	// void set_entry_state(String state_name, Array fsm_path = root_path);
 	// void set_exit_state(String state_name, Array fsm_path = root_path);
@@ -97,7 +97,7 @@ public:
 	Ref<FsmRes> get_root_fsm_res() const;
 
 	void set_animation_player(AnimationPlayer *p_animtion_player);
-	AnimationPlayer *get_animation_player() const;
+	AnimationPlayer *get_animation_player() const { return animation_player; }
 
 	// ExpressiontTransition 专用
 	PackedStringArray &get_expression_objs_names();
@@ -199,20 +199,8 @@ inline PackedStringArray &HFSM::get_expression_objs_names() { return _expression
 inline Array &HFSM::get_expression_objs() { return _expression_objs; }
 
 // 新特性：动画状态机
-void HFSM::set_animation_player(AnimationPlayer *p_animtion_player) {
-	static const StringName sn = { "animation_finished" };
-	static const StringName mn = { "__on_animation_finished" };
-	if (animation_player && animation_player->is_connected(sn, Callable(this, mn))) {
-		animation_player->disconnect(sn, Callable(this, mn));
-	}
-	animation_player = p_animtion_player;
-	if (animation_player && !animation_player->is_connected(sn, Callable(this, mn))) {
-		animation_player->connect(sn, Callable(this, mn));
-	}
-}
-AnimationPlayer *HFSM::get_animation_player() const { return animation_player; }
 
-void HFSM::__on_animation_finished(const StringName &p_anim_name) {
+inline void HFSM::__on_animation_finished(const StringName &p_anim_name) {
 	if (_current_state.is_valid() && _current_state->get_animation_name_for_playing() == p_anim_name) {
 		_current_state->_animation_playing = false;
 	}

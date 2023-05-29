@@ -73,7 +73,7 @@ private:
 	// void init(hfsm:Node,nested_fsm_res = null,parent_path:Array
 	// =[],nested_state = null):
 	void reset();
-	void entry(Ref<State> entry_state = Ref<State>());
+	void entry(const Ref<State> &entry_state = Ref<State>());
 	void check_transit_and_get_update_queue(Vector<Fsm *> *&update_queue);
 	void update(double delta);
 	void physics_update(double delta);

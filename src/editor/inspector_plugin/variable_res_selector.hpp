@@ -11,8 +11,6 @@
 using namespace godot;
 
 namespace Hfsm {
-class HFSM;
-class HFSMVariableRes;
 // 变量选择器
 class VariableResSelector : public EditorProperty {
 	GDCLASS(VariableResSelector, EditorProperty)
@@ -21,9 +19,9 @@ private:
 
 	Button *btn = nullptr;
 	PopupMenu *menu = nullptr;
-	HFSM *_hfsm = nullptr;
+	class HFSM *_hfsm = nullptr;
 
-	Ref<HFSMVariableRes> _to_compare;
+	Ref<class HFSMVariableRes> _to_compare;
 	bool updating = false;
 
 	void __on_btn_pressed();
@@ -40,9 +38,9 @@ protected:
 public:
 	VariableResSelector();
 
-	void __setup(HFSM *hfsm, Ref<HFSMVariableRes> to_compare = nullptr);
+	void setup(HFSM *hfsm, const Ref<HFSMVariableRes> &to_compare = nullptr);
 
-	void _update_property();
+	void _update_property() override;
 };
 
 }; // namespace Hfsm

@@ -25,7 +25,7 @@ public:
 	HFSMVariable();
 
 	Variant get_value() const;
-	void set_value(Variant value);
+	void set_value(const Variant &value);
 
 	Variant::Type get_type() const;
 	int64_t get_type_int() const;
@@ -48,7 +48,7 @@ private:
 #pragma region 内联实现
 
 inline Variant HFSMVariable::get_value() const { return _value; }
-inline void HFSMVariable::set_value(Variant value) {
+inline void HFSMVariable::set_value(const Variant &value) {
 	// 触发器特殊处理
 	if (_type == Variant::NIL) {
 		_value = Variant(true);

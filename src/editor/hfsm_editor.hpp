@@ -23,11 +23,11 @@ protected:
 
 public:
 	HFSMEditor();
-	void _ready();
+	void _ready() override;
 	void edit(HFSM *hfsm);
 	HFSM *get_editing_hfsm();
-	void request_edit_fsm_res(Ref<FsmRes> fsm_res);
-	Ref<FsmRes> get_nested_fsm_res(Ref<StateRes> state_res,
+	void request_edit_fsm_res(const Ref<FsmRes> &fsm_res);
+	Ref<FsmRes> get_nested_fsm_res(const Ref<StateRes> &state_res,
 			Ref<FsmRes> fsm_res = nullptr);
 
 	static HFSMEditor *create_hfsm_editor();
@@ -43,7 +43,7 @@ private:
 	Label *not_hfsm_label = nullptr;
 
 	HFSM *_hfsm = nullptr;
-	bool find_nested_state_res(Ref<FsmRes> fsm_res,
+	bool find_nested_state_res(const Ref<FsmRes> &fsm_res,
 			Ref<FsmRes> to_search_fsm_res = nullptr);
 };
 

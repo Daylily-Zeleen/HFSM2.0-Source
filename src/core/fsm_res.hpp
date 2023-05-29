@@ -41,25 +41,26 @@ public:
 	// 变量列表
 	TypedArray<HFSMVariableRes> get_variable_res_list() const { return _variable_res_list; }
 
-	void add_state_res(Ref<StateRes> state_res);
+	void add_state_res(const Ref<StateRes> &state_res);
 
-	void add_transition_res(Ref<TransitionRes> transition_res);
+	void add_transition_res(const Ref<TransitionRes> &transition_res);
 
-	void add_variable_res(Ref<HFSMVariableRes> variable_res) {
-		if (_variable_res_list.find(variable_res) >= 0)
+	void add_variable_res(const Ref<HFSMVariableRes> &variable_res) {
+		if (_variable_res_list.find(variable_res) >= 0) {
 			return;
+		}
 		_variable_res_list.push_back(variable_res);
 	}
 
 	// 未删除相关的 TransitionRes, 需要在编辑器里处理 undoredo
-	void remove_state_res(Ref<StateRes> state_res) {
+	void remove_state_res(const Ref<StateRes> &state_res) {
 		_state_res_list.erase(state_res);
 		emit_changed();
 	}
 
-	void remove_transition_res(Ref<TransitionRes> transition_res);
+	void remove_transition_res(const Ref<TransitionRes> &transition_res);
 
-	void remove_variable_res(Ref<HFSMVariableRes> variable_res) { _variable_res_list.erase(variable_res); }
+	void remove_variable_res(const Ref<HFSMVariableRes> &variable_res) { _variable_res_list.erase(variable_res); }
 
 	// void set_state_res_list(Array state_res_list){
 	//     _state_res_list = Vector<Ref<StateRes>>(state_res_list);

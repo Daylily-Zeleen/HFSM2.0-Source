@@ -45,10 +45,10 @@ public:
 
 	VariableExpressionRes();
 
-	void set_variable_res(Ref<HFSMVariableRes> variable_res);
+	void set_variable_res(const Ref<HFSMVariableRes> &variable_res);
 	Ref<HFSMVariableRes> get_variable_res() const;
 
-	void set_value(Variant value);
+	void set_value(const Variant &value);
 	Variant get_value() const;
 
 	void set_operator(int64_t op);

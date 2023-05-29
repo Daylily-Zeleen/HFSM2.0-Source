@@ -46,6 +46,7 @@
 #include "core/transitions/auto_transition.hpp"
 #include "core/transitions/transition.hpp"
 #include "core/transitions/variable_expressions/variable_expression_res.hpp"
+#include "godot_cpp/classes/editor_plugin.hpp"
 #include "hfsm_global.hpp"
 
 #include "editor/hfsm_editor.hpp"
@@ -57,73 +58,77 @@
 using namespace Hfsm;
 
 void register_core_classes() {
-    // return;
-    ClassDB::register_class<HFSM>();
-    // UtilityFunctions::print("HFSM");
-    ClassDB::register_class<State>();
-    // UtilityFunctions::print("State");
-    ClassDB::register_class<Transition>();
-    // UtilityFunctions::print("Transition");
-    ClassDB::register_class<HFSMVariable>();
-    // UtilityFunctions::print("HFSMVariable");
-    ClassDB::register_class<FsmRes>();
-    // UtilityFunctions::print("FsmRes");
-    ClassDB::register_class<StateRes>();
-    // UtilityFunctions::print("StateRes");
-    ClassDB::register_class<TransitionRes>();
-    // UtilityFunctions::print("TransitionRes");
-    ClassDB::register_class<HFSMVariableRes>();
-    // UtilityFunctions::print("HFSMVariableRes");
-    ClassDB::register_class<VariableExpressionRes>();
-    // UtilityFunctions::print("VariableExpressionRes");
+	// return;
+	ClassDB::register_class<HFSM>();
+	// UtilityFunctions::print("HFSM");
+	ClassDB::register_class<State>();
+	// UtilityFunctions::print("State");
+	ClassDB::register_class<Transition>();
+	// UtilityFunctions::print("Transition");
+	ClassDB::register_class<HFSMVariable>();
+	// UtilityFunctions::print("HFSMVariable");
+	ClassDB::register_class<FsmRes>();
+	// UtilityFunctions::print("FsmRes");
+	ClassDB::register_class<StateRes>();
+	// UtilityFunctions::print("StateRes");
+	ClassDB::register_class<TransitionRes>();
+	// UtilityFunctions::print("TransitionRes");
+	ClassDB::register_class<HFSMVariableRes>();
+	// UtilityFunctions::print("HFSMVariableRes");
+	ClassDB::register_class<VariableExpressionRes>();
+	// UtilityFunctions::print("VariableExpressionRes");
 }
 
 void register_editor_classes() {
-    ClassDB::register_class<HfsmEditorPlugin>();
-    ClassDB::register_class<VariableResSelector>();
-    ClassDB::register_class<StateNode>();
-    ClassDB::register_class<StateNodesEditor>();
-    ClassDB::register_class<HfsmInspectorPlugin>();
-    ClassDB::register_class<HFSMEditor>();
+	ClassDB::register_class<HfsmEditorPlugin>();
+	ClassDB::register_class<VariableResSelector>();
+	ClassDB::register_class<StateNode>();
+	ClassDB::register_class<StateNodesEditor>();
+	ClassDB::register_class<HfsmInspectorPlugin>();
+	ClassDB::register_class<HFSMEditor>();
 
-    // ClassDB::register_internal_class<VariableResSelector>();
-    // ClassDB::register_internal_class<StateNode>();
-    // ClassDB::register_internal_class<StateNodesEditor>();
-    // ClassDB::register_internal_class<HfsmInspectorPlugin>();
-    // ClassDB::register_internal_class<HFSMEditor>();
+	EditorPlugins::add_by_type<HfsmEditorPlugin>();
+	// ClassDB::register_internal_class<VariableResSelector>();
+	// ClassDB::register_internal_class<StateNode>();
+	// ClassDB::register_internal_class<StateNodesEditor>();
+	// ClassDB::register_internal_class<HfsmInspectorPlugin>();
+	// ClassDB::register_internal_class<HFSMEditor>();
 }
 
 void initialize_hfsm_module(ModuleInitializationLevel p_level) {
-    if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
-        register_editor_classes();
-    }
-    if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
-        return;
-    }
-    register_core_classes();
-    HfsmGlobal::init_static();
+	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
+		register_editor_classes();
+	}
+	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
+		return;
+	}
+	register_core_classes();
+
+	HfsmGlobal::init_static();
 }
 
 void uninitialize_hfsm_module(ModuleInitializationLevel p_level) {
-    if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
-        // HfsmEditorPlugin::get_singleton()->queue_free();
-    }
-    if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
-        return;
-    }
+	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
+		EditorPlugins::remove_by_type<HfsmEditorPlugin>();
+	}
+	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
+		return;
+	}
 
-    HfsmGlobal::deinit_static();
+	HfsmGlobal::deinit_static();
 }
 
 extern "C" {
 
 // Initialization.
-GDExtensionBool GDE_EXPORT hfsm_library_init(const GDExtensionInterface *p_interface, const GDExtensionClassLibraryPtr p_library, GDExtensionInitialization *r_initialization) {
-    godot::GDExtensionBinding::InitObject init_obj(p_interface, p_library, r_initialization);
-    init_obj.register_initializer(initialize_hfsm_module);
-    init_obj.register_terminator(uninitialize_hfsm_module);
-    init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
+GDExtensionBool GDE_EXPORT hfsm_library_init(GDExtensionInterfaceGetProcAddress p_get_proc_address,
+		GDExtensionClassLibraryPtr p_library, GDExtensionInitialization *r_initialization) {
+	godot::GDExtensionBinding::InitObject init_obj(p_get_proc_address, p_library, r_initialization);
 
-    return init_obj.init();
+	init_obj.register_initializer(initialize_hfsm_module);
+	init_obj.register_terminator(uninitialize_hfsm_module);
+	init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
+
+	return init_obj.init();
 }
 }

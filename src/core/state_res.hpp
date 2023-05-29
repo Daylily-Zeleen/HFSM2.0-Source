@@ -39,8 +39,8 @@ public:
 	StateRes();
 	~StateRes() override;
 
-	void set_name(const StringName &name);
-	StringName get_name() const;
+	void set_state_name(const StringName &name);
+	StringName get_state_name() const;
 	void set_type(State::StateType state_type);
 	State::StateType get_type() const;
 	void set_state_script(const Ref<Script> &script);
@@ -57,8 +57,8 @@ public:
 	bool get_reset_nested_fsm_when_entry() const;
 
 	// 新特性 动画状态机
-	String get_animation_name() const;
-	void set_animation_name(const String &p_anim_name);
+	StringName get_animation_name() const;
+	void set_animation_name(const StringName &p_anim_name);
 
 #ifdef FULL_VERSION
 	double get_animation_blend_time() const;
@@ -80,14 +80,14 @@ private:
 	Ref<FsmRes> _fsm_res;
 	Vector2 _size_in_editor;
 	Vector2 _editor_offset;
-	String _name = "state";
+	StringName _name = {"state"};
 	State::StateType _type = State::STATE_TYPE_NORMAL;
 	bool _nested = false;
 	bool _reset_properties_when_entry = true;
 	bool _reset_nested_fsm_when_entry = false;
 
 	// 新特性：动画状态机
-	String _animation_name = String();
+	StringName _animation_name = {};
 #ifdef FULL_VERSION
 	double _animation_blend_time = 0.0f;
 	double _animation_speed = 1.0f;

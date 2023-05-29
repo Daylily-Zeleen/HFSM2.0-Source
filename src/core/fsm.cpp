@@ -20,7 +20,7 @@ void Fsm::reset() {
 	}
 }
 
-void Fsm::entry(Ref<State> entry_state) {
+void Fsm::entry(const Ref<State> &entry_state) {
 	static auto empty_state = Ref<State>();
 	if (_reset_when_entry) {
 		for (auto &&state : _state_list) {

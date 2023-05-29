@@ -6,7 +6,6 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/time.hpp>
 
-
 namespace Hfsm {
 enum AuotoTtransitMode {
 	AUTO_TRANSIT_MODE_ANIMATION_FINISH,
@@ -49,7 +48,7 @@ inline void AutoTransition::refresh() {
 			break;
 		case AUTO_TRANSIT_MODE_UPDATE_TIMES:
 		case AUTO_TRANSIT_MODE_PHYSICS_UPDATE_TIMES:
-			_update_times = _update_times;
+			_update_times = _times;
 			break;
 	}
 }

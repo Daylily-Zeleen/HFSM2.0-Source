@@ -33,8 +33,8 @@ private:
  */
 class VariableComparationExpression : public ComparationExpression {
 public:
-	VariableComparationExpression(Ref<HFSMVariable> variable, uint8_t op,
-			Ref<HFSMVariable> value);
+	VariableComparationExpression(const Ref<HFSMVariable> &variable, uint8_t op,
+			const Ref<HFSMVariable> &value);
 
 	bool get_result(bool and_mode, bool &r_result) override;
 
@@ -48,19 +48,21 @@ inline bool ConstantComparationExpression::get_result(bool and_mode,
 		bool &r_result) {
 	r_result = _variable->compare_with(_value, _op);
 	// 与 + 假  or 或 + 真
-	if ((and_mode && !r_result) || (!and_mode && r_result))
+	if ((and_mode && !r_result) || (!and_mode && r_result)) {
 		return true;
-	else
+	} else {
 		return false;
+	}
 }
 inline bool VariableComparationExpression::get_result(bool and_mode,
 		bool &r_result) {
 	r_result = _variable->compare_with(_value.ptr(), _op);
 	// 与 + 假  or 或 + 真
-	if ((and_mode && !r_result) || (!and_mode && r_result))
+	if ((and_mode && !r_result) || (!and_mode && r_result)) {
 		return true;
-	else
+	} else {
 		return false;
+	}
 }
 
 #pragma endregion

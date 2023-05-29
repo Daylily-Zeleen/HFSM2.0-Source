@@ -53,9 +53,9 @@ public:
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 
 	// 公用访问器
-	void set_from_state_res(Ref<StateRes> from_state_res);
+	void set_from_state_res(const Ref<StateRes> &from_state_res);
 	Ref<StateRes> get_from_state_res();
-	void set_to_state_res(Ref<StateRes> from_to_res);
+	void set_to_state_res(const Ref<StateRes> &from_to_res);
 	Ref<StateRes> get_to_state_res();
 	void set_type(int64_t type);
 	int64_t get_type() const;
@@ -77,12 +77,12 @@ public:
 	// 变量表达式
 	void set_and_mode(bool and_mode);
 	bool is_and_mode() const;
-	void set_variable_expression_res_list(Array variable_expression_res_list);
+	void set_variable_expression_res_list(const Array &variable_expression_res_list);
 	TypedArray<VariableExpressionRes> get_variable_expression_res_list() const;
 
 #ifdef FULL_VERSION
 	// 脚本
-	void set_transition_script(Ref<Script> transition_script);
+	void set_transition_script(const Ref<Script> &transition_script);
 	Ref<Script> get_transition_script() const;
 #endif
 

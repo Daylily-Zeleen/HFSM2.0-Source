@@ -6,11 +6,11 @@
 
 // #include <godot_cpp/variant/utility_functions.hpp>
 
-#include "src/core/fsm_res.hpp"
-#include "src/core/state_res.hpp"
+#include "core/fsm_res.hpp"
+#include "core/state_res.hpp"
 #include "state_nodes_editor.hpp"
 
-#include "src/core/hfsm.hpp"
+#include "core/hfsm.hpp"
 
 #include "hfsm_editor_plugin.hpp"
 
@@ -19,17 +19,20 @@ namespace Hfsm {
 void HFSMEditor::_bind_methods() {}
 
 HFSMEditor::HFSMEditor() = default;
-bool HFSMEditor::find_nested_state_res(Ref<FsmRes> fsm_res,
+bool HFSMEditor::find_nested_state_res(const Ref<FsmRes> &fsm_res,
 		Ref<FsmRes> to_search_fsm_res) {
-	if (fsm_res.is_null())
+	if (fsm_res.is_null()) {
 		return false;
+	}
 	if (to_search_fsm_res.is_null()) {
 		to_search_fsm_res = get_editing_hfsm()->get_root_fsm_res();
 	}
-	if (to_search_fsm_res.is_null())
+	if (to_search_fsm_res.is_null()) {
 		return false;
-	if (fsm_res == to_search_fsm_res)
+	}
+	if (fsm_res == to_search_fsm_res) {
 		return true;
+	}
 	auto sr_list = to_search_fsm_res->get_state_res_list();
 	for (size_t i = 0; i < sr_list.size(); i++) {
 		Ref<StateRes> sr = sr_list[i];
@@ -60,7 +63,7 @@ bool HFSMEditor::find_nested_state_res(Ref<FsmRes> fsm_res,
 // 				return true
 // return false
 
-Ref<FsmRes> HFSMEditor::get_nested_fsm_res(Ref<StateRes> state_res,
+Ref<FsmRes> HFSMEditor::get_nested_fsm_res(const Ref<StateRes> &state_res,
 		Ref<FsmRes> fsm_res) {
 	if (fsm_res.is_null()) {
 		fsm_res = get_editing_hfsm()->get_root_fsm_res();
@@ -69,20 +72,21 @@ Ref<FsmRes> HFSMEditor::get_nested_fsm_res(Ref<StateRes> state_res,
 		auto state_res_list = fsm_res->get_state_res_list();
 		for (size_t i = 0; i < state_res_list.size(); i++) {
 			Ref<StateRes> sr = state_res_list[i];
-			if (sr == state_res)
+			if (sr == state_res) {
 				return fsm_res;
-			else {
+			} else {
 				if (sr->get_fsm_res().is_valid()) {
 					auto r = get_nested_fsm_res(state_res, sr->get_fsm_res());
-					if (r.is_valid())
+					if (r.is_valid()) {
 						return r;
+					}
 				}
 			}
 		}
 	}
 	return nullptr;
 }
-void HFSMEditor::request_edit_fsm_res(Ref<FsmRes> fsm_res) {
+void HFSMEditor::request_edit_fsm_res(const Ref<FsmRes> &fsm_res) {
 	if (fsm_res->get_nested_state_res().is_null()) {
 		find_nested_state_res(fsm_res);
 	}
@@ -95,10 +99,11 @@ void HFSMEditor::_ready() {
 }
 void HFSMEditor::edit(HFSM *hfsm) {
 	_hfsm = hfsm;
-	if (_hfsm)
+	if (_hfsm) {
 		mask_panel->hide();
-	else
+	} else {
 		mask_panel->show();
+	}
 	if (_hfsm && _hfsm->get_root_fsm_res().is_valid()) {
 		state_nodes_editor->edit_fsm_res(_hfsm->get_root_fsm_res());
 	} else {

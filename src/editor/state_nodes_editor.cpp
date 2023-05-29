@@ -12,8 +12,8 @@
 
 #include "core/transitions/transition.hpp"
 #include "hfsm_editor_plugin.hpp"
-#include "src/core/fsm_res.hpp"
-#include "src/core/transition_res.hpp"
+#include "core/fsm_res.hpp"
+#include "core/transition_res.hpp"
 
 #include "state_node.hpp"
 

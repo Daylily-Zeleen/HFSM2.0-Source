@@ -155,8 +155,9 @@ void HFSM::___on_tree_entered__() {
 #endif
 	static const StringName sn = "ready";
 	static const StringName md = "___on_ready__";
-	if (is_inited())
+	if (is_inited()) {
 		return; // 整个生命周期只初始化一次
+	}
 	if (get_owner()) {
 		get_owner()->connect(sn, Callable(this, md));
 	} else {
@@ -167,8 +168,9 @@ void HFSM::___on_tree_entered__() {
 void HFSM::___on_ready__() {
 	static const StringName sn = "inited";
 #ifndef DEBUG_IN_EDITOR
-	if (Engine::get_singleton()->is_editor_hint())
+	if (Engine::get_singleton()->is_editor_hint()) {
 		return;
+	}
 #endif
 	// 拾取 代理节点
 	auto keys = _agents.keys();
@@ -206,15 +208,17 @@ void HFSM::___on_ready__() {
 	// 生成hfsm
 	generate_hfsm();
 	// yield(get_tree(),"idle_frame")
-	if (is_active())
+	if (is_active()) {
 		restart();
+	}
 	_inited = true;
 	emit_signal(sn);
 }
 
 void HFSM::_ready() {
-	if (!_root_fsm_res.is_valid())
+	if (!_root_fsm_res.is_valid()) {
 		_root_fsm_res.instantiate();
+	}
 #ifndef DEBUG_IN_EDITOR
 	if (Engine::get_singleton()->is_editor_hint()) {
 		set_process(false);
@@ -233,7 +237,7 @@ void HFSM::generate_hfsm() {
 	// 生成变量列表
 	for (auto i = 0; i < _root_fsm_res->_variable_res_list.size(); i++) {
 		Ref<HFSMVariableRes> vr = _root_fsm_res->_variable_res_list[i];
-		_variable_blackboard.insert(vr->get_name(), vr->create_variable());
+		_variable_blackboard.insert(vr->get_variable_name(), vr->create_variable());
 	}
 	//
 	set_debug(_debug);
@@ -287,9 +291,9 @@ Dictionary HFSM::get_vars_value() {
 	return r;
 }
 
-void HFSM::set_var(const StringName &variable_name, Variant value) {
+void HFSM::set_var(const StringName &variable_name, const Variant &value) {
 	ERR_FAIL_COND(!_variable_blackboard.has(variable_name));
-	_variable_blackboard[variable_name]->set_value(std::move(value));
+	_variable_blackboard[variable_name]->set_value(value);
 }
 
 void HFSM::set_trigger(const StringName &trigger_name) { _variable_blackboard[trigger_name]->set_value(true); }
@@ -489,4 +493,17 @@ void HFSM::_network_spawn(Dictionary &data) { return _root_fsm->_network_spawn(d
 void HFSM::_network_despawn() { return _root_fsm->_network_despawn(); }
 
 #endif
+
+void HFSM::set_animation_player(AnimationPlayer *p_animtion_player) {
+	static const StringName sn = { "animation_finished" };
+	static const StringName mn = { "__on_animation_finished" };
+	if (animation_player && animation_player->is_connected(sn, Callable(this, mn))) {
+		animation_player->disconnect(sn, Callable(this, mn));
+	}
+	animation_player = p_animtion_player;
+	if (animation_player && !animation_player->is_connected(sn, Callable(this, mn))) {
+		animation_player->connect(sn, Callable(this, mn));
+	}
+}
+
 }; // namespace Hfsm

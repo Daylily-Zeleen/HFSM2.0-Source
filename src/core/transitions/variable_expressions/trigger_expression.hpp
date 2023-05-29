@@ -12,7 +12,7 @@ class TriggerExpression : public VariableExpression {
 public:
 	TriggerExpression(const Ref<HFSMVariable> &variable);
 
-	virtual bool get_result(bool and_mode, bool &r_result) override;
+	bool get_result(bool and_mode, bool &r_result) override;
 };
 
 /**

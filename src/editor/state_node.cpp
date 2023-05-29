@@ -6,11 +6,12 @@
 #include <godot_cpp/classes/editor_interface.hpp>
 #include <godot_cpp/classes/h_box_container.hpp>
 #include <godot_cpp/classes/input.hpp>
+#include <godot_cpp/classes/spin_box.hpp>
 #include <godot_cpp/classes/v_box_container.hpp>
 
-#include "godot_cpp/classes/line_edit.hpp"
 #include "hfsm_editor_plugin.hpp"
-#include "src/core/fsm_res.hpp"
+#include "core/fsm_res.hpp"
+#include "core/state_res.hpp"
 #include "state_nodes_editor.hpp"
 
 using namespace godot;
@@ -43,13 +44,14 @@ void StateNode::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("__dragged"), &StateNode::__dragged);
 }
 
-StateNode *StateNode::create_state_node(Ref<StateRes> target_state_res) {
-	if (target_state_res.is_null())
+StateNode *StateNode::create_state_node(const Ref<StateRes> &target_state_res) {
+	if (target_state_res.is_null()) {
 		return nullptr;
+	}
 	auto r = memnew(StateNode);
 	r->__setup_structure();
 	r->__setup_state_res(target_state_res);
-	r->set_name(String("@") + itos(Time::get_singleton()->get_ticks_msec() + r->get_instance_id()));
+	r->set_name(String("@") + uitos(Time::get_singleton()->get_ticks_msec() + r->get_instance_id()));
 	target_state_res->set("state_node", r);
 	return r;
 }
@@ -58,7 +60,7 @@ bool StateNode::__has_duplicate_name(const String &to_test_name) {
 	for (size_t i = 0; i < brothers.size(); i++) {
 		auto sr = Object::cast_to<StateRes>(brothers[i]);
 		if (sr && sr != state_res.ptr()) {
-			if (sr->get_name() == to_test_name) {
+			if (sr->get_state_name() == to_test_name) {
 				return true;
 			}
 		}
@@ -70,14 +72,15 @@ Array StateNode::__get_brother_state_res_list() {
 								  ->get_hfsm_editor()
 								  ->get_nested_fsm_res(state_res);
 	if (nested_fsm_res.is_null()) {
-		return Array();
-	} else
+		return {};
+	} else {
 		return nested_fsm_res->get_state_res_list();
+	}
 }
 
 void StateNode::__reset_state_res() { __setup_state_res(state_res); }
 
-void StateNode::__setup_state_res(Ref<StateRes> to_set) {
+void StateNode::__setup_state_res(const Ref<StateRes> &to_set) {
 	if (state_res.is_valid()) {
 		if (state_res->is_connected("changed",
 					Callable(this, "__reset_state_res"))) {
@@ -97,7 +100,7 @@ void StateNode::__setup_state_res(Ref<StateRes> to_set) {
 		return;
 	}
 	//
-	name_line_edit->set_text(state_res->get_name());
+	name_line_edit->set_text(state_res->get_state_name());
 	set_title(name_line_edit->get_text());
 	// 类型
 	type_option_btn->clear();
@@ -125,8 +128,9 @@ void StateNode::__setup_state_res(Ref<StateRes> to_set) {
 	// 脚本
 	script_picker->set_edited_resource(state_res->get_state_script());
 	// 位置s
-	if (!is_inside_tree())
+	if (!is_inside_tree()) {
 		return;
+	}
 	__set_pos_from_res();
 }
 
@@ -145,17 +149,18 @@ void StateNode::__on_resize() {
 	set_size(size);
 }
 void StateNode::__cancel_name_changed() {
-	name_line_edit->set_text(state_res->get_name());
+	name_line_edit->set_text(state_res->get_state_name());
 	__on_resize();
 }
 void StateNode::__accept_name_changed(const String &new_name) {
-	if (name_line_edit->get_name() == state_res->get_name())
+	if (name_line_edit->get_text() == state_res->get_state_name()) {
 		return;
+	}
 	if (__has_duplicate_name(name_line_edit->get_text())) {
 		UtilityFunctions::printerr(
 				str_localize("HFSM: has duplicated State name: "),
 				name_line_edit->get_text());
-		name_line_edit->set_text(state_res->get_name());
+		name_line_edit->set_text(state_res->get_state_name());
 		return;
 	}
 	// undoredo
@@ -164,17 +169,19 @@ void StateNode::__accept_name_changed(const String &new_name) {
 			name_line_edit->get_text());
 	unro_redo->add_do_property(this, "title", name_line_edit->get_text());
 	unro_redo->add_undo_property(state_res.ptr(), "name",
-			state_res->get_name());
-	unro_redo->add_undo_property(this, "title", state_res->get_name());
+			state_res->get_state_name());
+	unro_redo->add_undo_property(this, "title", state_res->get_state_name());
 	unro_redo->commit_action();
 }
 void StateNode::__type_option_btn_item_selected(int32_t idx) {
 	auto id = type_option_btn->get_item_id(idx);
-	if (id < 0 || id > 3)
+	if (id < 0 || id > 3) {
 		return;
+	}
 	auto target_type = (State::StateType)id;
-	if (state_res->get_type() == target_type)
+	if (state_res->get_type() == target_type) {
 		return;
+	}
 	switch (target_type) {
 		case State::STATE_TYPE_NORMAL: {
 			if (state_res->get_type() == State::STATE_TYPE_ENTRY) {
@@ -231,10 +238,12 @@ void StateNode::__type_option_btn_item_selected(int32_t idx) {
 }
 
 void StateNode::__set_has_sub_fsm_check_box(bool pressed) {
-	if (state_res->get_fsm_res().is_null() && !pressed)
+	if (state_res->get_fsm_res().is_null() && !pressed) {
 		return;
-	if (state_res->get_fsm_res().is_valid() && pressed)
+	}
+	if (state_res->get_fsm_res().is_valid() && pressed) {
 		return;
+	}
 	auto undo_redo = HfsmEditorPlugin::create_action("set Sub-FSM");
 	Ref<FsmRes> new_sub_fsm;
 	new_sub_fsm.instantiate();
@@ -252,11 +261,11 @@ void StateNode::__request_edit_sub_fsm_res() {
 				->request_edit_fsm_res(state_res->get_fsm_res());
 	}
 }
-void StateNode::__script_selected(Ref<Script> script, bool edit) {
+void StateNode::__script_selected(const Ref<Script> &script, bool edit) {
 	HfsmEditorPlugin::get_singleton()->get_editor_interface()->edit_resource(
 			script);
 }
-void StateNode::__script_changed(Ref<Script> script) {
+void StateNode::__script_changed(const Ref<Script> &script) {
 	if (Object::cast_to<Script>(get_script())) {
 		if (state_res->get_state_script().is_null()) {
 			// 新建
@@ -266,8 +275,9 @@ void StateNode::__script_changed(Ref<Script> script) {
 				script->set_source_code("");
 			}
 		}
-		if (script == state_res->get_state_script())
+		if (script == state_res->get_state_script()) {
 			return;
+		}
 		auto undo_redo = HfsmEditorPlugin::create_action("Attach state script");
 		undo_redo->add_do_method(state_res.ptr(), "set_state_script", script);
 		undo_redo->add_undo_method(state_res.ptr(), "set_state_script",
@@ -376,11 +386,11 @@ void StateNode::__setup_structure() {
 		auto anim_param_hbox = memnew(HBoxContainer);
 		anim_param_hbox->set_h_size_flags(Control::SIZE_EXPAND_FILL);
 
-		anim_blend_time_spin_box = memnew(SpinBox);
-		anim_params_visible_btn = memnew(Button);
-		anim_param_hbox->add_child(anim_blend_time_spin_box);
-		anim_param_hbox->add_child(anim_params_visible_btn);
-		anim_blend_time_spin_box->set_prefix(str_localize("Animation Blend Time:"));
+		// anim_blend_time_spin_box = memnew(SpinBox);
+		// anim_params_visible_btn = memnew(Button);
+		// anim_param_hbox->add_child(anim_blend_time_spin_box);
+		// anim_param_hbox->add_child(anim_params_visible_btn);
+		// anim_blend_time_spin_box->set_prefix(str_localize("Animation Blend Time:"));
 
 		// anim_params_visible_btn->set_text(">");
 		// auto anim_param_hbox = memnew(HBoxContainer);
@@ -439,6 +449,6 @@ void StateNode::_notification(int p_what) {
 	}
 }
 
-StateNode::StateNode() {}
+StateNode::StateNode() = default;
 
 } // namespace Hfsm

@@ -8,7 +8,7 @@
 #include <godot_cpp/classes/panel.hpp>
 #include <godot_cpp/classes/popup_menu.hpp>
 
-#include "src/core/transitions/variable_expressions/variable_expression_res.hpp"
+#include "core/transitions/variable_expressions/variable_expression_res.hpp"
 
 using namespace godot;
 namespace Hfsm {

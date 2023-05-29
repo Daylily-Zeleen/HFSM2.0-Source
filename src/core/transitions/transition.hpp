@@ -19,14 +19,9 @@ public:
 	Transition() = default;
 	// TODO:: call 是否会引发错误？
 	// 能否不走 call 调用真正的虚方法？
-	void refresh() override {
-		const static StringName sn_refresh = StringName("_refresh");
-		call(sn_refresh);
-	}
-	bool can_transit() override {
-		const static StringName sn_can_transit = StringName("_can_transit");
-		return bool(call(sn_can_transit));
-	}
+	void refresh() override { call(SNAME("_refresh")); }
+	bool can_transit() override { return bool(call(SNAME("_can_transit"))); }
+
 	virtual void _refresh() {}
 	virtual bool _can_transit() { return false; }
 

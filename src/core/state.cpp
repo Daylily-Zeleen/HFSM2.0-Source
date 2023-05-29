@@ -35,20 +35,20 @@ void State::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("get_animation_name"), &State::get_animation_name);
 	ClassDB::bind_method(D_METHOD("set_animation_name", "anim_name"), &State::set_animation_name);
-	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "animation_name"), "set_animation_name", "get_animation_name");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "animation_name"), "set_animation_name", "get_animation_name");
 
 #ifdef FULL_VERSION
 	ClassDB::bind_method(D_METHOD("get_animation_blend_time"), &State::get_animation_blend_time);
 	ClassDB::bind_method(D_METHOD("set_animation_blend_time", "anim_blend_time"), &State::set_animation_blend_time);
-	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "animation_blend_time"), "set_animation_blend_time", "get_animation_blend_time");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "animation_blend_time"), "set_animation_blend_time", "get_animation_blend_time");
 
 	ClassDB::bind_method(D_METHOD("get_animation_speed"), &State::get_animation_speed);
 	ClassDB::bind_method(D_METHOD("set_animation_speed", "anim_speed"), &State::set_animation_speed);
-	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "animation_speed"), "set_animation_speed", "get_animation_speed");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "animation_speed"), "set_animation_speed", "get_animation_speed");
 
 	ClassDB::bind_method(D_METHOD("get_animation_reverse"), &State::get_animation_reverse);
 	ClassDB::bind_method(D_METHOD("set_animation_reverse", "anim_revers"), &State::set_animation_reverse);
-	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "animation_reverse"), "set_animation_reverse", "get_animation_reverse");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "animation_reverse"), "set_animation_reverse", "get_animation_reverse");
 #endif
 
 	BIND_VIRTUAL_METHOD(State, _initialize);
