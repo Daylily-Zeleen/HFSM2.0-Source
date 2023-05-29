@@ -34,11 +34,11 @@ private:
 	};
 
 	enum {
-		KEYCODE_ADD_STATE = KEY_A | KEY_MASK_SHIFT,
-		KEYCODE_CUT_STATE = KEY_X | KEY_MASK_CTRL,
-		KEYCODE_COPY_STATES = KEY_C | KEY_MASK_CTRL,
-		KEYCODE_PASTE_STATES = KEY_V | KEY_MASK_CTRL,
-		KEYCODE_DUPLICATE_STATES = KEY_D | KEY_MASK_CTRL,
+		KEYCODE_ADD_STATE = int(KEY_A) | KEY_MASK_SHIFT,
+		KEYCODE_CUT_STATE = int(KEY_X) | KEY_MASK_CTRL,
+		KEYCODE_COPY_STATES = int(KEY_C) | KEY_MASK_CTRL,
+		KEYCODE_PASTE_STATES = int(KEY_V) | KEY_MASK_CTRL,
+		KEYCODE_DUPLICATE_STATES = int(KEY_D) | KEY_MASK_CTRL,
 		KEYCODE_DELETE_STATES = KEY_DELETE,
 	};
 	// Ref<EditorUndoRedoManager> _undo_redo;
@@ -53,21 +53,18 @@ private:
 	real_t activity_amount = 1.0;
 	TypedArray<StateRes> copied_state_res_list = TypedArray<StateRes>();
 	TypedArray<StringName> selected_state_name_list = TypedArray<StringName>();
-	TypedArray<TransitionRes> selected_transition_res_list =
-			TypedArray<TransitionRes>();
-	TypedArray<TransitionRes> copied_transition_res_list =
-			TypedArray<TransitionRes>();
-	TypedArray<StringName> __bakcup_selected_state_name_list =
-			TypedArray<StringName>();
+	TypedArray<TransitionRes> selected_transition_res_list = TypedArray<TransitionRes>();
+	TypedArray<TransitionRes> copied_transition_res_list = TypedArray<TransitionRes>();
+	TypedArray<StringName> __bakcup_selected_state_name_list = TypedArray<StringName>();
 	Color activity_color;
 	bool dealing_move = false;
 	bool _left_pressing = false;
 	PackedVector2Array _disconnect_line = PackedVector2Array();
 	bool updating = false;
-	const int32_t TRANSITION_SELECT_EXTENT = 10;
-	const int32_t CONN_POS_OFFSET = 50;
-	const int32_t MOVE_ZONE_HIGHT = 30;
-	const Vector2 SCALE_DRAGGER_SIZE = Vector2(30, 30);
+	const float TRANSITION_SELECT_EXTENT = 10.0f;
+	const float CONN_POS_OFFSET = 50.0f;
+	const float MOVE_ZONE_HIGHT = 30.0f;
+	const Vector2 SCALE_DRAGGER_SIZE = Vector2(30.0f, 30.0f);
 	const int32_t HOTZONE_RADIUS = 10;
 	const PackedVector2Array TRIANGLE_POINTS = PackedVector2Array(
 			Array::make(Vector2(20, 0), Vector2(-15, 10), Vector2(-15, -10)));
@@ -77,15 +74,15 @@ private:
 	// ========== SetGet =========
 	bool is_dealing_move_states();
 	void set_dealing_move_states(bool dealing);
-	void __set_current_fsm_res(Ref<FsmRes> to_set);
-	void __set_selected_state_name_list(TypedArray<StringName> to_set);
+	void __set_current_fsm_res(const Ref<FsmRes> &to_set);
+	void __set_selected_state_name_list(const TypedArray<StringName> &to_set);
 	TypedArray<StateNode> get_selected_state_nodes();
-	void __set_selected_transition_res_list(TypedArray<TransitionRes> to_set);
-	void __set_copied_transition_list(TypedArray<TransitionRes> to_set);
-	void __set_copied_state_res_list(TypedArray<StateRes> to_set);
+	void __set_selected_transition_res_list(const TypedArray<TransitionRes> &to_set);
+	void __set_copied_transition_list(const TypedArray<TransitionRes> &to_set);
+	void __set_copied_state_res_list(const TypedArray<StateRes> &to_set);
 	// ========功能=========
 
-	void edit_fsm_res(Ref<FsmRes> fsm_res);
+	void edit_fsm_res(const Ref<FsmRes> &fsm_res);
 	void update_cnnection();
 	void __update_conntion();
 	void __set_updating(bool to_set);
@@ -104,27 +101,23 @@ private:
 	bool __is_node_hotzone(Object *in_node, int64_t in_port,
 			const Vector2 &mouse_position);
 	TypedArray<StateNode> __get_selected_state_nodes();
-	void __select_state_nodes(TypedArray<StringName> to_select_State_name_list);
-	StateNode *____create_state_node(Ref<StateRes> state_res);
+	void __select_state_nodes(const TypedArray<StringName> &to_select_State_name_list);
+	StateNode *____create_state_node(const Ref<StateRes> &state_res);
 
 	StateNode *___get_top_state_node_which_hovered();
 	TypedArray<StateRes> ___get_selected_state_res_list();
-	void ___select_mamually(TypedArray<StateNode> target_nodes);
+	void ___select_mamually(const TypedArray<StateNode> &target_nodes);
 	// ==================
 	void __on_current_fsm_res_changed();
-	void __check_empty_fsm_res_or_not(Ref<FsmRes> fsm_res);
+	void __check_empty_fsm_res_or_not(const Ref<FsmRes> &fsm_res);
 	// ========HACK==========
-	void __on_copy_requested() { __on_popup_menu_id_pressed(ITEM_ADD_STATE); }
-	void __on_paste_requested() {
-		__on_popup_menu_id_pressed(ITEM_PASTE_STATES);
-	}
-	void __on_duplicate_requested() {
-		__on_popup_menu_id_pressed(ITEM_DUPLICATE_STATES);
-	}
-	void __on_edit_fsm_res_requeted();
+	// void __on_copy_requested() { __on_popup_menu_id_pressed(ITEM_ADD_STATE); }
+	// void __on_paste_requested() { __on_popup_menu_id_pressed(ITEM_PASTE_STATES); }
+	// void __on_duplicate_requested() { __on_popup_menu_id_pressed(ITEM_DUPLICATE_STATES); }
+	// void __on_edit_fsm_res_requeted();
 	// ========HACK==========
 	void __on_popup_menu_id_pressed(int32_t id);
-	void __on_delete_nodes_request(Array nodes);
+	void __on_delete_nodes_request(const Array &nodes);
 	void __on_connection_request(const StringName &from, int from_slot,
 			const StringName &to, int to_slot);
 
@@ -148,21 +141,17 @@ private:
 
 public:
 	StateNodesEditor();
-	static StateNodesEditor *
-	create_state_nodes_edit(HBoxContainer *path_btn_container);
+	static StateNodesEditor *create_state_nodes_edit(HBoxContainer *path_btn_container);
 
-	void _ready();
+	void _ready() override;
 
 	void _process(real_t delta);
-	void _gui_input(const Ref<InputEvent> &event);
-	bool _is_in_input_hotzone(Object *in_node, int64_t in_port,
-			const Vector2 &mouse_position);
-	bool _is_in_output_hotzone(Object *in_node, int64_t in_port,
-			const Vector2 &mouse_position);
-	PackedVector2Array _get_connection_line(const Vector2 &from,
-			const Vector2 &to) const;
+	void _gui_input(const Ref<InputEvent> &event) override;
+	bool _is_in_input_hotzone(Object *in_node, int64_t in_port, const Vector2 &mouse_position);
+	bool _is_in_output_hotzone(Object *in_node, int64_t in_port, const Vector2 &mouse_position);
+	PackedVector2Array _get_connection_line(const Vector2 &from, const Vector2 &to) const override;
 
-	void _draw();
+	void _draw() override;
 };
 
 }; // namespace Hfsm
