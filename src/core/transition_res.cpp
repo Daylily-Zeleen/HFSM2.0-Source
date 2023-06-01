@@ -18,41 +18,29 @@ namespace Hfsm {
 #pragma region TransitionRes
 
 bool TransitionRes::_set(const StringName &p_name, const Variant &p_property) {
-	if (p_name == StringName("type")) {
-		set_type(p_property);
-		return true;
-	} else if (p_name == StringName("and_mode")) {
-		set_variable_and_mode(p_property);
-		return true;
-	} else if (p_name == StringName("variable_expression_res_list")) {
-		set_variable_expression_res_list(p_property);
-		return true;
-	} else if (p_name == StringName("expression_text")) {
-		set_expression_text(p_property);
-		return true;
-	} else if (p_name == StringName("expression_comment")) {
-		set_expression_comment(p_property);
-		return true;
-	} else if (p_name == StringName("auto_mode")) {
-		set_auto_mode(p_property);
-		return true;
-	} else if (p_name == StringName("delay_msec")) {
-		set_auto_delay_msec(p_property);
-		return true;
-	} else if (p_name == StringName("update_times") || p_name == StringName("physics_update_times")) {
+	_TRY_SET_PROP(type);
+	_TRY_SET_PROP(variable_expression_res_list);
+	_TRY_SET_PROP(expression_text);
+	_TRY_SET_PROP(expression_comment);
+	_TRY_SET_PROP(auto_mode);
+	_TRY_SET_PROP(auto_delay_msec);
+#ifdef FULL_VERSION
+	_TRY_SET_PROP(transition_script);
+#endif
+
+	if (p_name == StringName("update_times") || p_name == StringName("physics_update_times")) {
 		set_auto_times(p_property);
 		return true;
 	} else if (p_name == StringName("from") || p_name == StringName("to")) {
 		return true;
 	}
-#ifdef FULL_VERSION
-	else if (p_name == StringName("transition_script")) {
-		set_transition_script(p_property);
+	if (p_name == StringName("and_mode")) {
+		set_variable_and_mode(p_property);
 		return true;
 	}
-#endif
 	return false;
 }
+
 bool TransitionRes::_get(const StringName &p_name, Variant &r_property) const {
 	if (p_name == StringName("from")) {
 		if (from_state_res.is_valid()) {
@@ -68,61 +56,50 @@ bool TransitionRes::_get(const StringName &p_name, Variant &r_property) const {
 			r_property = "";
 		}
 		return true;
-	} else if (p_name == StringName("type")) {
-		r_property = get_type();
-		return true;
-	} else if (p_name == StringName("transition_script")) {
-		r_property = get_transition_script();
-		return true;
 	} else if (p_name == StringName("and_mode")) {
 		r_property = is_variable_and_mode();
-		return true;
-	} else if (p_name == StringName("variable_expression_res_list")) {
-		r_property = get_variable_expression_res_list();
-		return true;
-	} else if (p_name == StringName("expression_text")) {
-		r_property = get_expression_text();
-		return true;
-	} else if (p_name == StringName("expression_comment")) {
-		r_property = get_expression_comment();
-		return true;
-	} else if (p_name == StringName("auto_mode")) {
-		r_property = get_auto_mode();
-		return true;
-	} else if (p_name == StringName("delay_msec")) {
-		r_property = get_auto_delay_msec();
 		return true;
 	} else if (p_name == StringName("update_times") || p_name == StringName("physics_update_times")) {
 		r_property = get_auto_times();
 		return true;
 	}
+
+#ifdef FULL_VERSION
+	_TRY_GET_PROP(transition_script);
+#endif // FULL_VERSION
+	_TRY_GET_PROP(type);
+	_TRY_GET_PROP(variable_expression_res_list);
+	_TRY_GET_PROP(expression_text);
+	_TRY_GET_PROP(expression_comment);
+	_TRY_GET_PROP(auto_mode);
+	_TRY_GET_PROP(auto_delay_msec);
 	return false;
 }
+
 void TransitionRes::_get_property_list(List<PropertyInfo> *p_list) const {
-	p_list->push_back(PropertyInfo(Variant::STRING, "from", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
-	p_list->push_back(PropertyInfo(Variant::STRING, "to", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
-	p_list->push_back(PropertyInfo(Variant::INT, "type", PROPERTY_HINT_ENUM, "Script,HFSMVariable,Expression,Auto"));
+	p_list->push_back(PropertyInfo(Variant::STRING, "from", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_READ_ONLY));
+	p_list->push_back(PropertyInfo(Variant::STRING, "to", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_READ_ONLY));
+	_PUSH_PROP(INT, type, PROPERTY_HINT_ENUM, "Script,HFSMVariable,Expression,Auto");
 	switch (type) {
+#ifdef FULL_VERSION
 		case TRANSITION_TYPE_SCRIPT: {
-			p_list->push_back(PropertyInfo(Variant::OBJECT, "transition_script", PROPERTY_HINT_RESOURCE_TYPE, "Script", PROPERTY_USAGE_STORAGE, "Script"));
+			_PUSH_PROP_RESOURCE(transition_script, PROPERTY_USAGE_STORAGE, Script::get_class_static());
 		} break;
+#endif // FULL_VERSION
 		case TRANSITION_TYPE_VARIABLE: {
 			p_list->push_back(PropertyInfo(Variant::BOOL, "and_mode"));
 
-			auto typed_VariableExpressionRes_array_hint_string = String("{0}/{1}:VariableExpressionRes").format(Array::make(Variant::OBJECT, PROPERTY_HINT_RESOURCE_TYPE));
-
-			p_list->push_back(PropertyInfo(Variant::ARRAY, "variable_expression_res_list", PROPERTY_HINT_TYPE_STRING, typed_VariableExpressionRes_array_hint_string));
+			_PUSH_PROP_TYPED_ARRAY(variable_expression_res_list, VariableExpressionRes);
 		} break;
 		case TRANSITION_TYPE_EXPRESSION: {
-			p_list->push_back(PropertyInfo(Variant::STRING, "expression_text", PROPERTY_HINT_MULTILINE_TEXT));
-			p_list->push_back(PropertyInfo(Variant::STRING, "expression_comment", PROPERTY_HINT_MULTILINE_TEXT));
+			_PUSH_PROP(STRING, expression_text, PROPERTY_HINT_MULTILINE_TEXT);
+			_PUSH_PROP(STRING, expression_comment, PROPERTY_HINT_MULTILINE_TEXT);
 		} break;
 		case TRANSITION_TYPE_AUTO: {
-			auto p = PropertyInfo(Variant::INT, "auto_mode", PROPERTY_HINT_ENUM, "Delay Timer,Fsm Exit,Manual,Update Times,Physics Update Times");
-			p_list->push_back(p);
+			_PUSH_PROP(INT, auto_mode, PROPERTY_HINT_ENUM, "Delay Timer,Fsm Exit,Manual,Update Times,Physics Update Times");
 			switch (auto_mode) {
 				case AUTO_TRANSIT_MODE_DELAY_TIMER: {
-					p_list->push_back(PropertyInfo(Variant::INT, "delay_msec", PROPERTY_HINT_RANGE, "0,2147483647,1,or_greater"));
+					_PUSH_PROP(INT, auto_delay_msec, PROPERTY_HINT_RANGE, "0,2147483647,1,or_greater");
 				} break;
 				case AUTO_TRANSIT_MODE_UPDATE_TIMES: {
 					p_list->push_back(PropertyInfo(Variant::INT, "update_times", PROPERTY_HINT_RANGE, "0,2147483647,1,or_greater"));

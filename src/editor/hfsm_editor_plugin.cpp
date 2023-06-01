@@ -60,7 +60,7 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	translation.insert("Change state name", "改变状态名称");
 	translation.insert(": this state is Entry State, can't set to other type.", ": 该状态当前为入口状态，不能设置为其他类型。");
 	translation.insert("Change state type", "改变状态类型");
-	translation.insert("set Sub-FSM", "设置子状态机");
+	translation.insert("Set Sub-FSM", "设置子状态机");
 	translation.insert("Attach state script", "附加状态脚本");
 	translation.insert("resized", "重设尺寸");
 	translation.insert("move states", "移动状态");

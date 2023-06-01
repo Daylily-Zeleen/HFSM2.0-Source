@@ -8,38 +8,34 @@
 namespace Hfsm {
 #pragma region HFSMVariableRes
 bool HFSMVariableRes::_set(const StringName &p_name, const Variant &p_property) {
-	if (p_name == StringName("default_value")) {
+	if (p_name == TNAMEOF(default_value)) {
 		if (Variant::can_convert(p_property.get_type(), type)) {
 			default_value = p_property;
 		} else {
 			default_value = Variant();
 		}
 		return true;
-	} else if (p_name == StringName("comment")) {
-		set_comment(p_property);
-		return true;
 	}
+	_TRY_SET_PROP(comment);
 	return false;
 }
 bool HFSMVariableRes::_get(const StringName &p_name, Variant &r_property) const {
-	if (p_name == StringName("default_value")) {
+	if (p_name == TNAMEOF(default_value)) {
 		if (Variant::can_convert(default_value.get_type(), type)) {
 			r_property = default_value;
 		} else {
 			r_property = Variant();
 		}
 		return true;
-	} else if (p_name == StringName("comment")) {
-		r_property = get_comment();
-		return true;
 	}
+	_TRY_GET_PROP(comment);
 	return false;
 }
 void HFSMVariableRes::_get_property_list(List<PropertyInfo> *p_list) const {
 	if (type != Variant::NIL) {
-		p_list->push_back(PropertyInfo(type, "default_value"));
+		p_list->push_back(PropertyInfo(type, TNAMEOF(default_value)));
 	}
-	p_list->push_back(PropertyInfo(Variant::STRING, "comment"));
+	_PUSH_PROP(STRING, comment);
 }
 
 void HFSMVariableRes::_bind_methods() {
@@ -81,7 +77,7 @@ void HFSMVariableRes::set_variable_name(const StringName &p_name) {
 }
 StringName HFSMVariableRes::get_variable_name() { return variable_name; }
 
-void HFSMVariableRes::set_type(int32_t p_t) {
+void HFSMVariableRes::set_type(Variant::Type p_t) {
 	switch (p_t) {
 		case Variant::NIL:
 		case Variant::BOOL:
@@ -101,7 +97,7 @@ void HFSMVariableRes::set_type(int32_t p_t) {
 			break;
 	}
 }
-int32_t HFSMVariableRes::get_type() const { return type; }
+Variant::Type HFSMVariableRes::get_type() const { return type; }
 
 void HFSMVariableRes::set_comment(const String &p_comment) {
 	comment = p_comment;

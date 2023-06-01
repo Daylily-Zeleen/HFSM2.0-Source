@@ -43,26 +43,26 @@ public:
 
 // Type safe macros.
 
-#define _DECLTYPE_METHOD_TYPE(t_prefix, m_obj_ptr, m_method) \
-	using t_prefix##m_method = decltype(&decltype(std::remove_reference_t<decltype(*(m_obj_ptr))>(*(m_obj_ptr)))::m_method)
+#define _DECLTYPE_PTR_MEMBER(t_prefix, m_obj_ptr, m_member) \
+	using t_prefix##m_member = decltype(&decltype(std::remove_reference_t<decltype(*(m_obj_ptr))>(*(m_obj_ptr)))::m_member)
 
 #define _DECLTYPE_METHOD_RETURN_TYPE(t_prefix, m_obj_ptr, m_method, ...) \
-	_DECLTYPE_METHOD_TYPE(t_prefix, m_obj_ptr, m_method);                \
+	_DECLTYPE_PTR_MEMBER(t_prefix, m_obj_ptr, m_method);                 \
 	using t_prefix##m_method##_r = decltype((m_obj_ptr->*((std::remove_reference_t<t_prefix##m_method>(t_prefix##m_method()))))(__VA_ARGS__))
 
 #define CALLABLE(m_obj_ptr, m_method)                      \
 	[m_obj_ptr]() {                                        \
-		_DECLTYPE_METHOD_TYPE(MT_, m_obj_ptr, m_method);   \
+		_DECLTYPE_PTR_MEMBER(MT_, m_obj_ptr, m_method);    \
 		return Callable(m_obj_ptr, StringName(#m_method)); \
 	}()
 
-#define NAMEOF(m_obj_ptr, m_method)                      \
-	[m_obj_ptr]() {                                      \
-		_DECLTYPE_METHOD_TYPE(MT_, m_obj_ptr, m_method); \
-		return StringName(#m_method);                    \
+#define NAMEOF(m_obj_ptr, m_property)                     \
+	[m_obj_ptr]() {                                       \
+		_DECLTYPE_PTR_MEMBER(MT_, m_obj_ptr, m_property); \
+		return StringName(#m_property);                   \
 	}()
 
-#define TNAMEOF(m_method) NAMEOF(this, m_method)
+#define TNAMEOF(m_property) NAMEOF(this, m_property)
 
 #define TCALLABLE(m_method) CALLABLE(this, m_method)
 
@@ -131,37 +131,38 @@ public:
 
 #define ADD_DO_METHOD_UNCHECK_ARGS(m_obj_ptr, m_method, ...) \
 	{                                                        \
-		_DECLTYPE_METHOD_TYPE(ADM_, m_obj_ptr, m_method);    \
+		_DECLTYPE_PTR_MEMBER(ADM_, m_obj_ptr, m_method);     \
 	}                                                        \
 	undo_redo->add_do_method(m_obj_ptr, #m_method, ##__VA_ARGS__)
 #define ADD_UNDO_METHOD_UNCHECK_ARGS(m_obj_ptr, m_method, ...) \
 	{                                                          \
-		_DECLTYPE_METHOD_TYPE(AUDM_, m_obj_ptr, m_method);     \
+		_DECLTYPE_PTR_MEMBER(AUDM_, m_obj_ptr, m_method);      \
 	}                                                          \
 	undo_redo->add_undo_method(m_obj_ptr, #m_method, ##__VA_ARGS__)
 #define ADD_DO_REFERENCE(m_obj) undo_redo->add_do_reference(m_obj)
 #define ADD_UNDO_REFERENCE(m_obj) undo_redo->add_undo_reference(m_obj)
 
-// #define TADD_DO_METHOD(m_method, ...)                                      \
-// 	{                                                                      \
-// 		_DECLTYPE_METHOD_RETURN_TYPE(ADM_, this, m_method, ##__VA_ARGS__); \
-// 	}                                                                      \
-// 	undo_redo->add_do_method(this, #m_method, ##__VA_ARGS__)
-// #define TADD_UNDO_METHOD(m_method, ...)                                     \
-// 	{                                                                       \
-// 		_DECLTYPE_METHOD_RETURN_TYPE(AUDM_, this, m_method, ##__VA_ARGS__); \
-// 	}                                                                       \
-// 	undo_redo->add_undo_method(this, #m_method, ##__VA_ARGS__)
+// Dynamic bind
+#define _TRY_SET_PROP_ORIGIN(m_name_id, m_prop_id, m_prop) \
+	if ((m_name_id) == TNAMEOF(m_prop)) {                  \
+		set_##m_prop(m_prop_id);                           \
+		return true;                                       \
+	}
+#define _TRY_SET_PROP(m_prop) _TRY_SET_PROP_ORIGIN(p_name, p_property, m_prop)
 
-// #define TADD_DO_METHOD_UNCHECK_ARGS(m_method, ...)   \
-// 	{                                                \
-// 		_DECLTYPE_METHOD_TYPE(ADM_, this, m_method); \
-// 	}                                                \
-// 	undo_redo->add_do_method(this, #m_method, ##__VA_ARGS__)
-// #define TADD_UNDO_METHOD_UNCHECK_ARGS(m_method, ...)  \
-// 	{                                                 \
-// 		_DECLTYPE_METHOD_TYPE(AUDM_, this, m_method); \
-// 	}                                                 \
-// 	undo_redo->add_undo_method(this, #m_method, ##__VA_ARGS__)
+#define _TRY_GET_PROP_ORIGIN(getter_prefix, m_name_id, m_prop_id, m_prop) \
+	if ((m_name_id) == TNAMEOF(m_prop)) {                                 \
+		(m_prop_id) = getter_prefix##m_prop();                            \
+		return true;                                                      \
+	}
+#define _TRY_GET_PROP(m_prop) _TRY_GET_PROP_ORIGIN(get_, p_name, r_property, m_prop)
+#define _TRY_GET_PROPB(m_prop) _TRY_GET_PROP_ORIGIN(is_, p_name, r_property, m_prop)
+
+#define _PUSH_PROP_ORIGIN(m_list_id, m_typ, m_prop, ...) m_list_id->push_back(PropertyInfo(Variant::m_typ, TNAMEOF(m_prop), ##__VA_ARGS__))
+#define _PUSH_PROP(m_typ, m_prop, ...) _PUSH_PROP_ORIGIN(p_list, m_typ, m_prop, ##__VA_ARGS__)
+#define _PUSH_PROP_RESOURCE(m_prop, ...) _PUSH_PROP_ORIGIN(p_list, OBJECT, m_prop, PROPERTY_HINT_RESOURCE_TYPE, \
+		decltype(std::remove_reference_t<decltype(*(m_prop.ptr()))>(*(m_prop.ptr())))::get_class_static(), ##__VA_ARGS__)
+#define _PUSH_PROP_TYPED_ARRAY(m_prop, m_class, ...) _PUSH_PROP_ORIGIN(p_list, ARRAY, m_prop, PROPERTY_HINT_TYPE_STRING, \
+		vformat("%d/%d:%s", Variant::OBJECT, PROPERTY_HINT_RESOURCE_TYPE, m_class::get_class_static()), ##__VA_ARGS__)
 
 }; // namespace Hfsm

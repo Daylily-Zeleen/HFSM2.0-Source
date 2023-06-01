@@ -74,35 +74,18 @@ VariableExpression *VariableExpressionRes::create_variable_expression(HFSM *p_hf
 // }
 
 bool VariableExpressionRes::_set(const StringName &p_name, const Variant &p_property) {
-	if (p_name == StringName("comparator")) {
-		set_comparator(p_property);
-		return true;
-	} else if (p_name == StringName("variable_as_value")) {
-		set_variable_as_value(p_property);
-		return true;
-	} else if (p_name == StringName("value")) {
-		set_value(p_property);
-		return true;
-	} else if (p_name == StringName("trigger_type")) {
-		set_trigger_type(p_property);
-		return true;
-	}
+	_TRY_SET_PROP(comparator);
+	_TRY_SET_PROP(variable_as_value);
+	_TRY_SET_PROP(value);
+	_TRY_SET_PROP(trigger_type);
 	return false;
 }
+
 bool VariableExpressionRes::_get(const StringName &p_name, Variant &r_property) const {
-	if (p_name == StringName("comparator")) {
-		r_property = get_comparator();
-		return true;
-	} else if (p_name == StringName("variable_as_value")) {
-		r_property = is_variable_as_value();
-		return true;
-	} else if (p_name == StringName("value")) {
-		r_property = get_value();
-		return true;
-	} else if (p_name == StringName("trigger_type")) {
-		r_property = get_trigger_type();
-		return true;
-	}
+	_TRY_GET_PROP(comparator);
+	_TRY_GET_PROPB(variable_as_value);
+	_TRY_GET_PROP(value);
+	_TRY_GET_PROP(trigger_type);
 	return false;
 }
 void VariableExpressionRes::_get_property_list(List<PropertyInfo> *p_list) const {
@@ -122,17 +105,16 @@ void VariableExpressionRes::_get_property_list(List<PropertyInfo> *p_list) const
 				break;
 		}
 
-		p_list->push_back(PropertyInfo(Variant::INT, "comparator", PROPERTY_HINT_ENUM, comparator_hint));
-		p_list->push_back(PropertyInfo(Variant::BOOL, "variable_as_value"));
+		_PUSH_PROP(INT, comparator, PROPERTY_HINT_ENUM, comparator_hint);
+		_PUSH_PROP(BOOL, variable_as_value);
 
 		if (is_variable_as_value()) {
-			p_list->push_back(PropertyInfo(Variant::OBJECT, "value", PROPERTY_HINT_RESOURCE_TYPE, "HFSMVariableRes"));
+			_PUSH_PROP(OBJECT, value, PROPERTY_HINT_RESOURCE_TYPE, HFSMVariableRes::get_class_static());
 		} else if (variable_res.is_valid()) {
 			if (Variant::Type(int64_t(variable_res->get_type())) != Variant::NIL) {
-				Variant::Type t = Variant::Type(int64_t(variable_res->get_type()));
-				p_list->push_back(PropertyInfo(t, "value"));
+				p_list->push_back(PropertyInfo(variable_res->get_type(), TNAMEOF(value)));
 			} else {
-				p_list->push_back(PropertyInfo(Variant::INT, "trigger_type", PROPERTY_HINT_ENUM, "Solo,Union,Normal"));
+				_PUSH_PROP(INT, trigger_type, PROPERTY_HINT_ENUM, "Solo,Union,Normal");
 			}
 		}
 	}

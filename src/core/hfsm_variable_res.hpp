@@ -26,8 +26,8 @@ public:
 	void set_variable_name(const StringName &p_name);
 	StringName get_variable_name();
 
-	void set_type(int32_t p_t);
-	int32_t get_type() const;
+	void set_type(Variant::Type p_t);
+	Variant::Type get_type() const;
 
 	void set_comment(const String &p_comment);
 	String get_comment() const;

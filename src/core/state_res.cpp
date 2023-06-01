@@ -10,66 +10,32 @@ namespace Hfsm {
 StateRes::StateRes() = default;
 StateRes::~StateRes() = default;
 
+void StateRes::set_state_node(Node *p_state_node) { state_node = p_state_node; }
+
 bool StateRes::_set(const StringName &p_name, const Variant &p_property) {
-	if (p_name == StringName("state_node") && Object::cast_to<Node>(p_property)) {
-		set_meta({ "state_node" }, Object::cast_to<Node>(p_property));
-		return true;
-	} else if (p_name == StringName{ "animation_name" }) {
-		set_animation_name(p_property);
-		return true;
-	}
+	_TRY_SET_PROP(animation_name);
 #ifdef FULL_VERSION
-	else if (p_name == StringName{ "animation_blend_time" }) {
-		set_animation_blend_time(p_property);
-		return true;
-	} else if (p_name == StringName{ "animation_speed" }) {
-		set_animation_speed(p_property);
-		return true;
-	} else if (p_name == StringName{ "animation_reverse" }) {
-		set_animation_reverse(p_property);
-		return true;
-	}
+	_TRY_SET_PROP(animation_blend_time);
+	_TRY_SET_PROP(animation_speed);
+	_TRY_SET_PROP(animation_reverse);
 #endif
 	return false;
 }
 
-Node *StateRes::get_state_node() const {
-	if (has_meta({ "state_node" })) {
-		auto meta = get_meta({ "state_node" });
-		if (UtilityFunctions::is_instance_valid(meta)) {
-			return cast_to<Node>(meta);
-		}
-	}
-	return nullptr;
-}
+Node *StateRes::get_state_node() const { return state_node; }
 
 bool StateRes::_get(const StringName &p_name, Variant &r_property) const {
-	if (p_name == StringName("state_node")) {
-		r_property = get_state_node();
-		return true;
-	} else if (p_name == StringName{ "animation_name" }) {
-		r_property = get_animation_name();
-		return true;
-	}
+	_TRY_GET_PROP(animation_name);
 #ifdef FULL_VERSION
-	else if (p_name == StringName{ "animation_blend_time" }) {
-		r_property = get_animation_blend_time();
-		return true;
-	} else if (p_name == StringName{ "animation_speed" }) {
-		r_property = get_animation_speed();
-		return true;
-	} else if (p_name == StringName{ "animation_reverse" }) {
-		r_property = get_animation_reverse();
-		return true;
-	}
+	_TRY_GET_PROP(animation_blend_time);
+	_TRY_GET_PROP(animation_speed);
+	_TRY_GET_PROP(animation_reverse);
 #endif
 	return false;
 }
 void StateRes::_get_property_list(List<PropertyInfo> *p_list) const {
-	p_list->push_back(PropertyInfo(Variant::OBJECT, "state_node", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
-
-	p_list->push_back(PropertyInfo(Variant::NIL, "animation", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_GROUP));
 	String animations;
+#ifdef TOOL_ENABLED
 	if (HfsmEditorPlugin::get_singleton()) {
 		if (HfsmEditorPlugin::get_singleton()->get_hfsm_editor()) {
 			if (HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
@@ -81,12 +47,13 @@ void StateRes::_get_property_list(List<PropertyInfo> *p_list) const {
 			}
 		}
 	}
-	p_list->push_back(PropertyInfo(Variant::STRING_NAME, "animation_name", PROPERTY_HINT_ENUM_SUGGESTION, animations));
+#endif // TOOL_ENABLED
+	_PUSH_PROP(STRING_NAME, animation_name, PROPERTY_HINT_ENUM_SUGGESTION, animations);
 
 #ifdef FULL_VERSION
-	p_list->push_back(PropertyInfo(Variant::FLOAT, "animation_blend_time"));
-	p_list->push_back(PropertyInfo(Variant::FLOAT, "animation_speed"));
-	p_list->push_back(PropertyInfo(Variant::BOOL, "animation_reverse"));
+	_PUSH_PROP(FLOAT, animation_blend_time);
+	_PUSH_PROP(FLOAT, animation_speed);
+	_PUSH_PROP(BOOL, animation_reverse);
 #endif
 }
 
@@ -101,6 +68,11 @@ void StateRes::_bind_methods() {
 	GDADD_PROPERTY_BOOL(reset_properties_when_entry);
 	GDADD_PROPERTY_BOOL(reset_nested_fsm_when_entry);
 	GDADD_PROPERTY(VECTOR2, size_in_editor);
+
+	ADD_GROUP("Animation", "animation_");
+#ifdef TOOL_ENABLED
+	GDBIND_SETGET(state_node)
+#endif
 }
 
 void StateRes::set_state_name(const StringName &p_name) {

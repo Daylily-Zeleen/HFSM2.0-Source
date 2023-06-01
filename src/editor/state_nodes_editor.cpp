@@ -916,8 +916,8 @@ void StateNodesEditor::edit_fsm_res(const Ref<FsmRes> &p_fsm_res) {
 			Ref<StateRes> sr = state_res_list[i];
 			auto old_state_node = sr->get_state_node();
 			auto sn = ____create_state_node(sr);
-			ADD_DO_METHOD(sr.ptr(), set, "state_node", sn);
-			ADD_UNDO_METHOD(sr.ptr(), set, "state_node", old_state_node);
+			ADD_DO_METHOD(sr.ptr(), set_state_node, sn);
+			ADD_UNDO_METHOD(sr.ptr(), set_state_node, old_state_node);
 			ADD_DO_METHOD_UNCHECK_ARGS(this, add_child, sn);
 			ADD_UNDO_METHOD(this, remove_child, sn);
 			ADD_DO_REFERENCE(sn);

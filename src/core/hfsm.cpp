@@ -14,33 +14,36 @@ using namespace godot;
 namespace Hfsm {
 
 bool HFSM::_set(const StringName &p_name, const Variant &p_property) {
+	_TRY_SET_PROP(root_fsm_res);
+#ifdef TOOL_ENABLED
 	if (p_name == StringName("variable_list")) {
 		root_fsm_res->set_variable_res_list(p_property.operator godot::Array());
 		return true;
-	} else if (p_name == StringName("root_fsm_res")) {
-		set_root_fsm_res(Object::cast_to<FsmRes>(p_property.operator godot::Object *()));
-		return true;
 	}
+#endif
 	return false;
 }
 bool HFSM::_get(const StringName &p_name, Variant &r_property) const {
+	_TRY_GET_PROP(root_fsm_res);
+#ifdef TOOL_ENABLED
 	if (p_name == StringName("variable_list")) {
 		if (root_fsm_res.is_valid()) {
 			r_property = root_fsm_res->get_variable_res_list();
 		}
 		return true;
-	} else if (p_name == StringName("root_fsm_res")) {
-		r_property = get_root_fsm_res();
-		return true;
 	}
+#endif
 	return false;
 }
 void HFSM::_get_property_list(List<PropertyInfo> *p_list) const {
-	p_list->push_back(PropertyInfo(Variant::OBJECT, "root_fsm_res", PROPERTY_HINT_RESOURCE_TYPE, "FsmRes", PROPERTY_USAGE_STORAGE, "FsmRes"));
+	_PUSH_PROP_RESOURCE(root_fsm_res, PROPERTY_USAGE_STORAGE, FsmRes::get_class_static());
+
+#ifdef TOOL_ENABLED
 	if (Engine::get_singleton()->is_editor_hint()) {
-		auto typed_VariableRes_array_hint_string = String("{0}/{1}:HFSMVariableRes").format(Array::make(Variant::OBJECT, PROPERTY_HINT_RESOURCE_TYPE));
+		auto typed_VariableRes_array_hint_string = vformat("%d/%d:%s", Variant::OBJECT, PROPERTY_HINT_RESOURCE_TYPE, HFSMVariableRes::get_class_static());
 		p_list->push_back(PropertyInfo(Variant::ARRAY, "variable_list", PROPERTY_HINT_TYPE_STRING, typed_VariableRes_array_hint_string, PROPERTY_USAGE_EDITOR));
 	}
+#endif
 }
 
 void HFSM::_bind_methods() {
@@ -102,13 +105,13 @@ void HFSM::_bind_methods() {
 	BIND_CONSTANT(UPDATE_TYPE_MANUAL);
 
 	//  信号
+	auto PropertyInfoState = [](const String &p_name = "state") { return PropertyInfo(Variant::OBJECT, p_name, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, State::get_class_static()); };
 	ADD_SIGNAL(MethodInfo("inited"));
-	ADD_SIGNAL(MethodInfo("updated", PropertyInfo(Variant::OBJECT, "state", PROPERTY_HINT_NONE, "", 6U, StringName("State")), PropertyInfo(Variant::FLOAT, "delta")));
-	ADD_SIGNAL(MethodInfo("physic_updated", PropertyInfo(Variant::OBJECT, "state", PROPERTY_HINT_NONE, "", 6U, StringName("State")), PropertyInfo(Variant::FLOAT, "delta")));
-	ADD_SIGNAL(MethodInfo("transited", PropertyInfo(Variant::OBJECT, "from_state", PROPERTY_HINT_NONE, "", 6U, StringName("State")),
-			PropertyInfo(Variant::OBJECT, "to_state", PROPERTY_HINT_NONE, "", 6U, StringName("State"))));
-	ADD_SIGNAL(MethodInfo("entered", PropertyInfo(Variant::OBJECT, "state", PROPERTY_HINT_NONE, "", 6U, StringName("State"))));
-	ADD_SIGNAL(MethodInfo("exited", PropertyInfo(Variant::OBJECT, "state", PROPERTY_HINT_NONE, "", 6U, StringName("State"))));
+	ADD_SIGNAL(MethodInfo("updated", PropertyInfoState(), PropertyInfo(Variant::FLOAT, "delta")));
+	ADD_SIGNAL(MethodInfo("physic_updated", PropertyInfoState(), PropertyInfo(Variant::FLOAT, "delta")));
+	ADD_SIGNAL(MethodInfo("transited", PropertyInfoState("from_state"), PropertyInfoState("to_state")));
+	ADD_SIGNAL(MethodInfo("entered", PropertyInfoState()));
+	ADD_SIGNAL(MethodInfo("exited", PropertyInfoState()));
 }
 
 HFSM::HFSM() {

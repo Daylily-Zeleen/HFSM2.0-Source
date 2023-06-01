@@ -39,6 +39,7 @@ public:
 	StateRes();
 	~StateRes() override;
 
+	void set_state_node(godot::Node *);
 	godot::Node *get_state_node() const;
 	void set_state_name(const StringName &p_name);
 	StringName get_state_name() const;
@@ -93,6 +94,10 @@ private:
 	double animation_blend_time = 0.0f;
 	double animation_speed = 1.0f;
 	bool animation_reverse = false;
+#endif
+
+#ifdef TOOL_ENABLED
+	Node *state_node;
 #endif
 };
 

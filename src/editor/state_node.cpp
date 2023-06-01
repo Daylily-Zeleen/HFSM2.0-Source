@@ -47,7 +47,7 @@ StateNode *StateNode::create_state_node(const Ref<StateRes> &p_target_state_res)
 	r->__setup_structure();
 	r->__setup_state_res(p_target_state_res);
 	r->set_name(String("@") + uitos(Time::get_singleton()->get_ticks_msec() + r->get_instance_id()));
-	p_target_state_res->set("state_node", r);
+	p_target_state_res->set_state_node(r);
 	return r;
 }
 bool StateNode::__has_duplicate_name(const String &p_to_test_name) {
@@ -228,7 +228,7 @@ void StateNode::__set_has_sub_fsm_check_box(bool p_pressed) {
 	if (state_res->get_fsm_res().is_valid() && p_pressed) {
 		return;
 	}
-	CREATE_ACTION("set Sub-FSM");
+	CREATE_ACTION("Set Sub-FSM");
 	Ref<FsmRes> new_sub_fsm;
 	new_sub_fsm.instantiate();
 	new_sub_fsm->set_nested_state_res(state_res);
