@@ -13,7 +13,7 @@ class Transition : public RefCounted, public TransitionBase {
 protected:
 	static void _bind_methods();
 
-	String _to_string() { return String("[Transition:{0}]").replace("{0}", itos(get_instance_id())); }
+	String _to_string() { return vformat("[Transition:%d]", get_instance_id()); }
 
 public:
 	Transition() = default;
@@ -28,12 +28,12 @@ public:
 	Ref<State> get_from_state() override { return TransitionBase::get_from_state(); }
 	Ref<State> get_to_state() override { return TransitionBase::get_to_state(); }
 
-	HFSM *get_hfsm() { return _hfsm; }
+	HFSM *get_hfsm() { return hfsm; }
 
-	Dictionary get_context() { return _hfsm->get_context(); }
+	Dictionary get_context() { return hfsm->get_context(); }
 
 private:
-	HFSM *_hfsm = nullptr;
+	HFSM *hfsm = nullptr;
 
 	friend class TransitionRes;
 };

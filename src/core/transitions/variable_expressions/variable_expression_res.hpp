@@ -18,10 +18,7 @@ class VariableExpressionRes : public Resource {
 protected:
 	static void _bind_methods();
 
-	String _to_string() const {
-		return String("[VariableExpressionRes:{0}]")
-				.replace("{0}", itos(get_instance_id()));
-	}
+	String _to_string() const { return vformat("[VariableExpressionRes:%d]", get_instance_id()); }
 
 public:
 	bool _set(const StringName &p_name, const Variant &p_property);
@@ -45,36 +42,36 @@ public:
 
 	VariableExpressionRes();
 
-	void set_variable_res(const Ref<HFSMVariableRes> &variable_res);
+	void set_variable_res(const Ref<HFSMVariableRes> &p_variable_res);
 	Ref<HFSMVariableRes> get_variable_res() const;
 
-	void set_value(const Variant &value);
+	void set_value(const Variant &p_value);
 	Variant get_value() const;
 
-	void set_operator(int64_t op);
-	uint8_t get_operator() const;
+	void set_comparator(int64_t p_op);
+	uint8_t get_comparator() const;
 
-	void set_trigger_type(int64_t trigger_type);
+	void set_trigger_type(int64_t p_trigger_type);
 	uint8_t get_trigger_type() const;
 
-	void set_variable_as_value(bool variable_as_value);
+	void set_variable_as_value(bool p_variable_as_value);
 	bool is_variable_as_value() const;
 
 	// Dictionary get_valid_and_text();
 
 	// Array get_property_list() const;
 
-	VariableExpression *create_variable_expression(HFSM *hfsm);
+	VariableExpression *create_variable_expression(HFSM *p_hfsm);
 
 private:
-	Ref<HFSMVariableRes> _variable_res;
-	Variant _value;
-	uint8_t _operator = OP_EQUAL;
+	Ref<HFSMVariableRes> variable_res;
+	Variant value;
+	uint8_t comparator = OP_EQUAL;
 	// trigger
-	uint8_t _trigger_type = TRIGGER_TYPE_SOLO;
+	uint8_t trigger_type = TRIGGER_TYPE_SOLO;
 
 	// 是否使用另一个 变量资源作为 比较值
-	bool _variable_as_value = false;
+	bool variable_as_value = false;
 };
 
 } // namespace Hfsm

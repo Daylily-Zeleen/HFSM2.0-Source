@@ -6,7 +6,7 @@ namespace Hfsm {
 
 class VariableExpression {
 protected:
-	VariableExpression(const Ref<HFSMVariable> &variable);
+	VariableExpression(const Ref<HFSMVariable> &p_variable) { variable = p_variable; }
 
 public:
 	enum ExpressionType {
@@ -22,24 +22,17 @@ public:
 	 * @return true 已得到总结果
 	 * @return false 未能确定总结果
 	 */
-	virtual bool get_result(bool and_mode, bool &r_result) = 0;
+	virtual bool get_result(bool p_and_mode, bool &r_result) = 0;
 	/**
 	 * @brief Get the expression typ object
 	 *
 	 * @return uint8_t 0 通用 1 联合触发器 2 SOLO 触发器
 	 */
-	virtual ExpressionType get_expression_type();
+	virtual ExpressionType get_expression_type() { return ExpressionType::NORMAL; }
 
 protected:
 	// 变量
-	Ref<HFSMVariable> _variable;
+	Ref<HFSMVariable> variable;
 };
 
-#pragma region 内联实现
-
-inline VariableExpression::ExpressionType VariableExpression::get_expression_type() {
-	return ExpressionType::NORMAL;
-}
-
-#pragma endregion
 } // namespace Hfsm

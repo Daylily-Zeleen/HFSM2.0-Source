@@ -25,7 +25,7 @@ public:
 	HFSMVariable();
 
 	Variant get_value() const;
-	void set_value(const Variant &value);
+	void set_value(const Variant &p_value);
 
 	Variant::Type get_type() const;
 	int64_t get_type_int() const;
@@ -34,41 +34,41 @@ public:
 	void flush_trigger();
 
 	// 无需暴露
-	bool compare_with(const Variant &val, uint8_t op);
-	bool compare_with(const HFSMVariable *other, uint8_t op);
+	bool compare_with(const Variant &p_val, uint8_t p_op);
+	bool compare_with(const HFSMVariable *p_other, uint8_t p_op);
 
 private:
-	StringName _name = "";
-	Variant::Type _type = Variant::NIL;
-	Variant _value;
+	StringName variable_name = "";
+	Variant::Type type = Variant::NIL;
+	Variant value;
 
 	friend class HFSMVariableRes;
 };
 
 #pragma region 内联实现
 
-inline Variant HFSMVariable::get_value() const { return _value; }
-inline void HFSMVariable::set_value(const Variant &value) {
+inline Variant HFSMVariable::get_value() const { return value; }
+inline void HFSMVariable::set_value(const Variant &p_value) {
 	// 触发器特殊处理
-	if (_type == Variant::NIL) {
-		_value = Variant(true);
+	if (type == Variant::NIL) {
+		value = Variant(true);
 		return;
 	}
 	if (!Engine::get_singleton()->is_editor_hint()) {
-		CRASH_COND(!Variant::can_convert(value.get_type(), _type));
+		CRASH_COND(!Variant::can_convert(p_value.get_type(), type));
 	}
-	_value = value;
-	notify_property_list_changed();
+	value = p_value;
+	// notify_property_list_changed();  // 多余？
 }
 inline void HFSMVariable::trigger() {
-	ERR_FAIL_COND(_type != Variant::NIL);
-	_value = Variant(true);
+	ERR_FAIL_COND(type != Variant::NIL);
+	value = Variant(true);
 }
 
-inline Variant::Type HFSMVariable::get_type() const { return _type; }
-inline int64_t HFSMVariable::get_type_int() const { return _type; }
+inline Variant::Type HFSMVariable::get_type() const { return type; }
+inline int64_t HFSMVariable::get_type_int() const { return type; }
 // 触发器专用
-inline void HFSMVariable::flush_trigger() { _value = false; }
+inline void HFSMVariable::flush_trigger() { value = false; }
 inline bool HFSMVariable::compare_with(const Variant &val, uint8_t op) {
 	switch (op) {
 		case OP_EQUAL:

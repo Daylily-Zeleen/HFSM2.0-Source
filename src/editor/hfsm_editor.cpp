@@ -19,29 +19,29 @@ namespace Hfsm {
 void HFSMEditor::_bind_methods() {}
 
 HFSMEditor::HFSMEditor() = default;
-bool HFSMEditor::find_nested_state_res(const Ref<FsmRes> &fsm_res,
-		Ref<FsmRes> to_search_fsm_res) {
-	if (fsm_res.is_null()) {
+bool HFSMEditor::find_nested_state_res(const Ref<FsmRes> &p_fsm_res,
+		Ref<FsmRes> p_to_search_fsm_res) {
+	if (p_fsm_res.is_null()) {
 		return false;
 	}
-	if (to_search_fsm_res.is_null()) {
-		to_search_fsm_res = get_editing_hfsm()->get_root_fsm_res();
+	if (p_to_search_fsm_res.is_null()) {
+		p_to_search_fsm_res = get_editing_hfsm()->get_root_fsm_res();
 	}
-	if (to_search_fsm_res.is_null()) {
+	if (p_to_search_fsm_res.is_null()) {
 		return false;
 	}
-	if (fsm_res == to_search_fsm_res) {
+	if (p_fsm_res == p_to_search_fsm_res) {
 		return true;
 	}
-	auto sr_list = to_search_fsm_res->get_state_res_list();
+	auto sr_list = p_to_search_fsm_res->get_state_res_list();
 	for (size_t i = 0; i < sr_list.size(); i++) {
 		Ref<StateRes> sr = sr_list[i];
 		if (sr->get_fsm_res().is_valid()) {
-			if (sr->get_fsm_res() == fsm_res) {
-				fsm_res->set_nested_state_res(sr);
+			if (sr->get_fsm_res() == p_fsm_res) {
+				p_fsm_res->set_nested_state_res(sr);
 				return true;
 			} else {
-				if (find_nested_state_res(fsm_res, sr->get_fsm_res())) {
+				if (find_nested_state_res(p_fsm_res, sr->get_fsm_res())) {
 					return true;
 				}
 			}
@@ -63,20 +63,19 @@ bool HFSMEditor::find_nested_state_res(const Ref<FsmRes> &fsm_res,
 // 				return true
 // return false
 
-Ref<FsmRes> HFSMEditor::get_nested_fsm_res(const Ref<StateRes> &state_res,
-		Ref<FsmRes> fsm_res) {
-	if (fsm_res.is_null()) {
-		fsm_res = get_editing_hfsm()->get_root_fsm_res();
+Ref<FsmRes> HFSMEditor::get_nested_fsm_res(const Ref<StateRes> &p_state_res, Ref<FsmRes> p_fsm_res) {
+	if (p_fsm_res.is_null()) {
+		p_fsm_res = get_editing_hfsm()->get_root_fsm_res();
 	}
-	if (fsm_res.is_valid()) {
-		auto state_res_list = fsm_res->get_state_res_list();
+	if (p_fsm_res.is_valid()) {
+		auto state_res_list = p_fsm_res->get_state_res_list();
 		for (size_t i = 0; i < state_res_list.size(); i++) {
 			Ref<StateRes> sr = state_res_list[i];
-			if (sr == state_res) {
-				return fsm_res;
+			if (sr == p_state_res) {
+				return p_fsm_res;
 			} else {
 				if (sr->get_fsm_res().is_valid()) {
-					auto r = get_nested_fsm_res(state_res, sr->get_fsm_res());
+					auto r = get_nested_fsm_res(p_state_res, sr->get_fsm_res());
 					if (r.is_valid()) {
 						return r;
 					}
@@ -86,26 +85,27 @@ Ref<FsmRes> HFSMEditor::get_nested_fsm_res(const Ref<StateRes> &state_res,
 	}
 	return nullptr;
 }
-void HFSMEditor::request_edit_fsm_res(const Ref<FsmRes> &fsm_res) {
-	if (fsm_res->get_nested_state_res().is_null()) {
-		find_nested_state_res(fsm_res);
+
+void HFSMEditor::request_edit_fsm_res(const Ref<FsmRes> &p_fsm_res) {
+	if (p_fsm_res->get_nested_state_res().is_null()) {
+		find_nested_state_res(p_fsm_res);
 	}
-	state_nodes_editor->edit_fsm_res(fsm_res);
+	state_nodes_editor->edit_fsm_res(p_fsm_res);
 }
 
 void HFSMEditor::_ready() {
 	not_hfsm_label->set_text(HfsmEditorPlugin::str_localize(
 			"Plese select a 'HFSM' node to start edit."));
 }
-void HFSMEditor::edit(HFSM *hfsm) {
-	_hfsm = hfsm;
-	if (_hfsm) {
+void HFSMEditor::edit(HFSM *p_hfsm) {
+	hfsm = p_hfsm;
+	if (hfsm) {
 		mask_panel->hide();
 	} else {
 		mask_panel->show();
 	}
-	if (_hfsm && _hfsm->get_root_fsm_res().is_valid()) {
-		state_nodes_editor->edit_fsm_res(_hfsm->get_root_fsm_res());
+	if (hfsm && hfsm->get_root_fsm_res().is_valid()) {
+		state_nodes_editor->edit_fsm_res(hfsm->get_root_fsm_res());
 	} else {
 		state_nodes_editor->edit_fsm_res(nullptr);
 	}
@@ -113,7 +113,7 @@ void HFSMEditor::edit(HFSM *hfsm) {
 	// _hfsm->get_root_fsm_res().is_valid()) ? _hfsm->get_root_fsm_res()
 	//                                        : nullptr);
 }
-HFSM *HFSMEditor::get_editing_hfsm() { return _hfsm; }
+HFSM *HFSMEditor::get_editing_hfsm() { return hfsm; }
 HFSMEditor *HFSMEditor::create_hfsm_editor() {
 	auto r = memnew(HFSMEditor);
 	r->set_custom_minimum_size(Vector2(0, 200));

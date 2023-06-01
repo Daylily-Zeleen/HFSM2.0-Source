@@ -5,46 +5,43 @@
 namespace Hfsm {
 
 #pragma region ComparationExpression
-ComparationExpression::ComparationExpression(const Ref<HFSMVariable> &variable,
-		uint8_t op) :
-		VariableExpression(variable) {
-	ERR_FAIL_COND(!(op >= 0 && op < 6));
-	_op = op;
+ComparationExpression::ComparationExpression(const Ref<HFSMVariable> &p_variable, uint8_t p_op) :
+		VariableExpression(p_variable) {
+	ERR_FAIL_COND(!(p_op >= 0 && p_op < 6));
+	op = p_op;
 }
-#pragma endregion
+#pragma endregion // ComparationExpression
 
 #pragma region ConstantComparationExpression
 ConstantComparationExpression::ConstantComparationExpression(
-		const Ref<HFSMVariable> &variable, uint8_t op, const Variant &value) :
-		ComparationExpression(variable, op) {
+		const Ref<HFSMVariable> &p_variable, uint8_t p_op, const Variant &p_value) :
+		ComparationExpression(p_variable, p_op) {
 #ifdef TOOLS_ENABLED
 	if (!Engine::get_singleton()->is_editor_hint()) {
 #endif
-		CRASH_COND(
-				!Variant::can_convert(value.get_type(), _variable->get_type()));
+		CRASH_COND(!Variant::can_convert(p_value.get_type(), variable->get_type()));
 #ifdef TOOLS_ENABLED
 	}
 #endif
-	_value = value;
+	value = p_value;
 }
 
-#pragma endregion
+#pragma endregion // ConstantComparationExpression
 
 #pragma region VariableComparationExpression
 VariableComparationExpression::VariableComparationExpression(
-		const Ref<HFSMVariable> &variable, uint8_t op, const Ref<HFSMVariable> &value) :
-		ComparationExpression(variable, op) {
+		const Ref<HFSMVariable> &p_variable, uint8_t p_op, const Ref<HFSMVariable> &p_value) :
+		ComparationExpression(p_variable, p_op) {
 #ifdef TOOLS_ENABLED
 	if (!Engine::get_singleton()->is_editor_hint()) {
 #endif
-		CRASH_COND(
-				!Variant::can_convert(value->get_type(), _variable->get_type()));
+		CRASH_COND(!Variant::can_convert(p_value->get_type(), variable->get_type()));
 #ifdef TOOLS_ENABLED
 	}
 #endif
-	_value = value;
+	value = p_value;
 }
 
-#pragma endregion
+#pragma endregion // VariableComparationExpression
 
 } // namespace Hfsm

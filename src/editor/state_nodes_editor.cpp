@@ -10,72 +10,68 @@
 #include <godot_cpp/classes/theme.hpp>
 #include <godot_cpp/variant/callable.hpp>
 
-#include "core/transitions/transition.hpp"
-#include "hfsm_editor_plugin.hpp"
 #include "core/fsm_res.hpp"
 #include "core/transition_res.hpp"
+#include "core/transitions/transition.hpp"
+#include "hfsm_editor_plugin.hpp"
 
 #include "state_node.hpp"
 
 using namespace godot;
 namespace Hfsm {
+
+#define ADD_DO_DEFERRED_CALL_METHOD(m_obj_ptr, m_method, ...)                  \
+	{                                                                          \
+		_DECLTYPE_METHOD_RETURN_TYPE(TM_, m_obj_ptr, m_method, ##__VA_ARGS__); \
+	}                                                                          \
+	undo_redo->add_do_method(m_obj_ptr, "call_deferred", #m_method, ##__VA_ARGS__)
+#define ADD_UNDO_DEFERRED_CALL_METHOD(m_obj_ptr, m_method, ...)                \
+	{                                                                          \
+		_DECLTYPE_METHOD_RETURN_TYPE(TM_, m_obj_ptr, m_method, ##__VA_ARGS__); \
+	}                                                                          \
+	undo_redo->add_undo_method(m_obj_ptr, "call_deferred", #m_method, ##__VA_ARGS__)
+
 String StateNodesEditor::str_localize(const String &en_key) const { return HfsmEditorPlugin::str_localize(en_key); }
 void StateNodesEditor::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("__set_current_fsm_res", "current_fsm_res"), &StateNodesEditor::__set_current_fsm_res);
-	ClassDB::bind_method(D_METHOD("__set_selected_transition_res_list", "val"), &StateNodesEditor::__set_selected_transition_res_list);
-	ClassDB::bind_method(D_METHOD("__set_copied_state_res_list", "val"), &StateNodesEditor::__set_copied_state_res_list);
-	ClassDB::bind_method(D_METHOD("__set_copied_transition_list", "val"), &StateNodesEditor::__set_copied_transition_list);
-	ClassDB::bind_method(D_METHOD("__set_selected_state_name_list", "val"), &StateNodesEditor::__set_selected_state_name_list);
+	GDBIND_BEGIN(StateNodesEditor);
 
-	ClassDB::bind_method(D_METHOD("__on_current_fsm_res_changed"), &StateNodesEditor::__on_current_fsm_res_changed);
-	ClassDB::bind_method(D_METHOD("__on_transition_res_updated"), &StateNodesEditor::__on_transition_res_updated);
-	ClassDB::bind_method(D_METHOD("__update_conntion"), &StateNodesEditor::__update_conntion);
-	ClassDB::bind_method(D_METHOD("__set_updating", "val"), &StateNodesEditor::__set_updating);
-	ClassDB::bind_method(D_METHOD("__select_state_nodes", "val"), &StateNodesEditor::__select_state_nodes);
-	ClassDB::bind_method(D_METHOD("___select_mamually", "val"), &StateNodesEditor::___select_mamually);
-	ClassDB::bind_method(D_METHOD("__on_popup_menu_id_pressed", "id"), &StateNodesEditor::__on_popup_menu_id_pressed);
-	ClassDB::bind_method(D_METHOD("__on_delete_nodes_request", "nodes"), &StateNodesEditor::__on_delete_nodes_request);
-	ClassDB::bind_method(D_METHOD("__on_connection_request", "from", "from_slot", "to", "to_slot"), &StateNodesEditor::__on_connection_request);
-	ClassDB::bind_method(D_METHOD("__on_popup_request", "position"), &StateNodesEditor::__on_popup_request);
-	ClassDB::bind_method(D_METHOD("__on_node_selected", "node"), &StateNodesEditor::__on_node_selected);
-	ClassDB::bind_method(D_METHOD("__on_node_deselected", "node"), &StateNodesEditor::__on_node_deselected);
-	ClassDB::bind_method(D_METHOD("__on_create_btn_pressed"), &StateNodesEditor::__on_create_btn_pressed);
-	ClassDB::bind_method(D_METHOD("__check_empty_fsm_res_or_not", "val"), &StateNodesEditor::__check_empty_fsm_res_or_not);
-	// // =======HACK=======
-	// ClassDB::bind_method(D_METHOD("__on_copy_requested"), &StateNodesEditor::__on_copy_requested);
-	// ClassDB::bind_method(D_METHOD("__on_paste_requested"), &StateNodesEditor::__on_paste_requested);
-	// ClassDB::bind_method(D_METHOD("__on_duplicate_requested"), &StateNodesEditor::__on_duplicate_requested);
-	// ClassDB::bind_method(D_METHOD("__on_edit_fsm_res_requeted"), &StateNodesEditor::__on_edit_fsm_res_requeted);
-	// // =======HACK=======
+	GDBIND_METHOD(__set_current_fsm_res);
+	GDBIND_METHOD(__set_selected_transition_res_list);
+	GDBIND_METHOD(__set_copied_state_res_list);
+	GDBIND_METHOD(__set_copied_transition_list);
+	GDBIND_METHOD(__set_selected_state_name_list);
+
+	GDBIND_METHOD(__on_current_fsm_res_changed);
+	GDBIND_METHOD(__on_transition_res_updated);
+	GDBIND_METHOD(__update_conntion);
+	GDBIND_METHOD(__set_updating);
+	GDBIND_METHOD(__select_state_nodes);
+	GDBIND_METHOD(__select_mamually, "val");
+	GDBIND_METHOD(__on_popup_menu_id_pressed, "id");
+	GDBIND_METHOD(__on_delete_nodes_request, "nodes");
+	GDBIND_METHOD(__on_connection_request, "from", "from_slot", "to", "to_slot");
+	GDBIND_METHOD(__on_popup_request, "position");
+	GDBIND_METHOD(__on_node_selected, "node");
+	GDBIND_METHOD(__on_node_deselected, "node");
+	GDBIND_METHOD(__on_create_btn_pressed);
+	GDBIND_METHOD(__check_empty_fsm_res_or_not, "val");
 }
-// void StateNodesEditor::__on_edit_fsm_res_requeted() {
-// 	for (size_t i = 0; i < path_button_container->get_child_count(); i++) {
-// 		auto btn = Object::cast_to<Button>(path_button_container->get_child(1));
-// 		if (btn && btn->is_pressed()) {
-// 			Ref<FsmRes> fsm_res = btn->get_meta("fsm_res");
-// 			if (fsm_res.is_valid()) {
-// 				edit_fsm_res(fsm_res);
-// 				return;
-// 			}
-// 		}
-// 	}
-// }
 
 // ========== SetGet =========
 bool StateNodesEditor::is_dealing_move_states() { return dealing_move; }
-void StateNodesEditor::set_dealing_move_states(bool dealing) { dealing_move = dealing; };
+void StateNodesEditor::set_dealing_move_states(bool p_dealing) { dealing_move = p_dealing; };
 
 void StateNodesEditor::__set_current_fsm_res(const Ref<FsmRes> &to_set) {
-	if (current_fsm_res.is_valid() && current_fsm_res->is_connected("changed", Callable(this, "__on_current_fsm_res_changed"))) {
-		current_fsm_res->disconnect("changed", Callable(this, "__on_current_fsm_res_changed"));
+	if (current_fsm_res.is_valid() && current_fsm_res->TIS_CONNECTED("changed", __on_current_fsm_res_changed)) {
+		current_fsm_res->TDISCONNECT("changed", __on_current_fsm_res_changed);
 	}
 	current_fsm_res = to_set;
-	if (current_fsm_res.is_valid() && !current_fsm_res->is_connected("changed", Callable(this, "__on_current_fsm_res_changed"))) {
-		current_fsm_res->connect("changed", Callable(this, "__on_current_fsm_res_changed"));
+	if (current_fsm_res.is_valid() && !current_fsm_res->TIS_CONNECTED("changed", __on_current_fsm_res_changed)) {
+		current_fsm_res->connect("changed", TCALLABLE(__on_current_fsm_res_changed));
 	}
 }
-void StateNodesEditor::__set_selected_state_name_list(const TypedArray<StringName> &to_set) {
-	selected_state_name_list = to_set;
+void StateNodesEditor::__set_selected_state_name_list(const TypedArray<StringName> &p_to_set) {
+	selected_state_name_list = p_to_set;
 	selected_transition_res_list.clear();
 	auto connection_list = get_connection_list();
 	for (auto i = 0; i < connection_list.size(); i++) {
@@ -103,24 +99,24 @@ TypedArray<StateNode> StateNodesEditor::get_selected_state_nodes() {
 	}
 	return ret;
 }
-void StateNodesEditor::__set_selected_transition_res_list(const TypedArray<TransitionRes> &to_set) {
-	selected_transition_res_list = to_set;
+void StateNodesEditor::__set_selected_transition_res_list(const TypedArray<TransitionRes> &p_to_set) {
+	selected_transition_res_list = p_to_set;
 	Ref<TransitionRes> to_inspect = selected_transition_res_list.size() == 1 ? selected_transition_res_list.front() : nullptr;
 	HfsmEditorPlugin::get_singleton()->get_editor_interface()->inspect_object(to_inspect.ptr());
 	auto conn_list = get_incoming_connections();
 	static Ref<TransitionRes> inspecting;
 	if (inspecting.is_valid()) {
-		inspecting->disconnect("changed", Callable(this, "__on_transition_res_updated"));
+		inspecting->TDISCONNECT("changed", __on_transition_res_updated);
 		inspecting = Variant(); // 同时只能监视一个 TransitionRes
 	}
 	if (to_inspect.is_valid()) {
-		to_inspect->connect("changed", Callable(this, "__on_transition_res_updated"));
+		to_inspect->connect("changed", TCALLABLE(__on_transition_res_updated));
 		inspecting = to_inspect;
 	}
 	queue_redraw();
 }
-void StateNodesEditor::__set_copied_transition_list(const TypedArray<TransitionRes> &to_set) { copied_transition_res_list = to_set; }
-void StateNodesEditor::__set_copied_state_res_list(const TypedArray<StateRes> &to_set) { copied_state_res_list = to_set; }
+void StateNodesEditor::__set_copied_transition_list(const TypedArray<TransitionRes> &p_to_set) { copied_transition_res_list = p_to_set; }
+void StateNodesEditor::__set_copied_state_res_list(const TypedArray<StateRes> &p_to_set) { copied_state_res_list = p_to_set; }
 // ========功能=========
 void StateNodesEditor::update_cnnection() {
 	if (updating) {
@@ -142,14 +138,15 @@ void StateNodesEditor::__update_conntion() {
 	queue_redraw();
 	call_deferred("__set_updating", false);
 }
-void StateNodesEditor::__set_updating(bool to_set) { updating = to_set; }
+void StateNodesEditor::__set_updating(bool p_to_set) { updating = p_to_set; }
+
 void StateNodesEditor::__undo_redo_select_nodes() {
-	auto undo_redo = HfsmEditorPlugin::create_action("select states");
-	undo_redo->add_do_method(this, StringName("__set_selected_transition_res_list"), TypedArray<TransitionRes>());
-	undo_redo->add_do_method(this, StringName("__select_state_nodes"), selected_state_name_list);
-	undo_redo->add_undo_method(this, StringName("__select_state_nodes"), __bakcup_selected_state_name_list.duplicate());
-	undo_redo->add_undo_method(this, StringName("__set_selected_transition_res_list"), selected_transition_res_list.duplicate());
-	undo_redo->commit_action();
+	CREATE_ACTION("select states");
+	ADD_DO_METHOD(this, __set_selected_transition_res_list, TypedArray<TransitionRes>());
+	ADD_DO_METHOD(this, __select_state_nodes, selected_state_name_list);
+	ADD_UNDO_METHOD(this, __select_state_nodes, __bakcup_selected_state_name_list.duplicate());
+	ADD_UNDO_METHOD(this, __set_selected_transition_res_list, selected_transition_res_list.duplicate());
+	COMMIT_ACTION();
 	__bakcup_selected_state_name_list = selected_state_name_list.duplicate();
 };
 void StateNodesEditor::___deal_selection_action() {
@@ -163,7 +160,7 @@ void StateNodesEditor::___deal_selection_action() {
 	// 等待左键释放
 	set_process(true);
 }
-void StateNodesEditor::__try_disconnect(Vector2 pos1, Vector2 pos2) {
+void StateNodesEditor::__try_disconnect(Vector2 p_pos1, Vector2 p_pos2) {
 	auto conn_list = get_connection_list();
 	for (auto i = 0; i < conn_list.size(); i++) {
 		Dictionary conn = conn_list[i];
@@ -173,22 +170,22 @@ void StateNodesEditor::__try_disconnect(Vector2 pos1, Vector2 pos2) {
 			auto line = __get_connection_line_with_zoom(from, to);
 			Vector2 from_pos = line[0];
 			Vector2 to_pos = line[1];
-			if (__is_judge(pos1, pos2, from_pos, to_pos)) {
+			if (__is_judge(p_pos1, p_pos2, from_pos, to_pos)) {
 				__delete_transition(conn["from"], conn["from_port"], conn["to"], conn["to_port"]);
 			}
 		}
 	}
 }
 
-bool StateNodesEditor::__is_judge(Vector2 apos1, Vector2 apos2, Vector2 bpos1, Vector2 bpos2) {
+bool StateNodesEditor::__is_judge(Vector2 p_apos1, Vector2 p_apos2, Vector2 p_bpos1, Vector2 p_bpos2) {
 	// x 投影重叠
-	if ((MAX(apos1.x, apos2.x) >= MIN(bpos1.x, bpos2.x)) && (MIN(apos1.x, apos2.x) <= MAX(bpos1.x, bpos2.x))) {
+	if ((MAX(p_apos1.x, p_apos2.x) >= MIN(p_bpos1.x, p_bpos2.x)) && (MIN(p_apos1.x, p_apos2.x) <= MAX(p_bpos1.x, p_bpos2.x))) {
 		// y 投影重叠
-		if ((MAX(apos1.y, apos2.y) >= MIN(bpos1.y, bpos2.y)) && (MIN(apos1.y, apos2.y) <= MAX(bpos1.y, bpos2.y))) {
+		if ((MAX(p_apos1.y, p_apos2.y) >= MIN(p_bpos1.y, p_bpos2.y)) && (MIN(p_apos1.y, p_apos2.y) <= MAX(p_bpos1.y, p_bpos2.y))) {
 			// A 是否跨过 B
-			if ((bpos1 - apos1).cross(apos2 - apos1) * (bpos2 - apos1).cross(apos2 - apos1) <= 0) {
+			if ((p_bpos1 - p_apos1).cross(p_apos2 - p_apos1) * (p_bpos2 - p_apos1).cross(p_apos2 - p_apos1) <= 0) {
 				// B 是否跨过 A
-				if ((apos1 - bpos1).cross(bpos2 - bpos1) * (apos2 - bpos1).cross(bpos2 - bpos1) <= 0) {
+				if ((p_apos1 - p_bpos1).cross(p_bpos2 - p_bpos1) * (p_apos2 - p_bpos1).cross(p_bpos2 - p_bpos1) <= 0) {
 					return true;
 				}
 			}
@@ -196,20 +193,20 @@ bool StateNodesEditor::__is_judge(Vector2 apos1, Vector2 apos2, Vector2 bpos1, V
 	}
 	return false;
 }
-void StateNodesEditor::__delete_transition(const StringName &from, int32_t from_slot, const StringName &to, int32_t to_slot) {
-	auto from_node = Object::cast_to<StateNode>(find_child(from, false, false));
-	auto to_node = Object::cast_to<StateNode>(find_child(to, false, false));
+void StateNodesEditor::__delete_transition(const StringName &p_from, int32_t p_from_slot, const StringName &p_to, int32_t p_to_slot) {
+	auto from_node = Object::cast_to<StateNode>(find_child(p_from, false, false));
+	auto to_node = Object::cast_to<StateNode>(find_child(p_to, false, false));
 	auto tr = __get_transition_res(from_node, to_node);
 	if (tr.is_valid()) {
-		auto undo_redo = HfsmEditorPlugin::create_action("Delete State Transitions");
-		undo_redo->add_do_method(this, StringName("disconnect_node"), from, from_slot, to, to_slot);
-		undo_redo->add_do_method(current_fsm_res.ptr(), StringName("remove_transition_res"), tr);
-		undo_redo->add_undo_method(current_fsm_res.ptr(), StringName("add_transition_res"), tr);
-		undo_redo->add_do_method(this, StringName("connect_node"), from, from_slot, to, to_slot);
-		undo_redo->commit_action();
+		CREATE_ACTION("Delete State Transitions");
+		ADD_DO_METHOD(this, disconnect_node, p_from, p_from_slot, p_to, p_to_slot);
+		ADD_DO_METHOD(current_fsm_res.ptr(), remove_transition_res, tr);
+		ADD_UNDO_METHOD(current_fsm_res.ptr(), add_transition_res, tr);
+		ADD_UNDO_METHOD(this, connect_node, p_from, p_from_slot, p_to, p_to_slot);
+		COMMIT_ACTION();
 	}
 }
-TypedArray<TransitionRes> StateNodesEditor::__try_select_transitions_at_pos(Vector2 pos) {
+TypedArray<TransitionRes> StateNodesEditor::__try_select_transitions_at_pos(Vector2 p_pos) {
 	TypedArray<TransitionRes> ret;
 	auto conn_list = get_connection_list();
 	for (auto i = 0; i < conn_list.size(); i++) {
@@ -224,8 +221,8 @@ TypedArray<TransitionRes> StateNodesEditor::__try_select_transitions_at_pos(Vect
 		// 双击点为基准，向两边延申，取得测试线段的两端点
 		auto ab = to_pos - from_pos;
 		auto verti_ab_extent = ab.rotated(Math_PI * 0.5f).normalized() * TRANSITION_SELECT_EXTENT;
-		auto test_segment_p1 = pos + verti_ab_extent;
-		auto test_segment_p2 = pos - verti_ab_extent;
+		auto test_segment_p1 = p_pos + verti_ab_extent;
+		auto test_segment_p2 = p_pos - verti_ab_extent;
 		// 测试线段于转换线是否相交
 		if (__is_judge(test_segment_p1, test_segment_p2, from_pos, to_pos)) {
 			// 相交， 在识别范围内
@@ -239,32 +236,32 @@ TypedArray<TransitionRes> StateNodesEditor::__try_select_transitions_at_pos(Vect
 	return ret;
 }
 
-TypedArray<Vector2> StateNodesEditor::__get_connection_line_with_zoom(StateNode *from, StateNode *to) {
-	auto from_pos = from->get_connection_output_position(0) + from->get_position();
-	auto to_pos = from->get_connection_input_position(0) + to->get_position();
+TypedArray<Vector2> StateNodesEditor::__get_connection_line_with_zoom(StateNode *p_from, StateNode *p_to) {
+	auto from_pos = p_from->get_connection_output_position(0) + p_from->get_position();
+	auto to_pos = p_from->get_connection_input_position(0) + p_to->get_position();
 	auto zoom = static_cast<float>(get_zoom());
 	auto origin_line = get_connection_line(from_pos / zoom, to_pos / zoom);
 	from_pos = origin_line[0] * zoom;
 	to_pos = origin_line[1] * zoom;
 	return TypedArray<Vector2>::make(from_pos, to_pos);
 }
-Ref<TransitionRes> StateNodesEditor::__get_transition_res(StateNode *from, StateNode *to) {
+Ref<TransitionRes> StateNodesEditor::__get_transition_res(StateNode *p_from, StateNode *p_to) {
 	auto tr_list = current_fsm_res->get_transition_res_list();
 	for (auto i = 0; i < tr_list.size(); i++) {
 		Ref<TransitionRes> tr = tr_list[i];
-		if (tr.is_valid() && tr->get_from_state_res() == from->state_res && tr->get_to_state_res() == to->state_res) {
+		if (tr.is_valid() && tr->get_from_state_res() == p_from->state_res && tr->get_to_state_res() == p_to->state_res) {
 			return tr;
 		}
 	}
 	return nullptr;
 }
-bool StateNodesEditor::__is_node_hotzone(Object *in_node, int64_t in_port, const Vector2 &mouse_position) {
+bool StateNodesEditor::__is_node_hotzone(Object *p_in_node, int64_t p_in_port, const Vector2 &p_mouse_position) {
 	if (!Input::get_singleton()->is_key_pressed(KEY_SHIFT)) {
 		return false;
 	}
 	auto zoom = static_cast<float>(get_zoom());
-	auto zoomed_pos = mouse_position * zoom;
-	auto graph_node = Object::cast_to<StateNode>(in_node);
+	auto zoomed_pos = p_mouse_position * zoom;
+	auto graph_node = Object::cast_to<StateNode>(p_in_node);
 	if (!graph_node) {
 		return false;
 	}
@@ -288,8 +285,8 @@ TypedArray<StateNode> StateNodesEditor::__get_selected_state_nodes() {
 	return ret;
 }
 
-void StateNodesEditor::__select_state_nodes(const TypedArray<StringName> &to_select_State_name_list) {
-	__set_selected_state_name_list(to_select_State_name_list);
+void StateNodesEditor::__select_state_nodes(const TypedArray<StringName> &p_to_select_State_name_list) {
+	__set_selected_state_name_list(p_to_select_State_name_list);
 	for (auto i = 0; i < get_child_count(); i++) {
 		auto node = Object::cast_to<StateNode>(get_child(i));
 		if (node) {
@@ -297,7 +294,7 @@ void StateNodesEditor::__select_state_nodes(const TypedArray<StringName> &to_sel
 		}
 	}
 }
-StateNode *StateNodesEditor::____create_state_node(const Ref<StateRes> &state_res) { return StateNode::create_state_node(state_res); }
+StateNode *StateNodesEditor::____create_state_node(const Ref<StateRes> &p_state_res) { return StateNode::create_state_node(p_state_res); }
 
 StateNode *StateNodesEditor::___get_top_state_node_which_hovered() {
 	auto zoom = static_cast<float>(get_zoom());
@@ -322,12 +319,12 @@ TypedArray<StateRes> StateNodesEditor::___get_selected_state_res_list() {
 	}
 	return ret;
 }
-void StateNodesEditor::___select_mamually(const TypedArray<StateNode> &target_nodes) {
+void StateNodesEditor::__select_mamually(const TypedArray<StateNode> &p_target_nodes) {
 	TypedArray<StringName> to_select_state_name_list;
 	for (auto i = 0; i < get_child_count(); i++) {
 		auto sn = Object::cast_to<StateNode>(get_child(i));
 		if (sn) {
-			sn->set_selected(target_nodes.has(sn));
+			sn->set_selected(p_target_nodes.has(sn));
 			if (sn->is_selected()) {
 				to_select_state_name_list.push_back(sn->state_res->get_state_name());
 			}
@@ -338,12 +335,12 @@ void StateNodesEditor::___select_mamually(const TypedArray<StateNode> &target_no
 }
 // ==================
 void StateNodesEditor::__on_current_fsm_res_changed() { __check_empty_fsm_res_or_not(current_fsm_res); }
-void StateNodesEditor::__check_empty_fsm_res_or_not(const Ref<FsmRes> &fsm_res) {
-	if (fsm_res.is_null()) {
+void StateNodesEditor::__check_empty_fsm_res_or_not(const Ref<FsmRes> &p_fsm_res) {
+	if (p_fsm_res.is_null()) {
 		UtilityFunctions::printerr(str_localize("HFSM::Invalid FsmRes"));
 		return;
 	}
-	if (fsm_res->get_state_res_list().size() <= 0) {
+	if (p_fsm_res->get_state_res_list().size() <= 0) {
 		mask_panel->show();
 		not_state_alert->set_text(str_localize("The current FSM has not contain a State.\n\n "));
 		create_btn->set_text(str_localize("Click here to create a Entry State"));
@@ -352,8 +349,8 @@ void StateNodesEditor::__check_empty_fsm_res_or_not(const Ref<FsmRes> &fsm_res) 
 	}
 }
 
-void StateNodesEditor::__on_popup_menu_id_pressed(int32_t id) {
-	switch (id) {
+void StateNodesEditor::__on_popup_menu_id_pressed(int32_t p_id) {
+	switch (p_id) {
 		case ITEM_ADD_STATE: {
 			if (__hovered_state_node) {
 				return;
@@ -362,22 +359,23 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t id) {
 			new_sr.instantiate();
 			new_sr->set_editor_offset((get_local_mouse_position() + get_scroll_ofs()) / static_cast<float>(get_zoom()));
 			auto new_sn = ____create_state_node(new_sr);
-			auto undo_redo = HfsmEditorPlugin::create_action("Add State");
-			undo_redo->add_do_method(this, StringName("add_child"), new_sn);
-			undo_redo->add_do_reference(new_sn);
-			undo_redo->add_undo_method(this, StringName("remove_child"), new_sn);
-			undo_redo->add_do_method(this, StringName("___select_mamually"), TypedArray<StateNode>::make(new_sn));
-			undo_redo->add_undo_method(this, StringName("___select_mamually"), TypedArray<StateNode>());
-			undo_redo->add_do_method(current_fsm_res.ptr(), StringName("add_state_res"), new_sr);
-			undo_redo->add_undo_method(current_fsm_res.ptr(), StringName("remove_state_res"), new_sr);
-			undo_redo->commit_action();
+
+			CREATE_ACTION("Add State");
+			ADD_DO_REFERENCE(new_sn);
+			ADD_DO_METHOD_UNCHECK_ARGS(this, add_child, new_sn);
+			ADD_DO_METHOD(this, __select_mamually, TypedArray<StateNode>::make(new_sn));
+			ADD_DO_METHOD(current_fsm_res.ptr(), add_state_res, new_sr);
+			ADD_UNDO_METHOD(current_fsm_res.ptr(), remove_state_res, new_sr);
+			ADD_UNDO_METHOD(this, __select_mamually, TypedArray<StateNode>());
+			ADD_UNDO_METHOD(this, remove_child, new_sn);
+			COMMIT_ACTION();
 			break;
 		}
 		case ITEM_CUT_STATE: {
 			if (selected_state_name_list.size() <= 0) {
 				return;
 			}
-			auto undo_redo = HfsmEditorPlugin::create_action("Cut States");
+			CREATE_ACTION("Cut State");
 			TypedArray<StateRes> to_copied_state_res;
 			TypedArray<StateNode> selected_state_nodes = get_selected_state_nodes();
 			for (auto i = 0; i < selected_state_nodes.size(); i++) {
@@ -385,30 +383,33 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t id) {
 				if (!node) {
 					continue;
 				}
-				undo_redo->add_do_method(this, StringName("remove_child"), node);
-				undo_redo->add_undo_method(this, StringName("add_child"), node);
-				undo_redo->add_undo_reference(node);
-				undo_redo->add_do_method(current_fsm_res.ptr(), StringName("remove_state_res"), node->state_res);
-				undo_redo->add_undo_method(current_fsm_res.ptr(), StringName("add_state_res"), node->state_res);
+
+				ADD_UNDO_REFERENCE(node);
+				ADD_DO_METHOD(this, remove_child, node);
+				ADD_DO_METHOD(current_fsm_res.ptr(), remove_state_res, node->state_res);
+				ADD_UNDO_METHOD(current_fsm_res.ptr(), add_state_res, node->state_res);
+				ADD_UNDO_METHOD_UNCHECK_ARGS(this, add_child, node);
+
 				to_copied_state_res.push_back(node->state_res);
 			}
 
 			auto tr_list = current_fsm_res->get_transition_res_list();
 			for (auto i = 0; i < tr_list.size(); i++) {
 				Ref<TransitionRes> tr = tr_list[i];
-				auto from_node = Object::cast_to<StateNode>(tr->get_from_state_res()->get("state_node"));
-				auto to_node = Object::cast_to<StateNode>(tr->get_from_state_res()->get("state_node"));
+				auto from_node = Object::cast_to<StateNode>(tr->get_from_state_res()->get_state_node());
+				auto to_node = Object::cast_to<StateNode>(tr->get_from_state_res()->get_state_node());
 				if (!from_node || !to_node || selected_state_name_list.has(tr->get_from_state_res()->get_state_name()) || selected_state_name_list.has(tr->get_to_state_res()->get_state_name())) {
-					undo_redo->add_do_method(current_fsm_res.ptr(), StringName("remove_transition_res"), tr);
-					undo_redo->add_undo_method(current_fsm_res.ptr(), StringName("add_transition_res"), tr);
+					ADD_DO_METHOD(current_fsm_res.ptr(), remove_transition_res, tr);
+					ADD_UNDO_METHOD(current_fsm_res.ptr(), add_transition_res, tr);
 				}
 			}
-			undo_redo->add_do_method(this, StringName("__set_copied_transition_list"), selected_transition_res_list.duplicate());
-			undo_redo->add_undo_method(this, StringName("__set_copied_transition_list"), copied_transition_res_list);
-			undo_redo->add_undo_method(this, StringName("___select_mamually"), selected_state_nodes);
-			undo_redo->add_do_method(this, StringName("__set_copied_state_res_list"), to_copied_state_res);
-			undo_redo->add_undo_method(this, StringName("__set_copied_state_res_list"), copied_state_res_list);
-			undo_redo->commit_action();
+
+			ADD_DO_METHOD(this, __set_copied_transition_list, selected_transition_res_list.duplicate());
+			ADD_UNDO_METHOD(this, __set_copied_transition_list, copied_transition_res_list);
+			ADD_UNDO_METHOD(this, __select_mamually, selected_state_nodes);
+			ADD_DO_METHOD(this, __set_copied_state_res_list, to_copied_state_res);
+			ADD_UNDO_METHOD(this, __set_copied_state_res_list, copied_state_res_list);
+			COMMIT_ACTION();
 		} break;
 		case ITEM_COPY_STATES: {
 			if (selected_state_name_list.size() <= 0) {
@@ -417,7 +418,7 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t id) {
 			TypedArray<StateRes> to_copied_state_res_list;
 			TypedArray<StateNode> selected_state_node_list = get_selected_state_nodes();
 			for (auto i = 0; i < selected_state_node_list.size(); i++) {
-				to_copied_state_res_list.push_back(selected_state_node_list[i].get("state_res"));
+				to_copied_state_res_list.push_back(cast_to<StateNode>(selected_state_node_list[i])->get_state_res());
 			}
 			if (to_copied_state_res_list.size() == copied_state_res_list.size()) {
 				bool difference = false;
@@ -432,24 +433,25 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t id) {
 					return; // 相同，不执行拷贝， 直接返回
 				}
 			}
-			auto undo_redo = HfsmEditorPlugin::create_action("Copy States");
-			undo_redo->add_do_method(this, StringName("__set_copied_state_res_list"), to_copied_state_res_list);
-			undo_redo->add_undo_method(this, StringName("__set_copied_state_res_list"), copied_state_res_list);
-			undo_redo->add_do_method(this, StringName("__set_copied_transition_list"), selected_transition_res_list);
-			undo_redo->add_undo_method(this, StringName("__set_copied_transition_list"), copied_transition_res_list);
-			undo_redo->commit_action();
+
+			CREATE_ACTION("Copy States");
+			ADD_DO_METHOD(this, __set_copied_state_res_list, to_copied_state_res_list);
+			ADD_UNDO_METHOD(this, __set_copied_state_res_list, copied_state_res_list);
+			ADD_DO_METHOD(this, __set_copied_transition_list, selected_transition_res_list);
+			ADD_UNDO_METHOD(this, __set_copied_transition_list, copied_transition_res_list);
+			COMMIT_ACTION();
 		} break;
 		case ITEM_PASTE_STATES: {
 			if (copied_state_res_list.size() <= 0) {
 				return;
 			}
-			auto undo_redo = HfsmEditorPlugin::create_action("Paste States");
+			CREATE_ACTION("Paste States");
 			HashMap<Ref<StateRes>, Ref<StateRes>> osr2csr;
 			// 计算中心
 			Vector2 center;
 			for (auto i = 0; i < copied_state_res_list.size(); i++) {
 				Ref<StateRes> state_res = copied_state_res_list[i];
-				center += state_res->get_editor_offet();
+				center += state_res->get_editor_offset();
 			}
 			center /= static_cast<float>(copied_state_res_list.size());
 			auto mouse_offset = (get_local_mouse_position() + get_scroll_ofs()) / static_cast<float>(get_zoom());
@@ -459,20 +461,21 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t id) {
 			for (auto i = 0; i < copied_state_res_list.size(); i++) {
 				Ref<StateRes> sr = copied_state_res_list[i];
 				Ref<StateRes> csr = sr->duplicate(true);
-				csr->set_editor_offset(csr->get_editor_offet() - offset);
+				csr->set_editor_offset(csr->get_editor_offset() - offset);
 				auto csn = ____create_state_node(csr);
 				osr2csr.insert(sr, csr);
 			}
 			// 添加
 			TypedArray<StateNode> copied_state_ndoes;
 			for (const auto &kv : osr2csr) {
-				auto csn = Object::cast_to<StateNode>(kv.value->get("state_node"));
+				auto csn = Object::cast_to<StateNode>(kv.value->get_state_node());
 				copied_state_ndoes.push_back(csn);
-				undo_redo->add_do_method(this, StringName("add_child"), csn);
-				undo_redo->add_do_reference(csn);
-				undo_redo->add_undo_method(this, StringName("remove_child"), csn);
-				undo_redo->add_do_method(current_fsm_res.ptr(), StringName("add_state_res"), csn->state_res);
-				undo_redo->add_undo_method(current_fsm_res.ptr(), StringName("remove_state_res"), csn->state_res);
+
+				ADD_DO_REFERENCE(csn);
+				ADD_DO_METHOD_UNCHECK_ARGS(this, add_child, csn);
+				ADD_DO_METHOD(current_fsm_res.ptr(), add_state_res, csn->state_res);
+				ADD_UNDO_METHOD(current_fsm_res.ptr(), remove_state_res, csn->state_res);
+				ADD_UNDO_METHOD(this, remove_child, csn);
 			}
 			// 拷贝相关转换
 			for (auto i = 0; i < copied_transition_res_list.size(); i++) {
@@ -482,19 +485,19 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t id) {
 					ctr.instantiate();
 					ctr->set_from_state_res(osr2csr[tr->get_from_state_res()]);
 					ctr->set_to_state_res(osr2csr[tr->get_to_state_res()]);
-					StringName from = ctr->get_from_state_res()->get("state_node").get("name");
-					StringName to = ctr->get_to_state_res()->get("state_node").get("name");
-					undo_redo->add_do_method(current_fsm_res.ptr(), StringName("add_transition_res"), ctr);
-					undo_redo->add_do_method(this, StringName("connect_node"), from, 0, to, 0);
-					undo_redo->add_undo_method(this, StringName("disconnect_node"), from, 0, to, 0);
-					undo_redo->add_undo_method(current_fsm_res.ptr(), StringName("remove_transition_res"), ctr);
+					StringName from = ctr->get_from_state_res()->get_state_node()->get_name();
+					StringName to = ctr->get_to_state_res()->get_state_node()->get_name();
+
+					ADD_DO_METHOD(current_fsm_res.ptr(), add_transition_res, ctr);
+					ADD_DO_METHOD(this, connect_node, from, 0, to, 0);
+					ADD_UNDO_METHOD(this, disconnect_node, from, 0, to, 0);
+					ADD_UNDO_METHOD(current_fsm_res.ptr(), remove_transition_res, ctr);
 				}
 			}
 			// 选中
-			undo_redo->add_do_method(this, StringName("___select_mamually"), copied_state_ndoes);
-			undo_redo->add_undo_method(this, StringName("___select_mamually"), get_selected_state_nodes());
-			// 提交
-			undo_redo->commit_action();
+			ADD_DO_METHOD(this, __select_mamually, copied_state_ndoes);
+			ADD_UNDO_METHOD(this, __select_mamually, get_selected_state_nodes());
+			COMMIT_ACTION();
 			break;
 		}
 		case ITEM_DUPLICATE_STATES: {
@@ -502,21 +505,22 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t id) {
 			if (selected_state_res_list.size() <= 0) {
 				return;
 			}
-			auto undo_redo = HfsmEditorPlugin::create_action("Duplicate States");
+			CREATE_ACTION("Duplicate States");
 			TypedArray<StateNode> csn_list;
 			HashMap<Ref<StateRes>, Ref<StateRes>> osr2csr;
 			for (auto i = 0; i < selected_state_res_list.size(); i++) {
 				Ref<StateRes> sr = selected_state_res_list[i];
 				Ref<StateRes> csr = sr->duplicate(true);
-				csr->set_editor_offset(csr->get_editor_offet() + DUPLICATE_OFFSET);
+				csr->set_editor_offset(csr->get_editor_offset() + DUPLICATE_OFFSET);
 				auto csn = ____create_state_node(csr);
 				csn_list.push_back(csn);
 				osr2csr.insert(sr, csr);
-				undo_redo->add_do_reference(csn);
-				undo_redo->add_do_method(this, StringName("add_child"), csn);
-				undo_redo->add_undo_method(this, StringName("remove_child"), csn);
-				undo_redo->add_do_method(current_fsm_res.ptr(), StringName("add_state_res"), csr);
-				undo_redo->add_undo_method(this, StringName("remove_state_res"), csr);
+
+				ADD_DO_REFERENCE(csn);
+				ADD_DO_METHOD_UNCHECK_ARGS(this, add_child, csn);
+				ADD_DO_METHOD(current_fsm_res.ptr(), add_state_res, csr);
+				ADD_UNDO_METHOD(current_fsm_res.ptr(), remove_state_res, csr);
+				ADD_UNDO_METHOD(this, remove_child, csn);
 			}
 			// 拷贝相关转换
 			for (auto i = 0; i < selected_transition_res_list.size(); i++) {
@@ -526,51 +530,56 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t id) {
 					ctr.instantiate();
 					ctr->set_from_state_res(osr2csr[tr->get_from_state_res()]);
 					ctr->set_to_state_res(osr2csr[tr->get_to_state_res()]);
-					StringName from = ctr->get_from_state_res()->get("state_node").get("name");
-					StringName to = ctr->get_to_state_res()->get("state_node").get("name");
-					undo_redo->add_do_method(current_fsm_res.ptr(), StringName("add_transition_res"), ctr);
-					undo_redo->add_do_method(this, StringName("connect_node"), from, 0, to, 0);
-					undo_redo->add_undo_method(this, StringName("disconnect_node"), from, 0, to, 0);
-					undo_redo->add_undo_method(current_fsm_res.ptr(), StringName("remove_transition_res"), ctr);
+					StringName from = ctr->get_from_state_res()->get_state_node()->get_name();
+					StringName to = ctr->get_to_state_res()->get_state_node()->get_name();
+
+					ADD_DO_METHOD(current_fsm_res.ptr(), add_transition_res, ctr);
+					ADD_DO_METHOD(this, connect_node, from, 0, to, 0);
+					ADD_UNDO_METHOD(this, disconnect_node, from, 0, to, 0);
+					ADD_UNDO_METHOD(current_fsm_res.ptr(), remove_transition_res, ctr);
 				}
 			}
 			// 取消选择
-			undo_redo->add_do_method(this, StringName("___select_mamually"), csn_list);
-			undo_redo->add_undo_method(this, StringName("___select_mamually"), get_selected_state_nodes());
-			undo_redo->commit_action();
+
+			ADD_DO_METHOD(this, __select_mamually, csn_list);
+			ADD_UNDO_METHOD(this, __select_mamually, get_selected_state_nodes());
+			COMMIT_ACTION();
 		} break;
 		case ITEM_DELETE: {
 			auto selected_state_res_list = ___get_selected_state_res_list();
 			if (selected_state_res_list.size() > 0) {
-				auto undo_redo = HfsmEditorPlugin::create_action("Delete States");
+				CREATE_ACTION("Delete States");
 				// 移除状态
 				auto selected_state_nodes = get_selected_state_nodes();
 				for (auto i = 0; i < selected_state_nodes.size(); i++) {
 					Ref<TransitionRes> tr = selected_state_nodes[i];
 					if (selected_state_res_list.has(tr->get_from_state_res()) || selected_state_res_list.has(tr->get_to_state_res())) {
-						StringName from = tr->get_from_state_res()->get("state_node").get("name");
-						StringName to = tr->get_to_state_res()->get("state_node").get("name");
-						undo_redo->add_do_method(this, StringName("disconnect_node"), from, 0, to, 0);
-						undo_redo->add_do_method(current_fsm_res.ptr(), StringName("remove_transition_res"), tr);
-						undo_redo->add_undo_method(current_fsm_res.ptr(), StringName("add_transition_res"), tr);
-						undo_redo->add_undo_method(this, StringName("connect_node"), from, 0, to, 0);
+						StringName from = tr->get_from_state_res()->get_state_node()->get_name();
+						StringName to = tr->get_to_state_res()->get_state_node()->get_name();
+
+						ADD_DO_METHOD(this, disconnect_node, from, 0, to, 0);
+						ADD_DO_METHOD(current_fsm_res.ptr(), remove_transition_res, tr);
+						ADD_UNDO_METHOD(current_fsm_res.ptr(), add_transition_res, tr);
+						ADD_UNDO_METHOD(this, connect_node, from, 0, to, 0);
 					}
 				}
-				undo_redo->add_undo_method(this, StringName("___select_mamually"), selected_state_nodes);
-				undo_redo->add_do_method(this, StringName("queue_redraw"));
-				undo_redo->add_undo_method(this, StringName("queue_redraw"));
-				undo_redo->commit_action();
+
+				ADD_UNDO_METHOD(this, __select_mamually, selected_state_nodes);
+				ADD_DO_METHOD(this, queue_redraw);
+				ADD_UNDO_METHOD(this, queue_redraw);
+				COMMIT_ACTION();
 			} else if (selected_transition_res_list.size() >= 0) {
-				auto undo_redo = HfsmEditorPlugin::create_action("Delete State Transitions");
+				CREATE_ACTION("Delete State Transitions");
 				for (auto i = 0; i < selected_transition_res_list.size(); i++) {
 					Ref<TransitionRes> tr = selected_transition_res_list[i];
-					StringName from = tr->get_from_state_res()->get("state_node").get("name");
-					StringName to = tr->get_to_state_res()->get("state_node").get("name");
-					undo_redo->add_do_method(this, StringName("disconnect_node"), from, 0, to, 0);
-					undo_redo->add_do_method(current_fsm_res.ptr(), StringName("remove_transition_res"), tr);
-					undo_redo->add_undo_method(current_fsm_res.ptr(), StringName("add_transition_res"), tr);
-					undo_redo->add_undo_method(this, StringName("connect_node"), from, 0, to, 0);
-					undo_redo->commit_action();
+					StringName from = tr->get_from_state_res()->get_state_node()->get_name();
+					StringName to = tr->get_to_state_res()->get_state_node()->get_name();
+
+					ADD_DO_METHOD(this, disconnect_node, from, 0, to, 0);
+					ADD_DO_METHOD(current_fsm_res.ptr(), remove_transition_res, tr);
+					ADD_UNDO_METHOD(current_fsm_res.ptr(), add_transition_res, tr);
+					ADD_UNDO_METHOD(this, connect_node, from, 0, to, 0);
+					COMMIT_ACTION();
 				}
 			}
 			break;
@@ -580,7 +589,7 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t id) {
 			if (!__hovered_state_node || !selected_state_res_list.has(__hovered_state_node->state_res)) {
 				return;
 			}
-			auto undo_redo = HfsmEditorPlugin::create_action("Convert To Sub-FSM");
+			CREATE_ACTION("Convert To Sub-FSM");
 			// 复制状态资源
 			Ref<StateRes> duplicated_state_res = __hovered_state_node->state_res->duplicate(true);
 			// 新的子状态机
@@ -597,86 +606,86 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t id) {
 			auto current_tr_list = current_fsm_res->get_transition_res_list();
 			for (auto i = 0; i < current_tr_list.size(); i++) {
 				Ref<TransitionRes> tr = current_tr_list[i];
-				StringName from = tr->get_from_state_res()->get("state_node").get("name");
-				StringName to = tr->get_to_state_res()->get("state_node").get("name");
+				StringName from = tr->get_from_state_res()->get_state_node()->get_name();
+				StringName to = tr->get_to_state_res()->get_state_node()->get_name();
 				// 一端为指定状态，另一端不在选中的状态中，处理指向
 				if (tr->get_from_state_res() == __hovered_state_node->state_res && !selected_state_res_list.has(tr->get_to_state_res())) {
-					undo_redo->add_do_method(this, StringName("disconnect_node"), from, 0, to, 0);
-					undo_redo->add_do_property(tr.ptr(), "from_state_res", duplicated_state_res);
-					undo_redo->add_do_method(this, StringName("call_deferred"), StringName("connect_node"), duplicated_state_node_name, 0, to, 0);
+					ADD_DO_METHOD(this, disconnect_node, from, 0, to, 0);
+					ADD_DO_METHOD(tr.ptr(), set_from_state_res, duplicated_state_res);
+					ADD_DO_DEFERRED_CALL_METHOD(this, connect_node, duplicated_state_node_name, 0, to, 0);
 
-					undo_redo->add_do_method(this, StringName("disconnect_node"), duplicated_state_node_name, 0, to, 0);
-					undo_redo->add_do_property(tr.ptr(), "from_state_res", hovered_state_res);
-					undo_redo->add_do_method(this, StringName("call_deferred"), StringName("connect_node"), from, 0, to, 0);
+					ADD_DO_METHOD(this, disconnect_node, duplicated_state_node_name, 0, to, 0);
+					ADD_DO_METHOD(tr.ptr(), set_from_state_res, hovered_state_res);
+					ADD_DO_DEFERRED_CALL_METHOD(this, connect_node, from, 0, to, 0);
 				} else if (tr->get_to_state_res() == __hovered_state_node->state_res && !selected_state_res_list.has(tr->get_from_state_res())) {
-					undo_redo->add_do_method(this, StringName("disconnect_node"), from, 0, to, 0);
-					undo_redo->add_do_property(tr.ptr(), StringName("to_state_res"), duplicated_state_res);
-					undo_redo->add_do_method(this, StringName("call_deferred"), StringName("connect_node"), from, 0, duplicated_state_node_name, 0);
+					ADD_DO_METHOD(this, disconnect_node, from, 0, to, 0);
+					ADD_DO_METHOD(tr.ptr(), set_to_state_res, duplicated_state_res);
+					ADD_DO_DEFERRED_CALL_METHOD(this, connect_node, from, 0, duplicated_state_node_name, 0);
 
-					undo_redo->add_do_method(this, StringName("disconnect_node"), from, 0, duplicated_state_node_name, 0);
-					undo_redo->add_do_property(tr.ptr(), "to_state_res", hovered_state_res);
-					undo_redo->add_do_method(this, StringName("call_deferred"), StringName("connect_node"), from, 0, to, 0);
+					ADD_DO_METHOD(this, disconnect_node, from, 0, duplicated_state_node_name, 0);
+					ADD_DO_METHOD(tr.ptr(), set_to_state_res, hovered_state_res);
+					ADD_DO_DEFERRED_CALL_METHOD(this, connect_node, from, 0, to, 0);
 				} else if ((selected_state_res_list.has(tr->get_from_state_res()) && !selected_state_res_list.has(tr->get_to_state_res())) ||
 						(selected_state_res_list.has(tr->get_to_state_res()) && !selected_state_res_list.has(tr->get_from_state_res()))) {
 					// 一端为选中对象，另一端不在选中状态中，删除（以排除一端为指定状态的情况
-					undo_redo->add_do_method(this, StringName("disconnect_node"), from, 0, to, 0);
-					undo_redo->add_do_method(current_fsm_res.ptr(), StringName("remove_transition_res"), tr);
+					ADD_DO_METHOD(this, disconnect_node, from, 0, to, 0);
+					ADD_DO_METHOD(current_fsm_res.ptr(), remove_transition_res, tr);
 
-					undo_redo->add_undo_method(current_fsm_res.ptr(), StringName("add_transition_res"), tr);
-					undo_redo->add_undo_method(this, StringName("call_deferred"), StringName("connect_node"), from, 0, to, 0);
+					ADD_UNDO_METHOD(current_fsm_res.ptr(), add_transition_res, tr);
+					ADD_UNDO_DEFERRED_CALL_METHOD(this, connect_node, from, 0, to, 0);
 				} else if (selected_state_res_list.has(tr->get_from_state_res()) && selected_state_res_list.has(tr->get_to_state_res())) {
-					undo_redo->add_do_method(this, StringName("disconnect_node"), from, 0, to, 0);
-					undo_redo->add_do_method(current_fsm_res.ptr(), StringName("remove_transition_res"), tr);
-					undo_redo->add_do_method(new_fsm_res.ptr(), StringName("add_transition_res"), tr);
+					ADD_DO_METHOD(this, disconnect_node, from, 0, to, 0);
+					ADD_DO_METHOD(current_fsm_res.ptr(), remove_transition_res, tr);
+					ADD_DO_METHOD(new_fsm_res.ptr(), add_transition_res, tr);
 
-					undo_redo->add_undo_method(new_fsm_res.ptr(), StringName("remove_transition_res"), tr);
-					undo_redo->add_undo_method(current_fsm_res.ptr(), StringName("add_transition_res"), tr);
-					undo_redo->add_undo_method(this, StringName("call_deferred"), StringName("connect_node"), from, 0, to, 0);
+					ADD_UNDO_METHOD(new_fsm_res.ptr(), remove_transition_res, tr);
+					ADD_UNDO_METHOD(current_fsm_res.ptr(), add_transition_res, tr);
+					ADD_UNDO_DEFERRED_CALL_METHOD(this, connect_node, from, 0, to, 0);
 				}
 			}
 			// 对复制节点的操作（被相关状态节的撤回操作所依赖， 需要提前
-			undo_redo->add_undo_method(this, StringName("remove_child"), duplicated_state_node);
-			undo_redo->add_undo_method(current_fsm_res.ptr(), StringName("remove_state_res"), duplicated_state_res);
-			undo_redo->add_undo_property(duplicated_state_res.ptr(), "fsm_res", nullptr);
-			undo_redo->add_undo_property(duplicated_state_res.ptr(), "nested", false);
-			undo_redo->add_undo_property(hovered_state_res.ptr(), "type", hovered_state_res->get_type());
-			undo_redo->add_undo_property(hovered_state_res.ptr(), "state_script", hovered_state_res->get_state_script());
+			ADD_UNDO_METHOD(this, remove_child, duplicated_state_node);
+			ADD_UNDO_METHOD(current_fsm_res.ptr(), remove_state_res, duplicated_state_res);
+			ADD_UNDO_METHOD(duplicated_state_res.ptr(), set_fsm_res, nullptr);
+			ADD_UNDO_METHOD(duplicated_state_res.ptr(), set_nested, false);
+			ADD_UNDO_METHOD(hovered_state_res.ptr(), set_type, hovered_state_res->get_type());
+			ADD_UNDO_METHOD(hovered_state_res.ptr(), set_state_script, hovered_state_res->get_state_script());
 			// 移动选中节点所处的状态机
 			auto selected_state_nodes = get_selected_state_nodes();
 			for (auto i = 0; i < selected_state_nodes.size(); i++) {
 				auto sn = Object::cast_to<StateNode>(selected_state_nodes[i]);
-				undo_redo->add_do_method(this, "remove_child", sn);
-				undo_redo->add_do_method(current_fsm_res.ptr(), "remove_state_res", sn->state_res);
-				undo_redo->add_do_method(new_fsm_res.ptr(), "add_state_res", sn->state_res);
+				ADD_DO_METHOD(this, remove_child, sn);
+				ADD_DO_METHOD(current_fsm_res.ptr(), remove_state_res, sn->state_res);
+				ADD_DO_METHOD(new_fsm_res.ptr(), add_state_res, sn->state_res);
 
-				undo_redo->add_undo_method(new_fsm_res.ptr(), "remove_state_res", sn->state_res);
-				undo_redo->add_undo_method(current_fsm_res.ptr(), "add_state_res", sn->state_res);
-				undo_redo->add_undo_method(this, "add_child", sn);
-				undo_redo->add_undo_reference(sn);
+				ADD_UNDO_METHOD(new_fsm_res.ptr(), remove_state_res, sn->state_res);
+				ADD_UNDO_METHOD(current_fsm_res.ptr(), add_state_res, sn->state_res);
+				ADD_UNDO_METHOD_UNCHECK_ARGS(this, add_child, sn);
+				ADD_UNDO_REFERENCE(sn);
 			}
 			//
-			undo_redo->add_do_property(hovered_state_res.ptr(), "state_script", nullptr);
-			undo_redo->add_do_property(hovered_state_res.ptr(), "type", State::STATE_TYPE_ENTRY);
-			undo_redo->add_do_property(duplicated_state_res.ptr(), "nested", true);
-			undo_redo->add_do_property(duplicated_state_res.ptr(), "fsm_res", new_fsm_res);
-			undo_redo->add_do_method(current_fsm_res.ptr(), "add_state_res", duplicated_state_res);
-			undo_redo->add_do_method(this, "add_child", duplicated_state_node);
-			undo_redo->add_do_reference(duplicated_state_node);
+			ADD_DO_METHOD(hovered_state_res.ptr(), set_state_script, nullptr);
+			ADD_DO_METHOD(hovered_state_res.ptr(), set_type, State::STATE_TYPE_ENTRY);
+			ADD_DO_METHOD(duplicated_state_res.ptr(), set_nested, true);
+			ADD_DO_METHOD(duplicated_state_res.ptr(), set_fsm_res, new_fsm_res);
+			ADD_DO_METHOD(current_fsm_res.ptr(), add_state_res, duplicated_state_res);
+			ADD_DO_METHOD_UNCHECK_ARGS(this, add_child, duplicated_state_node);
+			ADD_DO_REFERENCE(duplicated_state_node);
 
-			undo_redo->add_do_method(this, "___select_mamually", TypedArray<StateNode>::make(duplicated_state_node));
-			undo_redo->add_undo_method(this, "___select_mamually", selected_state_nodes);
+			ADD_DO_METHOD(this, __select_mamually, TypedArray<StateNode>::make(duplicated_state_node));
+			ADD_UNDO_METHOD(this, __select_mamually, selected_state_nodes);
 
-			undo_redo->add_do_method(this, "queue_redraw");
-			undo_redo->add_undo_method(this, "queue_redraw");
-			undo_redo->commit_action();
+			ADD_DO_METHOD(this, queue_redraw);
+			ADD_UNDO_METHOD(this, queue_redraw);
+			COMMIT_ACTION();
 
 		} break;
 	}
 }
-void StateNodesEditor::__on_delete_nodes_request(const Array &nodes) { __on_popup_menu_id_pressed(ITEM_DELETE); }
-void StateNodesEditor::__on_connection_request(const StringName &from, int from_slot, const StringName &to, int to_slot) {
-	auto from_node = Object::cast_to<StateNode>(find_child(from, false, false));
-	auto to_node = Object::cast_to<StateNode>(find_child(to, false, false));
+void StateNodesEditor::__on_delete_nodes_request(const Array &p_nodes) { __on_popup_menu_id_pressed(ITEM_DELETE); }
+void StateNodesEditor::__on_connection_request(const StringName &p_from, int p_from_slot, const StringName &p_to, int p_to_slot) {
+	auto from_node = Object::cast_to<StateNode>(find_child(p_from, false, false));
+	auto to_node = Object::cast_to<StateNode>(find_child(p_to, false, false));
 	auto tr = __get_transition_res(from_node, to_node);
 	if (tr.is_valid()) {
 		return;
@@ -686,24 +695,25 @@ void StateNodesEditor::__on_connection_request(const StringName &from, int from_
 	new_tr->set_from_state_res(from_node->state_res);
 	new_tr->set_to_state_res(to_node->state_res);
 	// undoredo
-	auto undo_redo = HfsmEditorPlugin::create_action("Create State Transition");
-	undo_redo->add_do_method(this, "connect_node", from, from_slot, to, to_slot);
-	undo_redo->add_undo_method(this, "disconnect_node", from, from_slot, to, to_slot);
-	undo_redo->add_do_method(current_fsm_res.ptr(), StringName("add_transition_res"), new_tr);
-	undo_redo->add_undo_method(current_fsm_res.ptr(), StringName("remove_transition_res"), new_tr);
+	CREATE_ACTION("Create State Transition");
+	ADD_DO_METHOD(this, connect_node, p_from, p_from_slot, p_to, p_to_slot);
+	ADD_UNDO_METHOD(this, disconnect_node, p_from, p_from_slot, p_to, p_to_slot);
+	ADD_DO_METHOD(current_fsm_res.ptr(), add_transition_res, new_tr);
+	ADD_UNDO_METHOD(current_fsm_res.ptr(), remove_transition_res, new_tr);
 
 	auto new_transiion_res_list = TypedArray<TransitionRes>::make(new_tr);
-	undo_redo->add_do_method(this, "__set_selected_state_name_list", TypedArray<StringName>());
-	undo_redo->add_undo_method(this, "__set_selected_state_name_list", selected_state_name_list);
-	undo_redo->add_do_method(this, "call_deferred", "__set_selected_transition_res_list", new_transiion_res_list);
-	undo_redo->add_undo_method(this, "call_deferred", "__set_selected_transition_res_list", selected_transition_res_list);
+	ADD_DO_METHOD(this, __set_selected_state_name_list, TypedArray<StringName>());
+	ADD_UNDO_METHOD(this, __set_selected_state_name_list, selected_state_name_list);
 
-	undo_redo->add_do_method(this, StringName("queue_redraw"));
-	undo_redo->add_undo_method(this, StringName("queue_redraw"));
-	undo_redo->commit_action();
+	ADD_DO_DEFERRED_CALL_METHOD(this, __set_selected_transition_res_list, new_transiion_res_list);
+	ADD_UNDO_DEFERRED_CALL_METHOD(this, __set_selected_transition_res_list, selected_transition_res_list);
+
+	ADD_DO_METHOD(this, queue_redraw);
+	ADD_UNDO_METHOD(this, queue_redraw);
+	COMMIT_ACTION();
 }
 
-void StateNodesEditor::__on_popup_request(Vector2 position) {
+void StateNodesEditor::__on_popup_request(Vector2 p_position) {
 	menu->clear();
 	menu->add_item(str_localize("Add State"), ITEM_ADD_STATE);
 	menu->add_item(str_localize("Cut States"), ITEM_CUT_STATE);
@@ -744,17 +754,17 @@ void StateNodesEditor::__on_create_btn_pressed() {
 	new_sr.instantiate();
 	new_sr->set_type(State::STATE_TYPE_ENTRY);
 	auto new_sn = ____create_state_node(new_sr);
-	auto undo_redo = HfsmEditorPlugin::create_action("Add State");
-	undo_redo->add_do_method(this, "add_child", new_sn);
-	undo_redo->add_do_reference(new_sn);
-	undo_redo->add_undo_method(this, "remove_child", new_sn);
-	undo_redo->add_do_method(this, "___select_mamually", TypedArray<StateNode>::make(new_sn));
-	undo_redo->add_undo_method(this, "___select_mamually", TypedArray<StateNode>());
-	undo_redo->add_do_method(current_fsm_res.ptr(), "add_state_res", new_sr);
-	undo_redo->add_undo_method(current_fsm_res.ptr(), "remove_state_res", new_sr);
-	undo_redo->add_do_method(mask_panel, "hide");
-	undo_redo->add_undo_method(mask_panel, "show");
-	undo_redo->commit_action();
+	CREATE_ACTION("Add State");
+	ADD_DO_METHOD_UNCHECK_ARGS(this, add_child, new_sn);
+	ADD_DO_REFERENCE(new_sn);
+	ADD_UNDO_METHOD(this, remove_child, new_sn);
+	ADD_DO_METHOD(this, __select_mamually, TypedArray<StateNode>::make(new_sn));
+	ADD_UNDO_METHOD(this, __select_mamually, TypedArray<StateNode>());
+	ADD_DO_METHOD(current_fsm_res.ptr(), add_state_res, new_sr);
+	ADD_UNDO_METHOD(current_fsm_res.ptr(), remove_state_res, new_sr);
+	ADD_DO_METHOD(mask_panel, hide);
+	ADD_UNDO_METHOD(mask_panel, show);
+	COMMIT_ACTION();
 }
 void StateNodesEditor::__on_transition_res_updated() { queue_redraw(); }
 
@@ -772,8 +782,8 @@ void StateNodesEditor::__on_node_selected(Object *node) {
 	}
 	___deal_selection_action();
 }
-void StateNodesEditor::__on_node_deselected(Object *node) {
-	auto sn = Object::cast_to<StateNode>(node);
+void StateNodesEditor::__on_node_deselected(Object *p_node) {
+	auto sn = Object::cast_to<StateNode>(p_node);
 	if (!sn) {
 		return;
 	}
@@ -785,9 +795,9 @@ void StateNodesEditor::__on_node_deselected(Object *node) {
 
 StateNodesEditor::StateNodesEditor() = default;
 
-StateNodesEditor *StateNodesEditor::create_state_nodes_edit(HBoxContainer *path_btn_container) {
+StateNodesEditor *StateNodesEditor::create_state_nodes_edit(HBoxContainer *p_path_btn_container) {
 	auto r = memnew(StateNodesEditor);
-	r->path_button_container = path_btn_container;
+	r->path_button_container = p_path_btn_container;
 	// TODO?
 	r->font = HfsmEditorPlugin::get_singleton()->get_editor_interface()->get_base_control()->get_theme()->get_default_font();
 	// 结构
@@ -808,27 +818,18 @@ StateNodesEditor *StateNodesEditor::create_state_nodes_edit(HBoxContainer *path_
 	}
 	// 信号
 	{
-		r->menu->connect("id_pressed", Callable(r, "__on_popup_menu_id_pressed"));
-		r->create_btn->connect("pressed", Callable(r, "__on_create_btn_pressed"));
-		r->connect("delete_nodes_request", Callable(r, "__on_delete_nodes_request"));
-		// // ======== HACK =========
-		// r->connect("copy_nodes_request", Callable(r, "__on_copy_requested"));
-		// r->connect("paste_nodes_request", Callable(r, "__on_paste_requested"));
-		// r->connect("duplicate_nodes_request", Callable(r, "__on_duplicate_requested"));
-		// // ======== HACK =========
-		r->connect("copy_nodes_request",
-				Callable(r, "__on_popup_menu_id_pressed").bindv(Array::make(ITEM_COPY_STATES)));
-		r->connect("paste_nodes_request",
-				Callable(r, "__on_popup_menu_id_pressed").bindv(Array::make(ITEM_PASTE_STATES)));
-		r->connect(
-				"duplicate_nodes_request",
-				Callable(r, "__on_popup_menu_id_pressed").bindv(Array::make(ITEM_DUPLICATE_STATES)));
+		r->menu->connect("id_pressed", CALLABLE(r, __on_popup_menu_id_pressed));
+		r->create_btn->connect("pressed", CALLABLE(r, __on_create_btn_pressed));
+		r->connect("delete_nodes_request", CALLABLE(r, __on_delete_nodes_request));
+		r->connect("copy_nodes_request", CALLABLE_BIND(r, __on_popup_menu_id_pressed, ITEM_COPY_STATES));
+		r->connect("paste_nodes_request", CALLABLE_BIND(r, __on_popup_menu_id_pressed, ITEM_PASTE_STATES));
+		r->connect("duplicate_nodes_request", CALLABLE_BIND(r, __on_popup_menu_id_pressed, ITEM_DUPLICATE_STATES));
 
-		r->connect("connection_request", Callable(r, "__on_connection_request"));
-		r->connect("popup_request", Callable(r, "__on_popup_request"));
+		r->connect("connection_request", CALLABLE(r, __on_connection_request));
 
-		r->connect("node_selected", Callable(r, "__on_node_selected"));
-		r->connect("node_deselected", Callable(r, "__on_node_deselected"));
+		r->connect("popup_request", CALLABLE(r, __on_popup_request));
+		r->connect("node_selected", CALLABLE(r, __on_node_selected));
+		r->connect("node_deselected", CALLABLE(r, __on_node_deselected));
 	}
 	// 参数
 	r->set_v_size_flags(SIZE_EXPAND_FILL);
@@ -840,56 +841,52 @@ StateNodesEditor *StateNodesEditor::create_state_nodes_edit(HBoxContainer *path_
 }
 
 void StateNodesEditor::_ready() { set_process(false); }
-void StateNodesEditor::edit_fsm_res(const Ref<FsmRes> &fsm_res) {
-	auto undo_redo = HfsmEditorPlugin::create_action("Edit Sub-FSM");
+void StateNodesEditor::edit_fsm_res(const Ref<FsmRes> &p_fsm_res) {
+	CREATE_ACTION("Edit Sub-FSM");
 	// 处理画面显示
 	// 断连接
 	auto conn_list = get_connection_list();
 	for (auto i = 0; i < conn_list.size(); i++) {
 		Dictionary conn = conn_list[i];
-		undo_redo->add_do_method(this, "disconnect_node", conn["from"], conn["from_port"], conn["to"], conn["to_port"]);
-		undo_redo->add_undo_method(this, "call_deferred", "connect_node", conn["from"], conn["from_port"], conn["to"], conn["to_port"]);
+		ADD_DO_METHOD(this, disconnect_node, conn["from"], conn["from_port"], conn["to"], conn["to_port"]);
+		ADD_UNDO_DEFERRED_CALL_METHOD(this, connect_node, conn["from"], conn["from_port"], conn["to"], conn["to_port"]);
 	}
 
 	// 移除状态
 	for (auto i = 0; i < get_child_count(); i++) {
 		auto sn = Object::cast_to<StateNode>(get_child(i));
 		if (sn) {
-			undo_redo->add_do_method(this, "remove_child", sn);
-			undo_redo->add_undo_method(this, "add_child", sn);
-			undo_redo->add_undo_reference(sn);
+			ADD_DO_METHOD(this, remove_child, sn);
+			ADD_UNDO_METHOD_UNCHECK_ARGS(this, add_child, sn);
+			ADD_UNDO_REFERENCE(sn);
 		}
 	}
 
 	// 构建目标的状态机
-	undo_redo->add_do_method(this, "__set_current_fsm_res", fsm_res);
-	undo_redo->add_undo_method(this, "__set_current_fsm_res", current_fsm_res);
+	ADD_DO_METHOD(this, __set_current_fsm_res, p_fsm_res);
+	ADD_UNDO_METHOD(this, __set_current_fsm_res, current_fsm_res);
 	//  路径按钮处理
 	//  清除路径列表
 	auto children = path_button_container->get_children(true);
-	UtilityFunctions::print(children);
 	for (auto i = 0; i < children.size(); i++) {
 		auto btn = Object::cast_to<Button>(children[i]);
 		if (btn) {
-			undo_redo->add_do_method(path_button_container, "remove_child", btn);
-			undo_redo->add_undo_method(path_button_container, "add_child", btn);
-			undo_redo->add_undo_reference(btn);
+			ADD_DO_METHOD(path_button_container, remove_child, btn);
+			ADD_UNDO_METHOD_UNCHECK_ARGS(path_button_container, add_child, btn);
+			ADD_UNDO_REFERENCE(btn);
 		}
 	}
-	if (fsm_res.is_valid()) {
+	if (p_fsm_res.is_valid()) {
 		// 处理路径按钮
-		TypedArray<Button> path_btn_list;
-		Ref<FsmRes> to_fsm_res = fsm_res->get_nested_state_res();
-		Ref<StateRes> nsr = fsm_res->get_nested_state_res();
+		List<Button *> path_btn_list;
+		Ref<FsmRes> to_fsm_res = p_fsm_res->get_nested_state_res();
+		Ref<StateRes> nsr = p_fsm_res->get_nested_state_res();
 		while (nsr.is_valid()) {
 			auto btn = memnew(Button);
 			btn->set_text(nsr->get_state_name());
-			// 暂时不能使用 Callable::bind()
 			btn->set_meta("fsm_res", to_fsm_res);
-			// btn->connect("pressed", Callable(this, "__on_edit_fsm_res_requeted"));
-			// 暂时不能使用 Callable::bind()
-			btn->connect("pressed",
-					Callable(this, "edit_fsm_res").bindv(Array::make(to_fsm_res)));
+			btn->connect("pressed", TCALLABLE_BINDV(edit_fsm_res, to_fsm_res));
+
 			path_btn_list.push_back(btn);
 
 			to_fsm_res = HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_nested_fsm_res(nsr);
@@ -897,53 +894,51 @@ void StateNodesEditor::edit_fsm_res(const Ref<FsmRes> &fsm_res) {
 		}
 		auto root_btn = memnew(Button);
 		root_btn->set_text("root");
-		// 暂时不能使用 Callable::bind()
 		root_btn->set_meta("fsm_res", to_fsm_res);
-		// root_btn->connect("pressed", Callable(this, "__on_edit_fsm_res_requeted"));
-		// 暂时不能使用 Callable::bind()
-		root_btn->connect("pressed",
-				Callable(this, "edit_fsm_res").bindv(Array::make(to_fsm_res)));
+		root_btn->connect("pressed", TCALLABLE_BINDV(edit_fsm_res, to_fsm_res));
 		path_btn_list.push_back(root_btn);
 		// 末尾按钮不可按
-		path_btn_list.front().set("disabled", true);
+		path_btn_list.front()->get()->set_disabled(true);
 		// 按顺序添加
 		while (!path_btn_list.is_empty()) {
-			auto end = Object::cast_to<Button>(path_btn_list.pop_back());
-			undo_redo->add_do_method(path_button_container, "add_child", end);
-			undo_redo->add_undo_method(path_button_container, "remove_child", end);
-			undo_redo->add_do_reference(end);
+			auto end = path_btn_list.back()->get();
+			path_btn_list.pop_back();
+			ADD_DO_METHOD_UNCHECK_ARGS(path_button_container, add_child, end);
+			ADD_UNDO_METHOD(path_button_container, remove_child, end);
+			ADD_DO_REFERENCE(end);
 		}
 		// 没有状态
-		undo_redo->add_do_method(this, "__check_empty_fsm_res_or_not", fsm_res);
-		undo_redo->add_undo_method(this, "__check_empty_fsm_res_or_not", current_fsm_res);
+		ADD_DO_METHOD(this, __check_empty_fsm_res_or_not, p_fsm_res);
+		ADD_UNDO_METHOD(this, __check_empty_fsm_res_or_not, current_fsm_res);
 		// 新建并添加节点
-		auto state_res_list = fsm_res->get_state_res_list();
+		auto state_res_list = p_fsm_res->get_state_res_list();
 		for (auto i = 0; i < state_res_list.size(); i++) {
 			Ref<StateRes> sr = state_res_list[i];
-			auto old_state_node = sr->get("state_node");
+			auto old_state_node = sr->get_state_node();
 			auto sn = ____create_state_node(sr);
-			undo_redo->add_do_method(sr.ptr(), "set", "state_node", sn);
-			undo_redo->add_undo_method(sr.ptr(), "set", "state_node", old_state_node);
-			undo_redo->add_do_method(this, "add_child", sn);
-			undo_redo->add_undo_method(this, "remove_child", sn);
-			undo_redo->add_do_reference(sn);
+			ADD_DO_METHOD(sr.ptr(), set, "state_node", sn);
+			ADD_UNDO_METHOD(sr.ptr(), set, "state_node", old_state_node);
+			ADD_DO_METHOD_UNCHECK_ARGS(this, add_child, sn);
+			ADD_UNDO_METHOD(this, remove_child, sn);
+			ADD_DO_REFERENCE(sn);
 		}
 
 		// 连接
-		auto transition_res_list = fsm_res->get_transition_res_list();
+		auto transition_res_list = p_fsm_res->get_transition_res_list();
 		for (auto i = 0; i < transition_res_list.size(); i++) {
 			Ref<TransitionRes> tr = transition_res_list[i];
-			StringName from = tr->get_from_state_res()->get("state_node").get("name");
-			StringName to = tr->get_to_state_res()->get("state_node").get("name");
-			undo_redo->add_do_method(this, "call_deferred", "connect_node", from, 0, to, 0);
-			undo_redo->add_undo_method(this, "disconnect_node", from, 0, to, 0);
+			StringName from = tr->get_from_state_res()->get_state_node()->get_name();
+			StringName to = tr->get_to_state_res()->get_state_node()->get_name();
+
+			ADD_DO_DEFERRED_CALL_METHOD(this, connect_node, from, 0, to, 0);
+			ADD_UNDO_METHOD(this, disconnect_node, from, 0, to, 0);
 		}
 	}
 
-	undo_redo->commit_action();
+	COMMIT_ACTION();
 }
 
-void StateNodesEditor::_process(real_t delta) {
+void StateNodesEditor::_process(real_t p_delta) {
 	// 只处理左键松开时的选择
 	if (!Input::get_singleton()->is_mouse_button_pressed(MOUSE_BUTTON_LEFT)) {
 		if (selected_state_name_list.size() != __bakcup_selected_state_name_list.size()) {
@@ -963,9 +958,9 @@ void StateNodesEditor::_process(real_t delta) {
 	}
 }
 
-void StateNodesEditor::_gui_input(const Ref<InputEvent> &event) {
+void StateNodesEditor::_gui_input(const Ref<InputEvent> &p_event) {
 	static bool to_disconnect;
-	auto mouse_btn_event = Object::cast_to<InputEventMouseButton>(event.ptr());
+	auto mouse_btn_event = Object::cast_to<InputEventMouseButton>(p_event.ptr());
 	if (mouse_btn_event) {
 		// 删除转换操作
 		if (mouse_btn_event->get_button_index() == MOUSE_BUTTON_MIDDLE) {
@@ -995,12 +990,12 @@ void StateNodesEditor::_gui_input(const Ref<InputEvent> &event) {
 				auto selected_tr_list = __try_select_transitions_at_pos(mouse_btn_event->get_position());
 				// undoredo
 				auto deal_selected_transition = [this, selected_tr_list]() -> void {
-					auto undo_redo = HfsmEditorPlugin::create_action("Select State Transitions");
-					undo_redo->add_do_method(this, StringName("__set_selected_state_name_list"), TypedArray<StringName>());
-					undo_redo->add_do_method(this, StringName("__set_selected_transition_res_list"), selected_tr_list);
-					undo_redo->add_undo_method(this, StringName("__set_selected_transition_res_list"), selected_transition_res_list);
-					undo_redo->add_undo_method(this, StringName("__set_selected_state_name_list"), selected_state_name_list);
-					undo_redo->commit_action();
+					CREATE_ACTION("Select State Transitions");
+					ADD_DO_METHOD(this, __set_selected_state_name_list, TypedArray<StringName>());
+					ADD_DO_METHOD(this, __set_selected_transition_res_list, selected_tr_list);
+					ADD_UNDO_METHOD(this, __set_selected_transition_res_list, selected_transition_res_list);
+					ADD_UNDO_METHOD(this, __set_selected_state_name_list, selected_state_name_list);
+					COMMIT_ACTION();
 				};
 
 				if (selected_tr_list.size() != selected_transition_res_list.size()) {
@@ -1023,19 +1018,19 @@ void StateNodesEditor::_gui_input(const Ref<InputEvent> &event) {
 					if (selected_transition_res_list.size() > 0 || selected_state_name_list.size() > 0) {
 						auto selected_tr_list = __try_select_transitions_at_pos(mouse_btn_event->get_position());
 						if (selected_tr_list.size() == 0 && !___get_top_state_node_which_hovered()) {
-							auto undo_redo = HfsmEditorPlugin::create_action("Deselect");
-							undo_redo->add_do_method(this, StringName("__set_selected_transition_res_list"), selected_tr_list);
-							undo_redo->add_do_method(this, StringName("__set_selected_state_name_list"), TypedArray<StringName>());
-							undo_redo->add_undo_method(this, StringName("__set_selected_transition_res_list"), selected_transition_res_list);
-							undo_redo->add_undo_method(this, StringName("__set_selected_state_name_list"), selected_state_name_list);
-							undo_redo->commit_action();
+							CREATE_ACTION("Deselect");
+							ADD_DO_METHOD(this, __set_selected_transition_res_list, selected_tr_list);
+							ADD_DO_METHOD(this, __set_selected_state_name_list, TypedArray<StringName>());
+							ADD_UNDO_METHOD(this, __set_selected_transition_res_list, selected_transition_res_list);
+							ADD_UNDO_METHOD(this, __set_selected_state_name_list, selected_state_name_list);
+							COMMIT_ACTION();
 						}
 					}
 				}
 			}
 		}
 	}
-	auto mouse_motion_event = Object::cast_to<InputEventMouseMotion>(event.ptr());
+	auto mouse_motion_event = Object::cast_to<InputEventMouseMotion>(p_event.ptr());
 	if (mouse_motion_event && to_disconnect) {
 		// 删除线
 		_disconnect_line[1] = mouse_motion_event->get_position();
@@ -1043,9 +1038,9 @@ void StateNodesEditor::_gui_input(const Ref<InputEvent> &event) {
 	}
 }
 
-bool StateNodesEditor::_is_in_input_hotzone(Object *in_node, int64_t in_port, const Vector2 &mouse_position) { return __is_node_hotzone(in_node, in_port, mouse_position); }
-bool StateNodesEditor::_is_in_output_hotzone(Object *in_node, int64_t in_port, const Vector2 &mouse_position) { return __is_node_hotzone(in_node, in_port, mouse_position); }
-PackedVector2Array StateNodesEditor::_get_connection_line(const Vector2 &from, const Vector2 &to) const {
+bool StateNodesEditor::_is_in_input_hotzone(Object *p_in_node, int64_t p_in_port, const Vector2 &p_mouse_position) { return __is_node_hotzone(p_in_node, p_in_port, p_mouse_position); }
+bool StateNodesEditor::_is_in_output_hotzone(Object *p_in_node, int64_t p_in_port, const Vector2 &p_mouse_position) { return __is_node_hotzone(p_in_node, p_in_port, p_mouse_position); }
+PackedVector2Array StateNodesEditor::_get_connection_line(const Vector2 &p_from, const Vector2 &p_to) const {
 	StateNode *from_node = nullptr;
 	StateNode *to_node = nullptr;
 	auto zoom = static_cast<float>(get_zoom());
@@ -1060,24 +1055,24 @@ PackedVector2Array StateNodesEditor::_get_connection_line(const Vector2 &from, c
 		to_slot_pos /= zoom;
 		// from
 		if (!from_node) {
-			if (from_slot_pos.is_equal_approx(from)) {
+			if (from_slot_pos.is_equal_approx(p_from)) {
 				from_node = node;
 			} else {
 				from_slot_pos = node->get_connection_output_position(0) + node->get_position();
 				from_slot_pos /= zoom;
-				if (from_slot_pos.is_equal_approx(from)) {
+				if (from_slot_pos.is_equal_approx(p_from)) {
 					from_node = node;
 				}
 			}
 		}
 		// to
 		if (node != from_node && !to_node) {
-			if (to_slot_pos.is_equal_approx(to)) {
+			if (to_slot_pos.is_equal_approx(p_to)) {
 				to_node = node;
 			} else {
 				to_slot_pos = node->get_connection_input_position(0) + node->get_position();
 				to_slot_pos /= zoom;
-				if (to_slot_pos.is_equal_approx(to)) {
+				if (to_slot_pos.is_equal_approx(p_to)) {
 					to_node = node;
 				}
 			}
@@ -1087,18 +1082,18 @@ PackedVector2Array StateNodesEditor::_get_connection_line(const Vector2 &from, c
 		}
 	}
 	// 计算
-	auto angle = from.angle_to_point(to);
+	auto angle = p_from.angle_to_point(p_to);
 	PackedVector2Array ret;
 	ret.resize(2);
 	if (from_node) {
-		ret[0] = from + (Vector2(-1, 0) * from_node->get_size().x * 0.5f + Vector2(0, -1).rotated(angle) * CONN_POS_OFFSET * 0.5f);
+		ret[0] = p_from + (Vector2(-1, 0) * from_node->get_size().x * 0.5f + Vector2(0, -1).rotated(angle) * CONN_POS_OFFSET * 0.5f);
 	} else {
-		ret[0] = from;
+		ret[0] = p_from;
 	}
 	if (to_node) {
-		ret[1] = to + (Vector2(1, 0) * to_node->get_size().x * 0.5f + Vector2(0, -1).rotated(angle) * CONN_POS_OFFSET * 0.5f);
+		ret[1] = p_to + (Vector2(1, 0) * to_node->get_size().x * 0.5f + Vector2(0, -1).rotated(angle) * CONN_POS_OFFSET * 0.5f);
 	} else {
-		ret[1] = to;
+		ret[1] = p_to;
 	}
 	return ret;
 }
@@ -1193,13 +1188,13 @@ void StateNodesEditor::_draw() {
 	}
 }
 
-String StateNodesEditor::__get_variable_expression_res_valid_and_text(const Ref<VariableExpressionRes> &ver, bool &r_valid) const {
+String StateNodesEditor::__get_variable_expression_res_valid_and_text(const Ref<VariableExpressionRes> &p_ver, bool &r_valid) const {
 	r_valid = false;
-	auto vr = ver->get_variable_res();
+	auto vr = p_ver->get_variable_res();
 	if (vr.is_valid()) {
 		if (vr->get_type() != Variant::NIL) {
-			auto get_op_text = [ver]() -> String {
-				switch (ver->get_operator()) {
+			auto get_op_text = [p_ver]() -> String {
+				switch (p_ver->get_comparator()) {
 					case VariableExpressionRes::OP_EQUAL:
 						return " == ";
 					case VariableExpressionRes::OP_NOT_EQUAL:
@@ -1216,8 +1211,8 @@ String StateNodesEditor::__get_variable_expression_res_valid_and_text(const Ref<
 						return " invalid operator";
 				}
 			};
-			if (ver->is_variable_as_value()) {
-				if (auto vr = Object::cast_to<HFSMVariableRes>(ver->get_value())) {
+			if (p_ver->is_variable_as_value()) {
+				if (auto vr = Object::cast_to<HFSMVariableRes>(p_ver->get_value())) {
 					r_valid = Variant::can_convert(Variant::Type(vr->get_type()), Variant::Type(vr->get_type()));
 					if (r_valid) {
 						return String(vr->get_variable_name()) + get_op_text() + String(vr->get_variable_name());
@@ -1228,21 +1223,21 @@ String StateNodesEditor::__get_variable_expression_res_valid_and_text(const Ref<
 					return str_localize(R"XXX("value" is not a valid "HFSMVariableRes".)XXX");
 				}
 			} else {
-				r_valid = Variant::can_convert(ver->get_value().get_type(), Variant::Type(vr->get_type()));
+				r_valid = Variant::can_convert(p_ver->get_value().get_type(), Variant::Type(vr->get_type()));
 				if (r_valid) {
 					String value_text = "";
 					switch (vr->get_type()) {
 						case Variant::BOOL:
-							value_text = ver->get_value().operator bool() ? "true" : "false";
+							value_text = p_ver->get_value().operator bool() ? "true" : "false";
 							break;
 						case Variant::INT:
 						case Variant::FLOAT:
 							// value_text = itos(int64_t(_value));
 							// break;
-							value_text = rtos(real_t(ver->get_value()));
+							value_text = rtos(real_t(p_ver->get_value()));
 							break;
 						case Variant::STRING:
-							value_text = String("'" + String(ver->get_value()) + "'");
+							value_text = String("'" + String(p_ver->get_value()) + "'");
 							break;
 						default:
 							break;
@@ -1256,7 +1251,7 @@ String StateNodesEditor::__get_variable_expression_res_valid_and_text(const Ref<
 		} else {
 			r_valid = true;
 			String vrn = { vr->get_variable_name() };
-			switch (ver->get_trigger_type()) {
+			switch (p_ver->get_trigger_type()) {
 				case VariableExpressionRes::TRIGGER_TYPE_NORMAL:
 					return str_localize("Trigger: ") + vrn;
 					break;
@@ -1276,13 +1271,14 @@ String StateNodesEditor::__get_variable_expression_res_valid_and_text(const Ref<
 		return str_localize("Has not valid 'variable_res'");
 	}
 }
-List<String> StateNodesEditor::__get_transition_res_valid_and_texts(const Ref<TransitionRes> &transition_res, bool &r_valid) const {
+List<String> StateNodesEditor::__get_transition_res_valid_and_texts(const Ref<TransitionRes> &p_transition_res, bool &r_valid) const {
 	List<String> ret;
 	r_valid = false;
 
-	switch (transition_res->get_type()) {
+	switch (p_transition_res->get_type()) {
+#ifdef FULL_VERSION
 		case TransitionRes::TRANSITION_TYPE_SCRIPT: {
-			auto tr_script = transition_res->get_transition_script();
+			auto tr_script = p_transition_res->get_transition_script();
 			if (tr_script.is_valid()) {
 				r_valid = true;
 				if (tr_script->is_class(GDScript::get_class_static()) &&
@@ -1305,11 +1301,12 @@ List<String> StateNodesEditor::__get_transition_res_valid_and_texts(const Ref<Tr
 				ret.push_back(str_localize("Script is invalid!"));
 			}
 		} break;
+#endif
 		case TransitionRes::TRANSITION_TYPE_VARIABLE: {
-			auto variable_expression_res_list = transition_res->get_variable_expression_res_list();
+			auto variable_expression_res_list = p_transition_res->get_variable_expression_res_list();
 			if (variable_expression_res_list.size() > 0) {
 				r_valid = true;
-				ret.push_back(str_localize("HFSMVariable Expressions: ") + String(transition_res->is_and_mode() ? "AND" : "OR"));
+				ret.push_back(str_localize("HFSMVariable Expressions: ") + String(p_transition_res->is_variable_and_mode() ? "AND" : "OR"));
 				for (auto i = 0; i < variable_expression_res_list.size(); i++) {
 					Ref<VariableExpressionRes> ver = variable_expression_res_list[i];
 					if (ver.is_valid()) {
@@ -1330,19 +1327,19 @@ List<String> StateNodesEditor::__get_transition_res_valid_and_texts(const Ref<Tr
 		} break;
 		case TransitionRes::TRANSITION_TYPE_EXPRESSION: {
 			// 非运行时无法检测表达式合法性， 故只要表达式不为空就认为合法
-			if (transition_res->get_expression_text().is_empty()) {
+			if (p_transition_res->get_expression_text().is_empty()) {
 				ret.push_back(str_localize("Empty expression!"));
 			} else {
 				r_valid = true;
-				ret.push_back(String("Expression: ") + transition_res->get_expression_text());
-				ret.push_back(String("Comment: ") + transition_res->get_expression_comment());
+				ret.push_back(String("Expression: ") + p_transition_res->get_expression_text());
+				ret.push_back(String("Comment: ") + p_transition_res->get_expression_comment());
 			}
 		} break;
 		case TransitionRes::TRANSITION_TYPE_AUTO: {
-			switch (transition_res->get_auto_mode()) {
+			switch (p_transition_res->get_auto_mode()) {
 				case TransitionRes::AUTO_TRANSIT_MODE_DELAY_TIMER: {
 					r_valid = true;
-					ret.push_back(str_localize("Auto: ") + str_localize("Delay ") + itos(static_cast<int64_t>(transition_res->get_auto_delay_msec())) + str_localize(" msec."));
+					ret.push_back(str_localize("Auto: ") + str_localize("Delay ") + itos(static_cast<int64_t>(p_transition_res->get_auto_delay_msec())) + str_localize(" msec."));
 				} break;
 				case TransitionRes::AUTO_TRANSIT_MODE_FSM_EXIT: {
 					r_valid = true;
@@ -1354,12 +1351,12 @@ List<String> StateNodesEditor::__get_transition_res_valid_and_texts(const Ref<Tr
 				} break;
 				case TransitionRes::AUTO_TRANSIT_MODE_UPDATE_TIMES: {
 					r_valid = true;
-					ret.push_back(str_localize("Auto: ") + str_localize("After \"_update()\" being called ") + itos(transition_res->get_auto_times()) + str_localize(" times."));
+					ret.push_back(str_localize("Auto: ") + str_localize("After \"_update()\" being called ") + itos(p_transition_res->get_auto_times()) + str_localize(" times."));
 
 				} break;
 				case TransitionRes::AUTO_TRANSIT_MODE_PHYSICS_UPDATE_TIMES: {
 					r_valid = true;
-					ret.push_back(str_localize("Auto: ") + str_localize("After \"_physics_update()\" being called ") + itos(transition_res->get_auto_times()) + str_localize(" times."));
+					ret.push_back(str_localize("Auto: ") + str_localize("After \"_physics_update()\" being called ") + itos(p_transition_res->get_auto_times()) + str_localize(" times."));
 				}
 				default:
 					ret.push_back(String::utf8("不应发生: 非法自动转换类型。"));
@@ -1371,5 +1368,4 @@ List<String> StateNodesEditor::__get_transition_res_valid_and_texts(const Ref<Tr
 	}
 	return ret;
 }
-
 }; // namespace Hfsm

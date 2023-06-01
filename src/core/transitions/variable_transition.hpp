@@ -16,12 +16,12 @@ public:
 	~VariableTransition();
 
 private:
-	bool _and_mode = false;
-	PackedStringArray _forece_trigger_list;
+	bool and_mode = false;
+	PackedStringArray forece_trigger_list;
 
-	Vector<SoloTriggerExpression *> _solo_triggers;
-	Vector<UnionTriggerExpression *> _union_triggers;
-	Vector<VariableExpression *> _normal_expressions;
+	Vector<SoloTriggerExpression *> solo_triggers;
+	Vector<UnionTriggerExpression *> union_triggers;
+	Vector<VariableExpression *> normal_expressions;
 
 	friend class TransitionRes;
 };

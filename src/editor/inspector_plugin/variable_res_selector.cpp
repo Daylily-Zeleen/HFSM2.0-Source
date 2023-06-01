@@ -6,41 +6,36 @@
 namespace Hfsm {
 
 void VariableResSelector::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("__on_btn_pressed"),
-			&VariableResSelector::__on_btn_pressed);
-	ClassDB::bind_method(D_METHOD("__on_menu_index_pressed"),
-			&VariableResSelector::__on_menu_index_pressed);
+	GDBIND_BEGIN(VariableResSelector);
+	GDBIND_METHOD(__on_btn_pressed);
+	GDBIND_METHOD(__on_menu_index_pressed);
 }
 
 void VariableResSelector::__on_btn_pressed() {
 	if (updating) {
 		return;
 	}
-	menu->set_position(btn->get_global_position() +
-			Vector2i(0, 1) * btn->get_size().y * 2);
+
+	menu->set_position(btn->get_global_position() + Vector2i(0, 1) * btn->get_size().y * 2);
 	menu->popup();
 }
 
-void VariableResSelector::__on_menu_index_pressed(int32_t index) {
+void VariableResSelector::__on_menu_index_pressed(int32_t p_index) {
 	if (updating) {
 		return;
 	}
-	Ref<HFSMVariableRes> vr = menu->get_item_metadata(index);
+	Ref<HFSMVariableRes> vr = menu->get_item_metadata(p_index);
 	auto obj = get_edited_object();
 	auto prop = get_edited_property();
-	if (_to_compare.is_valid() && vr.is_valid() &&
-			(_to_compare == vr || _to_compare->get_type() != vr->get_type())) {
+	if (to_compare.is_valid() && vr.is_valid() &&
+			(to_compare == vr || to_compare->get_type() != vr->get_type())) {
 		return;
 	}
 	emit_changed(prop, vr);
 }
 
-// String VariableResSelector::_to_string() const {
-//     return String("[HfsmEditorPlugin:{0}]")
-//         .replace("{0}", itos(get_instance_id()));
-// }
-String VariableResSelector::_get_type_text(Variant::Type type) {
-	switch (type) {
+String VariableResSelector::_get_type_text(Variant::Type p_type) {
+	switch (p_type) {
 		case Variant::NIL:
 			return "Trigger";
 		case Variant::BOOL:
@@ -50,7 +45,7 @@ String VariableResSelector::_get_type_text(Variant::Type type) {
 		case Variant::STRING:
 			return "String";
 		default:
-			UtilityFunctions::printerr("HFSM: Invald type: %d", type);
+			UtilityFunctions::printerr("HFSM: Invald type: %d", p_type);
 			return "Unknowm";
 	}
 }
@@ -58,7 +53,7 @@ String VariableResSelector::_get_type_text(Variant::Type type) {
 VariableResSelector::VariableResSelector() {
 	btn = memnew(Button);
 	btn->set_text(NULL_TEXT);
-	btn->connect("pressed", Callable(this, "__on_btn_pressed"));
+	btn->connect("pressed", TCALLABLE(__on_btn_pressed));
 	add_child(btn);
 
 	menu = memnew(PopupMenu);
@@ -67,29 +62,26 @@ VariableResSelector::VariableResSelector() {
 	add_child(menu);
 }
 
-void VariableResSelector::setup(HFSM *hfsm, const Ref<HFSMVariableRes> &to_compare) {
-	if (_hfsm) {
+void VariableResSelector::setup(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare) {
+	if (hfsm) {
 		return;
 	}
-	_hfsm = hfsm;
+	hfsm = p_hfsm;
 	if (to_compare.is_valid()) {
-		_to_compare = to_compare;
+		to_compare = p_to_compare;
 	}
-	Array variable_list = _hfsm->get("variable_list");
+	Array variable_list = hfsm->get("variable_list");
 	for (size_t i = 0; i < variable_list.size(); i++) {
 		Ref<HFSMVariableRes> vr = variable_list[i];
-		if (_to_compare.is_valid() &&
-				(_to_compare == vr || _to_compare->get_type() != vr->get_type())) {
+		if (to_compare.is_valid() &&
+				(to_compare == vr || to_compare->get_type() != vr->get_type())) {
 			continue;
 		}
 		menu->add_item(
-				String("{0}: {1}{2}")
-						.format(Array::make(
-								vr->get_variable_name(),
-								_get_type_text(static_cast<Variant::Type>(vr->get_type())),
-								vr->get_comment().is_empty()
-										? ""
-										: (" - " + vr->get_comment()))),
+				vformat("%s: %s%s",
+						vr->get_variable_name(),
+						_get_type_text(static_cast<Variant::Type>(vr->get_type())),
+						vr->get_comment().is_empty() ? "" : (" - " + vr->get_comment())),
 				i + 1);
 		menu->set_item_metadata(menu->get_item_count() - 1, vr);
 	}
@@ -100,10 +92,8 @@ void VariableResSelector::_update_property() {
 	Ref<HFSMVariableRes> vr = get_edited_object()->get(get_edited_property());
 	if (vr.is_valid()) {
 		btn->set_text(
-				String("{0}: {1}")
-						.format(Array::make(vr->get_variable_name(),
-								_get_type_text(static_cast<Variant::Type>(
-										vr->get_type())))));
+				vformat("%s: %s", vr->get_variable_name(),
+						_get_type_text(static_cast<Variant::Type>(vr->get_type()))));
 	} else {
 		btn->set_text(NULL_TEXT);
 	}

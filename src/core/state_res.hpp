@@ -22,7 +22,7 @@ class StateRes : public Resource {
 
 protected:
 	static void _bind_methods();
-	String _to_string() const { return String("[StateRes:{0}]").replace("{0}", uitos(get_instance_id())); }
+	String _to_string() const { return vformat("[StateRes:%d]", get_instance_id()); }
 
 public:
 	bool _set(const StringName &p_name, const Variant &p_property);
@@ -39,22 +39,23 @@ public:
 	StateRes();
 	~StateRes() override;
 
-	void set_state_name(const StringName &name);
+	godot::Node *get_state_node() const;
+	void set_state_name(const StringName &p_name);
 	StringName get_state_name() const;
-	void set_type(State::StateType state_type);
+	void set_type(State::StateType p_state_type);
 	State::StateType get_type() const;
-	void set_state_script(const Ref<Script> &script);
+	void set_state_script(const Ref<Script> &p_script);
 	Ref<Script> get_state_script() const;
-	void set_nested(bool nested);
+	void set_nested(bool p_nested);
 	bool is_nested() const;
-	void set_fsm_res(const Ref<FsmRes> &fsm_res);
+	void set_fsm_res(const Ref<FsmRes> &p_fsm_res);
 	Ref<FsmRes> get_fsm_res() const;
-	void set_editor_offset(Vector2 offset);
-	Vector2 get_editor_offet() const;
-	void set_reset_properties_when_entry(bool v);
-	bool get_reset_properties_when_entry() const;
-	void set_reset_nested_fsm_when_entry(bool v);
-	bool get_reset_nested_fsm_when_entry() const;
+	void set_editor_offset(Vector2 p_offset);
+	Vector2 get_editor_offset() const;
+	void set_reset_properties_when_entry(bool p_v);
+	bool is_reset_properties_when_entry() const;
+	void set_reset_nested_fsm_when_entry(bool p_v);
+	bool is_reset_nested_fsm_when_entry() const;
 
 	// 新特性 动画状态机
 	StringName get_animation_name() const;
@@ -69,29 +70,29 @@ public:
 	void set_animation_reverse(bool p_reverse);
 #endif
 
-	Ref<RefCounted> create_state(HFSM *hfsm, const Fsm *fsm);
+	Ref<RefCounted> create_state(HFSM *p_hfsm, const Fsm *p_fsm);
 
-	Vector2 get_size_in_editor() { return _size_in_editor; }
-	void set_size_in_editor(Vector2 new_size) { _size_in_editor = new_size; }
+	Vector2 get_size_in_editor() { return size_in_editor; }
+	void set_size_in_editor(Vector2 p_new_size) { size_in_editor = p_new_size; }
 
 private:
-	Ref<Script> _script;
+	Ref<Script> state_script;
 	// 避免循环依赖
-	Ref<FsmRes> _fsm_res;
-	Vector2 _size_in_editor;
-	Vector2 _editor_offset;
-	StringName _name = {"state"};
-	State::StateType _type = State::STATE_TYPE_NORMAL;
-	bool _nested = false;
-	bool _reset_properties_when_entry = true;
-	bool _reset_nested_fsm_when_entry = false;
+	Ref<FsmRes> fsm_res;
+	Vector2 size_in_editor;
+	Vector2 editor_offset;
+	StringName state_name = "state";
+	State::StateType type = State::STATE_TYPE_NORMAL;
+	bool nested = false;
+	bool reset_properties_when_entry = true;
+	bool reset_nested_fsm_when_entry = false;
 
 	// 新特性：动画状态机
-	StringName _animation_name = {};
+	StringName animation_name = {};
 #ifdef FULL_VERSION
-	double _animation_blend_time = 0.0f;
-	double _animation_speed = 1.0f;
-	bool _animation_reverse = false;
+	double animation_blend_time = 0.0f;
+	double animation_speed = 1.0f;
+	bool animation_reverse = false;
 #endif
 };
 

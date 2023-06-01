@@ -26,15 +26,15 @@ public:
 #ifdef ROLLBACK_NET_CODE
 	Variant _save_state() override;
 
-	void _load_state(const Variant &state) override;
+	void _load_state(const Variant &p_state) override;
 #endif
 private:
-	uint8_t _mode = AUTO_TRANSIT_MODE_ANIMATION_FINISH;
-	uint64_t _delay_msec = 1000;
-	uint64_t _times = 5;
+	uint8_t mode = AUTO_TRANSIT_MODE_ANIMATION_FINISH;
+	uint64_t delay_msec = 1000;
+	uint64_t times = 5;
 
-	uint64_t _next_delay_transit_tick = 0;
-	uint64_t _update_times = 0;
+	uint64_t next_delay_transit_tick = 0;
+	uint64_t update_times = 0;
 
 	friend class TransitionRes;
 };
@@ -42,25 +42,25 @@ private:
 #pragma region 内联实现
 
 inline void AutoTransition::refresh() {
-	switch (_mode) {
+	switch (mode) {
 		case AUTO_TRANSIT_MODE_DELAY_TIMER:
-			_next_delay_transit_tick = Time::get_singleton()->get_ticks_msec() + _delay_msec;
+			next_delay_transit_tick = Time::get_singleton()->get_ticks_msec() + delay_msec;
 			break;
 		case AUTO_TRANSIT_MODE_UPDATE_TIMES:
 		case AUTO_TRANSIT_MODE_PHYSICS_UPDATE_TIMES:
-			_update_times = _times;
+			update_times = times;
 			break;
 	}
 }
 inline bool AutoTransition::can_transit() {
-	switch (_mode) {
+	switch (mode) {
 		case AUTO_TRANSIT_MODE_ANIMATION_FINISH:
 			return !get_from_state()->is_animation_playing();
 		case AUTO_TRANSIT_MODE_DELAY_TIMER:
-			return Time::get_singleton()->get_ticks_msec() > _next_delay_transit_tick;
+			return Time::get_singleton()->get_ticks_msec() > next_delay_transit_tick;
 		case AUTO_TRANSIT_MODE_FSM_EXIT: {
-			auto _fsm = get_from_state()->get_fsm();
-			if (_fsm && !_fsm->is_running()) {
+			auto fsm = get_from_state()->get_fsm();
+			if (fsm && !fsm->is_running()) {
 				return true;
 			}
 			return false;
@@ -69,14 +69,14 @@ inline bool AutoTransition::can_transit() {
 			return get_from_state()->is_exited();
 		case AUTO_TRANSIT_MODE_UPDATE_TIMES:
 			if (!Engine::get_singleton()->is_in_physics_frame()) {
-				_update_times--;
+				update_times--;
 			}
-			return _update_times == 0;
+			return update_times == 0;
 		case AUTO_TRANSIT_MODE_PHYSICS_UPDATE_TIMES:
 			if (Engine::get_singleton()->is_in_physics_frame()) {
-				_update_times--;
+				update_times--;
 			}
-			return _update_times == 0;
+			return update_times == 0;
 		default:
 			return false;
 	}

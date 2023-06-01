@@ -28,7 +28,7 @@ class HFSM : public Node {
 protected:
 	static void _bind_methods();
 
-	String _to_string() const { return String("[HFSM:{0}]").replace("{0}", itos(get_instance_id())); }
+	String _to_string() const { return vformat("[HFSM:%d]", get_instance_id()); }
 
 public:
 	HFSM();
@@ -49,19 +49,19 @@ public:
 	void manual_physics_update();
 	void restart();
 
-	Ref<HFSMVariable> get_var(const StringName &variable_name);
+	Ref<HFSMVariable> get_var(const StringName &p_variable_name);
 	Array get_vars();
-	Variant get_var_value(const StringName &variable_name);
+	Variant get_var_value(const StringName &p_variable_name);
 	Dictionary get_vars_value();
-	void set_var(const StringName &variable_name, const Variant &value = Variant());
-	void set_trigger(const StringName &trigger_name);
-	void set_boolean(const StringName &boolean_name, bool value);
-	void set_integer(const StringName &interger_name, int64_t value);
-	void set_float(const StringName &float_name, double value);
-	void set_string(const StringName &string_name, const String &value);
+	void set_var(const StringName &p_variable_name, const Variant &p_value = Variant());
+	void set_trigger(const StringName &p_trigger_name);
+	void set_boolean(const StringName &p_boolean_name, bool p_value);
+	void set_integer(const StringName &p_interger_name, int64_t p_value);
+	void set_float(const StringName &p_float_name, double p_value);
+	void set_string(const StringName &p_string_name, const String &p_value);
 
-	Dictionary get_context() { return _context; }
-	void set_context(const Dictionary &p_context) { _context = p_context; }
+	Dictionary get_context() { return context; }
+	void set_context(const Dictionary &p_context) { context = p_context; }
 	// // 以下段落考虑弃用
 	// void set_entry_state(String state_name, Array fsm_path = root_path);
 	// void set_exit_state(String state_name, Array fsm_path = root_path);
@@ -79,21 +79,21 @@ public:
 	// setget
 	bool is_inited();
 
-	void set_active(bool v);
+	void set_active(bool p_v);
 	bool is_active();
 
-	void set_debug(bool v);
+	void set_debug(bool p_v);
 	bool is_debug();
 	// void set_agents(Dictionary a);
 	Dictionary get_agents() const;
 
-	void set_update_type(UpdateType t);
+	void set_update_type(UpdateType p_t);
 	UpdateType get_update_type();
 
 	Ref<State> get_current_state();
 	Ref<State> get_previous_state();
 
-	void set_root_fsm_res(const Ref<FsmRes> &root_fsm_res);
+	void set_root_fsm_res(const Ref<FsmRes> &p_root_fsm_res);
 	Ref<FsmRes> get_root_fsm_res() const;
 
 	void set_animation_player(AnimationPlayer *p_animtion_player);
@@ -105,8 +105,8 @@ public:
 
 	// 重写以实现逻辑
 	void _ready() override;
-	void _process(double delta) override;
-	void _physics_process(double delta) override;
+	void _process(double p_delta) override;
+	void _physics_process(double p_delta) override;
 
 	// 信号回调
 	void ___on_tree_entered__();
@@ -114,57 +114,57 @@ public:
 
 #ifdef ROLLBACK_NET_CODE
 	virtual Array _save_state();
-	virtual void _load_state(const Array &state);
-	virtual void _interpolate_state(const Array &old_state, const Array &new_state, real_t weight);
+	virtual void _load_state(const Array &p_state);
+	virtual void _interpolate_state(const Array &p_old_state, const Array &p_new_state, real_t p_weight);
 	virtual Array _get_local_input();
-	virtual Array _predict_remote_input(const Array &previous_input, int64_t ticks_since_real_input);
-	virtual void _network_process(Array &input);
-	virtual void _network_preprocess(Array &input);
-	virtual void _network_postprocess(Array &input);
-	virtual Dictionary &_network_spawn_preprocess(Dictionary &data);
-	virtual void _network_spawn(Dictionary &data);
+	virtual Array _predict_remote_input(const Array &p_previous_input, int64_t p_ticks_since_real_input);
+	virtual void _network_process(Array &p_input);
+	virtual void _network_preprocess(Array &p_input);
+	virtual void _network_postprocess(Array &p_input);
+	virtual Dictionary &_network_spawn_preprocess(Dictionary &p_data);
+	virtual void _network_spawn(Dictionary &p_data);
 	virtual void _network_despawn();
 #endif
 
 private:
-	bool _inited = false;
-	bool _active = true;
-	bool _debug = false;
-	Dictionary _agents;
-	UpdateType _update_type = UpdateType::UPDATE_TYPE_IDLE_AND_PHYSICS;
+	bool inited = false;
+	bool active = true;
+	bool debug = false;
+	Dictionary agents;
+	UpdateType update_type = UpdateType::UPDATE_TYPE_IDLE_AND_PHYSICS;
 
 	// 高级选项
-	bool _disable_rename_to_snake_case = false;
-	// bool _force_all_state_entry_behavior = ForceType::NOT_FORCE;
-	// bool _force_all_fsm_entry_behavior = ForceType::NOT_FORCE;
+	bool disable_rename_to_snake_case = false;
+	// bool force_all_state_entry_behavior = ForceType::NOT_FORCE;
+	// bool force_all_fsm_entry_behavior = ForceType::NOT_FORCE;
 	//
-	// resource _inspector_res;
-	Ref<FsmRes> _root_fsm_res;
-	Ref<State> _current_state; //= ["root"] setget , get_current_path
-	Ref<State> _previous_state; // :Array = ["root"] setget , get_previous_path
+	// resource inspector_res;
+	Ref<FsmRes> root_fsm_res;
+	Ref<State> current_state; //= ["root"] setget , get_current_path
+	Ref<State> previous_state; // :Array = ["root"] setget , get_previous_path
 
-	Fsm *_root_fsm = nullptr;
-	Vector<Ref<HFSMVariable>> _trigger_list;
-	VMap<StringName, Ref<HFSMVariable>> _variable_blackboard;
+	Fsm *root_fsm = nullptr;
+	Vector<Ref<HFSMVariable>> trigger_list;
+	VMap<StringName, Ref<HFSMVariable>> variable_blackboard;
 
-	Vector<Fsm *> *_active_fsm_list = nullptr;
+	Vector<Fsm *> *active_fsm_list = nullptr;
 
 	AnimationPlayer *animation_player = nullptr;
 
 	// 新增 上下文
-	Dictionary _context;
+	Dictionary context;
 
-	PackedStringArray _expression_objs_names;
-	Array _expression_objs;
+	PackedStringArray expression_objs_names;
+	Array expression_objs;
 
 	void generate_hfsm();
 	void flush_trigger();
 	// 信号发射器 , 由 fsm 调用
-	void updated(Ref<State> &state, double delta);
-	void physic_updated(Ref<State> &state, double delta);
-	void transited(Ref<State> &from_state, Ref<State> &to_state);
-	void entered(Ref<State> &state);
-	void exited(Ref<State> &state);
+	void updated(Ref<State> &p_state, double p_delta);
+	void physic_updated(Ref<State> &state, double p_delta);
+	void transited(Ref<State> &p_from_state, Ref<State> &p_to_state);
+	void entered(Ref<State> &p_state);
+	void exited(Ref<State> &p_state);
 
 	// 新特性：动画状态机
 	void __on_animation_finished(const StringName &p_anim_name);
@@ -174,35 +174,35 @@ private:
 
 #pragma region 内联实现
 
-inline bool HFSM::is_inited() { return _inited; }
-inline void HFSM::set_active(bool v) {
-	_active = v;
+inline bool HFSM::is_inited() { return inited; }
+inline void HFSM::set_active(bool p_v) {
+	active = p_v;
 	// TODO:: 失能处理
 	notify_property_list_changed();
 }
-inline bool HFSM::is_active() { return _active; }
-inline void HFSM::set_debug(bool v) {
-	_debug = v;
+inline bool HFSM::is_active() { return active; }
+inline void HFSM::set_debug(bool p_v) {
+	debug = p_v;
 	notify_property_list_changed();
 	// TODO:: 添加调试器
 }
-inline bool HFSM::is_debug() { return _debug; }
+inline bool HFSM::is_debug() { return debug; }
 // void set_agents(Dictionary a);
-inline Dictionary HFSM::get_agents() const { return _agents; }
-inline HFSM::UpdateType HFSM::get_update_type() { return _update_type; }
+inline Dictionary HFSM::get_agents() const { return agents; }
+inline HFSM::UpdateType HFSM::get_update_type() { return update_type; }
 
-inline Ref<State> HFSM::get_current_state() { return _current_state; }
-inline Ref<State> HFSM::get_previous_state() { return _previous_state; }
+inline Ref<State> HFSM::get_current_state() { return current_state; }
+inline Ref<State> HFSM::get_previous_state() { return previous_state; }
 
 // ExpressiontTransition 专用
-inline PackedStringArray &HFSM::get_expression_objs_names() { return _expression_objs_names; }
-inline Array &HFSM::get_expression_objs() { return _expression_objs; }
+inline PackedStringArray &HFSM::get_expression_objs_names() { return expression_objs_names; }
+inline Array &HFSM::get_expression_objs() { return expression_objs; }
 
 // 新特性：动画状态机
 
 inline void HFSM::__on_animation_finished(const StringName &p_anim_name) {
-	if (_current_state.is_valid() && _current_state->get_animation_name_for_playing() == p_anim_name) {
-		_current_state->_animation_playing = false;
+	if (current_state.is_valid() && current_state->get_animation_name_for_playing() == p_anim_name) {
+		current_state->animation_playing = false;
 	}
 }
 #pragma endregion

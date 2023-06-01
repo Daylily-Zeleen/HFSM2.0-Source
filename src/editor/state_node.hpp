@@ -47,27 +47,28 @@ private:
 		OUT_TYPE
 	};
 	// ==================
-	static StateNode *create_state_node(const Ref< StateRes> &target_state_res);
-	bool __has_duplicate_name(const String &to_test_name);
+	Ref<class StateRes> get_state_res() const { return state_res; }
+	static StateNode *create_state_node(const Ref<StateRes> &p_target_state_res);
+	bool __has_duplicate_name(const String &p_to_test_name);
 	Array __get_brother_state_res_list();
 	void __reset_state_res();
-	void __setup_state_res(const Ref<StateRes> &to_set);
+	void __setup_state_res(const Ref<StateRes> &p_to_set);
 	void __set_pos_from_res();
 	// ==================
 	void __on_resize();
 	void __cancel_name_changed();
-	void __accept_name_changed(const String &new_name);
-	void __type_option_btn_item_selected(int32_t idx);
-	void __set_has_sub_fsm_check_box(bool pressed);
+	void __accept_name_changed(const String &p_new_name);
+	void __type_option_btn_item_selected(int32_t p_idx);
+	void __set_has_sub_fsm_check_box(bool p_pressed);
 	void __request_edit_sub_fsm_res();
-	void __script_selected(const Ref<Script>& script, bool edit);
-	void __script_changed(const Ref<Script>&script);
-	void __resize_requested(Vector2 new_minsize);
+	void __script_selected(const Ref<Script> &p_script, bool p_edit);
+	void __script_changed(const Ref<Script> &p_script);
+	void __resize_requested(Vector2 p_new_minsize);
 	void __resize();
-	void __dragged(Vector2 from, Vector2 to);
+	void __dragged(Vector2 p_from, Vector2 p_to);
 	void __setup_structure();
 	// ==================
-	String str_localize(const String &en_key) const;
+	String str_localize(const String &p_en_key) const;
 
 	friend class HFSMEditor;
 	friend class StateNodesEditor;

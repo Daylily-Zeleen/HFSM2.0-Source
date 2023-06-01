@@ -12,21 +12,21 @@ public:
 
 	void set_expression_text(const String &expression_text);
 
-	bool is_vaild_expression() const;
+	bool is_vaild() const;
 
 private:
-	HFSM *_hfsm = nullptr;
+	HFSM *hfsm = nullptr;
 
-	Expression _expression;
-	// String _expression_text = "";
-	bool _valid = false;
+	Expression expression;
+	// String expression_text = "";
+	bool valid = false;
 
 	friend class TransitionRes;
 };
 
 #pragma region 内联实现
 
-inline bool ExpressionTransition::is_vaild_expression() const { return _valid; }
+inline bool ExpressionTransition::is_vaild() const { return valid; }
 
 #pragma endregion
 } // namespace Hfsm

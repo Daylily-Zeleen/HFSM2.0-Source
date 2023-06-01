@@ -18,7 +18,7 @@ class State : public RefCounted {
 protected:
 	static void _bind_methods();
 
-	String _to_string() const { return String("[State:{0}]").replace("{0}", itos(get_instance_id())); }
+	String _to_string() const { return vformat("[State:%d]", get_instance_id()); }
 
 public:
 	enum StateType {
@@ -30,7 +30,7 @@ public:
 	State();
 	~State() override;
 
-	void set_name(const StringName &name);
+	void set_name(const StringName &p_name);
 	StringName get_name();
 	// void set_hfsm(HFSM v);
 	HFSM *get_hfsm();
@@ -42,8 +42,8 @@ public:
 	void manual_exit();
 	virtual void _initialize();
 	virtual void _entry();
-	virtual void _update(float delta);
-	virtual void _physics_update(float delta);
+	virtual void _update(float p_delta);
+	virtual void _physics_update(float p_delta);
 	virtual void _exit();
 
 	const Array &get_path() const;
@@ -62,7 +62,7 @@ public:
 	void set_animation_blend_time(double p_blend_time);
 	double get_animation_speed() const;
 	void set_animation_speed(double p_speed);
-	bool get_animation_reverse() const;
+	bool is_animation_reverse() const;
 	void set_animation_reverse(bool p_reverse);
 #endif
 
@@ -92,37 +92,37 @@ public:
 	virtual void _network_despawn();
 #endif
 
-	Vector<TransitionBase *> _transition_list;
+	Vector<TransitionBase *> transition_list;
 	// 子状态机
-	Fsm *_fsm = nullptr;
+	Fsm *fsm = nullptr;
 
 private:
-	StringName _name = "";
-	HFSM *_hfsm = nullptr;
+	StringName name = "";
+	HFSM *hfsm = nullptr;
 
-	Array _path;
-	bool _exited = false;
+	Array path;
+	bool exited = false;
 
-	StateType _type = STATE_TYPE_NORMAL;
+	StateType type = STATE_TYPE_NORMAL;
 
-	bool _reset_when_entry = false;
-	bool _reset_nested_fsm_when_entry = false;
-	VMap<String, Variant> _property_to_defatul_value;
+	bool reset_when_entry = false;
+	bool reset_nested_fsm_when_entry = false;
+	VMap<String, Variant> property_to_defatul_value;
 
 	// 新特性：动画状态机
-	StringName _animation_name = {};
-	bool _animation_playing = false;
+	StringName animation_name = {};
+	bool animation_playing = false;
 #ifdef FULL_VERSION
-	double _animation_blend_time = 0.0f;
-	double _animation_speed = 1.0f;
-	bool _animation_reverse = false;
+	double animation_blend_time = 0.0f;
+	double animation_speed = 1.0f;
+	bool animation_reverse = false;
 #endif
 
 	void reset();
 	void entry();
-	void update(real_t delta);
-	void physics_update(real_t delta);
-	void exit(bool terminated_by_upper_level = false);
+	void update(real_t p_delta);
+	void physics_update(real_t p_delta);
+	void exit(bool p_terminated_by_upper_level = false);
 
 	friend class FsmRes;
 	friend class StateRes;
@@ -132,15 +132,15 @@ private:
 
 #pragma region 内联实现
 
-inline StringName State::get_name() { return _name; }
+inline StringName State::get_name() { return name; }
 
-inline const Array &State::get_path() const { return _path; }
+inline const Array &State::get_path() const { return path; }
 
-inline Fsm *State::get_fsm() { return _fsm; }
+inline Fsm *State::get_fsm() { return fsm; }
 
-inline State::StateType State::get_type() const { return _type; }
+inline State::StateType State::get_type() const { return type; }
 
-inline bool State::is_animation_playing() const { return _animation_playing; }
+inline bool State::is_animation_playing() const { return animation_playing; }
 #pragma endregion
 
 }; // namespace Hfsm

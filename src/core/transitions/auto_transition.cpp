@@ -10,10 +10,10 @@ namespace Hfsm {
 Variant AutoTransition::_save_state() {
     switch (_mode) {
     case AUTO_TRANSIT_MODE_DELAY_TIMER:
-        return _next_delay_transit_tick;
+        return next_delay_transit_tick;
     case AUTO_TRANSIT_MODE_UPDATE_TIMES:
     case AUTO_TRANSIT_MODE_PHYSICS_UPDATE_TIMES:
-        return _update_times;
+        return update_times;
     default:
         return Variant();
     }
@@ -22,11 +22,11 @@ Variant AutoTransition::_save_state() {
 void AutoTransition::_load_state(const Variant &state) {
     switch (_mode) {
     case AUTO_TRANSIT_MODE_DELAY_TIMER:
-        _next_delay_transit_tick = state;
+        next_delay_transit_tick = state;
         return;
     case AUTO_TRANSIT_MODE_UPDATE_TIMES:
     case AUTO_TRANSIT_MODE_PHYSICS_UPDATE_TIMES:
-        _update_times = state;
+        update_times = state;
         return;
     default:
         return;

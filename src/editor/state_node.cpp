@@ -9,58 +9,53 @@
 #include <godot_cpp/classes/spin_box.hpp>
 #include <godot_cpp/classes/v_box_container.hpp>
 
-#include "hfsm_editor_plugin.hpp"
 #include "core/fsm_res.hpp"
 #include "core/state_res.hpp"
+#include "hfsm_editor_plugin.hpp"
 #include "state_nodes_editor.hpp"
+
+// #include <hfsm_global.hpp>
 
 using namespace godot;
 namespace Hfsm {
 
-String StateNode::str_localize(const String &en_key) const {
-	return HfsmEditorPlugin::str_localize(en_key);
+String StateNode::str_localize(const String &p_en_key) const {
+	return HfsmEditorPlugin::str_localize(p_en_key);
 }
 
 void StateNode::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("__cancel_name_changed"),
-			&StateNode::__cancel_name_changed);
-	ClassDB::bind_method(D_METHOD("__accept_name_changed"),
-			&StateNode::__accept_name_changed);
-	ClassDB::bind_method(D_METHOD("__type_option_btn_item_selected", "idx"),
-			&StateNode::__type_option_btn_item_selected);
-	ClassDB::bind_method(D_METHOD("__set_has_sub_fsm_check_box", "pressed"),
-			&StateNode::__set_has_sub_fsm_check_box);
-	ClassDB::bind_method(D_METHOD("__request_edit_sub_fsm_res"),
-			&StateNode::__request_edit_sub_fsm_res);
-	ClassDB::bind_method(D_METHOD("__script_selected", "script", "edit"),
-			&StateNode::__script_selected);
-	ClassDB::bind_method(D_METHOD("__script_changed", "script"),
-			&StateNode::__script_changed);
-	ClassDB::bind_method(D_METHOD("__resize_requested", "size"),
-			&StateNode::__resize_requested);
-	ClassDB::bind_method(D_METHOD("__reset_state_res"),
-			&StateNode::__reset_state_res);
-	ClassDB::bind_method(D_METHOD("__resize"), &StateNode::__resize);
-	ClassDB::bind_method(D_METHOD("__dragged"), &StateNode::__dragged);
+	GDBIND_BEGIN(StateNode);
+	GDBIND_METHOD(__cancel_name_changed);
+	GDBIND_METHOD(__accept_name_changed);
+	GDBIND_METHOD(__type_option_btn_item_selected, "idx");
+	GDBIND_METHOD(__set_has_sub_fsm_check_box, "pressed");
+	GDBIND_METHOD(__request_edit_sub_fsm_res);
+
+	GDBIND_METHOD(__script_selected, "script", "edit");
+	GDBIND_METHOD(__script_changed, "script");
+	GDBIND_METHOD(__resize_requested, "size");
+	GDBIND_METHOD(__reset_state_res);
+	GDBIND_METHOD(__resize);
+	GDBIND_METHOD(__dragged);
 }
 
-StateNode *StateNode::create_state_node(const Ref<StateRes> &target_state_res) {
-	if (target_state_res.is_null()) {
+StateNode *StateNode::create_state_node(const Ref<StateRes> &p_target_state_res) {
+	if (p_target_state_res.is_null()) {
 		return nullptr;
 	}
 	auto r = memnew(StateNode);
 	r->__setup_structure();
-	r->__setup_state_res(target_state_res);
+	r->__setup_state_res(p_target_state_res);
 	r->set_name(String("@") + uitos(Time::get_singleton()->get_ticks_msec() + r->get_instance_id()));
-	target_state_res->set("state_node", r);
+	p_target_state_res->set("state_node", r);
 	return r;
 }
-bool StateNode::__has_duplicate_name(const String &to_test_name) {
+bool StateNode::__has_duplicate_name(const String &p_to_test_name) {
 	auto brothers = __get_brother_state_res_list();
 	for (size_t i = 0; i < brothers.size(); i++) {
 		auto sr = Object::cast_to<StateRes>(brothers[i]);
 		if (sr && sr != state_res.ptr()) {
-			if (sr->get_state_name() == to_test_name) {
+			if (sr->get_state_name() == p_to_test_name) {
 				return true;
 			}
 		}
@@ -80,19 +75,16 @@ Array StateNode::__get_brother_state_res_list() {
 
 void StateNode::__reset_state_res() { __setup_state_res(state_res); }
 
-void StateNode::__setup_state_res(const Ref<StateRes> &to_set) {
+void StateNode::__setup_state_res(const Ref<StateRes> &p_to_set) {
 	if (state_res.is_valid()) {
-		if (state_res->is_connected("changed",
-					Callable(this, "__reset_state_res"))) {
-			state_res->disconnect("changed",
-					Callable(this, "__reset_state_res"));
+		if (state_res->TIS_CONNECTED("changed", __reset_state_res)) {
+			state_res->TDISCONNECT("changed", __reset_state_res);
 		}
 	}
-	state_res = to_set;
+	state_res = p_to_set;
 	if (state_res.is_valid()) {
-		if (!state_res->is_connected("changed",
-					Callable(this, "__reset_state_res"))) {
-			state_res->connect("changed", Callable(this, "__reset_state_res"));
+		if (!state_res->TIS_CONNECTED("changed", __reset_state_res)) {
+			state_res->connect("changed", TCALLABLE(__reset_state_res));
 		}
 	} else {
 		name_line_edit->set_text("<error>");
@@ -139,7 +131,7 @@ void StateNode::__set_pos_from_res() {
 	if (parent) {
 		auto zoom = parent->get_zoom();
 		auto scroll_offsetr = parent->get_scroll_ofs();
-		set_position_offset(state_res->get_editor_offet());
+		set_position_offset(state_res->get_editor_offset());
 	}
 }
 // ==================
@@ -173,8 +165,8 @@ void StateNode::__accept_name_changed(const String &new_name) {
 	unro_redo->add_undo_property(this, "title", state_res->get_state_name());
 	unro_redo->commit_action();
 }
-void StateNode::__type_option_btn_item_selected(int32_t idx) {
-	auto id = type_option_btn->get_item_id(idx);
+void StateNode::__type_option_btn_item_selected(int32_t p_idx) {
+	auto id = type_option_btn->get_item_id(p_idx);
 	if (id < 0 || id > 3) {
 		return;
 	}
@@ -191,31 +183,26 @@ void StateNode::__type_option_btn_item_selected(int32_t idx) {
 								": this state is Entry State, can't set to other type."));
 				return;
 			}
-			auto undo_redo = HfsmEditorPlugin::create_action("Change state type");
-			undo_redo->add_do_method(state_res.ptr(), StringName("set_type"),
-					State::STATE_TYPE_NORMAL);
-			undo_redo->add_undo_method(state_res.ptr(), StringName("set_type"),
-					state_res->get_type());
-			undo_redo->commit_action();
+
+			CREATE_ACTION("Change state type");
+			ADD_DO_METHOD(state_res.ptr(), set_type, State::STATE_TYPE_NORMAL);
+			ADD_UNDO_METHOD(state_res.ptr(), set_type, state_res->get_type());
+			COMMIT_ACTION();
 		} break;
 		case State::STATE_TYPE_ENTRY: {
-			auto undo_redo = HfsmEditorPlugin::create_action("Change state type");
+			CREATE_ACTION("Change state type");
 			auto brother_state_res_list = __get_brother_state_res_list();
 			for (size_t i = 0; i < brother_state_res_list.size(); i++) {
 				Ref<StateRes> sr = brother_state_res_list[i];
 				if (sr.is_valid() && sr != state_res.ptr() &&
 						sr->get_type() == State::STATE_TYPE_ENTRY) {
-					undo_redo->add_do_method(sr.ptr(), StringName("set_type"),
-							State::STATE_TYPE_NORMAL);
-					undo_redo->add_undo_method(sr.ptr(), StringName("set_type"),
-							state_res->get_type());
+					ADD_DO_METHOD(sr.ptr(), set_type, State::STATE_TYPE_NORMAL);
+					ADD_UNDO_METHOD(sr.ptr(), set_type, state_res->get_type());
 				}
 			}
-			undo_redo->add_do_method(state_res.ptr(), StringName("set_type"),
-					State::STATE_TYPE_ENTRY);
-			undo_redo->add_undo_method(state_res.ptr(), StringName("set_type"),
-					state_res->get_type());
-			undo_redo->commit_action();
+			ADD_DO_METHOD(state_res.ptr(), set_type, State::STATE_TYPE_ENTRY);
+			ADD_UNDO_METHOD(state_res.ptr(), set_type, state_res->get_type());
+			COMMIT_ACTION();
 		} break;
 		case State::STATE_TYPE_EXIT: {
 			if (state_res->get_type() == State::STATE_TYPE_ENTRY) {
@@ -223,13 +210,10 @@ void StateNode::__type_option_btn_item_selected(int32_t idx) {
 						"HFSM::", state_res->get_type(),
 						str_localize(
 								": this state is Entry State, can't set to other type."));
-				auto undo_redo =
-						HfsmEditorPlugin::create_action("Change state type");
-				undo_redo->add_do_method(state_res.ptr(), StringName("set_type"),
-						State::STATE_TYPE_EXIT);
-				undo_redo->add_undo_method(state_res.ptr(), StringName("set_type"),
-						state_res->get_type());
-				undo_redo->commit_action();
+				CREATE_ACTION("Change state type");
+				ADD_DO_METHOD(state_res.ptr(), set_type, State::STATE_TYPE_EXIT);
+				ADD_UNDO_METHOD(state_res.ptr(), set_type, state_res->get_type());
+				COMMIT_ACTION();
 			}
 		} break;
 		default:
@@ -237,57 +221,52 @@ void StateNode::__type_option_btn_item_selected(int32_t idx) {
 	}
 }
 
-void StateNode::__set_has_sub_fsm_check_box(bool pressed) {
-	if (state_res->get_fsm_res().is_null() && !pressed) {
+void StateNode::__set_has_sub_fsm_check_box(bool p_pressed) {
+	if (state_res->get_fsm_res().is_null() && !p_pressed) {
 		return;
 	}
-	if (state_res->get_fsm_res().is_valid() && pressed) {
+	if (state_res->get_fsm_res().is_valid() && p_pressed) {
 		return;
 	}
-	auto undo_redo = HfsmEditorPlugin::create_action("set Sub-FSM");
+	CREATE_ACTION("set Sub-FSM");
 	Ref<FsmRes> new_sub_fsm;
 	new_sub_fsm.instantiate();
 	new_sub_fsm->set_nested_state_res(state_res);
-	undo_redo->add_do_method(state_res.ptr(), StringName("set_fsm_res"),
-			pressed ? new_sub_fsm : nullptr);
-	undo_redo->add_undo_method(state_res.ptr(), StringName("set_fsm_res"),
-			state_res->get_fsm_res());
-	undo_redo->commit_action();
+	ADD_DO_METHOD(state_res.ptr(), set_fsm_res, p_pressed ? new_sub_fsm : nullptr);
+	ADD_UNDO_METHOD(state_res.ptr(), set_fsm_res, state_res->get_fsm_res());
+	COMMIT_ACTION();
 }
 void StateNode::__request_edit_sub_fsm_res() {
 	if (state_res->get_fsm_res().is_valid()) {
-		HfsmEditorPlugin::get_singleton()
-				->get_hfsm_editor()
-				->request_edit_fsm_res(state_res->get_fsm_res());
+		HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->request_edit_fsm_res(state_res->get_fsm_res());
 	}
 }
-void StateNode::__script_selected(const Ref<Script> &script, bool edit) {
+void StateNode::__script_selected(const Ref<Script> &p_script, bool p_edit) {
 	HfsmEditorPlugin::get_singleton()->get_editor_interface()->edit_resource(
-			script);
+			p_script);
 }
-void StateNode::__script_changed(const Ref<Script> &script) {
+void StateNode::__script_changed(const Ref<Script> &p_script) {
 	if (Object::cast_to<Script>(get_script())) {
 		if (state_res->get_state_script().is_null()) {
 			// 新建
 			if (Engine::get_singleton()->is_editor_hint() &&
-					script->get_source_code().is_empty()) {
+					p_script->get_source_code().is_empty()) {
 				// TODO::添加模板
-				script->set_source_code("");
+				p_script->set_source_code("");
 			}
 		}
-		if (script == state_res->get_state_script()) {
+		if (p_script == state_res->get_state_script()) {
 			return;
 		}
-		auto undo_redo = HfsmEditorPlugin::create_action("Attach state script");
-		undo_redo->add_do_method(state_res.ptr(), "set_state_script", script);
-		undo_redo->add_undo_method(state_res.ptr(), "set_state_script",
-				state_res->get_state_script());
-		undo_redo->commit_action();
+		CREATE_ACTION("Attach state script");
+		ADD_DO_METHOD(state_res.ptr(), set_state_script, p_script);
+		ADD_UNDO_METHOD(state_res.ptr(), set_state_script, state_res->get_state_script());
+		COMMIT_ACTION();
 	}
 }
-void StateNode::__resize_requested(Vector2 new_minsize) {
+void StateNode::__resize_requested(Vector2 p_new_minsize) {
 	auto size = get_size();
-	size.x = new_minsize.x;
+	size.x = p_new_minsize.x;
 	call_deferred("__resize");
 }
 void StateNode::__resize() {
@@ -297,17 +276,14 @@ void StateNode::__resize() {
 	if (get_size().is_equal_approx(state_res->get_size_in_editor())) {
 		return;
 	}
-	auto undo_redo = HfsmEditorPlugin::create_action("resized");
-	undo_redo->add_do_property(this, "size", get_size());
-	undo_redo->add_undo_property(this, "size", state_res->get_size_in_editor());
-	undo_redo->add_do_method(state_res.ptr(), StringName("set_size_in_editor"),
-			get_size());
-	undo_redo->add_undo_method(state_res.ptr(),
-			StringName("set_size_in_editor"),
-			state_res->get_size_in_editor());
-	undo_redo->commit_action();
+	CREATE_ACTION("resized");
+	ADD_DO_METHOD(this, set_size, get_size(), false);
+	ADD_UNDO_METHOD(this, set_size, state_res->get_size_in_editor(), false);
+	ADD_DO_METHOD(state_res.ptr(), set_size_in_editor, get_size());
+	ADD_UNDO_METHOD(state_res.ptr(), set_size_in_editor, state_res->get_size_in_editor());
+	COMMIT_ACTION();
 }
-void StateNode::__dragged(Vector2 from, Vector2 to) {
+void StateNode::__dragged(Vector2 p_from, Vector2 p_to) {
 	auto parent = Object::cast_to<StateNodesEditor>(get_parent());
 	if (!parent) {
 		return;
@@ -316,23 +292,18 @@ void StateNode::__dragged(Vector2 from, Vector2 to) {
 		return;
 	}
 	parent->set_dealing_move_states(true);
-	auto undo_redo = HfsmEditorPlugin::create_action("move states");
+	CREATE_ACTION("move states");
 	auto nodes = get_parent()->get_children();
 	for (size_t i = 0; i < nodes.size(); i++) {
 		auto node = Object::cast_to<StateNode>(nodes[i]);
 		if (node) {
-			if (!node->state_res->get_editor_offet().is_equal_approx(
-						node->get_position_offset())) {
-				undo_redo->add_do_method(node->state_res.ptr(),
-						StringName("set_editor_offset"),
-						node->get_position_offset());
-				undo_redo->add_undo_method(node->state_res.ptr(),
-						StringName("set_editor_offset"),
-						node->state_res->get_editor_offet());
+			if (!node->state_res->get_editor_offset().is_equal_approx(node->get_position_offset())) {
+				ADD_DO_METHOD(node->state_res.ptr(), set_editor_offset, node->get_position_offset());
+				ADD_UNDO_METHOD(node->state_res.ptr(), set_editor_offset, node->state_res->get_editor_offset());
 			}
 		}
 	}
-	undo_redo->commit_action();
+	COMMIT_ACTION();
 	parent->set_dealing_move_states(false);
 }
 void StateNode::_ready() {
@@ -414,29 +385,21 @@ void StateNode::__setup_structure() {
 
 	// 信号功能连接
 	{ // 名称输入行
-		name_line_edit->connect("focus_exited",
-				Callable(this, "__cancel_name_changed"));
-		name_line_edit->connect("text_change_rejected",
-				Callable(this, "__cancel_name_changed"));
-		name_line_edit->connect("text_submitted",
-				Callable(this, "__accept_name_changed"));
+		name_line_edit->connect("focus_exited", TCALLABLE(__cancel_name_changed));
+		name_line_edit->connect("text_change_rejected", TCALLABLE(__cancel_name_changed));
+		name_line_edit->connect("text_submitted", TCALLABLE(__accept_name_changed));
 		// 类型选择框
-		type_option_btn->connect(
-				"item_selected", Callable(this, "__type_option_btn_item_selected"));
+		type_option_btn->connect("item_selected", TCALLABLE(__type_option_btn_item_selected));
 		// 子状态机
-		has_sub_fsm_check_box->connect(
-				"toggled", Callable(this, "__set_has_sub_fsm_check_box"));
-		sub_fsm_btn->connect("pressed",
-				Callable(this, "__request_edit_fsm_res"));
+		has_sub_fsm_check_box->connect("toggled", TCALLABLE(__set_has_sub_fsm_check_box));
+		sub_fsm_btn->connect("pressed", TCALLABLE(__request_edit_sub_fsm_res));
 		// 脚本拾取器
-		script_picker->connect("resource_selected",
-				Callable(this, "__script_selected"));
-		script_picker->connect("resource_changed",
-				Callable(this, "__script_changed"));
+		script_picker->connect("resource_selected", TCALLABLE(__script_selected));
+		script_picker->connect("resource_changed", TCALLABLE(__script_changed));
 		// 自身
-		connect("resized", Callable(this, "__resize"));
-		connect("resize_request", Callable(this, "__resize_requested"));
-		connect("dragged", Callable(this, "__dragged"));
+		connect("resized", TCALLABLE(__resize));
+		connect("resize_request", TCALLABLE(__resize_requested));
+		connect("dragged", TCALLABLE(__dragged));
 	}
 }
 

@@ -1,7 +1,9 @@
 ﻿#include "variable_expression_res.hpp"
 #include "../../hfsm.hpp"
 #include "../variable_transition.hpp"
+#include <atomic>
 #include <godot_cpp/classes/translation_server.hpp>
+#include <type_traits>
 
 namespace Hfsm {
 #pragma region VariableExpressionRes
@@ -10,30 +12,29 @@ VariableExpressionRes::VariableExpressionRes() {
 }
 
 Ref<HFSMVariableRes> VariableExpressionRes::get_variable_res() const {
-	return _variable_res;
+	return variable_res;
 }
 
-Variant VariableExpressionRes::get_value() const { return _value; }
+Variant VariableExpressionRes::get_value() const { return value; }
 
-uint8_t VariableExpressionRes::get_operator() const { return _operator; }
+uint8_t VariableExpressionRes::get_comparator() const { return comparator; }
 
 uint8_t VariableExpressionRes::get_trigger_type() const {
-	return _trigger_type;
+	return trigger_type;
 }
 
 bool VariableExpressionRes::is_variable_as_value() const {
-	return _variable_as_value;
+	return variable_as_value;
 }
 
-VariableExpression *
-VariableExpressionRes::create_variable_expression(HFSM *hfsm) {
-	ERR_FAIL_COND_V(!_variable_res.is_valid(), nullptr);
+VariableExpression *VariableExpressionRes::create_variable_expression(HFSM *p_hfsm) {
+	ERR_FAIL_COND_V(!variable_res.is_valid(), nullptr);
 	// 获取变量类型
-	auto v = hfsm->get_var(_variable_res->get_variable_name());
+	auto v = p_hfsm->get_var(variable_res->get_variable_name());
 	ERR_FAIL_COND_V(!v.is_valid(), nullptr);
 	//  触发器
 	if (v->get_type() == Variant::NIL) {
-		switch (_trigger_type) {
+		switch (trigger_type) {
 			case TRIGGER_TYPE_NORMAL:
 				return memnew(TriggerExpression(v));
 			case TRIGGER_TYPE_UNION:
@@ -44,28 +45,26 @@ VariableExpressionRes::create_variable_expression(HFSM *hfsm) {
 				break;
 		}
 	} else {
-		if (_variable_as_value) {
-			return memnew(VariableComparationExpression(_variable_res,
-					_operator, _value));
+		if (variable_as_value) {
+			return memnew(VariableComparationExpression(variable_res, comparator, value));
 		} else {
-			return memnew(ConstantComparationExpression(_variable_res,
-					_operator, _value));
+			return memnew(ConstantComparationExpression(variable_res, comparator, value));
 		}
 	}
 	return nullptr;
 }
 
 // bool VariableExpressionRes::is_valid() {
-//     if (_variable_res.is_valid()){
-//         if (_variable_res->get_type() != Variant::NIL){
+//     if (variable_res.is_valid()){
+//         if (variable_res->get_type() != Variant::NIL){
 //             if(_variable_as_value){
 //                 auto vr = Object::cast_to<HFSMVariableRes>(_value);
 //                 if(vr) return
 //                 Variant::can_convert(Variant::Type(vr->get_type()) ,
-//                 Variant::Type(_variable_res->get_type()));
+//                 Variant::Type(variable_res->get_type()));
 //             }else{
 //                 return Variant::can_convert(_value.get_type() ,
-//                 Variant::Type(_variable_res->get_type()));
+//                 Variant::Type(variable_res->get_type()));
 //             }
 //         }else{
 //             return true;
@@ -74,10 +73,9 @@ VariableExpressionRes::create_variable_expression(HFSM *hfsm) {
 //     return false;
 // }
 
-bool VariableExpressionRes::_set(const StringName &p_name,
-		const Variant &p_property) {
+bool VariableExpressionRes::_set(const StringName &p_name, const Variant &p_property) {
 	if (p_name == StringName("comparator")) {
-		set_operator(p_property);
+		set_comparator(p_property);
 		return true;
 	} else if (p_name == StringName("variable_as_value")) {
 		set_variable_as_value(p_property);
@@ -91,10 +89,9 @@ bool VariableExpressionRes::_set(const StringName &p_name,
 	}
 	return false;
 }
-bool VariableExpressionRes::_get(const StringName &p_name,
-		Variant &r_property) const {
+bool VariableExpressionRes::_get(const StringName &p_name, Variant &r_property) const {
 	if (p_name == StringName("comparator")) {
-		r_property = get_operator();
+		r_property = get_comparator();
 		return true;
 	} else if (p_name == StringName("variable_as_value")) {
 		r_property = is_variable_as_value();
@@ -108,11 +105,10 @@ bool VariableExpressionRes::_get(const StringName &p_name,
 	}
 	return false;
 }
-void VariableExpressionRes::_get_property_list(
-		List<PropertyInfo> *p_list) const {
-	if (_variable_res.is_valid()) {
+void VariableExpressionRes::_get_property_list(List<PropertyInfo> *p_list) const {
+	if (variable_res.is_valid()) {
 		auto comparator_hint = "==,!=,>,>=,<,<=";
-		switch (Variant::Type(_variable_res->get_type())) {
+		switch (Variant::Type(variable_res->get_type())) {
 			case Variant::BOOL:
 			case Variant::STRING:
 				comparator_hint = "==,!=";
@@ -125,73 +121,34 @@ void VariableExpressionRes::_get_property_list(
 				comparator_hint = "";
 				break;
 		}
-		p_list->push_back(PropertyInfo(Variant::INT, "comparator",
-				PROPERTY_HINT_ENUM, comparator_hint));
+
+		p_list->push_back(PropertyInfo(Variant::INT, "comparator", PROPERTY_HINT_ENUM, comparator_hint));
 		p_list->push_back(PropertyInfo(Variant::BOOL, "variable_as_value"));
+
 		if (is_variable_as_value()) {
-			p_list->push_back(PropertyInfo(Variant::OBJECT, "value",
-					PROPERTY_HINT_RESOURCE_TYPE,
-					"HFSMVariableRes"));
-		} else if (_variable_res.is_valid()) {
-			if (Variant::Type(int64_t(_variable_res->get("type"))) !=
-					Variant::NIL) {
-				Variant::Type t =
-						Variant::Type(int64_t(_variable_res->get("type")));
+			p_list->push_back(PropertyInfo(Variant::OBJECT, "value", PROPERTY_HINT_RESOURCE_TYPE, "HFSMVariableRes"));
+		} else if (variable_res.is_valid()) {
+			if (Variant::Type(int64_t(variable_res->get_type())) != Variant::NIL) {
+				Variant::Type t = Variant::Type(int64_t(variable_res->get_type()));
 				p_list->push_back(PropertyInfo(t, "value"));
 			} else {
-				p_list->push_back(PropertyInfo(Variant::INT, "trigger_type",
-						PROPERTY_HINT_ENUM,
-						"Solo,Union,Normal"));
+				p_list->push_back(PropertyInfo(Variant::INT, "trigger_type", PROPERTY_HINT_ENUM, "Solo,Union,Normal"));
 			}
 		}
 	}
 }
 
 void VariableExpressionRes::_bind_methods() {
+	GDBIND_BEGIN(VariableExpressionRes);
+
 	// 变量资源
-	ClassDB::bind_method(D_METHOD("get_variable_res"),
-			&VariableExpressionRes::get_variable_res);
-	ClassDB::bind_method(D_METHOD("set_variable_res", "variable_res"),
-			&VariableExpressionRes::set_variable_res);
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "variable_res",
-						 PROPERTY_HINT_RESOURCE_TYPE, "HFSMVariableRes"),
-			"set_variable_res", "get_variable_res");
+	GDADD_PROPERTY_RESOURCE(variable_res);
 
 	// 操作符
-	ClassDB::bind_method(D_METHOD("get_comparator"),
-			&VariableExpressionRes::get_operator);
-	ClassDB::bind_method(D_METHOD("set_comparator", "comparator"),
-			&VariableExpressionRes::set_operator);
-	// ADD_PROPERTY(PropertyInfo(Variant::INT, "comparator", PROPERTY_HINT_ENUM,
-	//                           "==,!=,>,>=,<,<="),
-	//              "set_comparator", "get_comparator");
-
-	//
-	ClassDB::bind_method(D_METHOD("is_variable_as_value"),
-			&VariableExpressionRes::is_variable_as_value);
-	ClassDB::bind_method(D_METHOD("set_variable_as_value", "variable_as_value"),
-			&VariableExpressionRes::set_variable_as_value);
-	// ADD_PROPERTY(PropertyInfo(Variant::BOOL, "variable_as_value"),
-	//              "set_variable_as_value", "is_variable_as_value");
-
-	// 值
-	ClassDB::bind_method(D_METHOD("get_value"),
-			&VariableExpressionRes::get_value);
-	ClassDB::bind_method(D_METHOD("set_value", "value"),
-			&VariableExpressionRes::set_value);
-	// ADD_PROPERTY(PropertyInfo(Variant::NIL, "value"), "set_value",
-	// "get_value");
-
-	// 触发器
-	ClassDB::bind_method(D_METHOD("get_trigger_type"),
-			&VariableExpressionRes::get_trigger_type);
-	ClassDB::bind_method(D_METHOD("set_trigger_type", "trigger_type"),
-			&VariableExpressionRes::set_trigger_type);
-	// ADD_PROPERTY(PropertyInfo(Variant::INT, "trigger_type",
-	// PROPERTY_HINT_ENUM,
-	//                           "Solo,Union,Normal"),
-	//              "set_value", "get_value");
-
+	GDBIND_SETGET(comparator);
+	GDBIND_SETGET_BOOL(variable_as_value);
+	GDBIND_SETGET(value);
+	GDBIND_SETGET(trigger_type);
 	// 枚举
 	BIND_CONSTANT(TRANSITION_TYPE_SCRIPT);
 	BIND_CONSTANT(TRANSITION_TYPE_VARIABLE);
@@ -206,113 +163,108 @@ void VariableExpressionRes::_bind_methods() {
 	BIND_CONSTANT(OP_LESS_EQUAL);
 }
 
-void VariableExpressionRes::set_variable_as_value(bool variable_as_value) {
-	_variable_as_value = variable_as_value;
-	if (_variable_as_value) {
-		if ((_value.get_type() != Variant::OBJECT) ||
-				Object::cast_to<HFSMVariableRes>(_value) != nullptr) {
-			_value = Variant();
+void VariableExpressionRes::set_variable_as_value(bool p_variable_as_value) {
+	variable_as_value = p_variable_as_value;
+	if (variable_as_value) {
+		if ((value.get_type() != Variant::OBJECT) || Object::cast_to<HFSMVariableRes>(value) != nullptr) {
+			value = Variant();
 			emit_changed();
 		}
 	} else {
-		if (!Variant::can_convert(_value.get_type(),
-					Variant::Type(_variable_res->get_type()))) {
-			_value = _variable_res->get_default_val();
+		if (!Variant::can_convert(value.get_type(), Variant::Type(variable_res->get_type()))) {
+			value = variable_res->get_default_value();
 		}
 		emit_changed();
 	}
 	notify_property_list_changed();
 }
-void VariableExpressionRes::set_value(const Variant &value) {
-	if (!_variable_res.is_valid()) {
-		_value = Variant();
+
+void VariableExpressionRes::set_value(const Variant &p_value) {
+	if (!variable_res.is_valid()) {
+		value = Variant();
 		emit_changed();
-		notify_property_list_changed();
 	} else {
-		if (_variable_as_value && value.get_type() == Variant::OBJECT) {
+		if (variable_as_value && p_value.get_type() == Variant::OBJECT) {
 			// 变量作为比较值
-			auto v = Object::cast_to<HFSMVariableRes>(value);
+			auto v = Object::cast_to<HFSMVariableRes>(p_value);
 			if (v) {
-				if (_value != value &&
+				if (value != p_value &&
 						Variant::can_convert_strict(
-								Variant::Type(_variable_res->get_type()),
+								Variant::Type(variable_res->get_type()),
 								Variant::Type(v->get_type()))) {
-					_value = value;
+					value = p_value;
 					emit_changed();
-					notify_property_list_changed();
 				} else {
-					_value = Variant();
+					value = Variant();
 					emit_changed();
-					notify_property_list_changed();
 				}
 				return;
 			}
 		} else {
 			// 常量作为比较值
 			if (Variant::can_convert_strict(
-						value.get_type(),
-						Variant::Type(_variable_res->get_type()))) {
-				if (_value != value) {
-					_value = value;
+						p_value.get_type(),
+						Variant::Type(variable_res->get_type()))) {
+				if (value != p_value) {
+					value = p_value;
 					emit_changed();
-					// notify_property_list_changed();
 				}
 				return;
 			}
 		}
 		// 异常情况用默认值
-		if (_value != _variable_res->get_default_val()) {
-			_value = _variable_res->get_default_val();
+		if (value != variable_res->get_default_value()) {
+			value = variable_res->get_default_value();
 			emit_changed();
-			notify_property_list_changed();
 		}
 	}
 }
-void VariableExpressionRes::set_operator(int64_t op) {
-	if (_variable_res.is_valid()) {
-		if (_variable_res->get_type() == Variant::STRING) {
-			if (op == OP_EQUAL && op == OP_NOT_EQUAL) {
-				if (op != _operator) {
-					_operator = op;
+void VariableExpressionRes::set_comparator(int64_t p_op) {
+	if (variable_res.is_valid()) {
+		if (variable_res->get_type() == Variant::STRING) {
+			if (p_op == OP_EQUAL && p_op == OP_NOT_EQUAL) {
+				if (p_op != comparator) {
+					comparator = p_op;
 					emit_changed();
-					notify_property_list_changed();
 					return;
 				}
 			}
-		} else if (_variable_res->get_type() == Variant::INT ||
-				_variable_res->get_type() == Variant::FLOAT) {
-			if (op >= OP_EQUAL && op < 6) {
-				if (op != _operator) {
-					_operator = op;
+		} else if (variable_res->get_type() == Variant::INT ||
+				variable_res->get_type() == Variant::FLOAT) {
+			if (p_op >= OP_EQUAL && p_op < 6) {
+				if (p_op != comparator) {
+					comparator = p_op;
 					emit_changed();
-					notify_property_list_changed();
 					return;
 				}
 			}
 		}
 	}
-	if (_operator != OP_EQUAL) {
-		_operator = OP_EQUAL;
+	if (comparator != OP_EQUAL) {
+		comparator = OP_EQUAL;
 		emit_changed();
-		notify_property_list_changed();
 	}
 }
-void VariableExpressionRes::set_variable_res(
-		const Ref<HFSMVariableRes> &variable_res) {
-	if (_variable_res != variable_res) {
-		_variable_res = variable_res;
-		set_value(_value);
-		set_operator(_operator);
+void VariableExpressionRes::set_variable_res(const Ref<HFSMVariableRes> &p_variable_res) {
+	if (variable_res != p_variable_res) {
+		if (variable_res.is_valid() && variable_res->TIS_CONNECTED(changed, notify_property_list_changed)) {
+			variable_res->TDISCONNECT(changed, notify_property_list_changed);
+		}
+		variable_res = p_variable_res;
+		if (variable_res.is_valid() && !variable_res->TIS_CONNECTED(changed, notify_property_list_changed)) {
+			variable_res->connect(changed, TCALLABLE(notify_property_list_changed));
+		}
+		set_value(value);
+		set_comparator(comparator);
 		emit_changed();
 		notify_property_list_changed();
 	}
 }
 
-void VariableExpressionRes::set_trigger_type(int64_t trigger_type) {
-	ERR_FAIL_COND(!(trigger_type >= 0 && trigger_type < TRIGGER_TYPE_MAX));
-	_trigger_type = uint8_t(trigger_type);
+void VariableExpressionRes::set_trigger_type(int64_t p_trigger_type) {
+	ERR_FAIL_COND(!(p_trigger_type >= 0 && p_trigger_type < TRIGGER_TYPE_MAX));
+	trigger_type = uint8_t(p_trigger_type);
 	emit_changed();
-	notify_property_list_changed();
 }
 
 // Array VariableExpressionRes::get_property_list() {
@@ -326,8 +278,8 @@ void VariableExpressionRes::set_trigger_type(int64_t trigger_type) {
 //     variable_res[Variant("hint_string")] =
 //         Variant("HFSMVariableRes"); // TODO:: 可能要改为 Resource
 //     ret.push_back(variable_res);
-//     if (_variable_res.is_valid()) {
-//         switch (_variable_res->get_type()) {
+//     if (variable_res.is_valid()) {
+//         switch (variable_res->get_type()) {
 //         case Variant::NIL:
 //             // 触发器类型
 //             trigger_type[Variant("name")] = Variant("trigger_type");
@@ -343,8 +295,8 @@ void VariableExpressionRes::set_trigger_type(int64_t trigger_type) {
 //             op[Variant("name")] = Variant("comparator");
 //             op[Variant("type")] = Variant(Variant::INT);
 //             op[Variant("hint")] = Variant(PROPERTY_HINT_ENUM);
-//             if (_variable_res->get_type() == Variant::STRING ||
-//                 _variable_res->get_type() == Variant::BOOL)
+//             if (variable_res->get_type() == Variant::STRING ||
+//                 variable_res->get_type() == Variant::BOOL)
 //                 op[Variant("hint_string")] = Variant("==,!=");
 //             else
 //                 op[Variant("hint_string")] = Variant("==,!=,>,>=,<,<=");
@@ -364,7 +316,7 @@ void VariableExpressionRes::set_trigger_type(int64_t trigger_type) {
 //                 set_value(_value);
 //             } else {
 //                 variable_res[Variant("type")] =
-//                     Variant(_variable_res->get_type());
+//                     Variant(variable_res->get_type());
 //             }
 //             ret.push_back(value);
 //         default:

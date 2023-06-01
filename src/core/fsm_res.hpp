@@ -24,43 +24,43 @@ class FsmRes : public Resource {
 protected:
 	static void _bind_methods();
 
-	String _to_string() const { return String("[FsmRes:{0}]").replace("{0}", itos(get_instance_id())); }
+	String _to_string() const { return vformat("[FsmRes:%d]", get_instance_id()); }
 
 public:
 	FsmRes();
 	~FsmRes() override;
 
-	Fsm *create_fsm(HFSM *hfsm, const Ref<State> &nested_state, const Vector<Hfsm::Fsm *> &nested_fsm_update_queue);
+	Fsm *create_fsm(HFSM *p_hfsm, const Ref<State> &p_nested_state, const Vector<Hfsm::Fsm *> &p_nested_fsm_update_queue);
 
-	void set_nested_state_res(const Ref<StateRes> &state_res);
+	void set_nested_state_res(const Ref<StateRes> &p_state_res);
 	Ref<StateRes> get_nested_state_res() const;
 
-	TypedArray<StateRes> get_state_res_list() const { return _state_res_list; }
+	TypedArray<StateRes> get_state_res_list() const { return state_res_list; }
 	// 转换列表
-	TypedArray<TransitionRes> get_transition_res_list() const { return _transition_res_list; }
+	TypedArray<TransitionRes> get_transition_res_list() const { return transition_res_list; }
 	// 变量列表
-	TypedArray<HFSMVariableRes> get_variable_res_list() const { return _variable_res_list; }
+	TypedArray<HFSMVariableRes> get_variable_res_list() const { return variable_res_list; }
 
-	void add_state_res(const Ref<StateRes> &state_res);
+	void add_state_res(const Ref<StateRes> &p_state_res);
 
-	void add_transition_res(const Ref<TransitionRes> &transition_res);
+	void add_transition_res(const Ref<TransitionRes> &p_transition_res);
 
-	void add_variable_res(const Ref<HFSMVariableRes> &variable_res) {
-		if (_variable_res_list.find(variable_res) >= 0) {
+	void add_variable_res(const Ref<HFSMVariableRes> &p_variable_res) {
+		if (variable_res_list.find(p_variable_res) >= 0) {
 			return;
 		}
-		_variable_res_list.push_back(variable_res);
+		variable_res_list.push_back(p_variable_res);
 	}
 
 	// 未删除相关的 TransitionRes, 需要在编辑器里处理 undoredo
-	void remove_state_res(const Ref<StateRes> &state_res) {
-		_state_res_list.erase(state_res);
+	void remove_state_res(const Ref<StateRes> &p_state_res) {
+		state_res_list.erase(p_state_res);
 		emit_changed();
 	}
 
-	void remove_transition_res(const Ref<TransitionRes> &transition_res);
+	void remove_transition_res(const Ref<TransitionRes> &p_transition_res);
 
-	void remove_variable_res(const Ref<HFSMVariableRes> &variable_res) { _variable_res_list.erase(variable_res); }
+	void remove_variable_res(const Ref<HFSMVariableRes> &p_variable_res) { variable_res_list.erase(p_variable_res); }
 
 	// void set_state_res_list(Array state_res_list){
 	//     _state_res_list = Vector<Ref<StateRes>>(state_res_list);
@@ -84,19 +84,19 @@ public:
 
 private:
 	// 自己的状态列表
-	void _set_state_res_list(const Array &state_res_list) { _state_res_list = TypedArray<StateRes>(state_res_list); }
-	void _set_transition_res_list(const Array &transition_res_list) { _transition_res_list = TypedArray<TransitionRes>(transition_res_list); }
-	void _set_variable_res_list(const Array &variable_res_list);
+	void set_state_res_list(const Array &p_state_res_list) { state_res_list = decltype(state_res_list)(p_state_res_list); }
+	void set_transition_res_list(const Array &p_transition_res_list) { transition_res_list = decltype(transition_res_list)(p_transition_res_list); }
+	void set_variable_res_list(const Array &p_variable_res_list);
 
 	// 所在的状态
-	Ref<StateRes> _nested_state_res;
+	Ref<StateRes> nested_state_res;
 
 	// 自己的状态列表
-	TypedArray<StateRes> _state_res_list;
+	TypedArray<StateRes> state_res_list;
 	// 变量列表
-	TypedArray<HFSMVariableRes> _variable_res_list;
+	TypedArray<HFSMVariableRes> variable_res_list;
 	// 转换列表
-	TypedArray<TransitionRes> _transition_res_list;
+	TypedArray<TransitionRes> transition_res_list;
 
 	friend class HFSM;
 	friend class HFSMVariableRes;

@@ -18,37 +18,20 @@ namespace Hfsm {
 
 #pragma region State
 void State::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_name"), &State::get_name);
-	// ClassDB::bind_method(D_METHOD("set_name", "name"), &State::set_name);
-	// ADD_PROPERTY(PropertyInfo(Variant::STRING, "name"), "set_name",
-	// "get_name");
-
-	ClassDB::bind_method(D_METHOD("get_hfsm"), &State::get_hfsm);
-	ClassDB::bind_method(D_METHOD("is_exited"), &State::is_exited);
-
-	ClassDB::bind_method(D_METHOD("manual_exit"), &State::manual_exit);
-
-	ClassDB::bind_method(D_METHOD("get_context"), &State::get_context);
-
-	ClassDB::bind_method(D_METHOD("get_animation_name_for_playing"), &State::get_animation_name_for_playing);
-	ClassDB::bind_method(D_METHOD("is_animation_playing"), &State::is_animation_playing);
-
-	ClassDB::bind_method(D_METHOD("get_animation_name"), &State::get_animation_name);
-	ClassDB::bind_method(D_METHOD("set_animation_name", "anim_name"), &State::set_animation_name);
-	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "animation_name"), "set_animation_name", "get_animation_name");
+	GDBIND_BEGIN(State);
+	GDBIND_METHOD(get_name);
+	GDBIND_METHOD(get_hfsm);
+	GDBIND_METHOD(is_exited);
+	GDBIND_METHOD(manual_exit);
+	GDBIND_METHOD(get_context);
+	GDBIND_METHOD(get_animation_name_for_playing);
+	GDBIND_METHOD(is_animation_playing);
+	GDADD_PROPERTY(STRING_NAME, animation_name);
 
 #ifdef FULL_VERSION
-	ClassDB::bind_method(D_METHOD("get_animation_blend_time"), &State::get_animation_blend_time);
-	ClassDB::bind_method(D_METHOD("set_animation_blend_time", "anim_blend_time"), &State::set_animation_blend_time);
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "animation_blend_time"), "set_animation_blend_time", "get_animation_blend_time");
-
-	ClassDB::bind_method(D_METHOD("get_animation_speed"), &State::get_animation_speed);
-	ClassDB::bind_method(D_METHOD("set_animation_speed", "anim_speed"), &State::set_animation_speed);
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "animation_speed"), "set_animation_speed", "get_animation_speed");
-
-	ClassDB::bind_method(D_METHOD("get_animation_reverse"), &State::get_animation_reverse);
-	ClassDB::bind_method(D_METHOD("set_animation_reverse", "anim_revers"), &State::set_animation_reverse);
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "animation_reverse"), "set_animation_reverse", "get_animation_reverse");
+	GDADD_PROPERTY(FLOAT, animation_blend_time);
+	GDADD_PROPERTY(FLOAT, animation_speed);
+	GDADD_PROPERTY_BOOL(animation_reverse);
 #endif
 
 	BIND_VIRTUAL_METHOD(State, _initialize);
@@ -86,127 +69,127 @@ void State::_bind_methods() {
 	// BIND_CONSTANT(STATE_TYPE_MAX);
 }
 
-Dictionary State::get_context() { return _hfsm->get_context(); }
+Dictionary State::get_context() { return hfsm->get_context(); }
 
 void State::_initialize() {}
 void State::_entry() {}
-void State::_update(float delta) {}
-void State::_physics_update(float delta) {}
+void State::_update(float p_delta) {}
+void State::_physics_update(float p_delta) {}
 void State::_exit() {}
 
 State::State() = default;
 
 State::~State() {
-	for (auto &&transition : _transition_list) {
+	for (auto &&transition : transition_list) {
 		if (transition) {
 			memdelete(transition);
 		}
 	}
-	if (_fsm) {
-		memdelete(_fsm);
+	if (fsm) {
+		memdelete(fsm);
 	}
 }
 
 // setget
-void State::set_name(const StringName &name) {
+void State::set_name(const StringName &p_name) {
 	if (!Engine::get_singleton()->is_editor_hint()) {
-		_name = name;
+		name = p_name;
 	} else {
-		if (_name == StringName("")) {
-			_name = name;
+		if (name == StringName("")) {
+			name = p_name;
 		} else {
 			ERR_FAIL_MSG("HFSM: Can not set state name when running.");
 		}
 	}
 }
 
-HFSM *State::get_hfsm() { return _hfsm; }
-bool State::is_exited() { return _exited; }
+HFSM *State::get_hfsm() { return hfsm; }
+bool State::is_exited() { return exited; }
 
 void State::manual_exit() {
 	if (!is_exited()) {
-		_exited = true;
+		exited = true;
 		exit();
 	}
 }
 
 void State::entry() {
 	static const StringName sn_entry = "_entry";
-	_exited = false;
-	if (_reset_when_entry) {
+	exited = false;
+	if (reset_when_entry) {
 		reset();
 	}
-	if (_reset_nested_fsm_when_entry && _fsm) {
-		_fsm->reset();
+	if (reset_nested_fsm_when_entry && fsm) {
+		fsm->reset();
 	}
-	for (auto &&transition : _transition_list) {
+	for (auto &&transition : transition_list) {
 		transition->refresh();
 	}
 	// TODO:: 播放动画？
 	call(sn_entry);
-	if (_fsm != nullptr) {
-		_fsm->entry();
+	if (fsm != nullptr) {
+		fsm->entry();
 	}
 	//  如果是退出状态，则在完成进入行为后立即退出
-	if (_type == STATE_TYPE_EXIT) {
+	if (type == STATE_TYPE_EXIT) {
 		exit();
 	}
 }
-void State::update(real_t delta) {
+void State::update(real_t p_delta) {
 	static const StringName sn_update = "_update";
-	if (!_exited) {
-		call(sn_update, delta);
+	if (!exited) {
+		call(sn_update, p_delta);
 	}
 }
 
-void State::physics_update(real_t delta) {
+void State::physics_update(real_t p_delta) {
 	static const StringName sn_physics_update = "_physics_update";
-	if (!_exited) {
-		call(sn_physics_update, delta);
+	if (!exited) {
+		call(sn_physics_update, p_delta);
 	}
 	// _physics_update(delta);
 }
-void State::exit(bool terminated_by_upper_level) {
+void State::exit(bool p_terminated_by_upper_level) {
 	static const StringName sn_exit = "_exit";
-	if (!_exited) {
-		_exited = true;
-		if (!terminated_by_upper_level) {
+	if (!exited) {
+		exited = true;
+		if (!p_terminated_by_upper_level) {
 			auto queue = List<Ref<State>>();
 			queue.push_back(this);
-			while (queue.back()->get()->_fsm && queue.back()->get()->_fsm->_running) {
-				queue.push_back(queue.back()->get()->_fsm->get_current_state());
+			while (queue.back()->get()->fsm && queue.back()->get()->fsm->running) {
+				queue.push_back(queue.back()->get()->fsm->get_current_state());
 			}
 			while (!queue.is_empty()) {
 				queue.back()->get()->exit(true);
 				queue.pop_back();
 			}
-		} else if (_fsm != nullptr && _fsm->_running) {
-			_fsm->exit_by_state();
+		} else if (fsm != nullptr && fsm->running) {
+			fsm->exit_by_state();
 		}
 		call(sn_exit);
 	}
 }
 void State::reset() {
-	auto arr = _property_to_defatul_value.get_array();
-	for (size_t i = 0; i < _property_to_defatul_value.size(); i++) {
+	auto arr = property_to_defatul_value.get_array();
+	for (size_t i = 0; i < property_to_defatul_value.size(); i++) {
 		set(arr[i].key, arr[i].value);
 	}
 }
 
 // 新特性 动画状态机
-StringName State::get_animation_name_for_playing() const { return _animation_name.is_empty() ? _name : _animation_name; }
-StringName State::get_animation_name() const { return _animation_name; }
+StringName State::get_animation_name_for_playing() const { return animation_name.is_empty() ? name : animation_name; }
+StringName State::get_animation_name() const { return animation_name; }
 void State::set_animation_name(const StringName &p_anim_name) {
-	_animation_name = p_anim_name;
+	animation_name = p_anim_name;
 	// TODO:: 动画变动时如果状态正在运行时立刻切换动画
 }
 #ifdef FULL_VERSION
-double State::get_animation_blend_time() const { return _animation_blend_time; }
-void State::set_animation_blend_time(double p_blend_time) { _animation_blend_time = p_blend_time; }
-double State::get_animation_speed() const { return _animation_speed; }
-void State::set_animation_speed(double p_speed) { _animation_speed = p_speed; }
-bool State::get_animation_reverse() const { return _animation_reverse; }
-void State::set_animation_reverse(bool p_reverse) { _animation_reverse = p_reverse; }
+double State::get_animation_blend_time() const { return animation_blend_time; }
+void State::set_animation_blend_time(double p_blend_time) { animation_blend_time = p_blend_time; }
+double State::get_animation_speed() const { return animation_speed; }
+void State::set_animation_speed(double p_speed) { animation_speed = p_speed; }
+bool State::is_animation_reverse() const { return animation_reverse; }
+void State::set_animation_reverse(bool p_reverse) { animation_reverse = p_reverse; }
 #endif
 
 #ifdef ROLLBACK_NET_CODE

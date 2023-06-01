@@ -9,10 +9,10 @@ namespace Hfsm {
 #pragma region HFSMVariableRes
 bool HFSMVariableRes::_set(const StringName &p_name, const Variant &p_property) {
 	if (p_name == StringName("default_value")) {
-		if (Variant::can_convert(p_property.get_type(), _type)) {
-			_default_val = p_property;
+		if (Variant::can_convert(p_property.get_type(), type)) {
+			default_value = p_property;
 		} else {
-			_default_val = Variant();
+			default_value = Variant();
 		}
 		return true;
 	} else if (p_name == StringName("comment")) {
@@ -23,8 +23,8 @@ bool HFSMVariableRes::_set(const StringName &p_name, const Variant &p_property) 
 }
 bool HFSMVariableRes::_get(const StringName &p_name, Variant &r_property) const {
 	if (p_name == StringName("default_value")) {
-		if (Variant::can_convert(_default_val.get_type(), _type)) {
-			r_property = _default_val;
+		if (Variant::can_convert(default_value.get_type(), type)) {
+			r_property = default_value;
 		} else {
 			r_property = Variant();
 		}
@@ -36,72 +36,64 @@ bool HFSMVariableRes::_get(const StringName &p_name, Variant &r_property) const 
 	return false;
 }
 void HFSMVariableRes::_get_property_list(List<PropertyInfo> *p_list) const {
-	if (_type != Variant::NIL) {
-		p_list->push_back(PropertyInfo(_type, "default_value"));
+	if (type != Variant::NIL) {
+		p_list->push_back(PropertyInfo(type, "default_value"));
 	}
 	p_list->push_back(PropertyInfo(Variant::STRING, "comment"));
 }
 
 void HFSMVariableRes::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_variable_name"), &HFSMVariableRes::get_variable_name);
-	ClassDB::bind_method(D_METHOD("set_variable_name", "name"), &HFSMVariableRes::set_variable_name);
-	ADD_PROPERTY(PropertyInfo(Variant::STRING, "variable_name"), "set_variable_name", "get_variables_name");
+	GDBIND_BEGIN(HFSMVariableRes);
+	GDADD_PROPERTY(STRING, variable_name);
+	GDADD_PROPERTY(INT, type, PROPERTY_HINT_ENUM, "Trigger,Bool,Int,Float,String");
 
-	ClassDB::bind_method(D_METHOD("get_type"), &HFSMVariableRes::get_type);
-	ClassDB::bind_method(D_METHOD("set_type", "type"), &HFSMVariableRes::set_type);
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "type", PROPERTY_HINT_ENUM, "Trigger,Bool,Int,Float,String"), "set_type", "get_type");
-
-	ClassDB::bind_method(D_METHOD("get_comment"), &HFSMVariableRes::get_comment);
-	ClassDB::bind_method(D_METHOD("set_comment", "comment"), &HFSMVariableRes::set_comment);
-
-	ClassDB::bind_method(D_METHOD("get_default_value"), &HFSMVariableRes::get_default_val);
-	ClassDB::bind_method(D_METHOD("set_default_value", "default_val"), &HFSMVariableRes::set_default_val);
+	GDBIND_SETGET(comment);
+	GDBIND_SETGET(default_value);
 	// ADD_PROPERTY(PropertyInfo(Variant::NIL, "default_value"),
 	//              "set_default_value", "get_default_value");
 
 	// 编辑器专用方法
-	ClassDB::bind_method(D_METHOD("is_deleted"), &HFSMVariableRes::is_deleted);
-	ClassDB::bind_method(D_METHOD("set_deleted", "delete"), &HFSMVariableRes::set_deleted);
-	ClassDB::bind_method(D_METHOD("delete"), &HFSMVariableRes::delete_self);
+	GDBIND_SETGET_BOOL(deleted);
+	// GDBIND_METHOD(delete_self);
+	// ClassDB::bind_method(D_METHOD("delete"), &HFSMVariableRes::delete_self);
 }
 
 HFSMVariableRes::HFSMVariableRes() = default;
 
-void HFSMVariableRes::set_variable_name(const StringName &name) {
-	// UtilityFunctions::print("set: ", name);
-	if (!_fsm_res.is_valid()) {
+void HFSMVariableRes::set_variable_name(const StringName &p_name) {
+	if (!fsm_res.is_valid()) {
 		return;
 	}
 	bool unique = true;
-	_name = StringName(name);
+	variable_name = StringName(p_name);
 	do {
 		unique = true;
-		auto vrl = (static_cast<FsmRes *>(_fsm_res.ptr()))->_variable_res_list;
+		auto vrl = (static_cast<FsmRes *>(fsm_res.ptr()))->variable_res_list;
 		for (auto i = 0; i < vrl.size(); i++) {
 			Ref<HFSMVariableRes> v = vrl[i];
-			if (v.is_valid() && v.ptr() != this && v->get("name") == _name) {
-				_name = StringName(String("@") + String(_name));
+			if (v.is_valid() && v.ptr() != this && v->get_variable_name() == variable_name) {
+				variable_name = StringName(String("@") + String(variable_name));
 				unique = false;
 				break;
 			}
 		}
 	} while (!unique);
 }
-StringName HFSMVariableRes::get_variable_name() { return _name; }
+StringName HFSMVariableRes::get_variable_name() { return variable_name; }
 
-void HFSMVariableRes::set_type(int32_t t) {
-	switch (t) {
+void HFSMVariableRes::set_type(int32_t p_t) {
+	switch (p_t) {
 		case Variant::NIL:
 		case Variant::BOOL:
 		case Variant::INT:
 		case Variant::FLOAT:
 		case Variant::STRING:
-			if (_type != t) {
-				_type = Variant::Type(t);
-				if (_type == Variant::STRING && _default_val.get_type() != Variant::STRING) {
-					_default_val = "";
+			if (type != p_t) {
+				type = Variant::Type(p_t);
+				if (type == Variant::STRING && default_value.get_type() != Variant::STRING) {
+					default_value = "";
 				}
-				notify_property_list_changed();
+				emit_changed();
 			}
 			break;
 		default:
@@ -109,36 +101,35 @@ void HFSMVariableRes::set_type(int32_t t) {
 			break;
 	}
 }
-int32_t HFSMVariableRes::get_type() const { return _type; }
+int32_t HFSMVariableRes::get_type() const { return type; }
 
-void HFSMVariableRes::set_comment(const String &comment) {
-	_comment = comment;
-	notify_property_list_changed();
+void HFSMVariableRes::set_comment(const String &p_comment) {
+	comment = p_comment;
+	emit_changed();
 }
-String HFSMVariableRes::get_comment() const { return _comment; }
+String HFSMVariableRes::get_comment() const { return comment; }
 
-void HFSMVariableRes::set_deleted(bool d) {
+void HFSMVariableRes::set_deleted(bool p_d) {
 	static const StringName sn = "deleted";
-	_deleted = d;
-	if (_deleted) {
+	deleted = p_d;
+	if (deleted) {
 		emit_signal(sn, Ref<HFSMVariableRes>(this));
 	}
-	notify_property_list_changed();
+	emit_changed();
 }
 
-void HFSMVariableRes::set_default_val(const Variant &default_val) {
-	if (_default_val != default_val) {
-		if (Variant::can_convert(default_val.get_type(), _default_val.get_type())) {
-			_default_val = default_val;
-			notify_property_list_changed();
+void HFSMVariableRes::set_default_value(const Variant &p_default_val) {
+	if (default_value != p_default_val) {
+		if (Variant::can_convert(p_default_val.get_type(), default_value.get_type())) {
+			default_value = p_default_val;
+			emit_changed();
 		}
 	}
-	notify_property_list_changed();
 }
 
-Variant HFSMVariableRes::get_default_val() {
-	if (_default_val.get_type() == Variant::NIL) {
-		switch (_type) {
+Variant HFSMVariableRes::get_default_value() {
+	if (default_value.get_type() == Variant::NIL) {
+		switch (type) {
 			case Variant::NIL:
 				return nullptr; // TODO:: 原 false? 为啥
 			case Variant::BOOL:
@@ -153,34 +144,34 @@ Variant HFSMVariableRes::get_default_val() {
 				ERR_FAIL_V_MSG(Variant(), "Illegal variable type");
 		}
 	}
-	return _default_val;
+	return default_value;
 }
-bool HFSMVariableRes::is_deleted() { return _deleted; }
+bool HFSMVariableRes::is_deleted() { return deleted; }
 void HFSMVariableRes::delete_self() { set_deleted(true); }
 
 Ref<RefCounted> HFSMVariableRes::create_variable() {
 	Ref<HFSMVariable> ret;
 	ret.instantiate();
-	ret->_name = _name;
-	ret->_type = _type;
-	ret->set_value(_default_val);
+	ret->variable_name = variable_name;
+	ret->type = type;
+	ret->set_value(default_value);
 	return ret;
 }
 
 Ref<HFSMVariableRes> HFSMVariableRes::create_new(const Ref<FsmRes> &fsm_res) {
 	Ref<HFSMVariableRes> ret;
 	ret.instantiate();
-	ret->_fsm_res = fsm_res;
+	ret->fsm_res = fsm_res;
 	ret->set_name(ret->get_variable_name());
 	return ret;
 }
 
-void HFSMVariableRes::set_fsm_res(const Ref<FsmRes> &fsm_res) {
-	_fsm_res = fsm_res;
-	set_variable_name(_name);
+void HFSMVariableRes::set_fsm_res(const Ref<FsmRes> &p_fsm_res) {
+	fsm_res = p_fsm_res;
+	set_variable_name(variable_name);
 }
 
-Ref<FsmRes> HFSMVariableRes::get_fsm_res() const { return _fsm_res; }
+Ref<FsmRes> HFSMVariableRes::get_fsm_res() const { return fsm_res; }
 
 #pragma endregion
 

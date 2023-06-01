@@ -19,26 +19,24 @@ private:
 
 	Button *btn = nullptr;
 	PopupMenu *menu = nullptr;
-	class HFSM *_hfsm = nullptr;
+	class HFSM *hfsm = nullptr;
 
-	Ref<class HFSMVariableRes> _to_compare;
+	Ref<class HFSMVariableRes> to_compare;
 	bool updating = false;
 
 	void __on_btn_pressed();
 
-	void __on_menu_index_pressed(int32_t index);
+	void __on_menu_index_pressed(int32_t p_index);
 
-	String _get_type_text(Variant::Type type);
+	String _get_type_text(Variant::Type p_type);
 
 protected:
 	static void _bind_methods();
 
-	// String _to_string() const;
-
 public:
 	VariableResSelector();
 
-	void setup(HFSM *hfsm, const Ref<HFSMVariableRes> &to_compare = nullptr);
+	void setup(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare = nullptr);
 
 	void _update_property() override;
 };

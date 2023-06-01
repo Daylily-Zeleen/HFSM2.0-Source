@@ -31,7 +31,7 @@ public:
 	const Array &get_path() const;
 	Ref<State> get_current_state() const;
 
-	Vector<Fsm *> &get_fsm_update_queue() { return _fsm_update_queue; }
+	Vector<Fsm *> &get_fsm_update_queue() { return fsm_update_queue; }
 
 	bool is_running();
 
@@ -52,36 +52,36 @@ public:
 #endif
 
 private:
-	HFSM *_hfsm = nullptr;
+	HFSM *hfsm = nullptr;
 	// PackedStringArray path = PackedsStringArray();
-	Vector<Ref<State>> _state_list;
-	Array _path;
-	Vector<Fsm *> _fsm_update_queue;
-	bool _running = false;
-	bool _reset_when_entry = false;
+	Vector<Ref<State>> state_list;
+	Array path;
+	Vector<Fsm *> fsm_update_queue;
+	bool running = false;
+	bool reset_when_entry = false;
 
-	Ref<State> _nested_state;
+	Ref<State> nested_state;
 	// void set_nested_state(const Ref<State> &state);
 
-	Ref<State> _current_state;
-	Ref<State> _current_entry_state;
+	Ref<State> current_state;
+	Ref<State> current_entry_state;
 	// Ref<State> _default_entry_state;
-	Vector<Ref<State>> _current_exit_state_list = Vector<Ref<State>>();
+	Vector<Ref<State>> current_exit_state_list = Vector<Ref<State>>();
 	// Vector<Ref<State>> _default_exit_state_list = Vector<Ref<State>>();
 
 	// 考虑摒弃资源类
 	// void init(hfsm:Node,nested_fsm_res = null,parent_path:Array
 	// =[],nested_state = null):
 	void reset();
-	void entry(const Ref<State> &entry_state = Ref<State>());
-	void check_transit_and_get_update_queue(Vector<Fsm *> *&update_queue);
-	void update(double delta);
-	void physics_update(double delta);
-	bool force_transit(const StringName &target_state);
-	bool force_transit_state(Ref<State> &target_state);
+	void entry(const Ref<State> &p_entry_state = Ref<State>());
+	void check_transit_and_get_update_queue(Vector<Fsm *> *p_update_queue);
+	void update(double p_delta);
+	void physics_update(double p_delta);
+	bool force_transit(const StringName &p_target_state);
+	bool force_transit_state(Ref<State> &p_target_state);
 	// void exit();
 	void exit_by_state();
-	Ref<State> get_state(const StringName &state_name);
+	Ref<State> get_state(const StringName &p_state_name);
 
 	// void set_entry_state(String state_name);
 	// void set_exit_state(String state_name);
@@ -93,9 +93,9 @@ private:
 
 #pragma region 内联实现
 
-inline const Array &Fsm::get_path() const { return _path; }
-inline Ref<State> Fsm::get_current_state() const { return _current_state; }
-inline bool Fsm::is_running() { return _running; }
+inline const Array &Fsm::get_path() const { return path; }
+inline Ref<State> Fsm::get_current_state() const { return current_state; }
+inline bool Fsm::is_running() { return running; }
 
 #pragma endregion
 

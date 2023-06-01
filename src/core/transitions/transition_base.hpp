@@ -8,7 +8,6 @@
 #include "../hfsm.hpp"
 #include "../hfsm_variable.hpp"
 
-
 using namespace godot;
 
 namespace Hfsm {
@@ -51,14 +50,15 @@ public:
 	virtual void _network_despawn();
 #endif
 private:
-	Ref<State> _from_state;
-	Ref<State> _to_state;
+	Ref<State> from_state;
+	Ref<State> to_state;
+
 	friend class FsmRes;
 };
 
 #pragma region 内联实现
-inline Ref<State> TransitionBase::get_from_state() { return _from_state; }
-inline Ref<State> TransitionBase::get_to_state() { return _to_state; }
+inline Ref<State> TransitionBase::get_from_state() { return from_state; }
+inline Ref<State> TransitionBase::get_to_state() { return to_state; }
 
 #pragma endregion
 

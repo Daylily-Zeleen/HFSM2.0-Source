@@ -73,83 +73,76 @@ private:
 
 	// ========== SetGet =========
 	bool is_dealing_move_states();
-	void set_dealing_move_states(bool dealing);
-	void __set_current_fsm_res(const Ref<FsmRes> &to_set);
-	void __set_selected_state_name_list(const TypedArray<StringName> &to_set);
+	void set_dealing_move_states(bool p_dealing);
+	void __set_current_fsm_res(const Ref<FsmRes> &p_to_set);
+	void __set_selected_state_name_list(const TypedArray<StringName> &p_to_set);
 	TypedArray<StateNode> get_selected_state_nodes();
-	void __set_selected_transition_res_list(const TypedArray<TransitionRes> &to_set);
-	void __set_copied_transition_list(const TypedArray<TransitionRes> &to_set);
-	void __set_copied_state_res_list(const TypedArray<StateRes> &to_set);
+	void __set_selected_transition_res_list(const TypedArray<TransitionRes> &p_to_set);
+	void __set_copied_transition_list(const TypedArray<TransitionRes> &p_to_set);
+	void __set_copied_state_res_list(const TypedArray<StateRes> &p_to_set);
 	// ========功能=========
 
-	void edit_fsm_res(const Ref<FsmRes> &fsm_res);
+	void edit_fsm_res(const Ref<FsmRes> &p_fsm_res);
 	void update_cnnection();
 	void __update_conntion();
-	void __set_updating(bool to_set);
+	void __set_updating(bool p_to_set);
 	void __undo_redo_select_nodes();
 	void ___deal_selection_action();
-	void __try_disconnect(Vector2 pos1, Vector2 pos2);
+	void __try_disconnect(Vector2 p_pos1, Vector2 p_pos2);
 
-	bool __is_judge(Vector2 apos1, Vector2 apos2, Vector2 bpos1, Vector2 bpos2);
-	void __delete_transition(const StringName &from, int32_t from_slot,
-			const StringName &to, int32_t to_slot);
+	bool __is_judge(Vector2 p_apos1, Vector2 p_apos2, Vector2 p_bpos1, Vector2 p_bpos2);
+	void __delete_transition(const StringName &p_from, int32_t p_from_slot,
+			const StringName &p_to, int32_t p_to_slot);
 	TypedArray<TransitionRes> __try_select_transitions_at_pos(Vector2 pos);
 
-	TypedArray<Vector2> __get_connection_line_with_zoom(StateNode *from,
-			StateNode *to);
-	Ref<TransitionRes> __get_transition_res(StateNode *from, StateNode *to);
-	bool __is_node_hotzone(Object *in_node, int64_t in_port,
-			const Vector2 &mouse_position);
+	TypedArray<Vector2> __get_connection_line_with_zoom(StateNode *p_from, StateNode *to);
+	Ref<TransitionRes> __get_transition_res(StateNode *p_from, StateNode *p_to);
+	bool __is_node_hotzone(Object *p_in_node, int64_t p_in_port, const Vector2 &p_mouse_position);
 	TypedArray<StateNode> __get_selected_state_nodes();
-	void __select_state_nodes(const TypedArray<StringName> &to_select_State_name_list);
-	StateNode *____create_state_node(const Ref<StateRes> &state_res);
+	void __select_state_nodes(const TypedArray<StringName> &p_to_select_State_name_list);
+	StateNode *____create_state_node(const Ref<StateRes> &p_state_res);
 
 	StateNode *___get_top_state_node_which_hovered();
 	TypedArray<StateRes> ___get_selected_state_res_list();
-	void ___select_mamually(const TypedArray<StateNode> &target_nodes);
+	void __select_mamually(const TypedArray<StateNode> &p_target_nodes);
 	// ==================
 	void __on_current_fsm_res_changed();
-	void __check_empty_fsm_res_or_not(const Ref<FsmRes> &fsm_res);
-	// ========HACK==========
-	// void __on_copy_requested() { __on_popup_menu_id_pressed(ITEM_ADD_STATE); }
-	// void __on_paste_requested() { __on_popup_menu_id_pressed(ITEM_PASTE_STATES); }
-	// void __on_duplicate_requested() { __on_popup_menu_id_pressed(ITEM_DUPLICATE_STATES); }
-	// void __on_edit_fsm_res_requeted();
-	// ========HACK==========
-	void __on_popup_menu_id_pressed(int32_t id);
-	void __on_delete_nodes_request(const Array &nodes);
-	void __on_connection_request(const StringName &from, int from_slot,
-			const StringName &to, int to_slot);
+	void __check_empty_fsm_res_or_not(const Ref<FsmRes> &p_fsm_res);
 
-	void __on_popup_request(Vector2 position);
+	void __on_popup_menu_id_pressed(int32_t p_id);
+	void __on_delete_nodes_request(const Array &p_nodes);
+	void __on_connection_request(const StringName &p_from, int p_from_slot,
+			const StringName &p_to, int p_to_slot);
+
+	void __on_popup_request(Vector2 p_position);
 	void __on_create_btn_pressed();
 	void __on_transition_res_updated();
 
-	void __on_node_selected(Object *node);
-	void __on_node_deselected(Object *node);
+	void __on_node_selected(Object *p_node);
+	void __on_node_deselected(Object *p_node);
 
 	// ======== 检查 ==========
 	String __get_variable_expression_res_valid_and_text(
-			const Ref<VariableExpressionRes> &ver, bool &r_valid) const;
+			const Ref<VariableExpressionRes> &p_ver, bool &r_valid) const;
 	List<String> __get_transition_res_valid_and_texts(
-			const Ref<TransitionRes> &transition_res, bool &r_valid) const;
+			const Ref<TransitionRes> &p_transition_res, bool &r_valid) const;
 	// ==================
-	String str_localize(const String &en_key) const;
+	String str_localize(const String &p_en_key) const;
 
 	friend class StateNode;
 	friend class HFSMEditor;
 
 public:
 	StateNodesEditor();
-	static StateNodesEditor *create_state_nodes_edit(HBoxContainer *path_btn_container);
+	static StateNodesEditor *create_state_nodes_edit(HBoxContainer *p_path_btn_container);
 
 	void _ready() override;
 
-	void _process(real_t delta);
-	void _gui_input(const Ref<InputEvent> &event) override;
-	bool _is_in_input_hotzone(Object *in_node, int64_t in_port, const Vector2 &mouse_position);
-	bool _is_in_output_hotzone(Object *in_node, int64_t in_port, const Vector2 &mouse_position);
-	PackedVector2Array _get_connection_line(const Vector2 &from, const Vector2 &to) const override;
+	void _process(real_t p_delta);
+	void _gui_input(const Ref<InputEvent> &p_event) override;
+	bool _is_in_input_hotzone(Object *p_in_node, int64_t p_in_port, const Vector2 &p_mouse_position);
+	bool _is_in_output_hotzone(Object *p_in_node, int64_t p_in_port, const Vector2 &p_mouse_position);
+	PackedVector2Array _get_connection_line(const Vector2 &p_from, const Vector2 &p_to) const override;
 
 	void _draw() override;
 };
