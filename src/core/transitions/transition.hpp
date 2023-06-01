@@ -30,7 +30,7 @@ public:
 
 	HFSM *get_hfsm() { return hfsm; }
 
-	Dictionary get_context() { return hfsm->get_context(); }
+	// Dictionary get_context() { return hfsm->get_context(); }
 
 private:
 	HFSM *hfsm = nullptr;

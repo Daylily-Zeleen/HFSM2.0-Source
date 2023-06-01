@@ -60,8 +60,8 @@ public:
 	void set_float(const StringName &p_float_name, double p_value);
 	void set_string(const StringName &p_string_name, const String &p_value);
 
-	Dictionary get_context() { return context; }
-	void set_context(const Dictionary &p_context) { context = p_context; }
+	// Dictionary get_context() { return context; }
+	// void set_context(const Dictionary &p_context) { context = p_context; }
 	// // 以下段落考虑弃用
 	// void set_entry_state(String state_name, Array fsm_path = root_path);
 	// void set_exit_state(String state_name, Array fsm_path = root_path);
@@ -85,7 +85,7 @@ public:
 	void set_debug(bool p_v);
 	bool is_debug();
 	// void set_agents(Dictionary a);
-	Dictionary get_agents() const;
+	// Dictionary get_agents() const;
 
 	void set_update_type(UpdateType p_t);
 	UpdateType get_update_type();
@@ -130,7 +130,7 @@ private:
 	bool inited = false;
 	bool active = true;
 	bool debug = false;
-	Dictionary agents;
+	// Dictionary agents;
 	UpdateType update_type = UpdateType::UPDATE_TYPE_IDLE_AND_PHYSICS;
 
 	// 高级选项
@@ -151,8 +151,8 @@ private:
 
 	AnimationPlayer *animation_player = nullptr;
 
-	// 新增 上下文
-	Dictionary context;
+	// // 新增 上下文
+	// Dictionary context;
 
 	PackedStringArray expression_objs_names;
 	Array expression_objs;
@@ -188,7 +188,7 @@ inline void HFSM::set_debug(bool p_v) {
 }
 inline bool HFSM::is_debug() { return debug; }
 // void set_agents(Dictionary a);
-inline Dictionary HFSM::get_agents() const { return agents; }
+// inline Dictionary HFSM::get_agents() const { return agents; }
 inline HFSM::UpdateType HFSM::get_update_type() { return update_type; }
 
 inline Ref<State> HFSM::get_current_state() { return current_state; }

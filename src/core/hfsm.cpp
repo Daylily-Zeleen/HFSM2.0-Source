@@ -49,7 +49,7 @@ void HFSM::_get_property_list(List<PropertyInfo> *p_list) const {
 void HFSM::_bind_methods() {
 	GDBIND_BEGIN(HFSM);
 	GDBIND_METHOD(is_inited);
-	GDBIND_METHOD(get_agents);
+	// GDBIND_METHOD(get_agents);
 	GDBIND_METHOD(get_current_state);
 	GDBIND_METHOD(get_previous_state);
 	GDBIND_METHOD(restart);
@@ -77,7 +77,7 @@ void HFSM::_bind_methods() {
 
 	GDBIND_SETGET(root_fsm_res);
 
-	GDADD_PROPERTY(DICTIONARY, context);
+	// GDADD_PROPERTY(DICTIONARY, context);
 
 	GDADD_PROPERTY(OBJECT, animation_player, PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE, "AnimationPlayer", PROPERTY_USAGE_DEFAULT);
 
@@ -162,23 +162,23 @@ void HFSM::___on_ready__() {
 	}
 #endif
 	// 拾取 代理节点
-	auto keys = agents.keys();
-	for (auto i = keys.size() - 1; i >= 0; i--) {
-		Node *a;
-		if (get_owner()) {
-			a = get_owner()->get_node_or_null(agents[keys[static_cast<int>(i)]]);
-		} else {
-			a = get_node_or_null(agents[keys[static_cast<int>(i)]]);
-		}
-		if (a) {
-			agents[keys[static_cast<int>(i)]] = a;
-		} else {
-			agents.erase(keys[static_cast<int>(i)]);
-		}
-	}
+	// auto keys = agents.keys();
+	// for (auto i = keys.size() - 1; i >= 0; i--) {
+	// 	Node *a;
+	// 	if (get_owner()) {
+	// 		a = get_owner()->get_node_or_null(agents[keys[static_cast<int>(i)]]);
+	// 	} else {
+	// 		a = get_node_or_null(agents[keys[static_cast<int>(i)]]);
+	// 	}
+	// 	if (a) {
+	// 		agents[keys[static_cast<int>(i)]] = a;
+	// 	} else {
+	// 		agents.erase(keys[static_cast<int>(i)]);
+	// 	}
+	// }
 
 	// 为表达式转换提供必要参数
-	expression_objs_names.resize(HfsmGlobal::name2singleton.size() + agents.size());
+	expression_objs_names.resize(HfsmGlobal::name2singleton.size()); // + agents.size()
 	expression_objs.resize(expression_objs_names.size());
 	int idx = 0;
 	auto arr = HfsmGlobal::name2singleton.get_array();
@@ -187,12 +187,12 @@ void HFSM::___on_ready__() {
 		expression_objs[idx] = arr[i].value;
 		idx++;
 	}
-	auto agent_names = agents.keys();
-	for (auto i = 0; i < agent_names.size(); i++) {
-		expression_objs_names.set(idx, agents[agent_names[i]]);
-		expression_objs[idx] = agents[agent_names[i]];
-		idx++;
-	}
+	// auto agent_names = agents.keys();
+	// for (auto i = 0; i < agent_names.size(); i++) {
+	// 	expression_objs_names.set(idx, agents[agent_names[i]]);
+	// 	expression_objs[idx] = agents[agent_names[i]];
+	// 	idx++;
+	// }
 
 	// 生成hfsm
 	generate_hfsm();
