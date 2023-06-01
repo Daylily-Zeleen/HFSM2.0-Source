@@ -181,10 +181,10 @@ void HFSM::___on_ready__() {
 	expression_objs_names.resize(HfsmGlobal::name2singleton.size()); // + agents.size()
 	expression_objs.resize(expression_objs_names.size());
 	int idx = 0;
-	auto arr = HfsmGlobal::name2singleton.get_array();
-	for (auto i = 0; i < HfsmGlobal::name2singleton.size(); i++) {
-		expression_objs_names.set(idx, arr[i].key);
-		expression_objs[idx] = arr[i].value;
+
+	for (const auto &E : HfsmGlobal::name2singleton) {
+		expression_objs_names.set(idx, E.key);
+		expression_objs[idx] = E.value;
 		idx++;
 	}
 	// auto agent_names = agents.keys();

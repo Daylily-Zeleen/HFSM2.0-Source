@@ -25,7 +25,7 @@ class TransitionRes : public Resource {
 protected:
 	static void _bind_methods();
 
-	String _to_string() const { return vformat("[TransitionRes:%d]", get_instance_id()); }
+	_TO_STRING()
 
 public:
 	enum TransitionType {

@@ -24,7 +24,7 @@ class FsmRes : public Resource {
 protected:
 	static void _bind_methods();
 
-	String _to_string() const { return vformat("[FsmRes:%d]", get_instance_id()); }
+	_TO_STRING()
 
 public:
 	Fsm *create_fsm(HFSM *p_hfsm, const Ref<State> &p_nested_state, const Vector<Hfsm::Fsm *> &p_nested_fsm_update_queue);

@@ -28,8 +28,7 @@ class HFSM : public Node {
 protected:
 	static void _bind_methods();
 
-	String _to_string() const { return vformat("[HFSM:%d]", get_instance_id()); }
-
+	_TO_STRING()
 public:
 	HFSM();
 	~HFSM() override;

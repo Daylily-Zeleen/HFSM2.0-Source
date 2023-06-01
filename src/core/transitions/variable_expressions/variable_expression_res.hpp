@@ -18,8 +18,7 @@ class VariableExpressionRes : public Resource {
 protected:
 	static void _bind_methods();
 
-	String _to_string() const { return vformat("[VariableExpressionRes:%d]", get_instance_id()); }
-
+	_TO_STRING()
 public:
 	bool _set(const StringName &p_name, const Variant &p_property);
 	bool _get(const StringName &p_name, Variant &r_property) const;

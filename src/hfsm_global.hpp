@@ -165,4 +165,7 @@ public:
 #define _PUSH_PROP_TYPED_ARRAY(m_prop, m_class, ...) _PUSH_PROP_ORIGIN(p_list, ARRAY, m_prop, PROPERTY_HINT_TYPE_STRING, \
 		vformat("%d/%d:%s", Variant::OBJECT, PROPERTY_HINT_RESOURCE_TYPE, m_class::get_class_static()), ##__VA_ARGS__)
 
+#define _TO_STRING() \
+	String _to_string() { return vformat("[%s:%d]", get_class_static(), get_instance_id()); }
+
 }; // namespace Hfsm

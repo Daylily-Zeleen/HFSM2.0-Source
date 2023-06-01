@@ -13,7 +13,7 @@ class Transition : public RefCounted, public TransitionBase {
 protected:
 	static void _bind_methods();
 
-	String _to_string() { return vformat("[Transition:%d]", get_instance_id()); }
+	_TO_STRING()
 
 public:
 	// TODO:: call 是否会引发错误？

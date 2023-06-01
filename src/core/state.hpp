@@ -4,6 +4,7 @@
 
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/templates/vector.hpp>
+#include <godot_cpp/templates/vmap.hpp>
 
 using namespace godot;
 namespace Hfsm {
@@ -18,7 +19,7 @@ class State : public RefCounted {
 protected:
 	static void _bind_methods();
 
-	String _to_string() const { return vformat("[State:%d]", get_instance_id()); }
+	_TO_STRING()
 
 public:
 	enum StateType {

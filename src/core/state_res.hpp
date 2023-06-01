@@ -22,7 +22,8 @@ class StateRes : public Resource {
 
 protected:
 	static void _bind_methods();
-	String _to_string() const { return vformat("[StateRes:%d]", get_instance_id()); }
+	
+	_TO_STRING()
 
 public:
 	bool _set(const StringName &p_name, const Variant &p_property);
