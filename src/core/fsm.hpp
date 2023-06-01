@@ -25,9 +25,6 @@ class Fsm {
 	friend class FsmRes;
 
 public:
-	Fsm();
-	~Fsm();
-
 	const Array &get_path() const;
 	Ref<State> get_current_state() const;
 

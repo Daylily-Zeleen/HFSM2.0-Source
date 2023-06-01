@@ -7,8 +7,6 @@
 namespace Hfsm {
 
 #pragma region StateRes
-StateRes::StateRes() = default;
-StateRes::~StateRes() = default;
 
 void StateRes::set_state_node(Node *p_state_node) { state_node = p_state_node; }
 
@@ -173,7 +171,7 @@ Ref<RefCounted> StateRes::create_state(HFSM *p_hfsm, const Fsm *p_fsm) {
 				for (uint32_t i = 0; i < properties.size(); i++) {
 					Dictionary p = static_cast<Dictionary>(properties[i]);
 					String p_name = p[Variant("name")];
-					if (p_name != "nested_state" && !p_hfsm->get_agents().keys().has(p_name)) {
+					if (p_name != "nested_state") { //  && !p_hfsm->get_agents().keys().has(p_name)
 						// 非代理节点也非内嵌状态对象时，确定为用户自定义属性
 						r->property_to_defatul_value.insert(p_name, r->get(p_name));
 					}

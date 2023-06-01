@@ -793,8 +793,6 @@ void StateNodesEditor::__on_node_deselected(Object *p_node) {
 	___deal_selection_action();
 }
 
-StateNodesEditor::StateNodesEditor() = default;
-
 StateNodesEditor *StateNodesEditor::create_state_nodes_edit(HBoxContainer *p_path_btn_container) {
 	auto r = memnew(StateNodesEditor);
 	r->path_button_container = p_path_btn_container;

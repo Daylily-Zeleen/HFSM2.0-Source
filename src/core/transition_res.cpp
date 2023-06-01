@@ -164,9 +164,6 @@ void TransitionRes::_bind_methods() {
 	// BIND_CONSTANT(AUTO_TRANSIT_MODE_MAX);
 }
 
-TransitionRes::TransitionRes() = default;
-TransitionRes::~TransitionRes() = default;
-
 void TransitionRes::set_from_state_res(const Ref<StateRes> &p_from_state_res) {
 	from_state_res = p_from_state_res;
 	emit_changed();

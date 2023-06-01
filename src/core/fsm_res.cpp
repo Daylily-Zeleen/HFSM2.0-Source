@@ -26,9 +26,6 @@ void FsmRes::_bind_methods() {
 	GDBIND_METHOD(remove_variable_res, "remove_variable_res");
 }
 
-FsmRes::FsmRes() = default;
-FsmRes::~FsmRes() = default;
-
 void FsmRes::set_nested_state_res(const Ref<StateRes> &p_state_res) {
 	nested_state_res = p_state_res;
 	emit_changed();

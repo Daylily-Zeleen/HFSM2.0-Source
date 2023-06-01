@@ -45,8 +45,7 @@ public:
 		AUTO_TRANSIT_MODE_PHYSICS_UPDATE_TIMES,
 		AUTO_TRANSIT_MODE_MAX,
 	};
-	TransitionRes();
-	~TransitionRes() override;
+
 	TransitionBase *create_transition(HFSM *p_hfsm, Ref<StateRes> &r_from_state_res, Ref<StateRes> &r_to_state_res);
 
 	bool _set(const StringName &p_name, const Variant &p_property);

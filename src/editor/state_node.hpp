@@ -74,7 +74,6 @@ private:
 	friend class StateNodesEditor;
 
 public:
-	StateNode();
 	void _notification(int p_what);
 	void _ready() override;
 	const Color IN_COLOR = godot::Color::named("orange");

@@ -16,9 +16,7 @@
 
 using namespace godot;
 namespace Hfsm {
-void HFSMEditor::_bind_methods() {}
-
-HFSMEditor::HFSMEditor() = default;
+	
 bool HFSMEditor::find_nested_state_res(const Ref<FsmRes> &p_fsm_res,
 		Ref<FsmRes> p_to_search_fsm_res) {
 	if (p_fsm_res.is_null()) {

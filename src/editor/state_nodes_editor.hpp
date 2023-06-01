@@ -133,7 +133,6 @@ private:
 	friend class HFSMEditor;
 
 public:
-	StateNodesEditor();
 	static StateNodesEditor *create_state_nodes_edit(HBoxContainer *p_path_btn_container);
 
 	void _ready() override;

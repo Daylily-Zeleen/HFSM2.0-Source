@@ -54,8 +54,6 @@ void HFSMVariableRes::_bind_methods() {
 	// ClassDB::bind_method(D_METHOD("delete"), &HFSMVariableRes::delete_self);
 }
 
-HFSMVariableRes::HFSMVariableRes() = default;
-
 void HFSMVariableRes::set_variable_name(const StringName &p_name) {
 	if (!fsm_res.is_valid()) {
 		return;

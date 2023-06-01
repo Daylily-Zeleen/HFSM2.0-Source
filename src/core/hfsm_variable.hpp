@@ -22,13 +22,11 @@ protected:
 	static void _bind_methods();
 
 public:
-	HFSMVariable();
-
 	Variant get_value() const;
 	void set_value(const Variant &p_value);
 
 	Variant::Type get_type() const;
-	int64_t get_type_int() const;
+
 	// 触发器专用
 	void trigger();
 	void flush_trigger();
@@ -66,7 +64,7 @@ inline void HFSMVariable::trigger() {
 }
 
 inline Variant::Type HFSMVariable::get_type() const { return type; }
-inline int64_t HFSMVariable::get_type_int() const { return type; }
+
 // 触发器专用
 inline void HFSMVariable::flush_trigger() { value = false; }
 inline bool HFSMVariable::compare_with(const Variant &val, uint8_t op) {

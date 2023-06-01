@@ -17,8 +17,6 @@ protected:
 	String _to_string() const { return vformat("[HFSMVariableRes:%d]", get_instance_id()); }
 
 public:
-	HFSMVariableRes();
-
 	bool _set(const StringName &p_name, const Variant &p_property);
 	bool _get(const StringName &p_name, Variant &r_property) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;

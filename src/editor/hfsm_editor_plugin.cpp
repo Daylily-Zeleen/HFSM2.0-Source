@@ -11,9 +11,6 @@ using namespace godot;
 
 namespace Hfsm {
 
-void HfsmInspectorPlugin::_bind_methods() {}
-HfsmInspectorPlugin::HfsmInspectorPlugin() = default;
-
 bool HfsmInspectorPlugin::_can_handle(Object *p_object) const {
 	return Object::cast_to<VariableExpressionRes>(p_object) != nullptr;
 }

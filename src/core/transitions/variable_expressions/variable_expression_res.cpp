@@ -7,9 +7,6 @@
 
 namespace Hfsm {
 #pragma region VariableExpressionRes
-VariableExpressionRes::VariableExpressionRes() {
-	UtilityFunctions::print("==VariableExpressionRes");
-}
 
 Ref<HFSMVariableRes> VariableExpressionRes::get_variable_res() const {
 	return variable_res;

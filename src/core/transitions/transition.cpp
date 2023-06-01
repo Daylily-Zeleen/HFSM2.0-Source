@@ -10,7 +10,7 @@ void Transition::_bind_methods() {
 	GDBIND_METHOD(get_from_state);
 	GDBIND_METHOD(get_to_state);
 	GDBIND_METHOD(get_hfsm);
-	GDBIND_METHOD(get_context);
+	// GDBIND_METHOD(get_context);
 
 #ifdef ROLLBACK_NET_CODE
 	BIND_VIRTUAL_METHOD(Transition, _save_state);

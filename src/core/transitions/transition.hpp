@@ -16,7 +16,6 @@ protected:
 	String _to_string() { return vformat("[Transition:%d]", get_instance_id()); }
 
 public:
-	Transition() = default;
 	// TODO:: call 是否会引发错误？
 	// 能否不走 call 调用真正的虚方法？
 	void refresh() override { call(SNAME("_refresh")); }

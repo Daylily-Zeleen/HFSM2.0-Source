@@ -27,7 +27,7 @@ public:
 		STATE_TYPE_EXIT,
 		STATE_TYPE_MAX,
 	};
-	State();
+
 	~State() override;
 
 	void set_name(const StringName &p_name);
@@ -36,7 +36,7 @@ public:
 	HFSM *get_hfsm();
 	bool is_exited();
 
-	Dictionary get_context();
+	// Dictionary get_context();
 	// void set_context(Dictionary context){_hfsm->set_context(context);}
 
 	void manual_exit();

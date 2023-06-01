@@ -27,9 +27,6 @@ protected:
 	String _to_string() const { return vformat("[FsmRes:%d]", get_instance_id()); }
 
 public:
-	FsmRes();
-	~FsmRes() override;
-
 	Fsm *create_fsm(HFSM *p_hfsm, const Ref<State> &p_nested_state, const Vector<Hfsm::Fsm *> &p_nested_fsm_update_queue);
 
 	void set_nested_state_res(const Ref<StateRes> &p_state_res);

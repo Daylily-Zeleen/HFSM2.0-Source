@@ -40,8 +40,6 @@ public:
 		OP_LESS_EQUAL,
 	};
 
-	VariableExpressionRes();
-
 	void set_variable_res(const Ref<HFSMVariableRes> &p_variable_res);
 	Ref<HFSMVariableRes> get_variable_res() const;
 

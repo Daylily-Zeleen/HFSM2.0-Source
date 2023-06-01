@@ -412,6 +412,4 @@ void StateNode::_notification(int p_what) {
 	}
 }
 
-StateNode::StateNode() = default;
-
 } // namespace Hfsm

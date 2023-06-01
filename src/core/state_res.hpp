@@ -36,9 +36,6 @@ public:
 	//     STATE_TYPE_MAX,
 	// };
 
-	StateRes();
-	~StateRes() override;
-
 	void set_state_node(godot::Node *);
 	godot::Node *get_state_node() const;
 	void set_state_name(const StringName &p_name);
@@ -97,7 +94,7 @@ private:
 #endif
 
 #ifdef TOOL_ENABLED
-	Node *state_node;
+	Node *state_node = nullptr;
 #endif
 };
 

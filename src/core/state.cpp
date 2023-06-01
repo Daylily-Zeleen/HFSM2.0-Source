@@ -23,7 +23,7 @@ void State::_bind_methods() {
 	GDBIND_METHOD(get_hfsm);
 	GDBIND_METHOD(is_exited);
 	GDBIND_METHOD(manual_exit);
-	GDBIND_METHOD(get_context);
+	// GDBIND_METHOD(get_context);
 	GDBIND_METHOD(get_animation_name_for_playing);
 	GDBIND_METHOD(is_animation_playing);
 	GDADD_PROPERTY(STRING_NAME, animation_name);
@@ -69,15 +69,13 @@ void State::_bind_methods() {
 	// BIND_CONSTANT(STATE_TYPE_MAX);
 }
 
-Dictionary State::get_context() { return hfsm->get_context(); }
+// Dictionary State::get_context() { return hfsm->get_context(); }
 
 void State::_initialize() {}
 void State::_entry() {}
 void State::_update(float p_delta) {}
 void State::_physics_update(float p_delta) {}
 void State::_exit() {}
-
-State::State() = default;
 
 State::~State() {
 	for (auto &&transition : transition_list) {

@@ -7,9 +7,6 @@ namespace Hfsm {
 
 #pragma region Fsm
 
-Fsm::Fsm() = default;
-Fsm::~Fsm() = default;
-
 void Fsm::reset() {
 	current_state = current_entry_state;
 	for (auto &&state : state_list) {
