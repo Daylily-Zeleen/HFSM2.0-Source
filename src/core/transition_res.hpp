@@ -5,7 +5,7 @@
 #include <godot_cpp/classes/script.hpp>
 #include <godot_cpp/templates/vector.hpp>
 
-#include "hfsm_global.hpp"
+#include <hfsm_global.hpp>
 
 using namespace godot;
 

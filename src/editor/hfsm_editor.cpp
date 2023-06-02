@@ -151,7 +151,7 @@ HFSMEditor *HFSMEditor::create_hfsm_editor() {
 	r->add_child(r->mask_panel);
 
 	r->not_hfsm_label = memnew(Label);
-	r->not_hfsm_label->set_text(String("请选中一个 HFSM 节点开始编辑"));
+	r->not_hfsm_label->set_text(String("请选中一个 HFSM 节点开始编辑")); // TODO 翻译
 	r->not_hfsm_label->set_vertical_alignment(VERTICAL_ALIGNMENT_CENTER);
 	r->not_hfsm_label->set_horizontal_alignment(HORIZONTAL_ALIGNMENT_CENTER);
 	r->mask_panel->add_child(r->not_hfsm_label);

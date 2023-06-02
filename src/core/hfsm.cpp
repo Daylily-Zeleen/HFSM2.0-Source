@@ -15,7 +15,7 @@ namespace Hfsm {
 
 bool HFSM::_set(const StringName &p_name, const Variant &p_property) {
 	_TRY_SET_PROP(root_fsm_res);
-#ifdef TOOL_ENABLED
+#ifdef TOOLS_ENABLED
 	if (p_name == StringName("variable_list")) {
 		root_fsm_res->set_variable_res_list(p_property.operator godot::Array());
 		return true;
@@ -25,7 +25,7 @@ bool HFSM::_set(const StringName &p_name, const Variant &p_property) {
 }
 bool HFSM::_get(const StringName &p_name, Variant &r_property) const {
 	_TRY_GET_PROP(root_fsm_res);
-#ifdef TOOL_ENABLED
+#ifdef TOOLS_ENABLED
 	if (p_name == StringName("variable_list")) {
 		if (root_fsm_res.is_valid()) {
 			r_property = root_fsm_res->get_variable_res_list();
@@ -38,7 +38,7 @@ bool HFSM::_get(const StringName &p_name, Variant &r_property) const {
 void HFSM::_get_property_list(List<PropertyInfo> *p_list) const {
 	_PUSH_PROP_RESOURCE(root_fsm_res, PROPERTY_USAGE_STORAGE, FsmRes::get_class_static());
 
-#ifdef TOOL_ENABLED
+#ifdef TOOLS_ENABLED
 	if (Engine::get_singleton()->is_editor_hint()) {
 		auto typed_VariableRes_array_hint_string = vformat("%d/%d:%s", Variant::OBJECT, PROPERTY_HINT_RESOURCE_TYPE, HFSMVariableRes::get_class_static());
 		p_list->push_back(PropertyInfo(Variant::ARRAY, "variable_list", PROPERTY_HINT_TYPE_STRING, typed_VariableRes_array_hint_string, PROPERTY_USAGE_EDITOR));
@@ -73,7 +73,9 @@ void HFSM::_bind_methods() {
 
 	GDADD_PROPERTY_BOOL(active, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE);
 
+#ifdef DEV_ENABLED
 	GDADD_PROPERTY_BOOL(debug);
+#endif // DEV_ENABLED
 
 	GDBIND_SETGET(root_fsm_res);
 

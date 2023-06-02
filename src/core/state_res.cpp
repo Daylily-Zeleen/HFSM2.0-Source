@@ -8,8 +8,6 @@ namespace Hfsm {
 
 #pragma region StateRes
 
-void StateRes::set_state_node(Node *p_state_node) { state_node = p_state_node; }
-
 bool StateRes::_set(const StringName &p_name, const Variant &p_property) {
 	_TRY_SET_PROP(animation_name);
 #ifdef FULL_VERSION
@@ -19,8 +17,6 @@ bool StateRes::_set(const StringName &p_name, const Variant &p_property) {
 #endif
 	return false;
 }
-
-Node *StateRes::get_state_node() const { return state_node; }
 
 bool StateRes::_get(const StringName &p_name, Variant &r_property) const {
 	_TRY_GET_PROP(animation_name);
@@ -33,7 +29,7 @@ bool StateRes::_get(const StringName &p_name, Variant &r_property) const {
 }
 void StateRes::_get_property_list(List<PropertyInfo> *p_list) const {
 	String animations;
-#ifdef TOOL_ENABLED
+#ifdef TOOLS_ENABLED
 	if (HfsmEditorPlugin::get_singleton()) {
 		if (HfsmEditorPlugin::get_singleton()->get_hfsm_editor()) {
 			if (HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
@@ -45,7 +41,7 @@ void StateRes::_get_property_list(List<PropertyInfo> *p_list) const {
 			}
 		}
 	}
-#endif // TOOL_ENABLED
+#endif // TOOLS_ENABLED
 	_PUSH_PROP(STRING_NAME, animation_name, PROPERTY_HINT_ENUM_SUGGESTION, animations);
 
 #ifdef FULL_VERSION
@@ -68,8 +64,8 @@ void StateRes::_bind_methods() {
 	GDADD_PROPERTY(VECTOR2, size_in_editor);
 
 	ADD_GROUP("Animation", "animation_");
-#ifdef TOOL_ENABLED
-	GDBIND_SETGET(state_node)
+#ifdef TOOLS_ENABLED
+	GDBIND_SETGET(state_node);
 #endif
 }
 
@@ -148,13 +144,16 @@ Ref<RefCounted> StateRes::create_state(HFSM *p_hfsm, const Fsm *p_fsm) {
 	r->reset_when_entry = reset_properties_when_entry;
 	r->reset_nested_fsm_when_entry = reset_nested_fsm_when_entry;
 	// TODO:: 动画
-
+	r->animation_name = animation_name;
+#ifdef FULL_VERSION
+	r->animation_blend_time = animation_blend_time;
+	r->animation_playing = animation_reverse;
+#endif
 	// 路径
 	// State 一定包含于 Fsm
 	r->path.append_array(p_fsm->get_path());
 
 	// 脚本处理
-	// auto script = script;
 	// 校验脚本是否合法
 	if (state_script.is_valid()) {
 		if (state_script->get_instance_base_type() == state_class_name) {

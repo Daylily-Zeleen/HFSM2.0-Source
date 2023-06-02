@@ -46,14 +46,14 @@
 #include "core/transitions/auto_transition.hpp"
 #include "core/transitions/transition.hpp"
 #include "core/transitions/variable_expressions/variable_expression_res.hpp"
-#include "godot_cpp/classes/editor_plugin.hpp"
-#include "hfsm_global.hpp"
+#include <hfsm_global.hpp>
 
 #include "editor/hfsm_editor.hpp"
 #include "editor/hfsm_editor_plugin.hpp"
 #include "editor/inspector_plugin/variable_res_selector.hpp"
 #include "editor/state_node.hpp"
 #include "editor/state_nodes_editor.hpp"
+#include "godot_cpp/classes/editor_plugin.hpp"
 
 using namespace Hfsm;
 

@@ -3,7 +3,7 @@
 #include <godot_cpp/classes/resource.hpp>
 #include <godot_cpp/core/binder_common.hpp>
 
-#include "../../hfsm_variable_res.hpp"
+#include <core/hfsm_variable_res.hpp>
 
 using namespace godot;
 

@@ -1,6 +1,6 @@
 ﻿#include "expression_transition.hpp"
-#include "../state.hpp"
 
+#include <core/state.hpp>
 namespace Hfsm {
 
 #pragma region ExpressionTransition

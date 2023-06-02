@@ -2,15 +2,18 @@
 
 #include <godot_cpp/classes/button.hpp>
 #include <godot_cpp/classes/editor_undo_redo_manager.hpp>
+#include <godot_cpp/classes/font.hpp>
 #include <godot_cpp/classes/graph_edit.hpp>
 #include <godot_cpp/classes/input_event.hpp>
 #include <godot_cpp/classes/label.hpp>
 #include <godot_cpp/classes/panel.hpp>
 #include <godot_cpp/classes/popup_menu.hpp>
 
+
 #include "core/transitions/variable_expressions/variable_expression_res.hpp"
 
 using namespace godot;
+
 namespace Hfsm {
 class StateNode;
 class TransitionRes;

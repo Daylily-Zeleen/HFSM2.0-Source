@@ -7,7 +7,7 @@
 #include <godot_cpp/core/binder_common.hpp>
 #include <godot_cpp/templates/vmap.hpp>
 
-#include "../hfsm_global.hpp"
+#include <hfsm_global.hpp>
 // #include "fsm_res.hpp"
 
 using namespace godot;

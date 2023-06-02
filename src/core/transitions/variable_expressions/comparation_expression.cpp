@@ -1,5 +1,5 @@
 ﻿#include "comparation_expression.hpp"
-#include "../../../hfsm_global.hpp"
+#include <hfsm_global.hpp>
 
 #include <godot_cpp/classes/engine.hpp>
 namespace Hfsm {

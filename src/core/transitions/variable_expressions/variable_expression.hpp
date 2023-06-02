@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../hfsm_variable.hpp"
+#include <core/hfsm_variable.hpp>
 
 namespace Hfsm {
 

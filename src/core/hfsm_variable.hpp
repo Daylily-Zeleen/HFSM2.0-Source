@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../hfsm_global.hpp"
+#include <hfsm_global.hpp>
 
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>

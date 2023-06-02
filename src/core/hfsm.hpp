@@ -7,9 +7,9 @@
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/templates/vmap.hpp>
 
-#include "../hfsm_global.hpp"
 #include "godot_cpp/templates/pair.hpp"
 #include "state.hpp"
+#include <hfsm_global.hpp>
 
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -128,7 +128,11 @@ public:
 private:
 	bool inited = false;
 	bool active = true;
+
+#ifdef DEV_ENABLED
 	bool debug = false;
+#endif // DEV_ENABLED
+
 	// Dictionary agents;
 	UpdateType update_type = UpdateType::UPDATE_TYPE_IDLE_AND_PHYSICS;
 
@@ -180,12 +184,16 @@ inline void HFSM::set_active(bool p_v) {
 	notify_property_list_changed();
 }
 inline bool HFSM::is_active() { return active; }
+
+#ifdef DEV_ENABLED
 inline void HFSM::set_debug(bool p_v) {
 	debug = p_v;
 	notify_property_list_changed();
 	// TODO:: 添加调试器
 }
 inline bool HFSM::is_debug() { return debug; }
+#endif // DEV_ENABLED
+
 // void set_agents(Dictionary a);
 // inline Dictionary HFSM::get_agents() const { return agents; }
 inline HFSM::UpdateType HFSM::get_update_type() { return update_type; }

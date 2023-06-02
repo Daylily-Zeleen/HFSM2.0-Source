@@ -4,9 +4,9 @@
 
 #include <godot_cpp/core/binder_common.hpp>
 
-#include "../../hfsm_global.hpp"
-#include "../hfsm.hpp"
-#include "../hfsm_variable.hpp"
+#include <core/hfsm.hpp>
+#include <core/hfsm_variable.hpp>
+#include <hfsm_global.hpp>
 
 using namespace godot;
 

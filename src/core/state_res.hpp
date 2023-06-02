@@ -22,7 +22,7 @@ class StateRes : public Resource {
 
 protected:
 	static void _bind_methods();
-	
+
 	_TO_STRING()
 
 public:
@@ -37,8 +37,10 @@ public:
 	//     STATE_TYPE_MAX,
 	// };
 
-	void set_state_node(godot::Node *);
-	godot::Node *get_state_node() const;
+#ifdef TOOLS_ENABLED
+	void set_state_node(godot::Node *p_state_nde) { state_node = p_state_nde; }
+	godot::Node *get_state_node() const { return state_node; }
+#endif // TOOLS_ENABLED
 	void set_state_name(const StringName &p_name);
 	StringName get_state_name() const;
 	void set_type(State::StateType p_state_type);
@@ -94,7 +96,7 @@ private:
 	bool animation_reverse = false;
 #endif
 
-#ifdef TOOL_ENABLED
+#ifdef TOOLS_ENABLED
 	Node *state_node = nullptr;
 #endif
 };

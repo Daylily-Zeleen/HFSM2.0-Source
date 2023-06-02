@@ -1,10 +1,11 @@
 ﻿#pragma once
 
-#include "../fsm.hpp"
-#include "../state.hpp"
-#include "transition_base.hpp"
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/time.hpp>
+
+#include "transition_base.hpp"
+#include <core/fsm.hpp>
+#include <core/state.hpp>
 
 namespace Hfsm {
 enum AuotoTtransitMode {

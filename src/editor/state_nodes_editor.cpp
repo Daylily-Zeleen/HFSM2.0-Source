@@ -1,7 +1,6 @@
 ﻿#include "state_nodes_editor.hpp"
 
 #include <godot_cpp/classes/editor_interface.hpp>
-#include <godot_cpp/classes/font.hpp>
 #include <godot_cpp/classes/gd_script.hpp>
 #include <godot_cpp/classes/input.hpp>
 #include <godot_cpp/classes/input_event_mouse_button.hpp>

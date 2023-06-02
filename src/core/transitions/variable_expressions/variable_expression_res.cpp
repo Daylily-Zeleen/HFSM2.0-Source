@@ -1,9 +1,8 @@
 ﻿#include "variable_expression_res.hpp"
-#include "../../hfsm.hpp"
-#include "../variable_transition.hpp"
-#include <atomic>
+#include <core/hfsm.hpp>
+#include <core/transitions/variable_transition.hpp>
 #include <godot_cpp/classes/translation_server.hpp>
-#include <type_traits>
+
 
 namespace Hfsm {
 #pragma region VariableExpressionRes

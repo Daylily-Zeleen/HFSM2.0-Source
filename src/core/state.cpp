@@ -181,6 +181,16 @@ void State::set_animation_name(const StringName &p_anim_name) {
 	animation_name = p_anim_name;
 	// TODO:: 动画变动时如果状态正在运行时立刻切换动画
 }
+
+// bool State::is_animation_playing() const {
+// 	if (auto ap = hfsm->get_animation_player()) {
+// 		if (ap->get_current_animation() == animation_name) {
+// 			return ap->is_playing();
+// 		}
+// 	}
+// 	return false;
+// }
+
 #ifdef FULL_VERSION
 double State::get_animation_blend_time() const { return animation_blend_time; }
 void State::set_animation_blend_time(double p_blend_time) { animation_blend_time = p_blend_time; }

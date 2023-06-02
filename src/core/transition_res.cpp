@@ -1,5 +1,5 @@
 ﻿#include "transition_res.hpp"
-#include "../hfsm_global.hpp"
+#include <hfsm_global.hpp>
 #include "core/transitions/auto_transition.hpp"
 #include "state_res.hpp"
 #include "transitions/auto_transition.hpp"
