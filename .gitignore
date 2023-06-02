@@ -1,6 +1,10 @@
 #
 build
 .vscode
+*.dblite
+.clangd
+*.pdb
+hfsm_4.0.code-workspace
 demo
 demo_backup
 bin

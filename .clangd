@@ -4,13 +4,6 @@
         -std=c++17,
         -Wno-documentation,
         -Wno-missing-prototypes,
-        "--include-directory=H:/godot-cpp/include/",
-        "--include-directory=H:/godot-cpp/gdextension/",
-        "--include-directory=H:/godot-cpp/gen/include/",
-        "--include-directory=H:/godot-cpp/src/",
-        "--include-directory=H:/hfsm_4.0/src/",
-        "--include-directory=H:/godot-cpp/",
-        "--include-directory=H:/hfsm_4.0"
       ]
 Diagnostics:
   ClangTidy:
@@ -29,6 +22,9 @@ Diagnostics:
         readability-identifier-length,
         bugprone-easily-swappable-parameters,
         bugprone-reserved-identifier,
+
+        bugprone-narrowing-conversions,
+        modernize-use-auto,
     ]
     CheckOptions:
     {
