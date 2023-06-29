@@ -62,9 +62,9 @@ public:
 
 	// 公用访问器
 	void set_from_state_res(const Ref<StateRes> &p_from_state_res);
-	Ref<StateRes> get_from_state_res();
+	Ref<StateRes> get_from_state_res() const;
 	void set_to_state_res(const Ref<StateRes> &p_from_to_res);
-	Ref<StateRes> get_to_state_res();
+	Ref<StateRes> get_to_state_res() const;
 	void set_type(TransitionType p_type);
 	TransitionType get_type() const;
 

@@ -5,8 +5,6 @@
 using namespace godot;
 
 namespace Hfsm {
-// class HFSM;
-// class State;
 
 class Transition : public RefCounted, public TransitionBase {
 	GDCLASS(Transition, RefCounted)
@@ -19,12 +17,12 @@ public:
 	GDVIRTUAL0(_refresh);
 	GDVIRTUAL0R(bool, _can_transit);
 
-	virtual void refresh() override {
+	void refresh() override {
 		IF_GDE(call(SNAME("_refresh"));)
 		IF_GDM(GDVIRTUAL_CALL(_refresh);)
 	}
 
-	virtual bool can_transit() override {
+	bool can_transit() override {
 		IF_GDE(return bool(call(SNAME("_can_transit")));)
 		IF_GDM({
 			bool ret;

@@ -1,10 +1,12 @@
 ﻿#pragma once
 
+#include "../hfsm_global.h"
+
 #ifdef GDEXTENSION_BUILD
-#include <godot_cpp/classes/editor_debugger_plugin.h>
-#include <godot_cpp/classes/h_split_container.h>
-#include <godot_cpp/classes/item_list.h>
-#include <godot_cpp/templates/vmap.h>
+#include <godot_cpp/classes/editor_debugger_plugin.hpp>
+#include <godot_cpp/classes/h_split_container.hpp>
+#include <godot_cpp/classes/item_list.hpp>
+#include <godot_cpp/templates/hash_map.hpp>
 
 using namespace godot;
 #else // GDEXTENSION_BUILD
@@ -36,9 +38,9 @@ protected:
 	static void _bind_methods();
 
 public:
-	void setup_session(int p_idx) override;
-	bool capture(const String &p_message, const Array &p_data, int p_session) override;
-	bool has_capture(const String &p_capture) const override;
+	void GD_(setup_session)(int p_idx) override;
+	bool GD_(capture)(const String &p_message, const Array &p_data, int p_session) override;
+	bool GD_(has_capture)(const String &p_capture) const override;
 
 	// Called by runtime.
 	static void send_debug_built(class HFSM *p_hfsm);

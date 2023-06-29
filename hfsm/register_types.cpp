@@ -30,12 +30,12 @@
 
 #include "register_types.h"
 
-#ifdef GDESTENSION_BUILD
+#ifdef GDEXTENSION_BUILD
 #include <gdextension_interface.h>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
-#endif // GDESTENSION_BUILD
+#endif // GDEXTENSION_BUILD
 
 #include "hfsm_global.h"
 #include "src/fsm_res.h"
@@ -68,7 +68,6 @@
 using namespace Hfsm;
 
 void register_core_classes() {
-	// return;
 	GDREGISTER_CLASS(HFSM);
 	GDREGISTER_CLASS(State);
 	GDREGISTER_CLASS(Transition);

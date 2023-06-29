@@ -30,14 +30,14 @@
 
 #pragma once
 
-#ifdef GDESTENSION_BUILD
+#ifdef GDEXTENSION_BUILD
 #include <godot_cpp/core/class_db.hpp>
 using namespace godot;
 #else
 
 #include "modules/register_module_types.h"
 // #include <modules/register_module_types.h>
-#endif // GDESTENSION_BUILD
+#endif // GDEXTENSION_BUILD
 
 void initialize_hfsm_module(ModuleInitializationLevel p_level);
 void uninitialize_hfsm_module(ModuleInitializationLevel p_level);

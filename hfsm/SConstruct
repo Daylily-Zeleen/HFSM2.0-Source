@@ -2,7 +2,7 @@
 import os
 import sys
 
-env = SConscript("../godot-cpp/SConstruct")
+env = SConscript("../../godot-cpp/SConstruct")
 
 # For the reference:
 # - CCFLAGS are compilation flags shared between C and C++
@@ -31,22 +31,21 @@ def scan_files(directory, prefix=None, postfix=None):
 
 
 cpp_paths = ["./",
-             "hfsm/",
-             "hfsm/src/",
-             "hfsm/src/transitions/",
-             "hfsm/src/transitions/variable_expressions/",
+             "src/",
+             "src/transitions/",
+             "src/transitions/variable_expressions/",
              ]
-sources = Glob("hfsm/*.cpp") + \
-    Glob("hfsm/src/*.cpp") + \
-    Glob("hfsm/src/transitions/*.cpp") + \
-    Glob("hfsm/src/transitions/variable_expressions/*.cpp")
+sources = Glob("*.cpp") + \
+    Glob("src/*.cpp") + \
+    Glob("src/transitions/*.cpp") + \
+    Glob("src/transitions/variable_expressions/*.cpp")
 
 if env["target"] == "editor":
-    cpp_paths.append("hfsm/editor/")
-    cpp_paths.append("hfsm/editor/inspector_plugin/")
+    cpp_paths.append("editor/")
+    cpp_paths.append("editor/inspector_plugin/")
 
-    sources = sources + Glob("hfsm/editor/*.cpp") + \
-        Glob("hfsm/editor/inspector_plugin/*.cpp")
+    sources = sources + Glob("editor/*.cpp") + \
+        Glob("editor/inspector_plugin/*.cpp")
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=cpp_paths)

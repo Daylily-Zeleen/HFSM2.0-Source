@@ -1,11 +1,12 @@
 ﻿#include "hfsm_editor.h"
 
 #ifdef GDEXTENSION_BUILD
-#include <godot_cpp/classes/editor_interface.h>
+#include <godot_cpp/classes/editor_interface.hpp>
 #include <godot_cpp/classes/margin_container.hpp>
 #include <godot_cpp/classes/panel_container.hpp>
 #include <godot_cpp/classes/v_box_container.hpp>
-
+#include <godot_cpp/classes/button.hpp>
+#include <godot_cpp/classes/editor_inspector.hpp>
 #else
 #include <editor/editor_interface.h>
 #include <scene/gui/panel.h>
@@ -67,7 +68,7 @@ void HFSMEditor::initialize() {
 	mask_panel->hide();
 }
 
-bool HFSMEditor::try_set_nested_state_res_for_fsm_res_recursively(const Ref<FsmRes> &p_fsm_res, Ref<FsmRes> p_to_search_fsm_res) {
+bool HFSMEditor::try_set_nested_state_res_for_fsm_res_recursively(Ref<FsmRes> &p_fsm_res, Ref<FsmRes> p_to_search_fsm_res) {
 	if (debug_mode) {
 		return false;
 	}
@@ -101,7 +102,7 @@ bool HFSMEditor::try_set_nested_state_res_for_fsm_res_recursively(const Ref<FsmR
 	return false;
 }
 
-void HFSMEditor::edit_fsm_res_in_hfsm(const Ref<FsmRes> &p_fsm_res, const Ref<FsmRes> &p_root_fsm_res) {
+void HFSMEditor::edit_fsm_res_in_hfsm(Ref<FsmRes> p_fsm_res, const Ref<FsmRes> &p_root_fsm_res) {
 	if (!debug_mode && p_fsm_res->get_nested_state_res().is_null() && get_editing_hfsm()) {
 		try_set_nested_state_res_for_fsm_res_recursively(p_fsm_res);
 	}
@@ -130,7 +131,7 @@ void HFSMEditor::debug_highlight_activate_state(const PackedStringArray &p_activ
 
 	StringName actived_state;
 	if (p_active_path.size() > 0) {
-		actived_state = p_active_path.get(p_active_path.size() - 1);
+		actived_state = p_active_path[p_active_path.size() - 1];
 	}
 	fsm_editor->debug_highlight_active_state(actived_state, idx != p_active_path.size() - 1);
 }
@@ -146,9 +147,9 @@ void HFSMEditor::_notification(int p_what) {
 	{                                                                                                \
 		auto inspector = HfsmEditorPlugin::get_singleton()->get_editor_interface()->get_inspector(); \
 		auto cb = TCALLABLE(_inspector_##m_signal);                                                  \
-		if (m_connected && !inspector->is_connected(#m_signal, cb)) {                                \
+		if ((m_connected) && !inspector->is_connected(#m_signal, cb)) {                                \
 			inspector->connect(#m_signal, cb);                                                       \
-		} else if (!m_connected && inspector->is_connected(#m_signal, cb)) {                         \
+		} else if (!(m_connected) && inspector->is_connected(#m_signal, cb)) {                         \
 			inspector->disconnect(#m_signal, cb);                                                    \
 		}                                                                                            \
 	}
@@ -193,7 +194,7 @@ void HFSMEditor::_inspector_edited_object_changed() {
 	set_connect_inspector_signal(false);
 }
 
-void HFSMEditor::_edit_fsm_requested(const Ref<FsmRes> &p_fsm_res) {
+void HFSMEditor::_edit_fsm_requested(Ref<FsmRes> &p_fsm_res) {
 	edit_fsm_res_in_hfsm(p_fsm_res);
 }
 

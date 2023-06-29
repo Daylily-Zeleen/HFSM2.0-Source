@@ -10,14 +10,22 @@
 #include <type_traits>
 
 #ifdef GDEXTENSION_BUILD
-#include <godot_cpp/classes/csharp_script.h>
+
 #include <godot_cpp/classes/gd_script.hpp>
 #include <godot_cpp/classes/translation_server.hpp>
+#include <godot_cpp/classes/resource_saver.hpp>
 
-#else
+#ifdef MODULE_MONO_ENABLED
+#include <godot_cpp/classes/csharp_script.h>
+#endif // MODULE_MONO_ENABLED
+
+#else // GDEXTENSION_BUILD
 #include <core/string/translation.h>
 #include <modules/gdscript/gdscript.h>
+
+#ifdef MODULE_MONO_ENABLED
 #include <modules/mono/csharp_script.h>
+#endif // MODULE_MONO_ENABLED
 
 #endif //GDEXTENSION_BUILD
 
@@ -29,8 +37,8 @@ bool TransitionRes::_set(const StringName &p_name, const Variant &p_property) {
 	_TRY_SET_PROP(variable_expression_res_list);
 	_TRY_SET_PROP(expression_text);
 	_TRY_SET_PROP(expression_comment);
-	if ((p_name) == "auto_mode") {
-		set_auto_mode(AuotoTtransitMode(p_property.operator uint8_t()));
+	if ((p_name) == StringName("auto_mode")) {
+		set_auto_mode(AuotoTtransitMode(uint32_t(p_property)));
 		return true;
 	};
 	_TRY_SET_PROP(auto_delay_msec);
@@ -172,13 +180,13 @@ void TransitionRes::set_from_state_res(const Ref<StateRes> &p_from_state_res) {
 	from_state_res = p_from_state_res;
 	emit_changed();
 }
-Ref<StateRes> TransitionRes::get_from_state_res() { return from_state_res; }
+Ref<StateRes> TransitionRes::get_from_state_res() const { return from_state_res; }
 
 void TransitionRes::set_to_state_res(const Ref<StateRes> &p_to_state_res) {
 	to_state_res = p_to_state_res;
 	emit_changed();
 }
-Ref<StateRes> TransitionRes::get_to_state_res() { return to_state_res; }
+Ref<StateRes> TransitionRes::get_to_state_res() const { return to_state_res; }
 void TransitionRes::set_type(TransitionType p_type) {
 	type = p_type;
 	emit_changed();
@@ -270,7 +278,7 @@ func _refresh() -> void:
 )XXX");
 				type_valid = true;
 			}
-#if defined(GDEXTENSION_BUILD) || defined(MODULE_MONO_ENABLED)
+#ifdef MODULE_MONO_ENABLED
 			else if (auto csharp = cast_to<CSharpScript>(transition_script.ptr())) {
 				s->set_source_code(R"XXX(public partial class MyTransition: Godot.Transition
 {
@@ -295,7 +303,7 @@ func _refresh() -> void:
 )XXX");
 				type_valid = true;
 			}
-#endif // defined (GDEXTENSION_BUILD) || defined (MODULE_MONO_ENABLED)
+#endif // MODULE_MONO_ENABLED
 			IF_GDM({
 				auto lang = transition_script->get_language();
 				auto templates = lang->get_built_in_templates("Object");
@@ -305,7 +313,8 @@ func _refresh() -> void:
 				}
 			})
 			if (type_valid) {
-				ResourceSaver::save(transition_script);
+				IF_GDE(ResourceSaver::get_singleton()->save(transition_script);)
+				IF_GDM(ResourceSaver::save(transition_script);)
 				transition_script->reload();
 			}
 		}

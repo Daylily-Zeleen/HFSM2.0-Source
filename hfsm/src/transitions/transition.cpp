@@ -3,6 +3,7 @@
 namespace Hfsm {
 
 void Transition::_bind_methods() {
+	GDBIND_BEGIN(Transition);
 	GDVIRTUAL_BIND(_refresh);
 	GDVIRTUAL_BIND(_can_transit);
 

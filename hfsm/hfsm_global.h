@@ -50,12 +50,16 @@ public:
 
 #ifdef GDEXTENSION_BUILD
 #define MOUSE_BUTTON(m_btn) MOUSE_BUTTON_##m_btn
-#define KEY_MASK(m_btn) KEY_MASK__##m_btn
+#define KEY_MASK(m_btn) KEY_MASK_##m_btn
 #define KEY(m_btn) KEY_##m_btn
-#else
+
+#else // GDEXTENSION_BUILD
+
 #define MOUSE_BUTTON(m_btn) MouseButton::m_btn
 #define KEY_MASK(m_btn) KeyModifierMask::m_btn
 #define KEY(m_btn) Key::m_btn
+
+#endif // GDEXTENSION_BUILD
 
 #define IS_PROP(m_prop_usage) !bool(int(m_prop_usage) & (PROPERTY_USAGE_GROUP | PROPERTY_USAGE_CATEGORY | PROPERTY_USAGE_SUBGROUP))
 
@@ -64,5 +68,3 @@ public:
 #else // FULL_VERSION
 #define IF_FULL_VERSION(m_code) m_code
 #endif // FULL_VERSION
-
-#endif // GDEXTENSION_BUILD

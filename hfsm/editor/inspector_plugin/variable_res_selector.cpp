@@ -1,13 +1,5 @@
 ﻿#include "variable_res_selector.h"
 
-#ifdef GDEXTENSION_BUILD
-#include <godot_cpp/classes/button.hpp>
-#include <godot_cpp/classes/popup_menu.hpp>
-#else
-#include <scene/gui/button.h>
-#include <scene/gui/popup_menu.h>
-
-#endif // GDEXTENSION_BUILD
 
 #include "../../src/hfsm.h"
 #include "../../src/hfsm_variable_res.h"

@@ -62,7 +62,7 @@ void StateNode::set_state_res(const Ref<class StateRes> &p_state_res) {
 	_setup_state_res();
 }
 
-StateNode *StateNode::create_state_node(const Ref<StateRes> &p_target_state_res, Ref<FsmRes> p_nested_fsm_res, bool p_debug) {
+StateNode *StateNode::create_state_node(Ref<StateRes> p_target_state_res, const Ref<FsmRes> &p_nested_fsm_res, bool p_debug) {
 	if (p_target_state_res.is_null()) {
 		return nullptr;
 	}
@@ -318,7 +318,7 @@ void StateNode::initialize() {
 		v_box->add_child(script_picker);
 	}
 
-	static const Ref<Texture2D> EMPTY_ICON = memnew(ImageTexture);
+	static const Ref<Texture2D> EMPTY_ICON = memnew(Texture2D);
 	static const StringName port_sn = "port";
 	add_theme_icon_override(port_sn, EMPTY_ICON);
 

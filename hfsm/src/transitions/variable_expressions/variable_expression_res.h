@@ -1,17 +1,16 @@
 ﻿#pragma once
 
 #ifdef GDEXTENSION_BUILD
-#include <core/hfsm_variable_res.hpp>
 #include <godot_cpp/classes/resource.hpp>
 #include <godot_cpp/core/binder_common.hpp>
 
 using namespace godot;
-#else
-#include "../../hfsm_variable_res.h"
+#else // GDEXTENSION_BUILD
 #include <core/io/resource.h>
 
 #endif // GDEXTENSION_BUILD
 
+#include "../../hfsm_variable_res.h"
 namespace Hfsm {
 
 class HFSM;

@@ -1,15 +1,14 @@
 ﻿#pragma once
+
 #include "../../hfsm_global.h"
+#include "../hfsm.h"
+#include "../hfsm_variable.h"
 
 #ifdef GDEXTENSION_BUILD
-#include <core/hfsm.hpp>
-#include <core/hfsm_variable.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
 
 using namespace godot;
-#else
-#include "../hfsm.h"
-#include "../hfsm_variable.h"
+#else // GDEXTENSION_BUILD
 #include <core/object/ref_counted.h>
 
 #endif // GDEXTENSION_BUILD

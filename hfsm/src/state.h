@@ -3,7 +3,7 @@
 #include "../hfsm_global.h"
 
 #ifdef GDEXTENSION_BUILD
-#include <godot_cpp/variant/typed_array.h>
+#include <godot_cpp/variant/typed_array.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/templates/vmap.hpp>

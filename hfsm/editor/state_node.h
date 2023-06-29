@@ -1,10 +1,11 @@
 ﻿#pragma once
 
 #ifdef GDEXTENSION_BUILD
-#include "godot_cpp/classes/line_edit.h"
 #include <godot_cpp/classes/check_box.hpp>
 #include <godot_cpp/classes/graph_node.hpp>
+#include <godot_cpp/classes/line_edit.hpp>
 #include <godot_cpp/classes/option_button.hpp>
+#include <godot_cpp/classes/script.hpp>
 
 #include <godot_cpp/classes/editor_script_picker.hpp>
 using namespace godot;
@@ -72,7 +73,7 @@ public:
 	};
 
 	Ref<class StateRes> get_state_res() const;
-	static StateNode *create_state_node(const Ref<StateRes> &p_target_state_res, Ref<class FsmRes> p_nested_fsm_res, bool p_debug = false);
+	static StateNode *create_state_node(Ref<StateRes> p_target_state_res, const Ref<class FsmRes> &p_nested_fsm_res, bool p_debug = false);
 
 	void set_debug_actived(bool p_actived);
 	bool is_debug_actived() const;

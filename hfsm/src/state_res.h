@@ -1,15 +1,15 @@
 ﻿#pragma once
 
-#ifdef GDEXTENSTION_BUILD
+#ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/resource.hpp>
 #include <godot_cpp/classes/script.hpp>
 
 using namespace godot;
-#else
+#else // GDEXTENSION_BUILD
 #include <core/io/resource.h>
 #include <core/object/script_language.h>
-#endif // GDEXTENSTION_BUILD
+#endif // GDEXTENSION_BUILD
 
 #include "state.h"
 

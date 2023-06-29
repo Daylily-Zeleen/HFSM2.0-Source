@@ -31,7 +31,7 @@ void HfsmGlobal::init_static() {
 
 	Ref<State> tmp;
 	tmp.instantiate();
-	TypedArray<Dictionary> state_internal_props = tmp->call("get_property_list");
+	TypedArray<Dictionary> state_internal_props = tmp->call(StringName("get_property_list"));
 	for (auto i = 0; i < state_internal_props.size(); ++i) {
 		Dictionary prop = state_internal_props[i];
 		if (IS_PROP(prop["usage"])) {

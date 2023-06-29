@@ -1,16 +1,23 @@
 ﻿#include "fsm_editor.h"
 
 #ifdef GDEXTENSION_BUILD
-#include <godot_cpp/classes/editor_settings.h>
-#include <godot_cpp/classes/tween.h>
+#include <godot_cpp/classes/editor_inspector.hpp>
 #include <godot_cpp/classes/editor_interface.hpp>
+#include <godot_cpp/classes/editor_settings.hpp>
+#include <godot_cpp/classes/font.hpp>
 #include <godot_cpp/classes/gd_script.hpp>
 #include <godot_cpp/classes/input.hpp>
 #include <godot_cpp/classes/input_event_mouse_button.hpp>
 #include <godot_cpp/classes/input_event_mouse_motion.hpp>
+#include <godot_cpp/classes/method_tweener.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
-#include <godot_cpp/classes/theme.hpp>s
+#include <godot_cpp/classes/theme.hpp>
+#include <godot_cpp/classes/tween.hpp>
 #include <godot_cpp/variant/callable.hpp>
+
+#ifdef DEV_ENABLED
+#include <godot_cpp/templates/local_vector.hpp>
+#endif // DEV_ENABLED
 
 #else
 #include <editor/editor_interface.h>
@@ -121,8 +128,8 @@ void FsmEditor::__set_selected_state_name_list(const TypedArray<StringName> &p_t
 	Array conn_list = call("get_connection_list");
 	for (auto i = 0; i < conn_list.size(); i++) {
 		Dictionary conn = conn_list[i];
-		auto from = cast_to<StateNode>(get_node({ StringName(conn["from"]) }));
-		auto to = cast_to<StateNode>(get_node({ StringName(conn["to"]) }));
+		auto from = _get_state_node({ StringName(conn["from"]) });
+		auto to = _get_state_node({ StringName(conn["to"]) });
 		if (from && to) {
 			if (selected_state_name_list.has(from->get_state_res()->get_state_name()) && selected_state_name_list.has(to->get_state_res()->get_state_name())) {
 				auto tr = get_transition_res(from, to);
@@ -190,8 +197,8 @@ void FsmEditor::try_disconnect(const Vector2 &p_pos1, const Vector2 &p_pos2) {
 	const Vector2 scaled_pos2 = p_pos2 * get_zoom();
 	for (auto i = 0; i < conn_list.size(); i++) {
 		Dictionary conn = conn_list[i];
-		auto from = cast_to<StateNode>(get_node({ StringName(conn["from"]) }));
-		auto to = cast_to<StateNode>(get_node({ StringName(conn["to"]) }));
+		auto from = _get_state_node({ StringName(conn["from"]) });
+		auto to = _get_state_node({ StringName(conn["to"]) });
 		if (from && to) {
 			auto scaled_line = get_connection_line_with_zoom(from, to);
 			if (is_judge(scaled_pos1, scaled_pos2, scaled_line[0], scaled_line[1])) {
@@ -244,8 +251,8 @@ TypedArray<TransitionRes> FsmEditor::try_select_transitions_at_pos(const Vector2
 		Dictionary conn = conn_list[i];
 		const StringName from_name = conn["from"];
 		const StringName to_name = conn["to"];
-		auto from = cast_to<StateNode>(get_node({ from_name }));
-		auto to = cast_to<StateNode>(get_node({ to_name }));
+		auto from = _get_state_node({ StringName(conn["from"]) });
+		auto to = _get_state_node({ StringName(conn["to"]) });
 		auto scaled_line = get_connection_line_with_zoom(from, to);
 		Vector2 scaled_from_pos = scaled_line[0];
 		Vector2 scaled_to_pos = scaled_line[1];
@@ -1077,8 +1084,8 @@ void FsmEditor::_draw_layer_draw() {
 		Array conn_list = call("get_connection_list");
 		for (auto i = 0; i < conn_list.size(); i++) {
 			Dictionary conn = conn_list[i];
-			auto from = cast_to<StateNode>(get_node({ StringName(conn["from"]) }));
-			auto to = cast_to<StateNode>(get_node({ StringName(conn["to"]) }));
+			auto from = _get_state_node({ StringName(conn["from"]) });
+			auto to = _get_state_node({ StringName(conn["to"]) });
 			if (!from || !to) {
 				disconnect_node(conn["from"], conn["from_port"], conn["to"], conn["to_port"]);
 			}
@@ -1113,8 +1120,8 @@ void FsmEditor::_draw_layer_draw() {
 		StringName from_name = conn["from"];
 		StringName to_name = conn["to"];
 
-		auto from = cast_to<StateNode>(get_node({ from_name }));
-		auto to = cast_to<StateNode>(get_node({ to_name }));
+		auto from = _get_state_node({ StringName(conn["from"]) });
+		auto to = _get_state_node({ StringName(conn["to"]) });
 		if (!from || !to) {
 			continue;
 		}
@@ -1713,6 +1720,11 @@ void FsmEditor::debug_highlight_active_state(const StringName &p_state_name, boo
 		debug_activity = 0.0;
 		queue_redraw();
 	}
+}
+
+StateNode *FsmEditor::_get_state_node(const NodePath &p_path) {
+	IF_GDE(return cast_to<StateNode>(call(SNAME("get_node"), p_path));)
+	IF_GDM(return get_node(p_path);)
 }
 
 }; // namespace Hfsm

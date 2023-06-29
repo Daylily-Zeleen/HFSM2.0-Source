@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include "../hfsm_global.h"
+#include "state.h"
+
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
@@ -8,7 +10,6 @@
 #include <godot_cpp/variant/typed_array.hpp>
 using namespace godot;
 #else
-#include "state.h"
 #include <core/object/ref_counted.h>
 #include <core/variant/typed_array.h>
 

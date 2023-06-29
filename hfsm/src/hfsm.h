@@ -1,15 +1,9 @@
 ﻿#pragma once
 
 #include "../hfsm_global.h"
+
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/animation_player.hpp>
-#include <godot_cpp/classes/node.hpp>
-#include <godot_cpp/classes/ref.hpp>
-#include <godot_cpp/classes/resource.hpp>
-#include <godot_cpp/templates/vector.hpp>
-#include <godot_cpp/templates/vmap.hpp>
-
-#include "godot_cpp/templates/pair.h"
 using namespace godot;
 #else
 #include <scene/animation/animation_player.h>

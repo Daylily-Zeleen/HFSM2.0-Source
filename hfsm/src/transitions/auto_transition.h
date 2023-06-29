@@ -1,19 +1,18 @@
 ﻿#pragma once
 
-#ifdef GDEXTENSION_BUILD
 #include "transition_base.h"
-#include <core/fsm.hpp>
-#include <core/state.hpp>
+#include "../fsm.h"
+#include "../state.h"
+
+
+#ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/time.hpp>
 
 #else
-#include "transition_base.h"
 #include <core/config/engine.h>
 #include <core/os/time.h>
 
-#include "../fsm.h"
-#include "../state.h"
 
 #endif // GDEXTENSION_BUILD
 

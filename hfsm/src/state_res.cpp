@@ -10,15 +10,20 @@
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/animation_player.hpp>
+#include <godot_cpp/classes/gd_script.hpp>
+#include <godot_cpp/classes/resource_saver.hpp>
+
 #ifdef MODULE_MONO_ENABLED
 #include <godot_cpp/classes/csharp_script.hpp>
 #endif // MODULE_MONO_ENABLED
-#include <godot_cpp/classes/gdscript.hpp>
 
-#else
+#else // GDEXTENSION_BUILD
 #include <modules/gdscript/gdscript.h>
-#include <modules/mono/csharp_script.h>
 #include <scene/animation/animation_player.h>
+
+#ifdef MODULE_MONO_ENABLED
+#include <modules/mono/csharp_script.h>
+#endif // MODULE_MONO_ENABLED
 
 #endif // GDEXTENSION_BUILD
 
@@ -124,7 +129,7 @@ void StateRes::set_state_script(const Ref<Script> &p_script) {
 							"func _exit() -> void:\n\tpass\n");
 					type_valid = true;
 				}
-#if defined(GDEXTENSION_BUILD) || defined(MODULE_MONO_ENABLED)
+#ifdef MODULE_MONO_ENABLED
 				else if (auto csharp = cast_to<CSharpScript>(state_script.ptr())) {
 					csharp->set_source_code(
 							R"XXX(public partial MyState: Godot.State
@@ -158,7 +163,7 @@ void StateRes::set_state_script(const Ref<Script> &p_script) {
 )XXX");
 					type_valid = true;
 				}
-#endif // defined(GDEXTENSION_BUILD) || defined(MODULE_MONO_ENABLED)
+#endif // MODULE_MONO_ENABLED
 				IF_GDM(
 						else {
 							auto templates = state_script->get_language()->get_built_in_templates("Object");
@@ -169,7 +174,9 @@ void StateRes::set_state_script(const Ref<Script> &p_script) {
 							}
 						})
 				if (type_valid) {
-					ResourceSaver::save(state_script);
+					IF_GDE(ResourceSaver::get_singleton()->save(state_script);)
+					IF_GDM(ResourceSaver::save(state_script);)
+
 					state_script->reload();
 				}
 			}

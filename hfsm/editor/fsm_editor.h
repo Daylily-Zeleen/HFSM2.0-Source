@@ -1,21 +1,20 @@
 ﻿#pragma once
 
+#include "../hfsm_global.h"
+
 #ifdef GDEXTENSION_BUILD
-#include <godot_cpp/classes/button.hpp>
-#include <godot_cpp/classes/editor_undo_redo_manager.hpp>
-#include <godot_cpp/classes/font.hpp>
+// #include <godot_cpp/classes/button.hpp>
+// #include <godot_cpp/classes/editor_undo_redo_manager.hpp>
+// #include <godot_cpp/classes/font.hpp>
 #include <godot_cpp/classes/graph_edit.hpp>
-#include <godot_cpp/classes/input_event.hpp>
+// #include <godot_cpp/classes/input_event.hpp>
 #include <godot_cpp/classes/label.hpp>
 #include <godot_cpp/classes/panel.hpp>
 #include <godot_cpp/classes/popup_menu.hpp>
 
-#include "core/transitions/variable_expressions/variable_expression_res.h"
-
 using namespace godot;
 #else
 
-#include "../hfsm_global.h"
 #include <scene/gui/graph_edit.h>
 
 #endif // GDEXTENSION_BUILD
@@ -145,6 +144,8 @@ private:
 	StringName debug_activity_to = "";
 
 	Ref<FsmRes> get_nested_fsm_res(const Ref<StateRes> &p_state_res, const Ref<FsmRes> &p_root_fsm_res = nullptr);
+
+	StateNode *_get_state_node(const NodePath &p_path);
 
 public:
 	FsmEditor(bool p_debug_mode = false);

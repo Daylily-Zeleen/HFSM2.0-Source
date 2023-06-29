@@ -25,6 +25,7 @@ namespace Hfsm {
 
 void State::_bind_methods() {
 	GDBIND_BEGIN(State);
+
 	GDBIND_METHOD(get_name);
 	GDBIND_METHOD(get_hfsm);
 	GDBIND_METHOD(is_exited);

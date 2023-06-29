@@ -1,10 +1,11 @@
 ﻿#pragma once
 
 #ifdef GDEXTENSION_BUILD
-#include <godot_cpp/classes/editor_undo_redo_manager.h>
+#include <godot_cpp/classes/editor_undo_redo_manager.hpp>
 #include <godot_cpp/classes/editor_inspector_plugin.hpp>
 #include <godot_cpp/classes/editor_plugin.hpp>
 #include <godot_cpp/classes/translation_server.hpp>
+#include <godot_cpp/templates/hash_map.hpp>
 
 using namespace godot;
 #else

@@ -1,10 +1,16 @@
 ﻿#pragma once
 
 #ifdef GDEXTENSION_BUILD
+#include <godot_cpp/classes/button.hpp>
 #include <godot_cpp/classes/editor_property.hpp>
+#include <godot_cpp/classes/popup_menu.hpp>
+
 using namespace godot;
 #else
 #include <editor/editor_properties.h>
+#include <scene/gui/button.h>
+#include <scene/gui/popup_menu.h>
+
 #endif // GDEXTENSION_BUILD
 
 namespace Hfsm {
@@ -14,8 +20,8 @@ class VariableResSelector : public EditorProperty {
 private:
 	const String NULL_TEXT = "<null>";
 
-	class Button *btn = nullptr;
-	class PopupMenu *menu = nullptr;
+	Button *btn = nullptr;
+	PopupMenu *menu = nullptr;
 	class HFSM *hfsm = nullptr;
 
 	Ref<class HFSMVariableRes> to_compare;

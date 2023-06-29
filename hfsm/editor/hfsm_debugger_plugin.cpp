@@ -3,17 +3,22 @@
 #include "../src/hfsm.h"
 #include "hfsm_editor.h"
 #include "hfsm_editor_plugin.h"
-#include <core/debugger/engine_debugger.h>
-#include <editor/editor_interface.h>
-#include <editor/editor_paths.h>
 
 #ifdef GDEXTENSION_BUILD
-#include <godot_cpp/classes/dir_access.h>
-#include <godot_cpp/classes/project_settings.h>
+#include <godot_cpp/classes/dir_access.hpp>
+#include <godot_cpp/classes/project_settings.hpp>
+#include <godot_cpp/classes/engine_debugger.hpp>
+#include <godot_cpp/classes/editor_interface.hpp>
+#include <godot_cpp/classes/editor_paths.hpp>
+#include <godot_cpp/classes/editor_debugger_session.hpp>
+#include <godot_cpp/classes/resource_loader.hpp>
 #else
 #include <core/config/project_settings.h>
 #include <core/io/dir_access.h>
 
+#include <core/debugger/engine_debugger.h>
+#include <editor/editor_interface.h>
+#include <editor/editor_paths.h>
 #endif //GDEXTENSION_BUILD
 
 namespace Hfsm {
@@ -136,7 +141,7 @@ void HfsmDebuggerPlugin::send_debug_msg(HFSM *p_hfsm, const String &p_msg, Array
 	}
 }
 
-void HfsmDebuggerPlugin::setup_session(int p_idx) {
+void HfsmDebuggerPlugin::GD_(setup_session)(int p_idx) {
 	ERR_FAIL_COND(debuggers.has(p_idx));
 
 	Ref<EditorDebuggerSession> session = get_session(p_idx);
@@ -145,7 +150,7 @@ void HfsmDebuggerPlugin::setup_session(int p_idx) {
 	session->connect(SNAME("stopped"), TCALLABLE_BIND(_session_stoped, p_idx));
 }
 
-bool HfsmDebuggerPlugin::capture(const String &p_message, const Array &p_data, int p_session) {
+bool HfsmDebuggerPlugin::GD_(capture)(const String &p_message, const Array &p_data, int p_session) {
 	if (is_msg(p_message, msg_built)) {
 		ERR_FAIL_COND_V(!debuggers.has(p_session), true);
 
@@ -176,7 +181,7 @@ bool HfsmDebuggerPlugin::capture(const String &p_message, const Array &p_data, i
 	return false;
 }
 
-bool HfsmDebuggerPlugin::has_capture(const String &p_capture) const {
+bool HfsmDebuggerPlugin::GD_(has_capture)(const String &p_capture) const {
 	return p_capture == "hfsm";
 }
 
