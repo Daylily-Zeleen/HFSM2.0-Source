@@ -1,4 +1,7 @@
 #
+/hfsm/tool.py
+
+#
 build
 .vscode
 *.dblite
@@ -8,7 +11,10 @@ hfsm_4.0.code-workspace
 demo
 demo_backup
 bin
-*.pdb
+
+#
+__pycache__/
+*.pyc
 
 #
 .clang-format

@@ -1,0 +1,82 @@
+﻿#pragma once
+
+#ifdef GDEXTENSION_BUILD
+#include <godot_cpp/classes/editor_debugger_plugin.h>
+#include <godot_cpp/classes/h_split_container.h>
+#include <godot_cpp/classes/item_list.h>
+#include <godot_cpp/templates/vmap.h>
+
+using namespace godot;
+#else // GDEXTENSION_BUILD
+#include <core/templates/vmap.h>
+#include <editor/plugins/editor_debugger_plugin.h>
+#include <scene/gui/item_list.h>
+#include <scene/gui/split_container.h>
+
+#endif // GDEXTENSION_BUILD
+
+namespace Hfsm {
+class HfsmDebugger;
+
+class HfsmDebuggerPlugin : public EditorDebuggerPlugin {
+	GDCLASS(HfsmDebuggerPlugin, EditorDebuggerPlugin)
+
+	using SessionID = int;
+
+	HashMap<SessionID, HfsmDebugger *> debuggers;
+
+	void _session_started(SessionID p_session_id);
+	void _session_stoped(SessionID p_session_id);
+
+	static void send_debug_msg(class HFSM *p_hfsm, const String &p_msg, Array p_data);
+
+	static String get_cache_dir();
+
+protected:
+	static void _bind_methods();
+
+public:
+	void setup_session(int p_idx) override;
+	bool capture(const String &p_message, const Array &p_data, int p_session) override;
+	bool has_capture(const String &p_capture) const override;
+
+	// Called by runtime.
+	static void send_debug_built(class HFSM *p_hfsm);
+	static void send_debug_destroy(class HFSM *p_hfsm);
+	static void send_debug_update_active_path(class HFSM *p_hfsm);
+
+	~HfsmDebuggerPlugin();
+};
+
+class HfsmDebugger : public HSplitContainer {
+	GDCLASS(HfsmDebugger, HSplitContainer)
+	struct NodeData {
+		Ref<class FsmRes> root_fsm_res;
+		PackedStringArray current_active_path;
+	};
+	HashMap<NodePath, NodeData> datas;
+
+	NodePath current_hfsm_path;
+
+	ItemList *node_paths = nullptr;
+	class HFSMEditor *hfsm_editor = nullptr;
+
+	void _item_activated(int p_idx);
+
+	void update_node_paths();
+
+protected:
+	static void _bind_methods();
+
+public:
+	void build(const NodePath &p_path, const Ref<class FsmRes> &p_root_fsm_res, const String &p_cache_path);
+	void destory(const NodePath &p_path);
+	void update_active_path(const NodePath &p_path, const PackedStringArray &p_new_active_path);
+
+	void stop();
+
+	HfsmDebugger();
+	~HfsmDebugger();
+};
+
+} //namespace Hfsm
