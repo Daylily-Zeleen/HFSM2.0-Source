@@ -17,13 +17,15 @@
 #include <godot_cpp/templates/hash_map.hpp>
 #include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/string_name.hpp>
+
+#include "utils_macros.h"
+
 using namespace godot;
 #else
 #include <core/templates/hash_map.h>
 
-#endif //GDEXTENSION_BUILD
-
 #include "../utils_macros.h"
+#endif //GDEXTENSION_BUILD
 
 namespace Hfsm {
 

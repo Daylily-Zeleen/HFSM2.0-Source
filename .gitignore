@@ -1,7 +1,5 @@
 #
-/hfsm/tool.py
-
-#
+hfsm/tool.py
 build
 .vscode
 *.dblite
@@ -11,6 +9,9 @@ hfsm_4.0.code-workspace
 demo
 demo_backup
 bin
+/CmakeLists.txt
+/.clangd
+/.clang-tidy
 
 #
 __pycache__/

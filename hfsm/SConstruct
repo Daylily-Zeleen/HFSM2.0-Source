@@ -31,22 +31,22 @@ def scan_files(directory, prefix=None, postfix=None):
 
 
 cpp_paths = ["./",
-             "src/",
-             "src/core/",
-             "src/core/transitions/",
-             "src/core/transitions/variable_expressions/",
+             "hfsm/",
+             "hfsm/src/",
+             "hfsm/src/transitions/",
+             "hfsm/src/transitions/variable_expressions/",
              ]
-sources = Glob("src/*.cpp") + \
-    Glob("src/core/*.cpp") + \
-    Glob("src/core/transitions/*.cpp") + \
-    Glob("src/core/transitions/variable_expressions/*.cpp")
+sources = Glob("hfsm/*.cpp") + \
+    Glob("hfsm/src/*.cpp") + \
+    Glob("hfsm/src/transitions/*.cpp") + \
+    Glob("hfsm/src/transitions/variable_expressions/*.cpp")
 
 if env["target"] == "editor":
-    cpp_paths.append("src/editor/")
-    cpp_paths.append("src/editor/inspector_plugin/")
+    cpp_paths.append("hfsm/editor/")
+    cpp_paths.append("hfsm/editor/inspector_plugin/")
 
-    sources = sources + Glob("src/editor/*.cpp") + \
-        Glob("src/editor/inspector_plugin/*.cpp")
+    sources = sources + Glob("hfsm/editor/*.cpp") + \
+        Glob("hfsm/editor/inspector_plugin/*.cpp")
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=cpp_paths)
