@@ -7,14 +7,17 @@
 
 #include <hfsm_global.hpp>
 
+#include <core/transitions/variable_expressions/variable_expression_res.hpp>
+
 using namespace godot;
 
 namespace Hfsm {
 
 class HFSM;
-class VariableExpressionRes;
+// class VariableExpressionRes;
 class TransitionBase;
 class StateRes;
+// class FsmRes;
 // class TransitionRes;
 
 // 基类资源
@@ -108,9 +111,9 @@ private:
 
 	// 变量表达式
 	bool variable_and_mode = true;
-	TypedArray<VariableExpressionRes> variable_expression_res_list;
+	TypedArray<VariableExpressionRes> variable_expression_res_list; // VariableExpressionRes
 
-	friend class FsmRes;
+	// friend class FsmRes;
 };
 
 }; // namespace Hfsm

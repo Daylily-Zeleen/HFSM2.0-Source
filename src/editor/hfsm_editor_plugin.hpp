@@ -46,6 +46,7 @@ public:
 	~HfsmEditorPlugin() override;
 
 	bool _handles(Object *p_object) const override;
+
 	void _enter_tree() override;
 	void _exit_tree() override;
 

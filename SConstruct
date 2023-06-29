@@ -30,24 +30,29 @@ def scan_files(directory, prefix=None, postfix=None):
     return files_list
 
 
-# tweak this if you want to use different folders, or more folders, to store your source code in.
-env.Append(CPPPATH=["src/",
-                    "src/core/",
-                    "src/core/transitions/",
-                    "src/core/transitions/variable_expressions/",
-                    "src/editor/",
-                    "src/editor/inspector_plugin/",
-                    "./"
-                    ])
-env.Append(LIBS=[])
-env.Append(LIBPATH=[])
-
+cpp_paths = ["./",
+             "src/",
+             "src/core/",
+             "src/core/transitions/",
+             "src/core/transitions/variable_expressions/",
+             ]
 sources = Glob("src/*.cpp") + \
     Glob("src/core/*.cpp") + \
     Glob("src/core/transitions/*.cpp") + \
-    Glob("src/core/transitions/variable_expressions/*.cpp") + \
-    Glob("src/editor/*.cpp") + \
-    Glob("src/editor/inspector_plugin/*.cpp")
+    Glob("src/core/transitions/variable_expressions/*.cpp")
+
+if env["target"] == "editor":
+    cpp_paths.append("src/editor/")
+    cpp_paths.append("src/editor/inspector_plugin/")
+
+    sources = sources + Glob("src/editor/*.cpp") + \
+        Glob("src/editor/inspector_plugin/*.cpp")
+
+# tweak this if you want to use different folders, or more folders, to store your source code in.
+env.Append(CPPPATH=cpp_paths)
+
+env.Append(LIBS=[])
+env.Append(LIBPATH=[])
 
 # # Require C++20
 # if env.get("is_msvc", False):

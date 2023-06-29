@@ -9,7 +9,6 @@
 #include <godot_cpp/classes/panel.hpp>
 #include <godot_cpp/classes/popup_menu.hpp>
 
-
 #include "core/transitions/variable_expressions/variable_expression_res.hpp"
 
 using namespace godot;
@@ -54,11 +53,11 @@ private:
 	// ==============
 	Ref<FsmRes> current_fsm_res;
 	real_t activity_amount = 1.0;
-	TypedArray<StateRes> copied_state_res_list = TypedArray<StateRes>();
-	TypedArray<StringName> selected_state_name_list = TypedArray<StringName>();
-	TypedArray<TransitionRes> selected_transition_res_list = TypedArray<TransitionRes>();
-	TypedArray<TransitionRes> copied_transition_res_list = TypedArray<TransitionRes>();
-	TypedArray<StringName> __bakcup_selected_state_name_list = TypedArray<StringName>();
+	TypedArray<StateRes> copied_state_res_list; // = TypedArray<StateRes>();
+	TypedArray<StringName> selected_state_name_list; // = TypedArray<StringName>();
+	TypedArray<TransitionRes> selected_transition_res_list; // = TypedArray<TransitionRes>();
+	TypedArray<TransitionRes> copied_transition_res_list; // = TypedArray<TransitionRes>();
+	TypedArray<StringName> __bakcup_selected_state_name_list; // = TypedArray<StringName>();
 	Color activity_color;
 	bool dealing_move = false;
 	bool _left_pressing = false;
@@ -69,8 +68,7 @@ private:
 	const float MOVE_ZONE_HIGHT = 30.0f;
 	const Vector2 SCALE_DRAGGER_SIZE = Vector2(30.0f, 30.0f);
 	const int32_t HOTZONE_RADIUS = 10;
-	const PackedVector2Array TRIANGLE_POINTS = PackedVector2Array(
-			Array::make(Vector2(20, 0), Vector2(-15, 10), Vector2(-15, -10)));
+	const PackedVector2Array TRIANGLE_POINTS = PackedVector2Array(Array::make(Vector2(20, 0), Vector2(-15, 10), Vector2(-15, -10)));
 	const Vector2 DUPLICATE_OFFSET = Vector2(50, 50);
 	Ref<Font> font;
 
@@ -125,10 +123,8 @@ private:
 	void __on_node_deselected(Object *p_node);
 
 	// ======== 检查 ==========
-	String __get_variable_expression_res_valid_and_text(
-			const Ref<VariableExpressionRes> &p_ver, bool &r_valid) const;
-	List<String> __get_transition_res_valid_and_texts(
-			const Ref<TransitionRes> &p_transition_res, bool &r_valid) const;
+	String __get_variable_expression_res_valid_and_text(const Ref<VariableExpressionRes> &p_ver, bool &r_valid) const;
+	List<String> __get_transition_res_valid_and_texts(const Ref<TransitionRes> &p_transition_res, bool &r_valid) const;
 	// ==================
 	String str_localize(const String &p_en_key) const;
 

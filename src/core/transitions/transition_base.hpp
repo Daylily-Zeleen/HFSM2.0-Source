@@ -13,7 +13,7 @@ using namespace godot;
 namespace Hfsm {
 class HFSM;
 class State;
-class FsmRes;
+// class FsmRes;
 
 enum TransitionType {
 	TRANSITION_TYPE_SCRIPT,

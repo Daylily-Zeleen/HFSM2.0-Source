@@ -15,7 +15,7 @@ namespace Hfsm {
 class HFSM;
 class Fsm;
 class State;
-class FsmRes;
+// class FsmRes;
 
 class StateRes : public Resource {
 	GDCLASS(StateRes, Resource)
@@ -49,8 +49,8 @@ public:
 	Ref<Script> get_state_script() const;
 	void set_nested(bool p_nested);
 	bool is_nested() const;
-	void set_fsm_res(const Ref<FsmRes> &p_fsm_res);
-	Ref<FsmRes> get_fsm_res() const;
+	void set_fsm_res(const Ref<class FsmRes> &p_fsm_res);
+	Ref<class FsmRes> get_fsm_res() const;
 	void set_editor_offset(Vector2 p_offset);
 	Vector2 get_editor_offset() const;
 	void set_reset_properties_when_entry(bool p_v);
@@ -79,7 +79,7 @@ public:
 private:
 	Ref<Script> state_script;
 	// 避免循环依赖
-	Ref<FsmRes> fsm_res;
+	Ref<class FsmRes> fsm_res;
 	Vector2 size_in_editor;
 	Vector2 editor_offset;
 	StringName state_name = "state";

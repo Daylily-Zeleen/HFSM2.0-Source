@@ -7,7 +7,7 @@ using namespace godot;
 
 namespace Hfsm {
 class HFSMVariable;
-class FsmRes;
+// class FsmRes;
 
 class HFSMVariableRes : public Resource {
 	GDCLASS(HFSMVariableRes, Resource)
@@ -40,14 +40,14 @@ public:
 
 	Ref<RefCounted> create_variable();
 
-	void set_fsm_res(const Ref<FsmRes> &p_fsm_res);
-	Ref<FsmRes> get_fsm_res() const;
+	void set_fsm_res(const Ref<class FsmRes> &p_fsm_res);
+	Ref<class FsmRes> get_fsm_res() const;
 
-	static Ref<HFSMVariableRes> create_new(const Ref<FsmRes> &p_fsm_res);
+	static Ref<HFSMVariableRes> create_new(const Ref<class FsmRes> &p_fsm_res);
 
 private:
 	StringName variable_name = "variable";
-	Ref<FsmRes> fsm_res;
+	Ref<class FsmRes> fsm_res = nullptr;
 	Variant::Type type = Variant::NIL;
 	Variant default_value;
 	String comment = "";

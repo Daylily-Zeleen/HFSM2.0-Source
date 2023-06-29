@@ -70,17 +70,17 @@ inline void HFSMVariable::flush_trigger() { value = false; }
 inline bool HFSMVariable::compare_with(const Variant &val, uint8_t op) {
 	switch (op) {
 		case OP_EQUAL:
-			return get_value().operator==(val);
+			return get_value() == val;
 		case OP_NOT_EQUAL:
-			return get_value().operator!=(val);
+			return get_value() != val;
 		case OP_GREATER:
-			return !get_value().operator<(val);
+			return !(get_value() < val || get_value() == val);
 		case OP_GREATER_EQUAL:
-			return (get_value().operator==(val) || !get_value().operator<(val));
+			return !(get_value() < val);
 		case OP_LESS:
-			return get_value().operator<(val);
+			return get_value() < val;
 		case OP_LESS_EQUAL:
-			return (get_value().operator==(val) || get_value().operator<(val));
+			return get_value() < val || get_value() == val;
 
 		default:
 			return false;

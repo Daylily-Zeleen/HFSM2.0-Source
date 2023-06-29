@@ -42,13 +42,7 @@ private:
 	CheckBox *anim_reverse_check_box = nullptr;
 	Button *anim_params_visible_btn = nullptr;
 #endif
-	enum {
-		IN_TYPE,
-		OUT_TYPE
-	};
 	// ==================
-	Ref<class StateRes> get_state_res() const { return state_res; }
-	static StateNode *create_state_node(const Ref<StateRes> &p_target_state_res);
 	bool __has_duplicate_name(const String &p_to_test_name);
 	Array __get_brother_state_res_list();
 	void __reset_state_res();
@@ -70,14 +64,21 @@ private:
 	// ==================
 	String str_localize(const String &p_en_key) const;
 
-	friend class HFSMEditor;
-	friend class StateNodesEditor;
+	// friend class HFSMEditor;
+	// friend class StateNodesEditor;
 
 public:
 	void _notification(int p_what);
 	void _ready() override;
-	const Color IN_COLOR = godot::Color::named("orange");
-	const Color OUT_COLOR = godot::Color::named("green");
+	const Color IN_COLOR = godot::Color::named("ORANGE");
+	const Color OUT_COLOR = godot::Color::named("GREEN");
+
+	enum {
+		IN_TYPE,
+		OUT_TYPE
+	};
+	Ref<class StateRes> get_state_res() const { return state_res; }
+	static StateNode *create_state_node(const Ref<StateRes> &p_target_state_res);
 };
 
 } // namespace Hfsm

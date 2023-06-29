@@ -14,13 +14,14 @@ using namespace godot;
 namespace Hfsm {
 class State;
 class HFSM;
-class FsmRes;
+// class FsmRes;
 
 // 考虑状态机是非运行时设计完成的一种东西，在运行时改变状态是不合理的设计
 // 因此取消运行时改变状态类型的功能
 // TODO:: 添加各种 setget 以及绑定
 class Fsm {
 	friend class State;
+	friend class StateRes;
 	friend class HFSM;
 	friend class FsmRes;
 
@@ -84,8 +85,7 @@ private:
 	// void set_exit_state(String state_name);
 	// void set_normal_state(String state_name);
 	// void set_unique_exit_state(String state_name);
-	friend class StateRes;
-	friend class FsmRes;
+	// friend class FsmRes;
 };
 
 #pragma region 内联实现

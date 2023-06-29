@@ -188,7 +188,6 @@ Ref<RefCounted> StateRes::create_state(HFSM *p_hfsm, const Fsm *p_fsm) {
 		}
 	}
 	// 内嵌状态机
-	// UtilityFunctions::print(get_name(), " ",_nested);
 	if (fsm_res.is_valid()) {
 		r->fsm = static_cast<FsmRes *>(get_fsm_res().ptr())->create_fsm(p_hfsm, r, p_fsm->fsm_update_queue);
 	}

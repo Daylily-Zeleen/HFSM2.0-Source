@@ -1,6 +1,8 @@
 ﻿#include "hfsm_editor_plugin.hpp"
 
 #include <godot_cpp/classes/editor_interface.hpp>
+#include <godot_cpp/classes/scene_tree.hpp>
+
 #include <godot_cpp/variant/utility_functions.hpp>
 
 #include "core/hfsm.hpp"
@@ -12,13 +14,13 @@ using namespace godot;
 namespace Hfsm {
 
 bool HfsmInspectorPlugin::_can_handle(Object *p_object) const {
-	return Object::cast_to<VariableExpressionRes>(p_object) != nullptr;
+	return cast_to<VariableExpressionRes>(p_object);
 }
 
 bool HfsmInspectorPlugin::_parse_property(Object *p_object, Variant::Type p_type, const String &p_name, PropertyHint p_hint_type,
 		const String &p_hint_string, BitField<PropertyUsageFlags> p_usage_flags, bool p_wide) {
 	// ERR_FAIL_COND_V(object == nullptr, false);
-	if (auto ver = Object::cast_to<VariableExpressionRes>(p_object)) {
+	if (auto ver = cast_to<VariableExpressionRes>(p_object)) {
 		if (auto hfsm = HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
 			if (p_name == "variable_res") {
 				auto editor = memnew(VariableResSelector);
@@ -44,7 +46,6 @@ HfsmEditorPlugin *HfsmEditorPlugin::instance = nullptr;
 
 HfsmEditorPlugin::HfsmEditorPlugin() {
 	CRASH_COND(instance);
-	inspector_plugin.instantiate();
 	instance = this;
 
 	translation.insert("HFSM Editor", "HFSM 编辑器");
@@ -62,7 +63,7 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	translation.insert("resized", "重设尺寸");
 	translation.insert("move states", "移动状态");
 	translation.insert("Sub FSM", "子状态机");
-	translation.insert("select states", "选择状态");
+	translation.insert("Select States", "选择状态");
 	translation.insert("Delete State Transitions", "删除状态转换");
 	translation.insert("HFSM::Invalid FsmRes", "HFSM::非法情况，要编辑的 FsmRes 无效");
 	translation.insert("The current FSM has not contain a State.\n\n ", "当前状态机不存在状态\n\n ");
@@ -111,13 +112,11 @@ HfsmEditorPlugin::~HfsmEditorPlugin() {
 }
 
 bool HfsmEditorPlugin::_handles(Object *p_object) const {
-	auto obj = Object::cast_to<Node>(p_object);
-	if (obj) {
-		if (obj->is_class("HFSM")) {
-			hfsm_editor->edit(Object::cast_to<HFSM>(obj));
-		} else {
-			hfsm_editor->edit(nullptr);
-		}
+	if (!hfsm_editor || get_tree()->get_frame() < 100) {
+		return false;
+	}
+	if (auto node = cast_to<Node>(p_object)) {
+		hfsm_editor->edit(cast_to<HFSM>(node));
 		return true;
 	}
 	return false;
@@ -126,6 +125,9 @@ bool HfsmEditorPlugin::_handles(Object *p_object) const {
 void HfsmEditorPlugin::_enter_tree() {
 	if (!Engine::get_singleton()->is_editor_hint()) {
 		return;
+	}
+	if (inspector_plugin.is_null()) {
+		inspector_plugin.instantiate();
 	}
 	hfsm_editor = HFSMEditor::create_hfsm_editor();
 	hfsm_editor_btn = add_control_to_bottom_panel(hfsm_editor, str_localize("HFSM Editor"));

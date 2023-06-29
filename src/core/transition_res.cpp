@@ -1,5 +1,4 @@
 ﻿#include "transition_res.hpp"
-#include <hfsm_global.hpp>
 #include "core/transitions/auto_transition.hpp"
 #include "state_res.hpp"
 #include "transitions/auto_transition.hpp"
@@ -9,6 +8,8 @@
 #include "transitions/variable_expressions/variable_expression.hpp"
 #include "transitions/variable_expressions/variable_expression_res.hpp"
 #include "transitions/variable_transition.hpp"
+#include <hfsm_global.hpp>
+
 
 #include <godot_cpp/classes/gd_script.hpp>
 #include <godot_cpp/classes/translation_server.hpp>
@@ -261,8 +262,7 @@ TypedArray<VariableExpressionRes> TransitionRes::get_variable_expression_res_lis
 void TransitionRes::set_transition_script(const Ref<Script> &p_transition_script) {
 	transition_script = p_transition_script;
 	if (transition_script.is_valid() && Engine::get_singleton()->is_editor_hint()) {
-		GDScript *s = Object::cast_to<GDScript>(transition_script.ptr());
-		if (s != nullptr) {
+		if (GDScript *s = Object::cast_to<GDScript>(transition_script.ptr())) {
 			if (s->get_source_code().is_empty()) {
 				s->set_source_code(R"EOF(extends Transition
 

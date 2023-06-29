@@ -3,7 +3,6 @@
 #include <core/transitions/variable_transition.hpp>
 #include <godot_cpp/classes/translation_server.hpp>
 
-
 namespace Hfsm {
 #pragma region VariableExpressionRes
 
@@ -142,18 +141,20 @@ void VariableExpressionRes::_bind_methods() {
 }
 
 void VariableExpressionRes::set_variable_as_value(bool p_variable_as_value) {
+	if (variable_as_value == p_variable_as_value) {
+		return;
+	}
 	variable_as_value = p_variable_as_value;
 	if (variable_as_value) {
-		if ((value.get_type() != Variant::OBJECT) || Object::cast_to<HFSMVariableRes>(value) != nullptr) {
+		if (cast_to<HFSMVariableRes>(value) == nullptr) {
 			value = Variant();
-			emit_changed();
 		}
 	} else {
-		if (!Variant::can_convert(value.get_type(), Variant::Type(variable_res->get_type()))) {
+		if (!Variant::can_convert(value.get_type(), variable_res->get_type())) {
 			value = variable_res->get_default_value();
 		}
-		emit_changed();
 	}
+	emit_changed();
 	notify_property_list_changed();
 }
 
@@ -164,8 +165,7 @@ void VariableExpressionRes::set_value(const Variant &p_value) {
 	} else {
 		if (variable_as_value && p_value.get_type() == Variant::OBJECT) {
 			// 变量作为比较值
-			auto v = Object::cast_to<HFSMVariableRes>(p_value);
-			if (v) {
+			if (auto v = cast_to<HFSMVariableRes>(p_value)) {
 				if (value != p_value &&
 						Variant::can_convert_strict(
 								Variant::Type(variable_res->get_type()),
@@ -225,12 +225,12 @@ void VariableExpressionRes::set_comparator(int64_t p_op) {
 }
 void VariableExpressionRes::set_variable_res(const Ref<HFSMVariableRes> &p_variable_res) {
 	if (variable_res != p_variable_res) {
-		if (variable_res.is_valid() && variable_res->TIS_CONNECTED(changed, notify_property_list_changed)) {
-			variable_res->TDISCONNECT(changed, notify_property_list_changed);
+		if (variable_res.is_valid() && variable_res->TIS_CONNECTED(s_changed, notify_property_list_changed)) {
+			variable_res->TDISCONNECT(s_changed, notify_property_list_changed);
 		}
 		variable_res = p_variable_res;
-		if (variable_res.is_valid() && !variable_res->TIS_CONNECTED(changed, notify_property_list_changed)) {
-			variable_res->connect(changed, TCALLABLE(notify_property_list_changed));
+		if (variable_res.is_valid() && !variable_res->TIS_CONNECTED(s_changed, notify_property_list_changed)) {
+			variable_res->connect(s_changed, TCALLABLE(notify_property_list_changed));
 		}
 		set_value(value);
 		set_comparator(comparator);
@@ -246,7 +246,6 @@ void VariableExpressionRes::set_trigger_type(int64_t p_trigger_type) {
 }
 
 // Array VariableExpressionRes::get_property_list() {
-//     UtilityFunctions::print("call in get_property_list");
 //     auto ret = Resource::get_property_list();
 //     Dictionary variable_res, value, op, trigger_type, variable_as_value;
 //     // 变量资源

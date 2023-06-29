@@ -53,9 +53,8 @@ StateNode *StateNode::create_state_node(const Ref<StateRes> &p_target_state_res)
 bool StateNode::__has_duplicate_name(const String &p_to_test_name) {
 	auto brothers = __get_brother_state_res_list();
 	for (size_t i = 0; i < brothers.size(); i++) {
-		auto sr = Object::cast_to<StateRes>(brothers[i]);
-		if (sr && sr != state_res.ptr()) {
-			if (sr->get_state_name() == p_to_test_name) {
+		if (auto sr = cast_to<StateRes>(brothers[i])) {
+			if (sr != state_res.ptr() && sr->get_state_name() == p_to_test_name) {
 				return true;
 			}
 		}
@@ -77,14 +76,14 @@ void StateNode::__reset_state_res() { __setup_state_res(state_res); }
 
 void StateNode::__setup_state_res(const Ref<StateRes> &p_to_set) {
 	if (state_res.is_valid()) {
-		if (state_res->TIS_CONNECTED("changed", __reset_state_res)) {
-			state_res->TDISCONNECT("changed", __reset_state_res);
+		if (state_res->TIS_CONNECTED(s_changed, __reset_state_res)) {
+			state_res->TDISCONNECT(s_changed, __reset_state_res);
 		}
 	}
 	state_res = p_to_set;
 	if (state_res.is_valid()) {
-		if (!state_res->TIS_CONNECTED("changed", __reset_state_res)) {
-			state_res->connect("changed", TCALLABLE(__reset_state_res));
+		if (!state_res->TIS_CONNECTED(s_changed, __reset_state_res)) {
+			state_res->connect(s_changed, TCALLABLE(__reset_state_res));
 		}
 	} else {
 		name_line_edit->set_text("<error>");
@@ -127,8 +126,7 @@ void StateNode::__setup_state_res(const Ref<StateRes> &p_to_set) {
 }
 
 void StateNode::__set_pos_from_res() {
-	auto parent = Object::cast_to<StateNodesEditor>(get_parent());
-	if (parent) {
+	if (auto parent = cast_to<StateNodesEditor>(get_parent())) {
 		auto zoom = parent->get_zoom();
 		auto scroll_offsetr = parent->get_scroll_ofs();
 		set_position_offset(state_res->get_editor_offset());
@@ -156,14 +154,12 @@ void StateNode::__accept_name_changed(const String &new_name) {
 		return;
 	}
 	// undoredo
-	auto unro_redo = HfsmEditorPlugin::create_action("Change state name");
-	unro_redo->add_do_property(state_res.ptr(), "name",
-			name_line_edit->get_text());
-	unro_redo->add_do_property(this, "title", name_line_edit->get_text());
-	unro_redo->add_undo_property(state_res.ptr(), "name",
-			state_res->get_state_name());
-	unro_redo->add_undo_property(this, "title", state_res->get_state_name());
-	unro_redo->commit_action();
+	CREATE_ACTION("Change state name");
+	ADD_DO_METHOD(state_res.ptr(), set_state_name, name_line_edit->get_text());
+	ADD_DO_METHOD(this, set_title, name_line_edit->get_text());
+	ADD_UNDO_METHOD(this, set_title, state_res->get_state_name());
+	ADD_UNDO_METHOD(state_res.ptr(), set_state_name, state_res->get_state_name());
+	COMMIT_ACTION();
 }
 void StateNode::__type_option_btn_item_selected(int32_t p_idx) {
 	auto id = type_option_btn->get_item_id(p_idx);
@@ -246,7 +242,7 @@ void StateNode::__script_selected(const Ref<Script> &p_script, bool p_edit) {
 			p_script);
 }
 void StateNode::__script_changed(const Ref<Script> &p_script) {
-	if (Object::cast_to<Script>(get_script())) {
+	if (cast_to<Script>(get_script())) {
 		if (state_res->get_state_script().is_null()) {
 			// 新建
 			if (Engine::get_singleton()->is_editor_hint() &&
@@ -284,7 +280,7 @@ void StateNode::__resize() {
 	COMMIT_ACTION();
 }
 void StateNode::__dragged(Vector2 p_from, Vector2 p_to) {
-	auto parent = Object::cast_to<StateNodesEditor>(get_parent());
+	auto parent = cast_to<StateNodesEditor>(get_parent());
 	if (!parent) {
 		return;
 	}
@@ -295,8 +291,7 @@ void StateNode::__dragged(Vector2 p_from, Vector2 p_to) {
 	CREATE_ACTION("move states");
 	auto nodes = get_parent()->get_children();
 	for (size_t i = 0; i < nodes.size(); i++) {
-		auto node = Object::cast_to<StateNode>(nodes[i]);
-		if (node) {
+		if (auto node = cast_to<StateNode>(nodes[i])) {
 			if (!node->state_res->get_editor_offset().is_equal_approx(node->get_position_offset())) {
 				ADD_DO_METHOD(node->state_res.ptr(), set_editor_offset, node->get_position_offset());
 				ADD_UNDO_METHOD(node->state_res.ptr(), set_editor_offset, node->state_res->get_editor_offset());
@@ -324,11 +319,11 @@ void StateNode::__setup_structure() {
 		add_child(v_box);
 		// 名称输入行
 		name_line_edit = memnew(LineEdit);
-		v_box->add_child(name_line_edit);
 		name_line_edit->set_auto_translate(false);
 		name_line_edit->set_placeholder("state name");
 		name_line_edit->set_expand_to_text_length_enabled(true);
 		name_line_edit->set_h_size_flags(SIZE_EXPAND_FILL);
+		v_box->add_child(name_line_edit);
 		// 类型选择框
 		type_option_btn = memnew(OptionButton);
 		v_box->add_child(type_option_btn);
@@ -405,7 +400,7 @@ void StateNode::__setup_structure() {
 
 void StateNode::_notification(int p_what) {
 	if (p_what == NOTIFICATION_PARENTED || p_what == NOTIFICATION_UNPARENTED) {
-		auto state_nodes_dite = Object::cast_to<StateNodesEditor>(get_parent());
+		auto state_nodes_dite = cast_to<StateNodesEditor>(get_parent());
 		if (state_nodes_dite) {
 			state_nodes_dite->update_cnnection();
 		}

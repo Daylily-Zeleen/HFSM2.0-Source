@@ -142,8 +142,7 @@ Fsm *FsmRes::create_fsm(HFSM *p_hfsm, const Ref<State> &p_nested_state, const Ve
 void FsmRes::set_variable_res_list(const Array &p_variable_res_list) {
 	variable_res_list = decltype(variable_res_list)(p_variable_res_list);
 	for (size_t i = 0; i < variable_res_list.size(); i++) {
-		Ref<HFSMVariableRes> vr = Object::cast_to<HFSMVariableRes>(variable_res_list[i]);
-		if (vr.is_valid()) {
+		if (auto vr = Object::cast_to<HFSMVariableRes>(variable_res_list[i])) {
 			if (vr->get_fsm_res() != this) {
 				vr->set_fsm_res(this);
 			}

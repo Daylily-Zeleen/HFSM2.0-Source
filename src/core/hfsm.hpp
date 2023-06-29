@@ -11,12 +11,14 @@
 #include "state.hpp"
 #include <hfsm_global.hpp>
 
+#include <core/fsm_res.hpp>
+
 #include <godot_cpp/variant/utility_functions.hpp>
 
 using namespace godot;
 namespace Hfsm {
 
-class FsmRes;
+// class FsmRes;
 class Fsm;
 // class State;
 class HFSMVariable;

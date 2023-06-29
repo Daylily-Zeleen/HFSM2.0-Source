@@ -48,46 +48,41 @@
 #include "core/transitions/variable_expressions/variable_expression_res.hpp"
 #include <hfsm_global.hpp>
 
+#ifdef TOOLS_ENABLED
 #include "editor/hfsm_editor.hpp"
 #include "editor/hfsm_editor_plugin.hpp"
 #include "editor/inspector_plugin/variable_res_selector.hpp"
 #include "editor/state_node.hpp"
 #include "editor/state_nodes_editor.hpp"
 #include "godot_cpp/classes/editor_plugin.hpp"
+#endif
 
 using namespace Hfsm;
 
 void register_core_classes() {
 	// return;
 	ClassDB::register_class<HFSM>();
-	// UtilityFunctions::print("HFSM");
 	ClassDB::register_class<State>();
-	// UtilityFunctions::print("State");
 	ClassDB::register_class<Transition>();
-	// UtilityFunctions::print("Transition");
 	ClassDB::register_class<HFSMVariable>();
-	// UtilityFunctions::print("HFSMVariable");
 	ClassDB::register_class<FsmRes>();
-	// UtilityFunctions::print("FsmRes");
 	ClassDB::register_class<StateRes>();
-	// UtilityFunctions::print("StateRes");
 	ClassDB::register_class<TransitionRes>();
-	// UtilityFunctions::print("TransitionRes");
 	ClassDB::register_class<HFSMVariableRes>();
-	// UtilityFunctions::print("HFSMVariableRes");
 	ClassDB::register_class<VariableExpressionRes>();
-	// UtilityFunctions::print("VariableExpressionRes");
 }
 
 void register_editor_classes() {
+#ifdef TOOLS_ENABLED
 	ClassDB::register_class<HfsmEditorPlugin>();
+
 	ClassDB::register_class<VariableResSelector>();
 	ClassDB::register_class<StateNode>();
 	ClassDB::register_class<StateNodesEditor>();
 	ClassDB::register_class<HfsmInspectorPlugin>();
 	ClassDB::register_class<HFSMEditor>();
 
-	EditorPlugins::add_by_type<HfsmEditorPlugin>();
+#endif
 	// ClassDB::register_internal_class<VariableResSelector>();
 	// ClassDB::register_internal_class<StateNode>();
 	// ClassDB::register_internal_class<StateNodesEditor>();
@@ -96,9 +91,13 @@ void register_editor_classes() {
 }
 
 void initialize_hfsm_module(ModuleInitializationLevel p_level) {
+#ifdef TOOLS_ENABLED
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
 		register_editor_classes();
+
+		EditorPlugins::add_by_type<HfsmEditorPlugin>();
 	}
+#endif
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}
@@ -108,9 +107,11 @@ void initialize_hfsm_module(ModuleInitializationLevel p_level) {
 }
 
 void uninitialize_hfsm_module(ModuleInitializationLevel p_level) {
+#ifdef TOOLS_ENABLED
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
 		EditorPlugins::remove_by_type<HfsmEditorPlugin>();
 	}
+#endif
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}

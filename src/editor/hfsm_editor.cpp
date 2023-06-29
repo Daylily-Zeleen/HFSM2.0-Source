@@ -16,7 +16,7 @@
 
 using namespace godot;
 namespace Hfsm {
-	
+
 bool HFSMEditor::find_nested_state_res(const Ref<FsmRes> &p_fsm_res,
 		Ref<FsmRes> p_to_search_fsm_res) {
 	if (p_fsm_res.is_null()) {
@@ -97,16 +97,15 @@ void HFSMEditor::_ready() {
 }
 void HFSMEditor::edit(HFSM *p_hfsm) {
 	hfsm = p_hfsm;
-	if (hfsm) {
-		mask_panel->hide();
-	} else {
-		mask_panel->show();
-	}
+
+	mask_panel->set_visible(p_hfsm == nullptr);
+
 	if (hfsm && hfsm->get_root_fsm_res().is_valid()) {
 		state_nodes_editor->edit_fsm_res(hfsm->get_root_fsm_res());
 	} else {
 		state_nodes_editor->edit_fsm_res(nullptr);
 	}
+
 	// state_nodes_editor->edit_fsm_res((_hfsm &&
 	// _hfsm->get_root_fsm_res().is_valid()) ? _hfsm->get_root_fsm_res()
 	//                                        : nullptr);

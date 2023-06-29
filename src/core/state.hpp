@@ -125,7 +125,7 @@ private:
 	void physics_update(real_t p_delta);
 	void exit(bool p_terminated_by_upper_level = false);
 
-	friend class FsmRes;
+	// friend class FsmRes;
 	friend class StateRes;
 	friend class Fsm;
 	friend class HFSM;

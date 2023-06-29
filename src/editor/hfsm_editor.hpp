@@ -9,11 +9,13 @@
 
 #include <godot_cpp/classes/translation_server.hpp>
 
+#include <core/fsm_res.hpp>
+
 using namespace godot;
 namespace Hfsm {
 class StateNodesEditor;
 class StateRes;
-class FsmRes;
+// class FsmRes;
 class HFSM;
 
 class HFSMEditor : public Control {

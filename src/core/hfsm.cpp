@@ -17,7 +17,7 @@ bool HFSM::_set(const StringName &p_name, const Variant &p_property) {
 	_TRY_SET_PROP(root_fsm_res);
 #ifdef TOOLS_ENABLED
 	if (p_name == StringName("variable_list")) {
-		root_fsm_res->set_variable_res_list(p_property.operator godot::Array());
+		root_fsm_res->set_variable_res_list(p_property);
 		return true;
 	}
 #endif
@@ -69,19 +69,19 @@ void HFSM::_bind_methods() {
 	GDBIND_METHOD(manual_update);
 	GDBIND_METHOD(manual_physics_update);
 
-	GDADD_PROPERTY(INT, update_type, PROPERTY_HINT_ENUM, String("Idle And Physics,Idle,Physics,Manual"));
+	GDADD_PROPERTY(INT, update_type, PROPERTY_HINT_ENUM, "Idle And Physics,Idle,Physics,Manual");
 
 	GDADD_PROPERTY_BOOL(active, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE);
 
 #ifdef DEV_ENABLED
-	GDADD_PROPERTY_BOOL(debug);
+	GDADD_PROPERTY_BOOL(debug, PROPERTY_HINT_NONE);
 #endif // DEV_ENABLED
 
 	GDBIND_SETGET(root_fsm_res);
 
 	// GDADD_PROPERTY(DICTIONARY, context);
 
-	GDADD_PROPERTY(OBJECT, animation_player, PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE, "AnimationPlayer", PROPERTY_USAGE_DEFAULT);
+	GDADD_PROPERTY(OBJECT, animation_player, PROPERTY_HINT_NODE_TYPE, AnimationPlayer::get_class_static(), PROPERTY_USAGE_DEFAULT);
 
 	GDBIND_METHOD(___on_tree_entered__);
 	GDBIND_METHOD(___on_ready__);
@@ -226,8 +226,9 @@ void HFSM::generate_hfsm() {
 	Vector<Hfsm::Fsm *> tmp;
 	root_fsm = root_fsm_res->create_fsm(this, Ref<State>(), tmp);
 	// 生成变量列表
-	for (auto i = 0; i < root_fsm_res->variable_res_list.size(); i++) {
-		Ref<HFSMVariableRes> vr = root_fsm_res->variable_res_list[i];
+	auto variable_res_list = root_fsm_res->get_variable_res_list();
+	for (auto i = 0; i < variable_res_list.size(); i++) {
+		Ref<HFSMVariableRes> vr = variable_res_list[i];
 		variable_blackboard.insert(vr->get_variable_name(), vr->create_variable());
 	}
 	//

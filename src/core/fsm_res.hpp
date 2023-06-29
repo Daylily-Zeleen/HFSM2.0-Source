@@ -13,13 +13,13 @@
 using namespace godot;
 
 namespace Hfsm {
-class HFSM;
-class Fsm;
-class HFSMVariableRes;
+// class HFSM;
+// class Fsm;
+// class HFSMVariableRes;
 
 // 状态机资源
-class FsmRes : public Resource {
-	GDCLASS(FsmRes, Resource)
+class FsmRes : public godot::Resource {
+	GDCLASS(FsmRes, godot::Resource)
 
 protected:
 	static void _bind_methods();
@@ -27,7 +27,7 @@ protected:
 	_TO_STRING()
 
 public:
-	Fsm *create_fsm(HFSM *p_hfsm, const Ref<State> &p_nested_state, const Vector<Hfsm::Fsm *> &p_nested_fsm_update_queue);
+	Fsm *create_fsm(class HFSM *p_hfsm, const Ref<State> &p_nested_state, const Vector<class Fsm *> &p_nested_fsm_update_queue);
 
 	void set_nested_state_res(const Ref<StateRes> &p_state_res);
 	Ref<StateRes> get_nested_state_res() const;
@@ -79,11 +79,12 @@ public:
 	// bool is_deleted_state_script();
 	// Vector<Ref<StateRes>> get_all_nested_state_res();
 
+	void set_variable_res_list(const Array &p_variable_res_list);
+
 private:
 	// 自己的状态列表
 	void set_state_res_list(const Array &p_state_res_list) { state_res_list = decltype(state_res_list)(p_state_res_list); }
 	void set_transition_res_list(const Array &p_transition_res_list) { transition_res_list = decltype(transition_res_list)(p_transition_res_list); }
-	void set_variable_res_list(const Array &p_variable_res_list);
 
 	// 所在的状态
 	Ref<StateRes> nested_state_res;
@@ -95,8 +96,7 @@ private:
 	// 转换列表
 	TypedArray<TransitionRes> transition_res_list;
 
-	friend class HFSM;
-	friend class HFSMVariableRes;
+	// friend class HFSM;
 };
 
 }; // namespace Hfsm

@@ -61,24 +61,26 @@ bool StateNodesEditor::is_dealing_move_states() { return dealing_move; }
 void StateNodesEditor::set_dealing_move_states(bool p_dealing) { dealing_move = p_dealing; };
 
 void StateNodesEditor::__set_current_fsm_res(const Ref<FsmRes> &to_set) {
-	if (current_fsm_res.is_valid() && current_fsm_res->TIS_CONNECTED("changed", __on_current_fsm_res_changed)) {
-		current_fsm_res->TDISCONNECT("changed", __on_current_fsm_res_changed);
+	if (current_fsm_res.is_valid() && current_fsm_res->TIS_CONNECTED(s_changed, __on_current_fsm_res_changed)) {
+		current_fsm_res->TDISCONNECT(s_changed, __on_current_fsm_res_changed);
 	}
 	current_fsm_res = to_set;
-	if (current_fsm_res.is_valid() && !current_fsm_res->TIS_CONNECTED("changed", __on_current_fsm_res_changed)) {
-		current_fsm_res->connect("changed", TCALLABLE(__on_current_fsm_res_changed));
+	if (current_fsm_res.is_valid() && !current_fsm_res->TIS_CONNECTED(s_changed, __on_current_fsm_res_changed)) {
+		current_fsm_res->connect(s_changed, TCALLABLE(__on_current_fsm_res_changed));
 	}
 }
 void StateNodesEditor::__set_selected_state_name_list(const TypedArray<StringName> &p_to_set) {
-	selected_state_name_list = p_to_set;
+	if (selected_state_name_list != p_to_set) {
+		selected_state_name_list = p_to_set;
+	}
 	selected_transition_res_list.clear();
 	auto connection_list = get_connection_list();
 	for (auto i = 0; i < connection_list.size(); i++) {
 		Dictionary conn = connection_list[i];
-		auto from = get_node<StateNode>({ conn["from"].operator godot::StringName() });
-		auto to = get_node<StateNode>({ conn["to"].operator godot::StringName() });
+		auto from = get_node<StateNode>({ StringName(conn["from"]) });
+		auto to = get_node<StateNode>({ StringName(conn["to"]) });
 		if (from && to) {
-			if (selected_state_name_list.has(from->state_res->get_state_name()) && selected_state_name_list.has(to->state_res->get_state_name())) {
+			if (selected_state_name_list.has(from->get_state_res()->get_state_name()) && selected_state_name_list.has(to->get_state_res()->get_state_name())) {
 				auto tr = __get_transition_res(from, to);
 				if (tr.is_valid()) {
 					selected_transition_res_list.push_back(tr);
@@ -91,31 +93,40 @@ void StateNodesEditor::__set_selected_state_name_list(const TypedArray<StringNam
 TypedArray<StateNode> StateNodesEditor::get_selected_state_nodes() {
 	TypedArray<StateNode> ret;
 	for (auto i = 0; i < get_child_count(); i++) {
-		auto c = Object::cast_to<StateNode>(get_child(i));
-		if (c && selected_state_name_list.has(c->state_res->get_state_name())) {
+		auto c = cast_to<StateNode>(get_child(i));
+		if (c && selected_state_name_list.has(c->get_state_res()->get_state_name())) {
 			ret.push_back(c);
 		}
 	}
 	return ret;
 }
 void StateNodesEditor::__set_selected_transition_res_list(const TypedArray<TransitionRes> &p_to_set) {
-	selected_transition_res_list = p_to_set;
+	if (selected_transition_res_list != p_to_set) {
+		selected_transition_res_list = p_to_set;
+	}
 	Ref<TransitionRes> to_inspect = selected_transition_res_list.size() == 1 ? selected_transition_res_list.front() : nullptr;
 	HfsmEditorPlugin::get_singleton()->get_editor_interface()->inspect_object(to_inspect.ptr());
-	auto conn_list = get_incoming_connections();
 	static Ref<TransitionRes> inspecting;
 	if (inspecting.is_valid()) {
-		inspecting->TDISCONNECT("changed", __on_transition_res_updated);
+		inspecting->TDISCONNECT(s_changed, __on_transition_res_updated);
 		inspecting = Variant(); // 同时只能监视一个 TransitionRes
 	}
 	if (to_inspect.is_valid()) {
-		to_inspect->connect("changed", TCALLABLE(__on_transition_res_updated));
+		to_inspect->connect(s_changed, TCALLABLE(__on_transition_res_updated));
 		inspecting = to_inspect;
 	}
-	queue_redraw();
+	// queue_redraw();
 }
-void StateNodesEditor::__set_copied_transition_list(const TypedArray<TransitionRes> &p_to_set) { copied_transition_res_list = p_to_set; }
-void StateNodesEditor::__set_copied_state_res_list(const TypedArray<StateRes> &p_to_set) { copied_state_res_list = p_to_set; }
+void StateNodesEditor::__set_copied_transition_list(const TypedArray<TransitionRes> &p_to_set) {
+	if (copied_transition_res_list != p_to_set) {
+		copied_transition_res_list = p_to_set;
+	}
+}
+void StateNodesEditor::__set_copied_state_res_list(const TypedArray<StateRes> &p_to_set) {
+	if (copied_state_res_list != p_to_set) {
+		copied_state_res_list = p_to_set;
+	}
+}
 // ========功能=========
 void StateNodesEditor::update_cnnection() {
 	if (updating) {
@@ -128,8 +139,8 @@ void StateNodesEditor::__update_conntion() {
 	auto conn_list = get_connection_list();
 	for (auto i = 0; i < conn_list.size(); i++) {
 		Dictionary conn = conn_list[i];
-		auto from = get_node<StateNode>({ conn["from"].operator godot::StringName() });
-		auto to = get_node<StateNode>({ conn["to"].operator godot::StringName() });
+		auto from = get_node<StateNode>({ StringName(conn["from"]) });
+		auto to = get_node<StateNode>({ StringName(conn["to"]) });
 		if (!from || !to) {
 			disconnect_node(conn["from"], conn["from_port"], conn["to"], conn["to_port"]);
 		}
@@ -140,7 +151,7 @@ void StateNodesEditor::__update_conntion() {
 void StateNodesEditor::__set_updating(bool p_to_set) { updating = p_to_set; }
 
 void StateNodesEditor::__undo_redo_select_nodes() {
-	CREATE_ACTION("select states");
+	CREATE_ACTION("Select states");
 	ADD_DO_METHOD(this, __set_selected_transition_res_list, TypedArray<TransitionRes>());
 	ADD_DO_METHOD(this, __select_state_nodes, selected_state_name_list);
 	ADD_UNDO_METHOD(this, __select_state_nodes, __bakcup_selected_state_name_list.duplicate());
@@ -163,8 +174,8 @@ void StateNodesEditor::__try_disconnect(Vector2 p_pos1, Vector2 p_pos2) {
 	auto conn_list = get_connection_list();
 	for (auto i = 0; i < conn_list.size(); i++) {
 		Dictionary conn = conn_list[i];
-		auto from = get_node<StateNode>({ conn["from"].operator godot::StringName() });
-		auto to = get_node<StateNode>({ conn["to"].operator godot::StringName() });
+		auto from = get_node<StateNode>({ StringName(conn["from"]) });
+		auto to = get_node<StateNode>({ StringName(conn["to"]) });
 		if (from && to) {
 			auto line = __get_connection_line_with_zoom(from, to);
 			Vector2 from_pos = line[0];
@@ -193,8 +204,8 @@ bool StateNodesEditor::__is_judge(Vector2 p_apos1, Vector2 p_apos2, Vector2 p_bp
 	return false;
 }
 void StateNodesEditor::__delete_transition(const StringName &p_from, int32_t p_from_slot, const StringName &p_to, int32_t p_to_slot) {
-	auto from_node = Object::cast_to<StateNode>(find_child(p_from, false, false));
-	auto to_node = Object::cast_to<StateNode>(find_child(p_to, false, false));
+	auto from_node = cast_to<StateNode>(find_child(p_from, false, false));
+	auto to_node = cast_to<StateNode>(find_child(p_to, false, false));
 	auto tr = __get_transition_res(from_node, to_node);
 	if (tr.is_valid()) {
 		CREATE_ACTION("Delete State Transitions");
@@ -211,8 +222,8 @@ TypedArray<TransitionRes> StateNodesEditor::__try_select_transitions_at_pos(Vect
 	for (auto i = 0; i < conn_list.size(); i++) {
 		Dictionary conn = conn_list[i];
 		auto childrens = get_children();
-		auto from = get_node<StateNode>({ conn["from"].operator godot::StringName() });
-		auto to = get_node<StateNode>({ conn["to"].operator godot::StringName() });
+		auto from = get_node<StateNode>({ StringName(conn["from"]) });
+		auto to = get_node<StateNode>({ StringName(conn["to"]) });
 		auto origin_line = __get_connection_line_with_zoom(from, to);
 		Vector2 from_pos = origin_line[0];
 		Vector2 to_pos = origin_line[1];
@@ -248,7 +259,7 @@ Ref<TransitionRes> StateNodesEditor::__get_transition_res(StateNode *p_from, Sta
 	auto tr_list = current_fsm_res->get_transition_res_list();
 	for (auto i = 0; i < tr_list.size(); i++) {
 		Ref<TransitionRes> tr = tr_list[i];
-		if (tr.is_valid() && tr->get_from_state_res() == p_from->state_res && tr->get_to_state_res() == p_to->state_res) {
+		if (tr.is_valid() && tr->get_from_state_res() == p_from->get_state_res() && tr->get_to_state_res() == p_to->get_state_res()) {
 			return tr;
 		}
 	}
@@ -260,7 +271,7 @@ bool StateNodesEditor::__is_node_hotzone(Object *p_in_node, int64_t p_in_port, c
 	}
 	auto zoom = static_cast<float>(get_zoom());
 	auto zoomed_pos = p_mouse_position * zoom;
-	auto graph_node = Object::cast_to<StateNode>(p_in_node);
+	auto graph_node = cast_to<StateNode>(p_in_node);
 	if (!graph_node) {
 		return false;
 	}
@@ -276,7 +287,7 @@ bool StateNodesEditor::__is_node_hotzone(Object *p_in_node, int64_t p_in_port, c
 TypedArray<StateNode> StateNodesEditor::__get_selected_state_nodes() {
 	TypedArray<StateNode> ret;
 	for (auto i = 0; i < get_child_count(); i++) {
-		auto node = Object::cast_to<StateNode>(get_child(i));
+		auto node = cast_to<StateNode>(get_child(i));
 		if (node && node->is_selected()) {
 			ret.push_back(node);
 		}
@@ -287,19 +298,20 @@ TypedArray<StateNode> StateNodesEditor::__get_selected_state_nodes() {
 void StateNodesEditor::__select_state_nodes(const TypedArray<StringName> &p_to_select_State_name_list) {
 	__set_selected_state_name_list(p_to_select_State_name_list);
 	for (auto i = 0; i < get_child_count(); i++) {
-		auto node = Object::cast_to<StateNode>(get_child(i));
-		if (node) {
-			node->set_selected(selected_state_name_list.has(node->state_res->get_state_name()));
+		if (auto node = cast_to<StateNode>(get_child(i))) {
+			node->set_selected(selected_state_name_list.has(node->get_state_res()->get_state_name()));
 		}
 	}
 }
-StateNode *StateNodesEditor::____create_state_node(const Ref<StateRes> &p_state_res) { return StateNode::create_state_node(p_state_res); }
+
+StateNode *StateNodesEditor::____create_state_node(const Ref<StateRes> &p_state_res) {
+	return StateNode::create_state_node(p_state_res);
+}
 
 StateNode *StateNodesEditor::___get_top_state_node_which_hovered() {
 	auto zoom = static_cast<float>(get_zoom());
 	for (int i = get_child_count() - 1; i >= 0; i--) {
-		auto node = Object::cast_to<StateNode>(get_child(i));
-		if (node) {
+		if (auto node = cast_to<StateNode>(get_child(i))) {
 			auto rect = node->get_rect();
 			rect.set_size(rect.get_size() * zoom);
 			if (rect.has_point(get_local_mouse_position() * zoom)) {
@@ -313,19 +325,19 @@ TypedArray<StateRes> StateNodesEditor::___get_selected_state_res_list() {
 	TypedArray<StateRes> ret;
 	auto seleted_state_nodes = get_selected_state_nodes();
 	for (auto i = 0; i < seleted_state_nodes.size(); i++) {
-		auto sn = Object::cast_to<StateNode>(seleted_state_nodes[i]);
-		ret.push_back(sn->state_res);
+		if (auto sn = cast_to<StateNode>(seleted_state_nodes[i])) {
+			ret.push_back(sn->get_state_res());
+		}
 	}
 	return ret;
 }
 void StateNodesEditor::__select_mamually(const TypedArray<StateNode> &p_target_nodes) {
 	TypedArray<StringName> to_select_state_name_list;
 	for (auto i = 0; i < get_child_count(); i++) {
-		auto sn = Object::cast_to<StateNode>(get_child(i));
-		if (sn) {
+		if (auto sn = cast_to<StateNode>(get_child(i))) {
 			sn->set_selected(p_target_nodes.has(sn));
 			if (sn->is_selected()) {
-				to_select_state_name_list.push_back(sn->state_res->get_state_name());
+				to_select_state_name_list.push_back(sn->get_state_res()->get_state_name());
 			}
 		}
 	}
@@ -378,25 +390,25 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t p_id) {
 			TypedArray<StateRes> to_copied_state_res;
 			TypedArray<StateNode> selected_state_nodes = get_selected_state_nodes();
 			for (auto i = 0; i < selected_state_nodes.size(); i++) {
-				auto node = Object::cast_to<StateNode>(selected_state_nodes[i]);
+				auto node = cast_to<StateNode>(selected_state_nodes[i]);
 				if (!node) {
 					continue;
 				}
 
 				ADD_UNDO_REFERENCE(node);
 				ADD_DO_METHOD(this, remove_child, node);
-				ADD_DO_METHOD(current_fsm_res.ptr(), remove_state_res, node->state_res);
-				ADD_UNDO_METHOD(current_fsm_res.ptr(), add_state_res, node->state_res);
+				ADD_DO_METHOD(current_fsm_res.ptr(), remove_state_res, node->get_state_res());
+				ADD_UNDO_METHOD(current_fsm_res.ptr(), add_state_res, node->get_state_res());
 				ADD_UNDO_METHOD_UNCHECK_ARGS(this, add_child, node);
 
-				to_copied_state_res.push_back(node->state_res);
+				to_copied_state_res.push_back(node->get_state_res());
 			}
 
 			auto tr_list = current_fsm_res->get_transition_res_list();
 			for (auto i = 0; i < tr_list.size(); i++) {
 				Ref<TransitionRes> tr = tr_list[i];
-				auto from_node = Object::cast_to<StateNode>(tr->get_from_state_res()->get_state_node());
-				auto to_node = Object::cast_to<StateNode>(tr->get_from_state_res()->get_state_node());
+				auto from_node = cast_to<StateNode>(tr->get_from_state_res()->get_state_node());
+				auto to_node = cast_to<StateNode>(tr->get_from_state_res()->get_state_node());
 				if (!from_node || !to_node || selected_state_name_list.has(tr->get_from_state_res()->get_state_name()) || selected_state_name_list.has(tr->get_to_state_res()->get_state_name())) {
 					ADD_DO_METHOD(current_fsm_res.ptr(), remove_transition_res, tr);
 					ADD_UNDO_METHOD(current_fsm_res.ptr(), add_transition_res, tr);
@@ -467,13 +479,13 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t p_id) {
 			// 添加
 			TypedArray<StateNode> copied_state_ndoes;
 			for (const auto &kv : osr2csr) {
-				auto csn = Object::cast_to<StateNode>(kv.value->get_state_node());
+				auto csn = cast_to<StateNode>(kv.value->get_state_node());
 				copied_state_ndoes.push_back(csn);
 
 				ADD_DO_REFERENCE(csn);
 				ADD_DO_METHOD_UNCHECK_ARGS(this, add_child, csn);
-				ADD_DO_METHOD(current_fsm_res.ptr(), add_state_res, csn->state_res);
-				ADD_UNDO_METHOD(current_fsm_res.ptr(), remove_state_res, csn->state_res);
+				ADD_DO_METHOD(current_fsm_res.ptr(), add_state_res, csn->get_state_res());
+				ADD_UNDO_METHOD(current_fsm_res.ptr(), remove_state_res, csn->get_state_res());
 				ADD_UNDO_METHOD(this, remove_child, csn);
 			}
 			// 拷贝相关转换
@@ -585,12 +597,12 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t p_id) {
 		}
 		case ITEM_CONVERT_TO_FSM: {
 			auto selected_state_res_list = ___get_selected_state_res_list();
-			if (!__hovered_state_node || !selected_state_res_list.has(__hovered_state_node->state_res)) {
+			if (!__hovered_state_node || !selected_state_res_list.has(__hovered_state_node->get_state_res())) {
 				return;
 			}
 			CREATE_ACTION("Convert To Sub-FSM");
 			// 复制状态资源
-			Ref<StateRes> duplicated_state_res = __hovered_state_node->state_res->duplicate(true);
+			Ref<StateRes> duplicated_state_res = __hovered_state_node->get_state_res()->duplicate(true);
 			// 新的子状态机
 			Ref<FsmRes> new_fsm_res;
 			new_fsm_res.instantiate();
@@ -598,7 +610,7 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t p_id) {
 			// 复制的状态节点
 			auto duplicated_state_node = ____create_state_node(duplicated_state_res);
 			//
-			auto hovered_state_res = __hovered_state_node->state_res;
+			auto hovered_state_res = __hovered_state_node->get_state_res();
 			auto hovered_state_node_name = __hovered_state_node->get_name();
 			auto duplicated_state_node_name = duplicated_state_node->get_name();
 			// 处理转换指向
@@ -608,7 +620,7 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t p_id) {
 				StringName from = tr->get_from_state_res()->get_state_node()->get_name();
 				StringName to = tr->get_to_state_res()->get_state_node()->get_name();
 				// 一端为指定状态，另一端不在选中的状态中，处理指向
-				if (tr->get_from_state_res() == __hovered_state_node->state_res && !selected_state_res_list.has(tr->get_to_state_res())) {
+				if (tr->get_from_state_res() == __hovered_state_node->get_state_res() && !selected_state_res_list.has(tr->get_to_state_res())) {
 					ADD_DO_METHOD(this, disconnect_node, from, 0, to, 0);
 					ADD_DO_METHOD(tr.ptr(), set_from_state_res, duplicated_state_res);
 					ADD_DO_DEFERRED_CALL_METHOD(this, connect_node, duplicated_state_node_name, 0, to, 0);
@@ -616,7 +628,7 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t p_id) {
 					ADD_DO_METHOD(this, disconnect_node, duplicated_state_node_name, 0, to, 0);
 					ADD_DO_METHOD(tr.ptr(), set_from_state_res, hovered_state_res);
 					ADD_DO_DEFERRED_CALL_METHOD(this, connect_node, from, 0, to, 0);
-				} else if (tr->get_to_state_res() == __hovered_state_node->state_res && !selected_state_res_list.has(tr->get_from_state_res())) {
+				} else if (tr->get_to_state_res() == __hovered_state_node->get_state_res() && !selected_state_res_list.has(tr->get_from_state_res())) {
 					ADD_DO_METHOD(this, disconnect_node, from, 0, to, 0);
 					ADD_DO_METHOD(tr.ptr(), set_to_state_res, duplicated_state_res);
 					ADD_DO_DEFERRED_CALL_METHOD(this, connect_node, from, 0, duplicated_state_node_name, 0);
@@ -652,13 +664,13 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t p_id) {
 			// 移动选中节点所处的状态机
 			auto selected_state_nodes = get_selected_state_nodes();
 			for (auto i = 0; i < selected_state_nodes.size(); i++) {
-				auto sn = Object::cast_to<StateNode>(selected_state_nodes[i]);
+				auto sn = cast_to<StateNode>(selected_state_nodes[i]);
 				ADD_DO_METHOD(this, remove_child, sn);
-				ADD_DO_METHOD(current_fsm_res.ptr(), remove_state_res, sn->state_res);
-				ADD_DO_METHOD(new_fsm_res.ptr(), add_state_res, sn->state_res);
+				ADD_DO_METHOD(current_fsm_res.ptr(), remove_state_res, sn->get_state_res());
+				ADD_DO_METHOD(new_fsm_res.ptr(), add_state_res, sn->get_state_res());
 
-				ADD_UNDO_METHOD(new_fsm_res.ptr(), remove_state_res, sn->state_res);
-				ADD_UNDO_METHOD(current_fsm_res.ptr(), add_state_res, sn->state_res);
+				ADD_UNDO_METHOD(new_fsm_res.ptr(), remove_state_res, sn->get_state_res());
+				ADD_UNDO_METHOD(current_fsm_res.ptr(), add_state_res, sn->get_state_res());
 				ADD_UNDO_METHOD_UNCHECK_ARGS(this, add_child, sn);
 				ADD_UNDO_REFERENCE(sn);
 			}
@@ -683,16 +695,16 @@ void StateNodesEditor::__on_popup_menu_id_pressed(int32_t p_id) {
 }
 void StateNodesEditor::__on_delete_nodes_request(const Array &p_nodes) { __on_popup_menu_id_pressed(ITEM_DELETE); }
 void StateNodesEditor::__on_connection_request(const StringName &p_from, int p_from_slot, const StringName &p_to, int p_to_slot) {
-	auto from_node = Object::cast_to<StateNode>(find_child(p_from, false, false));
-	auto to_node = Object::cast_to<StateNode>(find_child(p_to, false, false));
+	auto from_node = cast_to<StateNode>(find_child(p_from, false, false));
+	auto to_node = cast_to<StateNode>(find_child(p_to, false, false));
 	auto tr = __get_transition_res(from_node, to_node);
 	if (tr.is_valid()) {
 		return;
 	}
 	Ref<TransitionRes> new_tr;
 	new_tr.instantiate();
-	new_tr->set_from_state_res(from_node->state_res);
-	new_tr->set_to_state_res(to_node->state_res);
+	new_tr->set_from_state_res(from_node->get_state_res());
+	new_tr->set_to_state_res(to_node->get_state_res());
 	// undoredo
 	CREATE_ACTION("Create State Transition");
 	ADD_DO_METHOD(this, connect_node, p_from, p_from_slot, p_to, p_to_slot);
@@ -768,26 +780,25 @@ void StateNodesEditor::__on_create_btn_pressed() {
 void StateNodesEditor::__on_transition_res_updated() { queue_redraw(); }
 
 void StateNodesEditor::__on_node_selected(Object *node) {
-	auto sn = Object::cast_to<StateNode>(node);
+	auto sn = cast_to<StateNode>(node);
 	if (!sn) {
 		return;
 	}
-	if (!selected_state_name_list.has(sn->state_res->get_state_name())) {
-		selected_state_name_list.push_back(sn->state_res->get_state_name());
+	if (!selected_state_name_list.has(sn->get_state_res()->get_state_name())) {
+		selected_state_name_list.push_back(sn->get_state_res()->get_state_name());
 	}
 	if (selected_state_name_list.size() == 1) {
-		UtilityFunctions::print(sn->state_res);
-		HfsmEditorPlugin::get_singleton()->get_editor_interface()->inspect_object(sn->state_res.ptr());
+		HfsmEditorPlugin::get_singleton()->get_editor_interface()->inspect_object(sn->get_state_res().ptr());
 	}
 	___deal_selection_action();
 }
 void StateNodesEditor::__on_node_deselected(Object *p_node) {
-	auto sn = Object::cast_to<StateNode>(p_node);
+	auto sn = cast_to<StateNode>(p_node);
 	if (!sn) {
 		return;
 	}
-	if (selected_state_name_list.has(sn->state_res->get_state_name())) {
-		selected_state_name_list.push_back(sn->state_res->get_state_name());
+	if (selected_state_name_list.has(sn->get_state_res()->get_state_name())) {
+		selected_state_name_list.push_back(sn->get_state_res()->get_state_name());
 	}
 	___deal_selection_action();
 }
@@ -808,6 +819,7 @@ StateNodesEditor *StateNodesEditor::create_state_nodes_edit(HBoxContainer *p_pat
 		r->not_state_alert->set_horizontal_alignment(HORIZONTAL_ALIGNMENT_CENTER);
 		r->not_state_alert->set_vertical_alignment(VERTICAL_ALIGNMENT_CENTER);
 		r->not_state_alert->set_anchors_preset(LayoutPreset::PRESET_CENTER);
+		r->not_state_alert->set_position(Vector2(0, -50));
 		r->mask_panel->add_child(r->not_state_alert);
 		r->create_btn = memnew(Button);
 		r->create_btn->set_anchors_preset(LayoutPreset::PRESET_CENTER);
@@ -851,8 +863,7 @@ void StateNodesEditor::edit_fsm_res(const Ref<FsmRes> &p_fsm_res) {
 
 	// 移除状态
 	for (auto i = 0; i < get_child_count(); i++) {
-		auto sn = Object::cast_to<StateNode>(get_child(i));
-		if (sn) {
+		if (auto sn = Object::cast_to<StateNode>(get_child(i))) {
 			ADD_DO_METHOD(this, remove_child, sn);
 			ADD_UNDO_METHOD_UNCHECK_ARGS(this, add_child, sn);
 			ADD_UNDO_REFERENCE(sn);
@@ -957,8 +968,8 @@ void StateNodesEditor::_process(real_t p_delta) {
 
 void StateNodesEditor::_gui_input(const Ref<InputEvent> &p_event) {
 	static bool to_disconnect;
-	auto mouse_btn_event = Object::cast_to<InputEventMouseButton>(p_event.ptr());
-	if (mouse_btn_event) {
+
+	if (auto mouse_btn_event = Object::cast_to<InputEventMouseButton>(p_event.ptr())) {
 		// 删除转换操作
 		if (mouse_btn_event->get_button_index() == MOUSE_BUTTON_MIDDLE) {
 			if (mouse_btn_event->is_pressed()) {
@@ -1042,7 +1053,7 @@ PackedVector2Array StateNodesEditor::_get_connection_line(const Vector2 &p_from,
 	StateNode *to_node = nullptr;
 	auto zoom = static_cast<float>(get_zoom());
 	for (auto i = 0; i < get_child_count(); i++) {
-		auto node = Object::cast_to<StateNode>(get_child(i));
+		auto node = cast_to<StateNode>(get_child(i));
 		if (!node) {
 			continue;
 		}
@@ -1099,27 +1110,25 @@ void StateNodesEditor::_draw() {
 	static bool deferring = false;
 	auto zoom = static_cast<float>(get_zoom());
 	for (auto i = 0; i < get_child_count(); i++) {
-		auto node = Object::cast_to<StateNode>(get_child(i));
-		if (!node) {
-			continue;
+		if (auto node = cast_to<StateNode>(get_child(i))) {
+			auto rect = node->get_rect();
+			rect.set_size(rect.get_size() * zoom);
+			auto end = rect.get_end();
+			auto pos = end - SCALE_DRAGGER_SIZE * zoom;
+			auto dragger_rect = Rect2(pos, SCALE_DRAGGER_SIZE * zoom);
+			rect = rect.grow_side(SIDE_TOP, -MOVE_ZONE_HIGHT * zoom);
+			// ==测试显示==
+			// draw_rect(rect, Color::named(""), false, 5);
+			// draw_rect(dragger_rect, Color::named("GREEN"), false, 5);
+			// ==测试显示==
 		}
-		auto rect = node->get_rect();
-		rect.set_size(rect.get_size() * zoom);
-		auto end = rect.get_end();
-		auto pos = end - SCALE_DRAGGER_SIZE * zoom;
-		auto dragger_rect = Rect2(pos, SCALE_DRAGGER_SIZE * zoom);
-		rect = rect.grow_side(SIDE_TOP, -MOVE_ZONE_HIGHT * zoom);
-		// ==测试显示==
-		// draw_rect(rect, Color::named("red"), false, 5);
-		// draw_rect(dragger_rect, Color::named("green"), false, 5);
-		// ==测试显示==
 	}
 	Array dealed_tr_list;
 	auto conn_list = get_connection_list();
 	for (auto i = 0; i < conn_list.size(); i++) {
 		Dictionary conn = conn_list[i];
-		auto from = get_node<StateNode>({ conn["from"].operator godot::StringName() });
-		auto to = get_node<StateNode>({ conn["to"].operator godot::StringName() });
+		auto from = get_node<StateNode>({ StringName(conn["from"]) });
+		auto to = get_node<StateNode>({ StringName(conn["to"]) });
 		if (!from || !to) {
 			continue;
 		}
@@ -1209,7 +1218,7 @@ String StateNodesEditor::__get_variable_expression_res_valid_and_text(const Ref<
 				}
 			};
 			if (p_ver->is_variable_as_value()) {
-				if (auto vr = Object::cast_to<HFSMVariableRes>(p_ver->get_value())) {
+				if (auto vr = cast_to<HFSMVariableRes>(p_ver->get_value())) {
 					r_valid = Variant::can_convert(Variant::Type(vr->get_type()), Variant::Type(vr->get_type()));
 					if (r_valid) {
 						return String(vr->get_variable_name()) + get_op_text() + String(vr->get_variable_name());
@@ -1225,7 +1234,7 @@ String StateNodesEditor::__get_variable_expression_res_valid_and_text(const Ref<
 					String value_text = "";
 					switch (vr->get_type()) {
 						case Variant::BOOL:
-							value_text = p_ver->get_value().operator bool() ? "true" : "false";
+							value_text = p_ver->get_value().booleanize() ? "true" : "false";
 							break;
 						case Variant::INT:
 						case Variant::FLOAT:

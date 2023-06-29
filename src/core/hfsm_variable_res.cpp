@@ -62,7 +62,7 @@ void HFSMVariableRes::set_variable_name(const StringName &p_name) {
 	variable_name = StringName(p_name);
 	do {
 		unique = true;
-		auto vrl = (static_cast<FsmRes *>(fsm_res.ptr()))->variable_res_list;
+		auto vrl = fsm_res->get_variable_res_list();
 		for (auto i = 0; i < vrl.size(); i++) {
 			Ref<HFSMVariableRes> v = vrl[i];
 			if (v.is_valid() && v.ptr() != this && v->get_variable_name() == variable_name) {
@@ -152,10 +152,10 @@ Ref<RefCounted> HFSMVariableRes::create_variable() {
 	return ret;
 }
 
-Ref<HFSMVariableRes> HFSMVariableRes::create_new(const Ref<FsmRes> &fsm_res) {
+Ref<HFSMVariableRes> HFSMVariableRes::create_new(const Ref<FsmRes> &p_fsm_res) {
 	Ref<HFSMVariableRes> ret;
 	ret.instantiate();
-	ret->fsm_res = fsm_res;
+	ret->fsm_res = p_fsm_res;
 	ret->set_name(ret->get_variable_name());
 	return ret;
 }
