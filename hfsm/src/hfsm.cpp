@@ -292,16 +292,19 @@ void HFSM::_notification(int p_what) {
 			}
 			physics_process_internal(get_physics_process_delta_time());
 		} break;
+#ifdef DEBUG_ENABLED
 		case NOTIFICATION_ENTER_TREE: {
 			if (root_fsm) {
-				IF_DEBUG(HfsmDebuggerPlugin::send_debug_built(this);)
+				HfsmDebuggerPlugin::send_debug_built(this);
 			}
 		} break;
 		case NOTIFICATION_EXIT_TREE: {
 			if (root_fsm) {
-				IF_DEBUG(HfsmDebuggerPlugin::send_debug_destroy(this);)
+				HfsmDebuggerPlugin::send_debug_destroy(this);
 			}
 		} break;
+#endif // DEBUG_ENABLED
+
 		default:
 			break;
 	}
