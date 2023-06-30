@@ -62,7 +62,7 @@ void StateNode::set_state_res(const Ref<class StateRes> &p_state_res) {
 	_setup_state_res();
 }
 
-StateNode *StateNode::create_state_node(Ref<StateRes> p_target_state_res, const Ref<FsmRes> &p_nested_fsm_res, bool p_debug) {
+StateNode *StateNode::create_state_node(const Ref<StateRes> &p_target_state_res, const Ref<FsmRes> &p_nested_fsm_res, bool p_debug) {
 	if (p_target_state_res.is_null()) {
 		return nullptr;
 	}

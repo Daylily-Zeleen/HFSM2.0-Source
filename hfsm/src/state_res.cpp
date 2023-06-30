@@ -238,22 +238,6 @@ Ref<State> StateRes::create_state(HFSM *p_hfsm, Fsm *p_fsm) {
 	// State 一定包含于 Fsm
 	r->path.append_array(p_fsm->get_path());
 
-	// collect properties
-	// if (r->reset_when_entry) {
-	// 	static const StringName mn = "get_property_list";
-	// 	TypedArray<Dictionary> properties = r->call(mn);
-	// 	for (auto i = 0; i < properties.size(); i++) {
-	// 		Dictionary prop = static_cast<Dictionary>(properties[i]);
-	// 		if (IS_PROP(prop["usage"])) {
-	// 			String prop_name = prop["name"];
-	// 			if (HfsmGlobal::get_state_internal_property_names().has(prop_name)) {
-	// 				continue;
-	// 			}
-	// 			r->property_to_defatul_value.insert(prop_name, r->get(prop_name));
-	// 		}
-	// 	}
-	// }
-
 	// 脚本处理
 	if (state_script.is_valid()) {
 		if (state_script->get_instance_base_type() == State::get_class_static()) {

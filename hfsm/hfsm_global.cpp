@@ -16,7 +16,6 @@
 
 namespace Hfsm {
 
-PackedStringArray HfsmGlobal::state_internal_property_names = {};
 PackedStringArray HfsmGlobal::singleton_names = {};
 Array HfsmGlobal::singletons = {};
 
@@ -25,20 +24,10 @@ Array HfsmGlobal::singletons = {};
 	HfsmGlobal::singletons.push_back(m_class::get_singleton())
 
 void HfsmGlobal::init_static() {
-	IF_TOOLS(
-			StateNode::IN_COLOR = Color::named("ORANGE");
-			StateNode::OUT_COLOR = Color::named("GREEN");)
-
-	Ref<State> tmp;
-	tmp.instantiate();
-	TypedArray<Dictionary> state_internal_props = tmp->call(StringName("get_property_list"));
-	for (auto i = 0; i < state_internal_props.size(); ++i) {
-		Dictionary prop = state_internal_props[i];
-		if (IS_PROP(prop["usage"])) {
-			continue;
-		}
-		state_internal_property_names.push_back(prop["name"]);
-	}
+	IF_TOOLS({
+		StateNode::IN_COLOR = Color::named("ORANGE");
+		StateNode::OUT_COLOR = Color::named("GREEN");
+	})
 
 	// 以此为模板添加全局单例
 	ADD_SINGLETON(Input);

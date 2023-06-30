@@ -31,14 +31,10 @@ namespace Hfsm {
 
 class HfsmGlobal {
 private:
-	static PackedStringArray state_internal_property_names;
-
 	static PackedStringArray singleton_names;
 	static Array singletons;
 
 public:
-	static const PackedStringArray &get_state_internal_property_names() { return state_internal_property_names; }
-
 	static const PackedStringArray &get_singleton_names() { return singleton_names; }
 	static const Array &get_singletons() { return singletons; }
 
