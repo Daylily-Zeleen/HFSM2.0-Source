@@ -9,7 +9,7 @@
 namespace Hfsm {
 
 #define _type_convertable_check(m_variable, m_value_type) \
-	CRASH_COND(!Variant::can_convert(m_value_type, m_variable->get_type()))
+	CRASH_COND(!Variant::can_convert(m_value_type, (m_variable)->get_type()))
 
 #ifdef TOOLS_ENABLED
 #define type_convertable_check(m_variable, m_value_type)   \

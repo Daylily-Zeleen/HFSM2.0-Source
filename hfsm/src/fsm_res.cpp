@@ -32,7 +32,7 @@ void FsmRes::set_nested_state_res(const Ref<StateRes> &p_state_res) {
 }
 Ref<StateRes> FsmRes::get_nested_state_res() const { return nested_state_res; }
 
-void FsmRes::add_state_res(Ref<StateRes> p_state_res) {
+void FsmRes::add_state_res(const Ref<StateRes> &p_state_res) {
 	if (state_res_list.find(p_state_res) >= 0) {
 		return;
 	}

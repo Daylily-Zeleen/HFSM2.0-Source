@@ -47,7 +47,7 @@ public:
 	static void send_debug_destroy(class HFSM *p_hfsm);
 	static void send_debug_update_active_path(class HFSM *p_hfsm);
 
-	~HfsmDebuggerPlugin();
+	~HfsmDebuggerPlugin() override;
 };
 
 class HfsmDebugger : public HSplitContainer {

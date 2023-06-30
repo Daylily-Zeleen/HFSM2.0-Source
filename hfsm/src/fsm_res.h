@@ -42,7 +42,7 @@ public:
 	// 变量列表
 	TypedArray<HFSMVariableRes> get_variable_res_list() const { return variable_res_list; }
 
-	void add_state_res(Ref<StateRes> p_state_res);
+	void add_state_res(const Ref<StateRes> &p_state_res);
 
 	void add_transition_res(const Ref<TransitionRes> &p_transition_res);
 

@@ -73,7 +73,7 @@ public:
 	};
 
 	Ref<class StateRes> get_state_res() const;
-	static StateNode *create_state_node(Ref<StateRes> p_target_state_res, const Ref<class FsmRes> &p_nested_fsm_res, bool p_debug = false);
+	static StateNode *create_state_node(const Ref<StateRes> &p_target_state_res, const Ref<class FsmRes> &p_nested_fsm_res, bool p_debug = false);
 
 	void set_debug_actived(bool p_actived);
 	bool is_debug_actived() const;
