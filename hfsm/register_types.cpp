@@ -57,7 +57,7 @@
 #include "editor/state_node.h"
 
 #ifdef GDEXTENSION_BUILD
-#include "godot_cpp/classes/editor_plugin.h"
+#include "godot_cpp/classes/editor_plugin.hpp"
 #else
 #include <editor/editor_plugin.h>
 #include <scene/gui/view_panner.h>

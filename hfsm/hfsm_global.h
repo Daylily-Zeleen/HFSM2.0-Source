@@ -25,7 +25,7 @@ using namespace godot;
 #include <core/templates/hash_map.h>
 
 #include "../utils_macros.h"
-#endif //GDEXTENSION_BUILD
+#endif // GDEXTENSION_BUILD
 
 namespace Hfsm {
 

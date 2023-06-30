@@ -29,7 +29,7 @@ public:
 
 	void edit_hfsm(HFSM *p_hfsm);
 	HFSM *get_editing_hfsm();
-	void edit_fsm_res_in_hfsm(Ref<FsmRes> p_fsm_res, const Ref<FsmRes> &p_root_fsm_res = nullptr);
+	void edit_fsm_res_in_hfsm(const Ref<FsmRes> &p_fsm_res, const Ref<FsmRes> &p_root_fsm_res = nullptr);
 
 	void debug_highlight_activate_state(const PackedStringArray &p_active_path);
 
@@ -50,12 +50,12 @@ private:
 	// 调试模式下hfsm为nullptr
 	const bool debug_mode = false;
 
-	bool try_set_nested_state_res_for_fsm_res_recursively(Ref<FsmRes> &p_fsm_res, Ref<FsmRes> p_to_search_fsm_res = nullptr);
+	bool try_set_nested_state_res_for_fsm_res_recursively(const Ref<FsmRes> &p_fsm_res, Ref<FsmRes> p_to_search_fsm_res = nullptr);
 	void initialize();
 
 	void _inspector_property_edited(const String &p_properrty);
 	void _inspector_edited_object_changed();
-	void _edit_fsm_requested(Ref<FsmRes> &p_fsm_res);
+	void _edit_fsm_requested(const Ref<FsmRes> &p_fsm_res);
 
 	void set_connect_inspector_signal(bool p_connect);
 

@@ -132,12 +132,12 @@ Ref<FsmRes> HFSM::get_root_fsm_res() const {
 
 void HFSM::manual_update() {
 	ERR_FAIL_COND(update_type != UPDATE_TYPE_MANUAL);
-	process(get_process_delta_time());
+	process_internal(get_process_delta_time());
 }
 
 void HFSM::manual_physics_update() {
 	ERR_FAIL_COND(update_type != UPDATE_TYPE_MANUAL);
-	physics_process(get_process_delta_time());
+	physics_process_internal(get_process_delta_time());
 }
 
 void HFSM::restart() {
@@ -284,13 +284,13 @@ void HFSM::_notification(int p_what) {
 			if (!is_active()) {
 				return;
 			}
-			process(get_process_delta_time());
+			process_internal(get_process_delta_time());
 		} break;
 		case NOTIFICATION_PHYSICS_PROCESS: {
 			if (!is_active()) {
 				return;
 			}
-			physics_process(get_physics_process_delta_time());
+			physics_process_internal(get_physics_process_delta_time());
 		} break;
 		case NOTIFICATION_ENTER_TREE: {
 			if (root_fsm) {
@@ -306,7 +306,8 @@ void HFSM::_notification(int p_what) {
 			break;
 	}
 }
-void HFSM::process(double p_delta) {
+
+void HFSM::process_internal(double p_delta) {
 	switch (update_type) {
 		case UPDATE_TYPE_PHYSICS:
 		case UPDATE_TYPE_IDLE_AND_PHYSICS: {
@@ -331,7 +332,7 @@ void HFSM::process(double p_delta) {
 	}
 }
 
-void HFSM::physics_process(double p_delta) {
+void HFSM::physics_process_internal(double p_delta) {
 	if (root_fsm->is_running()) {
 		active_fsm_list = root_fsm->try_transit_and_get_update_queue();
 	}

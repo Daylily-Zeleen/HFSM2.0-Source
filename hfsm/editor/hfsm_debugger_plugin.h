@@ -78,7 +78,7 @@ public:
 	void stop();
 
 	HfsmDebugger();
-	~HfsmDebugger();
+	~HfsmDebugger() override;
 };
 
 } //namespace Hfsm

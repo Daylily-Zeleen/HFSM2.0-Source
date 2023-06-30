@@ -93,8 +93,8 @@ public:
 	AnimationPlayer *get_animation_player() const { return animation_player; }
 
 	// 重写以实现逻辑
-	void process(double p_delta);
-	void physics_process(double p_delta);
+	void process_internal(double p_delta);
+	void physics_process_internal(double p_delta);
 
 #ifdef ROLLBACK_NET_CODE
 	virtual Array _save_state();

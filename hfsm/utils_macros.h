@@ -18,7 +18,6 @@
 #include <array>
 #endif
 
-
 #define s_changed StringName("changed")
 
 #ifdef GDEXTENSION_BUILD
@@ -258,15 +257,16 @@
 // Arr
 
 #ifdef GDEXTENSION_BUILD
-#include <type_traits>
 #include <godot_cpp/variant/array.hpp>
+#include <type_traits>
+
 using Array = godot::Array;
 #endif // GDEXTENSION_BUILD
 
 template <typename TArr, class = typename std::enable_if<!std::is_same_v<TArr, Array>, TArr>::type, class... Args>
 static TArr make_arr(Args... args) {
 #ifdef GDEXTENSION_BUILD
-	return TArr::make(args...);
+	return godot::helpers::append_all(TArr(), args...);
 #else
 	return { args... };
 #endif // GDEXTENSION_BUILD

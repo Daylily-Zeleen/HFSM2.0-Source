@@ -57,7 +57,7 @@ namespace Hfsm {
 				inspector->disconnect(s_edited_object_changed, cb);                                  \
 			}                                                                                        \
 		}                                                                                            \
-		if constexpr (!p_connected) {                                                                \
+		if constexpr (!(p_connected)) {                                                              \
 			if (!inspector) {                                                                        \
 				inspector->connect(s_edited_object_changed, cb);                                     \
 			}                                                                                        \
@@ -1218,7 +1218,9 @@ void FsmEditor::initialize() {
 	draw_layer->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
 	draw_layer->set_v_size_flags(SizeFlags::SIZE_EXPAND_FILL);
 	draw_layer->set_mouse_filter(MouseFilter::MOUSE_FILTER_IGNORE);
-	draw_layer->set_disable_visibility_clip(true); // so it can draw freely and be offset
+	IF_GDM(
+			draw_layer->set_disable_visibility_clip(true); // so it can draw freely and be offset
+	)
 	draw_layer->set_mouse_filter(MOUSE_FILTER_PASS);
 	add_child(draw_layer);
 
@@ -1637,9 +1639,12 @@ List<String> FsmEditor::get_transition_res_valid_and_texts(const Ref<TransitionR
 void FsmEditor::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_CHILD_ORDER_CHANGED: {
-			if (!is_ready()) {
+			IF_GDE(if (!is_node_ready()) {
 				return;
-			}
+			})
+			IF_GDM(if (!is_ready()) {
+				return;
+			})
 			if (is_blocking_redraw() || connection_dirty) {
 				return;
 			}

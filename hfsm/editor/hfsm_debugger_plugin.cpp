@@ -12,6 +12,9 @@
 #include <godot_cpp/classes/editor_paths.hpp>
 #include <godot_cpp/classes/editor_debugger_session.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
+#include <godot_cpp/classes/file_access.hpp>
+#include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/resource_saver.hpp>
 #else
 #include <core/config/project_settings.h>
 #include <core/io/dir_access.h>
@@ -27,9 +30,9 @@ namespace Hfsm {
 #define msg_destory "destory"
 #define msg_update_active_path "update_active_path"
 
-#define is_msg(m_msg, m_to_cmp) (m_msg == "hfsm:" m_to_cmp)
+#define is_msg(m_msg, m_to_cmp) ((m_msg) == "hfsm:" m_to_cmp)
 
-#define get_node_path(m_data) NodePath(m_data.back())
+#define get_node_path(m_data) NodePath((m_data).back())
 
 uint32_t hash(const Variant &p_var) {
 	if (auto obj = Object::cast_to<Object>(p_var)) {
@@ -71,7 +74,12 @@ void HfsmDebuggerPlugin::send_debug_built(HFSM *p_hfsm) {
 		auto cache_path = cache_dir.path_join(itos(hash(fsm_res)).md5_text() + ".tres");
 
 		Error err = OK;
-		if (!FileAccess::exists(cache_path)) {
+
+		bool existed = false;
+		IF_GDM(existed=FileAccess::exists(cache_path);)
+		IF_GDE(existed=FileAccess::file_exists(cache_path);)
+
+		if (!existed) {
 			IF_GDE(err = ResourceSaver::get_singleton()->save(fsm_res, cache_path);)
 			IF_GDM(err = ResourceSaver::save(fsm_res, cache_path);)
 		}
