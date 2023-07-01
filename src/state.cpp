@@ -151,7 +151,7 @@ void State::entry() {
 	entry_state();
 	try_play_anim();
 
-	if (sub_fsm != nullptr) {
+	if (sub_fsm) {
 		sub_fsm->entry();
 	}
 	//  如果是退出状态，则在完成进入行为后立即退出
@@ -185,7 +185,7 @@ void State::exit(bool p_terminated_by_upper_level) {
 				queue.back()->get()->exit(true);
 				queue.pop_back();
 			}
-		} else if (sub_fsm != nullptr && sub_fsm->is_running()) {
+		} else if (sub_fsm && sub_fsm->is_running()) {
 			sub_fsm->exit_by_state();
 		}
 

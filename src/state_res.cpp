@@ -83,8 +83,8 @@ void StateRes::_bind_methods() {
 	GDADD_PROPERTY_RESOURCE(fsm_res, PROPERTY_USAGE_STORAGE);
 	GDADD_PROPERTY(INT, type, PROPERTY_HINT_ENUM, "Normal,Entry,Exit", PROPERTY_USAGE_STORAGE);
 	GDADD_PROPERTY_BOOL(nested, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE);
-	GDADD_PROPERTY(VECTOR2, editor_offset, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE);
-	GDADD_PROPERTY(VECTOR2, size_in_editor, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE);
+
+	IF_TOOLS(GDADD_PROPERTY(VECTOR2, editor_offset, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE);)
 
 	ADD_GROUP("Animation", "animation_");
 
@@ -202,11 +202,13 @@ void StateRes::set_fsm_res(const Ref<FsmRes> &p_fsm_res) {
 }
 Ref<FsmRes> StateRes::get_fsm_res() const { return fsm_res; }
 
+#ifdef TOOLS_ENABLED
 void StateRes::set_editor_offset(Vector2 p_offset) {
 	editor_offset = p_offset;
 	emit_changed();
 }
 Vector2 StateRes::get_editor_offset() const { return editor_offset; }
+#endif // TOOLS_ENABLED
 
 StringName StateRes::get_animation_name() const { return animation_name; }
 void StateRes::set_animation_name(const StringName &p_anim_name) { animation_name = p_anim_name; }

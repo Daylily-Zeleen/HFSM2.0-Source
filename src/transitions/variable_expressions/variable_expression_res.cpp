@@ -140,7 +140,7 @@ void VariableExpressionRes::set_variable_as_value(bool p_variable_as_value) {
 	}
 	variable_as_value = p_variable_as_value;
 	if (variable_as_value) {
-		if (cast_to<HFSMVariableRes>(value) == nullptr) {
+		if (cast_to<HFSMVariableRes>(value)) {
 			value = Variant();
 		}
 	} else {
@@ -219,12 +219,13 @@ void VariableExpressionRes::set_comparator(int64_t p_op) {
 }
 void VariableExpressionRes::set_variable_res(const Ref<HFSMVariableRes> &p_variable_res) {
 	if (variable_res != p_variable_res) {
-		if (variable_res.is_valid() && variable_res->IS_CONNECTED(s_changed, cast_to<Object>(this), notify_property_list_changed)) {
-			variable_res->DISCONNECT(s_changed, cast_to<Object>(this), notify_property_list_changed);
+		auto ptr = cast_to<Object>(this);
+		if (variable_res.is_valid() && variable_res->IS_CONNECTED(s_changed, ptr, notify_property_list_changed)) {
+			variable_res->DISCONNECT(s_changed, ptr, notify_property_list_changed);
 		}
 		variable_res = p_variable_res;
-		if (variable_res.is_valid() && !variable_res->IS_CONNECTED(s_changed, cast_to<Object>(this), notify_property_list_changed)) {
-			variable_res->connect(s_changed, CALLABLE(cast_to<Object>(this), notify_property_list_changed));
+		if (variable_res.is_valid() && !variable_res->IS_CONNECTED(s_changed, ptr, notify_property_list_changed)) {
+			variable_res->connect(s_changed, CALLABLE(ptr, notify_property_list_changed));
 		}
 		set_value(value);
 		set_comparator(comparator);

@@ -64,6 +64,7 @@ void HFSMEditor::initialize() {
 	not_hfsm_label->set_text(HfsmEditorPlugin::str_localize("Plese select a 'HFSM' node to start edit."));
 	not_hfsm_label->set_vertical_alignment(VERTICAL_ALIGNMENT_CENTER);
 	not_hfsm_label->set_horizontal_alignment(HORIZONTAL_ALIGNMENT_CENTER);
+	not_hfsm_label->set_anchors_preset(LayoutPreset::PRESET_FULL_RECT);
 	mask_panel->add_child(not_hfsm_label);
 
 	mask_panel->hide();
@@ -158,7 +159,7 @@ void HFSMEditor::_notification(int p_what) {
 void HFSMEditor::edit_hfsm(HFSM *p_hfsm) {
 	hfsm = p_hfsm;
 
-	mask_panel->set_visible(p_hfsm == nullptr);
+	mask_panel->set_visible(!p_hfsm);
 
 	if (get_editing_hfsm()) {
 		editing_root_fsm_res = hfsm->get_root_fsm_res();
@@ -179,7 +180,7 @@ HFSMEditor *HFSMEditor::create_hfsm_editor(bool p_debug_mode) {
 
 void HFSMEditor::_inspector_property_edited(const String &p_properrty) {
 	if (!debug_mode && p_properrty == "root_fsm_res") {
-		ERR_FAIL_COND(get_editing_hfsm() == nullptr);
+		ERR_FAIL_COND(!get_editing_hfsm());
 		if (editing_root_fsm_res != get_editing_hfsm()->get_root_fsm_res()) {
 			call_deferred(TNAMEOF(edit_hfsm), get_editing_hfsm());
 		}

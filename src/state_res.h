@@ -59,8 +59,11 @@ public:
 	bool is_nested() const;
 	void set_fsm_res(const Ref<class FsmRes> &p_fsm_res);
 	Ref<class FsmRes> get_fsm_res() const;
+
+#ifdef TOOLS_ENABLED
 	void set_editor_offset(Vector2 p_offset);
 	Vector2 get_editor_offset() const;
+#endif // TOOLS_ENABLED
 
 	// 新特性 动画状态机
 	StringName get_animation_name() const;
@@ -76,15 +79,13 @@ public:
 #endif
 	Ref<State> create_state(HFSM *p_hfsm, Fsm *p_fsm);
 
-	Vector2 get_size_in_editor() { return size_in_editor; }
-	void set_size_in_editor(Vector2 p_new_size) { size_in_editor = p_new_size; }
-
 private:
 	Ref<Script> state_script;
 	// 避免循环依赖
 	Ref<class FsmRes> fsm_res;
-	Vector2 size_in_editor;
+#ifdef TOOLS_ENABLED
 	Vector2 editor_offset;
+#endif //TOOLS_ENABLED
 	StringName state_name = "state";
 	State::StateType type = State::STATE_TYPE_NORMAL;
 	bool nested = false;

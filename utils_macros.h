@@ -31,6 +31,7 @@
 
 // Type safe macros.
 #ifdef IDE_TYPE_SAFE
+
 #define _DECLTYPE_PTR_MEMBER(t_prefix, m_obj_ptr, m_member) \
 	using t_prefix##m_member = decltype(&std::remove_pointer_t<decltype(m_obj_ptr)>::m_member)
 
@@ -63,6 +64,8 @@
 #define GDBIND_CALBACK(m_method, ...) \
 	{ using TM_##m_method = decltype(&T_BIND::m_method); }
 
+#endif // GDEXTENSION_BUILD
+
 #define GDBIND_SETGET_BOOL(m_property)                   \
 	using T_##m_property = decltype(T_BIND::m_property); \
 	GDBIND_METHOD(is_##m_property);                      \
@@ -74,15 +77,12 @@
 	GDBIND_METHOD(set_##m_property, #m_property)
 
 // Undoredo
-
 #define ADD_DO_METHOD(m_obj_ptr, m_method, ...)                      \
 	DECLTYPE_METHOD_RETURN_TYPE(m_obj_ptr, m_method, ##__VA_ARGS__); \
 	undo_redo->add_do_method(m_obj_ptr, #m_method, ##__VA_ARGS__)
 #define ADD_UNDO_METHOD(m_obj_ptr, m_method, ...)                    \
 	DECLTYPE_METHOD_RETURN_TYPE(m_obj_ptr, m_method, ##__VA_ARGS__); \
 	undo_redo->add_undo_method(m_obj_ptr, #m_method, ##__VA_ARGS__)
-
-#endif // GDEXTENSION_BUILD
 
 #else // IDE_TYPE_SAFE
 

@@ -62,7 +62,7 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	translation.insert("Change state type", "改变状态类型");
 	translation.insert("Set Sub-FSM", "设置子状态机");
 	translation.insert("Attach state script", "附加状态脚本");
-	translation.insert("Resize", "重设尺寸");
+	// translation.insert("Resize", "重设尺寸");
 	translation.insert("Move States", "移动状态");
 	translation.insert("Sub FSM", "子状态机");
 	translation.insert("Select States", "选择状态");

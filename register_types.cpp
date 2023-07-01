@@ -57,7 +57,9 @@
 #include "editor/state_node.h"
 
 #ifdef GDEXTENSION_BUILD
+#include "editor/hfsm_debugger_plugin.h"
 #include "godot_cpp/classes/editor_plugin.hpp"
+
 #else
 #include <editor/editor_plugin.h>
 #include <scene/gui/view_panner.h>
@@ -80,18 +82,18 @@ void register_core_classes() {
 }
 
 void register_editor_classes() {
-	IF_TOOLS(
-			GDREGISTER_ABSTRACT_CLASS(HfsmEditorPlugin);
-			GDREGISTER_CLASS(VariableResSelector);
-			GDREGISTER_CLASS(StateNode);
-			GDREGISTER_CLASS(FsmEditor);
-			GDREGISTER_CLASS(HfsmInspectorPlugin);
-			GDREGISTER_CLASS(HFSMEditor);)
-	// ClassDB::register_internal_class<VariableResSelector>();
-	// ClassDB::register_internal_class<StateNode>();
-	// ClassDB::register_internal_class<FsmEditor>();
-	// ClassDB::register_internal_class<HfsmInspectorPlugin>();
-	// ClassDB::register_internal_class<HFSMEditor>();
+	IF_TOOLS({
+		GDREGISTER_CLASS(HfsmEditorPlugin);
+		GDREGISTER_CLASS(VariableResSelector);
+		GDREGISTER_CLASS(StateNode);
+		GDREGISTER_CLASS(FsmEditor);
+		GDREGISTER_CLASS(HfsmInspectorPlugin);
+		GDREGISTER_CLASS(HFSMEditor);
+		IF_GDE({
+			GDREGISTER_ABSTRACT_CLASS(HfsmDebuggerPlugin);
+			GDREGISTER_CLASS(HfsmDebugger);
+		})
+	})
 }
 
 void initialize_hfsm_module(ModuleInitializationLevel p_level) {

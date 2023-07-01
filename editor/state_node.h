@@ -54,8 +54,6 @@ private:
 	void _request_edit_sub_fsm_res();
 	void _script_selected(const Ref<Script> &p_script, bool p_edit);
 	void _script_changed(const Ref<Script> &p_script);
-	void _resize_requested(Vector2 p_new_minsize);
-	void _resize();
 	void initialize();
 	// ==================
 	String str_localize(const String &p_en_key) const;

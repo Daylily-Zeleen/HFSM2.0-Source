@@ -13,7 +13,6 @@
 #include <godot_cpp/classes/script.hpp>
 #include <godot_cpp/classes/spin_box.hpp>
 
-
 #else
 #include <core/os/time.h>
 #include <editor/editor_interface.h>
@@ -40,6 +39,8 @@ String StateNode::str_localize(const String &p_en_key) const {
 void StateNode::_bind_methods() {
 	GDBIND_BEGIN(StateNode);
 
+	// GDBIND_METHOD(_adjust_size);
+
 	GDBIND_CALBACK(_cancel_name_changed);
 	GDBIND_CALBACK(_accept_name_changed);
 	GDBIND_CALBACK(_type_option_btn_item_selected, "idx");
@@ -48,8 +49,6 @@ void StateNode::_bind_methods() {
 
 	GDBIND_CALBACK(_script_selected, "script", "edit");
 	GDBIND_CALBACK(_script_changed, "script");
-	GDBIND_CALBACK(_resize_requested, "size");
-	GDBIND_CALBACK(_resize);
 	GDBIND_CALBACK(_setup_state_res);
 
 	ADD_SIGNAL(MethodInfo(s_edit_fsm_requested, PropertyInfo(Variant::OBJECT, "sub_fsm_res", PROPERTY_HINT_RESOURCE_TYPE, FsmRes::get_class_static())));
@@ -97,7 +96,6 @@ void StateNode::_setup_state_res() {
 	emit_signal(SNAME("_reconnected_requested"), old_name, get_name());
 
 	name_line_edit->set_text(state_res->get_state_name());
-	name_line_edit->set_editable(!debug_mode);
 	set_title(name_line_edit->get_text());
 	// 类型
 	type_option_btn->clear();
@@ -115,18 +113,16 @@ void StateNode::_setup_state_res() {
 			break;
 	}
 	type_option_btn->select(type_option_btn->get_item_index(state_res->get_type()));
-	type_option_btn->set_disabled(debug_mode);
 	// 子状态机
 	has_sub_fsm_check_box->set_pressed(state_res->get_fsm_res().is_valid());
 	sub_fsm_btn->set_disabled(!has_sub_fsm_check_box->is_pressed());
-	has_sub_fsm_check_box->set_disabled(debug_mode);
 	// 脚本
 	script_picker->set_edited_resource(state_res->get_state_script());
-	script_picker->set_editable(!debug_mode);
 	// 位置
 	if (is_inside_tree()) {
 		set_position_offset(state_res->get_editor_offset());
 	}
+	set_deferred(SNAME("size"), Vector2());
 }
 
 // ==================
@@ -256,37 +252,15 @@ void StateNode::_script_changed(const Ref<Script> &p_script) {
 	COMMIT_ACTION();
 }
 
-void StateNode::_resize_requested(Vector2 p_new_minsize) {
-	if (debug_mode) {
-		return;
+void _set_mouse_filter_ignore(Node *p_node) {
+	auto children = p_node->get_children(true);
+	for (auto i = 0; i < children.size(); ++i) {
+		Node *child = Object::cast_to<Node>(children[i]);
+		if (auto ctrl = Object::cast_to<Control>(child)) {
+			ctrl->set_mouse_filter(Control::MOUSE_FILTER_IGNORE);
+		}
+		_set_mouse_filter_ignore(child);
 	}
-
-	auto size = get_size();
-	size.x = p_new_minsize.x;
-	call_deferred("_resize");
-}
-
-void StateNode::_resize() {
-	static const StringName theme_port_offset = "port_offset";
-	if (debug_mode) {
-		add_theme_constant_override(theme_port_offset, int(get_size().x / 2.0f));
-		return;
-	}
-
-	if (Input::get_singleton()->is_mouse_button_pressed(MOUSE_BUTTON(LEFT))) {
-		return;
-	}
-	if (get_size().is_equal_approx(state_res->get_size_in_editor())) {
-		return;
-	}
-	HFSM_EDITOR_CREATE_ACTION("Resize");
-	ADD_DO_METHOD(this, set_size, get_size(), false);
-	ADD_DO_METHOD(state_res.ptr(), set_size_in_editor, get_size());
-	ADD_DO_METHOD(this, add_theme_constant_override, theme_port_offset, int(get_size().x / 2.0f));
-	ADD_DO_METHOD(this, add_theme_constant_override, theme_port_offset, int(state_res->get_size_in_editor().x / 2.0f));
-	ADD_UNDO_METHOD(state_res.ptr(), set_size_in_editor, state_res->get_size_in_editor());
-	ADD_UNDO_METHOD(this, set_size, state_res->get_size_in_editor(), false);
-	COMMIT_ACTION();
 }
 
 void StateNode::initialize() {
@@ -316,8 +290,24 @@ void StateNode::initialize() {
 
 		// 脚本拾取器
 		script_picker = memnew(EditorScriptPicker);
-		script_picker->set_base_type("Script");
+		script_picker->set_base_type(Script::get_class_static());
 		v_box->add_child(script_picker);
+
+		if (debug_mode) {
+			name_line_edit->set_selecting_enabled(false);
+			name_line_edit->set_editable(false);
+			script_picker->set_editable(false);
+			type_option_btn->set_disabled(true);
+			has_sub_fsm_check_box->set_disabled(true);
+			sub_fsm_btn->set_disabled(true);
+
+			_set_mouse_filter_ignore(script_picker);
+			script_picker->set_mouse_filter(MOUSE_FILTER_IGNORE);
+			sub_fsm_btn->set_mouse_filter(MOUSE_FILTER_IGNORE);
+			has_sub_fsm_check_box->set_mouse_filter(MOUSE_FILTER_IGNORE);
+			type_option_btn->set_mouse_filter(MOUSE_FILTER_IGNORE);
+			name_line_edit->set_mouse_filter(MOUSE_FILTER_IGNORE);
+		}
 	}
 
 	static const Ref<ImageTexture> EMPTY_ICON = memnew(ImageTexture);
@@ -325,7 +315,7 @@ void StateNode::initialize() {
 	add_theme_icon_override(port_sn, EMPTY_ICON);
 
 	set_slot(0, true, IN_TYPE, IN_COLOR, true, OUT_TYPE, OUT_COLOR);
-	set_resizable(true);
+	set_resizable(false);
 
 	// 信号功能连接
 	{ // 名称输入行
@@ -340,21 +330,17 @@ void StateNode::initialize() {
 		// 脚本拾取器
 		script_picker->connect("resource_selected", TCALLABLE(_script_selected));
 		script_picker->connect("resource_changed", TCALLABLE(_script_changed));
-		// 自身
-		connect("resized", TCALLABLE(_resize));
-		connect("resize_request", TCALLABLE(_resize_requested));
 	}
 }
 
 void StateNode::_notification(int p_what) {
 	if (p_what == NOTIFICATION_READY) {
 		ERR_FAIL_COND(state_res.is_null());
-		auto size = get_size();
-		size.y = 0;
-		set_size(size);
-		state_res->set_size_in_editor(get_size());
-
+		set_size(Vector2());
 		set_position_offset(state_res->get_editor_offset());
+
+	} else if (p_what == NOTIFICATION_RESIZED) {
+		add_theme_constant_override(SNAME("port_offset"), int(get_size().x / 2.0f));
 	}
 }
 
