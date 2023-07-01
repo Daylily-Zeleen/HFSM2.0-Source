@@ -1349,6 +1349,10 @@ void FsmEditor::edit_fsm_res(const Ref<FsmRes> &p_fsm_res, HBoxContainer *p_path
 		__set_blocking_redraw(false);
 		propagate_notification(NOTIFICATION_CHILD_ORDER_CHANGED);
 	} else {
+		if (current_fsm_res.is_null() && p_fsm_res.is_null()) {
+			return;
+		}
+
 		HFSM_EDITOR_CREATE_ACTION("Edit Sub-FSM");
 		ADD_DO_METHOD(this, __set_blocking_redraw, true);
 		ADD_UNDO_METHOD(this, __set_blocking_redraw, true);
