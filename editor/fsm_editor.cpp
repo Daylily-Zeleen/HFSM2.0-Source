@@ -1148,7 +1148,6 @@ void FsmEditor::_draw_layer_draw() {
 			} else {
 				set_connection_activity(from_name, 0, to_name, 0, 0.0);
 			}
-
 		} else {
 			triangle_color = selected ? activity_color : triangle_color;
 			set_connection_activity(from_name, 0, to_name, 0, selected ? 1.0 : 0.0);
@@ -1158,7 +1157,16 @@ void FsmEditor::_draw_layer_draw() {
 
 		bool valid = false;
 		auto texts = get_transition_res_valid_and_texts(tr, valid);
-		auto text_color = selected ? triangle_color : Color::named("white");
+		Color text_color = Color::named("white");
+		if (debug_mode) {
+			if (debug_activity_from == from->get_name() && debug_activity_to == to->get_name()) {
+				text_color = text_color.lerp(activity_color, debug_activity);
+			}
+		} else {
+			if (selected) {
+				text_color = triangle_color;
+			}
+		}
 		auto line_count = texts.size();
 		Vector2 top;
 		auto test_char_size = font->get_string_size("测");
