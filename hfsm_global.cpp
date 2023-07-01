@@ -14,14 +14,14 @@
 
 namespace Hfsm {
 
-PackedStringArray HfsmGlobal::singleton_names = {};
-Array HfsmGlobal::singletons = {};
-
 void HfsmGlobal::init_static() {
 	IF_TOOLS({
 		StateNode::IN_COLOR = Color::named("ORANGE");
 		StateNode::OUT_COLOR = Color::named("GREEN");
 	})
+
+	auto &singleton_names = _singleton_names();
+	auto &singletons = _singletons();
 
 	IF_GDE({
 		auto sigleton_list = Engine::get_singleton()->get_singleton_list();
@@ -48,8 +48,8 @@ void HfsmGlobal::init_static() {
 }
 
 void HfsmGlobal::deinit_static() {
-	HfsmGlobal::singleton_names.clear();
-	HfsmGlobal::singletons.clear();
+	_singleton_names().clear();
+	_singletons().clear();
 }
 
 } // namespace Hfsm

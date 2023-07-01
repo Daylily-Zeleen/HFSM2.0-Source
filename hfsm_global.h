@@ -31,12 +31,18 @@ namespace Hfsm {
 
 class HfsmGlobal {
 private:
-	static PackedStringArray singleton_names;
-	static Array singletons;
+	static PackedStringArray &_singleton_names() {
+		static PackedStringArray singleton_names;
+		return singleton_names;
+	}
+	static Array &_singletons() {
+		static Array singletons;
+		return singletons;
+	}
 
 public:
-	static const PackedStringArray &get_singleton_names() { return singleton_names; }
-	static const Array &get_singletons() { return singletons; }
+	static const PackedStringArray &get_singleton_names() { return _singleton_names(); }
+	static const Array &get_singletons() { return _singletons(); }
 
 	static void init_static();
 	static void deinit_static();
