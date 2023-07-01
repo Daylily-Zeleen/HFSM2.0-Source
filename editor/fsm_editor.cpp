@@ -1102,10 +1102,6 @@ void FsmEditor::_draw_layer_draw() {
 			auto pos = end - SCALE_DRAGGER_SIZE * graph_zoom;
 			auto dragger_rect = Rect2(pos, SCALE_DRAGGER_SIZE * graph_zoom);
 			rect = rect.grow_side(SIDE_TOP, -MOVE_ZONE_HIGHT * graph_zoom);
-			// ==测试显示==
-			// draw_rect(rect, Color::named(""), false, 5);
-			// draw_rect(dragger_rect, Color::named("GREEN"), false, 5);
-			// ==测试显示==
 		}
 	}
 
@@ -1218,9 +1214,9 @@ void FsmEditor::initialize() {
 	draw_layer->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
 	draw_layer->set_v_size_flags(SizeFlags::SIZE_EXPAND_FILL);
 	draw_layer->set_mouse_filter(MouseFilter::MOUSE_FILTER_IGNORE);
-	IF_GDM(
-			draw_layer->set_disable_visibility_clip(true); // so it can draw freely and be offset
-	)
+	// IF_GDM( // todo
+	// 		draw_layer->set_disable_visibility_clip(true); // so it can draw freely and be offset
+	// )
 	draw_layer->set_mouse_filter(MOUSE_FILTER_PASS);
 	add_child(draw_layer);
 
