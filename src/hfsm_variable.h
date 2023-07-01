@@ -3,11 +3,15 @@
 #include "../hfsm_global.h"
 
 #ifdef GDEXTENSION_BUILD
+#ifdef TOOLS_ENABLED
 #include <godot_cpp/classes/engine.hpp>
+#endif // TOOLS_ENABLED
 #include <godot_cpp/classes/ref_counted.hpp>
 using namespace godot;
 #else
+#ifdef TOOLS_ENABLED
 #include <core/config/engine.h>
+#endif // TOOLS_ENABLED
 #include <core/object/ref_counted.h>
 
 #endif // GDEXTENSION_BUILD
@@ -62,9 +66,12 @@ inline void HFSMVariable::set_value(const Variant &p_value) {
 		value = Variant(true);
 		return;
 	}
+
+#ifdef TOOLS_ENABLED
 	if (!Engine::get_singleton()->is_editor_hint()) {
 		CRASH_COND(!Variant::can_convert(p_value.get_type(), type));
 	}
+#endif // TOOLS_ENABLED
 	value = p_value;
 }
 

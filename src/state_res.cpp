@@ -18,6 +18,7 @@
 #endif // MODULE_MONO_ENABLED
 
 #else // GDEXTENSION_BUILD
+
 #include <modules/gdscript/gdscript.h>
 #include <scene/animation/animation_player.h>
 

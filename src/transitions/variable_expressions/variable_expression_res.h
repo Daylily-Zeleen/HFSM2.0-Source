@@ -2,7 +2,6 @@
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/resource.hpp>
-#include <godot_cpp/core/binder_common.hpp>
 
 using namespace godot;
 #else // GDEXTENSION_BUILD

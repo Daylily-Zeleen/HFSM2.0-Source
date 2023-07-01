@@ -7,7 +7,6 @@
 #include "transitions/variable_expressions/variable_expression.h"
 #include "transitions/variable_expressions/variable_expression_res.h"
 #include "transitions/variable_transition.h"
-#include <type_traits>
 
 #ifdef GDEXTENSION_BUILD
 

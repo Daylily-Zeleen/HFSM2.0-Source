@@ -10,7 +10,6 @@
 
 using namespace godot;
 #else // GDEXTENSION_BUILD
-#include <core/templates/vmap.h>
 #include <editor/plugins/editor_debugger_plugin.h>
 #include <scene/gui/item_list.h>
 #include <scene/gui/split_container.h>

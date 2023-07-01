@@ -13,10 +13,16 @@
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/templates/list.hpp>
 
+#ifdef TOOLS_ENABLED
 #include <godot_cpp/classes/engine.hpp>
-#include <godot_cpp/variant/utility_functions.hpp>
+#endif // TOOLS_ENABLED
+
 #else
+
+#ifdef TOOLS_ENABLED
 #include <core/config/engine.h>
+#endif // TOOLS_ENABLED
+
 #include <core/templates/list.h>
 
 #endif // GDEXTENSION_BUILD
@@ -115,9 +121,12 @@ State::~State() {
 
 // setget
 void State::set_name(const StringName &p_name) {
+#ifdef TOOLS_ENABLED
 	if (!Engine::get_singleton()->is_editor_hint()) {
 		name = p_name;
-	} else {
+	} else
+#endif // TOOLS_ENABLED
+	{
 		if (name == StringName("")) {
 			name = p_name;
 		} else {

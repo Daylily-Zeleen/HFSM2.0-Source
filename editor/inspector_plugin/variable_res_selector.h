@@ -6,7 +6,7 @@
 #include <godot_cpp/classes/popup_menu.hpp>
 
 using namespace godot;
-#else
+#else // GDEXTENSION_BUILD
 #include <editor/editor_properties.h>
 #include <scene/gui/button.h>
 #include <scene/gui/popup_menu.h>

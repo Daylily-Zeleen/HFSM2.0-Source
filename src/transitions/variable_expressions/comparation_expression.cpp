@@ -1,11 +1,12 @@
 ﻿#include "comparation_expression.h"
 
+#ifdef TOOLS_ENABLED
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/engine.hpp>
 #else
 #include <core/config/engine.h>
 #endif // GDEXTENSION_BUILD
-
+#endif // TOOLS_ENABLED
 namespace Hfsm {
 
 #define _type_convertable_check(m_variable, m_value_type) \

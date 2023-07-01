@@ -1,21 +1,15 @@
 ﻿#pragma once
 
-#ifdef GDEXTENSION_BUILD
-#include <godot_cpp/classes/ref.hpp>
-#include <godot_cpp/classes/resource.hpp>
-#include <godot_cpp/templates/vector.hpp>
-using namespace godot;
-#else
-
-#include <core/io/resource.h>
-
-#endif // GDEXTENSION_BUILD
-
 #include "hfsm_variable_res.h"
 #include "state.h"
 #include "state_res.h"
 #include "transition_res.h"
 
+#ifdef GDEXTENSION_BUILD
+using namespace godot;
+#else
+
+#endif // GDEXTENSION_BUILD
 namespace Hfsm {
 // class HFSM;
 // class Fsm;

@@ -1,19 +1,23 @@
 ﻿#include "hfsm.h"
 #include "fsm.h"
+#include "fsm_res.h"
 #include "hfsm_variable.h"
 #include "hfsm_variable_res.h"
-// #include "state.h"
-#include "fsm_res.h"
+#include "state.h"
 
 #ifdef DEBUG_ENABLED
 #include "../editor/hfsm_debugger_plugin.h"
 #endif // DEBUG_ENABLED
 
+#ifndef DEBUG_IN_EDITOR
+#ifdef TOOLS_ENABLED
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/engine.hpp>
 #else
 #include <core/config/engine.h>
 #endif // GDEXTENSION_BUILD
+#endif // TOOLS_ENABLED
+#endif // DEBUG_IN_EDITOR
 
 using namespace godot;
 
@@ -189,10 +193,11 @@ void HFSM::set_string(const StringName &p_string_name, const String &p_value) { 
 void HFSM::set_update_type(UpdateType p_update_type) {
 	update_type = UpdateType(p_update_type);
 #ifndef DEBUG_IN_EDITOR
-	if (Engine::get_singleton()->is_editor_hint()) {
-		return;
-	}
-#endif
+	IF_TOOLS(
+			if (Engine::get_singleton()->is_editor_hint()) {
+				return;
+			})
+#endif // DEBUG_IN_EDITOR
 	switch (update_type) {
 		case UPDATE_TYPE_IDLE: {
 			set_physics_process(false);
@@ -255,11 +260,12 @@ void HFSM::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
 #ifndef DEBUG_IN_EDITOR
-			if (Engine::get_singleton()->is_editor_hint()) {
-				set_process(false);
-				set_physics_process(false);
-				return;
-			}
+			IF_TOOLS(
+					if (Engine::get_singleton()->is_editor_hint()) {
+						set_process(false);
+						set_physics_process(false);
+						return;
+					})
 #endif // DEBUG_IN_EDITOR
 
 			IF_TOOLS({

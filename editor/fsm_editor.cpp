@@ -13,13 +13,12 @@
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/classes/theme.hpp>
 #include <godot_cpp/classes/tween.hpp>
-#include <godot_cpp/variant/callable.hpp>
 
 #ifdef DEV_ENABLED
 #include <godot_cpp/templates/local_vector.hpp>
 #endif // DEV_ENABLED
 
-#else
+#else // GDEXTENSION_BUILD
 #include <editor/editor_interface.h>
 #include <editor/editor_settings.h>
 #include <modules/gdscript/gdscript.h>
