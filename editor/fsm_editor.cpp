@@ -1725,7 +1725,7 @@ void FsmEditor::debug_highlight_active_state(const StringName &p_state_name, boo
 
 StateNode *FsmEditor::_get_state_node(const NodePath &p_path) {
 	IF_GDE(return cast_to<StateNode>(call(SNAME("get_node"), p_path));)
-	IF_GDM(return get_node(p_path);)
+	IF_GDM(return cast_to<StateNode>(get_node(p_path));)
 }
 
 }; // namespace Hfsm

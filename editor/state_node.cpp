@@ -9,8 +9,10 @@
 #include <godot_cpp/classes/spin_box.hpp>
 #include <godot_cpp/classes/v_box_container.hpp>
 
+#include <godot_cpp/classes/image_texture.hpp>
 #include <godot_cpp/classes/script.hpp>
 #include <godot_cpp/classes/spin_box.hpp>
+
 
 #else
 #include <core/os/time.h>
@@ -318,7 +320,7 @@ void StateNode::initialize() {
 		v_box->add_child(script_picker);
 	}
 
-	static const Ref<Texture2D> EMPTY_ICON = memnew(Texture2D);
+	static const Ref<ImageTexture> EMPTY_ICON = memnew(ImageTexture);
 	static const StringName port_sn = "port";
 	add_theme_icon_override(port_sn, EMPTY_ICON);
 
