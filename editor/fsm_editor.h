@@ -95,7 +95,7 @@ private:
 	PackedVector2Array get_connection_line_with_zoom(StateNode *p_from, StateNode *to);
 	Ref<TransitionRes> get_transition_res(StateNode *p_from, StateNode *p_to);
 	bool is_node_hotzone(Object *p_in_node, int64_t p_in_port, const Vector2 &p_mouse_position);
-	StateNode *create_state_node(const Ref<StateRes> &p_state_res);
+	StateNode *create_state_node(const Ref<StateRes> &p_state_res, const Ref<FsmRes> &p_fsm_res = nullptr);
 
 	StateNode *get_top_state_node_which_hovered();
 	TypedArray<StateRes> get_selected_state_res_list();

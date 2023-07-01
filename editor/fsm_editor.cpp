@@ -166,7 +166,7 @@ void FsmEditor::__set_selected_transition_res_list(const TypedArray<TransitionRe
 		inspecting_transition_res->connect(s_changed, TCALLABLE(_transition_res_updated));
 	}
 
-	ERR_FAIL_COND(HfsmEditorPlugin::get_singleton()->get_editor_interface() == nullptr);
+	ERR_FAIL_COND(!HfsmEditorPlugin::get_singleton()->get_editor_interface());
 
 	if (selected_state_name_list.size() != 1) {
 		HfsmEditorPlugin::get_singleton()->get_editor_interface()->inspect_object(inspecting_transition_res.ptr());
@@ -318,8 +318,8 @@ void FsmEditor::__select_state_nodes(const TypedArray<StringName> &p_to_select_S
 	}
 }
 
-StateNode *FsmEditor::create_state_node(const Ref<StateRes> &p_state_res) {
-	auto ret = StateNode::create_state_node(p_state_res, current_fsm_res, debug_mode);
+StateNode *FsmEditor::create_state_node(const Ref<StateRes> &p_state_res, const Ref<FsmRes> &p_fsm_res) {
+	auto ret = StateNode::create_state_node(p_state_res, p_fsm_res.is_null() ? current_fsm_res : p_fsm_res, debug_mode);
 	ret->connect(SNAME(s_edit_fsm_requested), TCALLABLE(_edit_sub_fsm_requested));
 	ret->connect(SNAME("_reconnected_requested"), TCALLABLE(_state_node_reconnected_requested));
 	return ret;
@@ -1420,7 +1420,7 @@ void FsmEditor::edit_fsm_res(const Ref<FsmRes> &p_fsm_res, HBoxContainer *p_path
 			for (auto i = 0; i < state_res_list.size(); i++) {
 				Ref<StateRes> sr = state_res_list[i];
 				auto old_state_node = sr->get_state_node();
-				auto sn = create_state_node(sr);
+				auto sn = create_state_node(sr, p_fsm_res);
 				ADD_DO_REFERENCE(sn);
 
 				ADD_DO_METHOD(sr.ptr(), set_state_node, sn);
@@ -1654,16 +1654,15 @@ void FsmEditor::_notification(int p_what) {
 			draw_layer->connect("draw", TCALLABLE(_draw_layer_draw));
 
 			connect("scroll_offset_changed", TCALLABLE(_scroll_offset_changed));
-		} break;
-		case NOTIFICATION_DRAW: {
-			draw_layer->queue_redraw();
-		} break;
-		case NOTIFICATION_POSTINITIALIZE: {
+
 			connect("gui_input", TCALLABLE(_gui_input_internal));
 			connect("end_node_move", TCALLABLE(_end_node_move));
 			set_editor_inspector_signal_connected(true);
 
 			propagate_notification(NOTIFICATION_THEME_CHANGED);
+		} break;
+		case NOTIFICATION_DRAW: {
+			draw_layer->queue_redraw();
 		} break;
 		case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED:
 		case NOTIFICATION_THEME_CHANGED: {
