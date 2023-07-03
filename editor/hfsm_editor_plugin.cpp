@@ -113,8 +113,9 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 
 HfsmEditorPlugin::~HfsmEditorPlugin() {
 	inspector_plugin.unref();
-	if (!hfsm_editor->is_queued_for_deletion()) {
+	if (hfsm_editor && !hfsm_editor->is_queued_for_deletion()) {
 		hfsm_editor->queue_free();
+		hfsm_editor = nullptr;
 	}
 	instance = nullptr;
 }
