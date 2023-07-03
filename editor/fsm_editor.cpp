@@ -910,6 +910,7 @@ void FsmEditor::_end_node_move() {
 	COMMIT_ACTION();
 }
 
+// TODO  缩放又出问题？？
 void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 	if (debug_mode) {
 		return;
@@ -1221,7 +1222,7 @@ void FsmEditor::initialize() {
 	draw_layer->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
 	draw_layer->set_v_size_flags(SizeFlags::SIZE_EXPAND_FILL);
 	draw_layer->set_mouse_filter(MouseFilter::MOUSE_FILTER_IGNORE);
-	// IF_GDM( // todo
+	// IF_GDM( // todo 待处理
 	// 		draw_layer->set_disable_visibility_clip(true); // so it can draw freely and be offset
 	// )
 	draw_layer->set_mouse_filter(MOUSE_FILTER_PASS);
