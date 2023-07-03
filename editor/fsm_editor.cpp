@@ -192,8 +192,8 @@ void FsmEditor::try_disconnect(const Vector2 &p_pos1, const Vector2 &p_pos2) {
 	}
 
 	Array conn_list = call("get_connection_list");
-	const Vector2 scaled_pos1 = p_pos1 * get_zoom();
-	const Vector2 scaled_pos2 = p_pos2 * get_zoom();
+	const Vector2 scaled_pos1 = p_pos1;
+	const Vector2 scaled_pos2 = p_pos2;
 	for (auto i = 0; i < conn_list.size(); i++) {
 		Dictionary conn = conn_list[i];
 		auto from = _get_state_node({ StringName(conn["from"]) });
@@ -258,8 +258,8 @@ TypedArray<TransitionRes> FsmEditor::try_select_transitions_at_pos(const Vector2
 		// 取 转换线 的垂直方向, 以 鼠标
 		// 双击点为基准，向两边延申，取得测试线段的两端点
 		auto verti_ab_extent = scaled_from_pos.direction_to(scaled_to_pos).rotated(Math_PI * 0.5f) * TRANSITION_SELECT_EXTENT;
-		auto test_segment_p1 = (p_pos + verti_ab_extent) * graph_zoom;
-		auto test_segment_p2 = (p_pos - verti_ab_extent) * graph_zoom;
+		auto test_segment_p1 = (p_pos / graph_zoom + verti_ab_extent) * graph_zoom;
+		auto test_segment_p2 = (p_pos / graph_zoom - verti_ab_extent) * graph_zoom;
 		// 测试线段于转换线是否相交
 		if (is_judge(test_segment_p1, test_segment_p2, scaled_from_pos, scaled_to_pos)) {
 			// 相交， 在识别范围内
@@ -910,7 +910,6 @@ void FsmEditor::_end_node_move() {
 	COMMIT_ACTION();
 }
 
-// TODO  缩放又出问题？？
 void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 	if (debug_mode) {
 		return;
@@ -1222,8 +1221,8 @@ void FsmEditor::initialize() {
 	draw_layer->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
 	draw_layer->set_v_size_flags(SizeFlags::SIZE_EXPAND_FILL);
 	draw_layer->set_mouse_filter(MouseFilter::MOUSE_FILTER_IGNORE);
-	// IF_GDM( 
-	// 	// todo 待处理
+	// IF_GDM(
+	// 	// todo 待处理， 移动后看不见
 	// 	draw_layer->set_disable_visibility_clip(true); // so it can draw freely and be offset
 	// )
 	draw_layer->set_mouse_filter(MOUSE_FILTER_PASS);
