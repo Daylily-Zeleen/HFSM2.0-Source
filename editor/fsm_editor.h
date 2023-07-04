@@ -108,7 +108,6 @@ private:
 	void _disconnect_inspecting_transition_res();
 	void _gui_input_internal(const Ref<InputEvent> &p_event);
 	void _end_node_move();
-	void _scroll_offset_changed(const Vector2 &p_offset);
 	void _edit_sub_fsm_requested(const Ref<FsmRes> &p_sub_fsm_res);
 	void _state_node_reconnected_requested(const StringName &p_old_name, const StringName &p_new_name);
 

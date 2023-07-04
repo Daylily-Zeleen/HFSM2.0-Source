@@ -104,7 +104,6 @@ void FsmEditor::_bind_methods() {
 	GDBIND_CALBACK(_gui_input_internal, "input");
 	GDBIND_CALBACK(_end_node_move);
 	GDBIND_CALBACK(_draw_layer_draw);
-	GDBIND_CALBACK(_scroll_offset_changed);
 	GDBIND_CALBACK(_edit_sub_fsm_requested);
 	GDBIND_CALBACK(_state_node_reconnected_requested);
 
@@ -1040,10 +1039,6 @@ void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 	}
 }
 
-void FsmEditor::_scroll_offset_changed(const Vector2 &p_offset) {
-	draw_layer->set_position(-p_offset);
-}
-
 void FsmEditor::_debug_tween_activity(float p_activity, const StringName &p_from, const StringName &p_to) {
 	if (!is_node_connected(p_from, 0, p_to, 0)) {
 		debug_activity_from = "";
@@ -1216,17 +1211,16 @@ void FsmEditor::initialize() {
 	connect("node_selected", TCALLABLE(_node_selected));
 	connect("node_deselected", TCALLABLE(_node_deselected));
 
-	draw_layer = memnew(Control);
-	draw_layer->set_name("HFSMDRAWLAYER");
-	draw_layer->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
-	draw_layer->set_v_size_flags(SizeFlags::SIZE_EXPAND_FILL);
-	draw_layer->set_mouse_filter(MouseFilter::MOUSE_FILTER_IGNORE);
-	// IF_GDM(
-	// 	// todo 待处理， 移动后看不见
-	// 	draw_layer->set_disable_visibility_clip(true); // so it can draw freely and be offset
-	// )
+	// Hack
+	for (auto i = 0; i < get_child_count(true); ++i) {
+		if (auto ctrl = cast_to<Control>(get_child(i, true))) {
+			if (ctrl->get_name() == StringName("CLAYER")) {
+				draw_layer = ctrl;
+			}
+		}
+	}
+	CRASH_COND(!draw_layer);
 	draw_layer->set_mouse_filter(MOUSE_FILTER_PASS);
-	add_child(draw_layer);
 
 	menu = memnew(PopupMenu);
 	menu->connect("id_pressed", TCALLABLE(_popup_menu_id_pressed));
@@ -1661,11 +1655,7 @@ void FsmEditor::_notification(int p_what) {
 		} break;
 		case NOTIFICATION_READY: {
 			set_process(false);
-			// draw_layer->call_deferred(TNAMEOF(connect), "draw", TCALLABLE(_draw_layer_draw));
-			// call_deferred(TNAMEOF(connect), connect("scroll_offset_changed", TCALLABLE(_scroll_offset_changed)));
 			draw_layer->connect("draw", TCALLABLE(_draw_layer_draw));
-
-			connect("scroll_offset_changed", TCALLABLE(_scroll_offset_changed));
 
 			connect("gui_input", TCALLABLE(_gui_input_internal));
 			connect("end_node_move", TCALLABLE(_end_node_move));
