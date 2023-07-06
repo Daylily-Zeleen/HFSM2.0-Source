@@ -139,7 +139,15 @@ PackedStringArray HfsmEditorPlugin::get_animation_list_for_state_res() {
 	if (auto hfsm = get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
 		if (auto player = hfsm->get_animation_player()) {
 			IF_GDE(return player->get_animation_list();)
-			IF_GDM(return player->get_animation_list();) // todo
+			IF_GDM({
+				List<StringName> animations;
+				player->get_animation_list(&animations);
+				PackedStringArray ret;
+				for (const auto &E : animations) {
+					ret.push_back(E);
+				}
+				return ret;
+			})
 		}
 	}
 	return {};
