@@ -139,23 +139,23 @@ void StateRes::set_state_script(const Ref<Script> &p_script) {
 			type_valid = ClassDB::is_parent_class(State::get_class_static(), script_base_type);
 		})
 
+#ifdef TOOLS_ENABLED
 		if (state_script->get_source_code().is_empty()) {
-			IF_TOOLS({
-				if (Engine::get_singleton()->is_editor_hint()) {
-					if (auto gds = cast_to<GDScript>(state_script.ptr())) {
-						gds->set_source_code(
-								"extends State\n\n"
-								"func _initialize() -> void:\n\tpass\n\n"
-								"func _entry() -> void:\n\tpass\n\n"
-								"func _update(delta: float) -> void:\n\tpass\n\n"
-								"func _physics_update(delta: float) -> void:\n\tpass\n\n"
-								"func _exit() -> void:\n\tpass\n");
-						type_valid = true;
-					}
+			if (Engine::get_singleton()->is_editor_hint()) {
+				if (auto gds = cast_to<GDScript>(state_script.ptr())) {
+					gds->set_source_code(
+							"extends State\n\n"
+							"func _initialize() -> void:\n\tpass\n\n"
+							"func _entry() -> void:\n\tpass\n\n"
+							"func _update(delta: float) -> void:\n\tpass\n\n"
+							"func _physics_update(delta: float) -> void:\n\tpass\n\n"
+							"func _exit() -> void:\n\tpass\n");
+					type_valid = true;
+				}
 #ifdef MODULE_MONO_ENABLED
-					else if (auto csharp = cast_to<CSharpScript>(state_script.ptr())) {
-						csharp->set_source_code(
-								R"XXX(public partial MyState: Godot.State
+				else if (auto csharp = cast_to<CSharpScript>(state_script.ptr())) {
+					csharp->set_source_code(
+							R"XXX(public partial MyState: Godot.State
 {
 	private void _initialize()
 	{
@@ -184,30 +184,32 @@ void StateRes::set_state_script(const Ref<Script> &p_script) {
 }
 
 )XXX");
-						type_valid = true;
-					}
+					type_valid = true;
+				}
 #endif // MODULE_MONO_ENABLED
-					IF_GDM(
-							else {
-								auto templates = state_script->get_language()->get_built_in_templates("Object");
-								if (templates.size() > 0) {
-									state_script->set_source_code(state_script->get_language()->make_template(templates[0].content, "MyState", State::get_class_static())->get_source_code());
-
+				IF_GDM(
+						else {
+							auto templates = state_script->get_language()->get_built_in_templates("Object");
+							if (templates.size() > 0) {
+								auto template = state_script->get_language()->make_template(templates[0].content, "MyState", State::get_class_static())->get_source_code();
+								if (template.length() > 0) {
+									state_script->set_source_code();
 									type_valid = true;
 								}
-							})
-					if (type_valid && !state_script->get_path().is_empty()) {
-						IF_GDE(ResourceSaver::get_singleton()->save(state_script);)
-						IF_GDM(ResourceSaver::save(state_script);)
+							}
+						})
+				if (type_valid && !state_script->get_path().is_empty()) {
+					IF_GDE(ResourceSaver::get_singleton()->save(state_script);)
+					IF_GDM(ResourceSaver::save(state_script);)
 
-						state_script->reload();
-					}
+					state_script->reload();
 				}
-			})
+			}
+#endif // TOOLS_ENABLED
 		}
 
 		if (!type_valid) {
-			ELog("HFSM: The Script \"%s\" set to State is not extended from \"%s\".", state_script->get_path(), State::get_class_static());
+			ED_MSG("HFSM: The Script \"%s\" set to State is not extended from \"%s\".", state_script->get_path(), State::get_class_static());
 		}
 
 		script_valid = type_valid;
