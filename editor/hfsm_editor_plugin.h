@@ -4,6 +4,7 @@
 #include <godot_cpp/classes/editor_inspector_plugin.hpp>
 #include <godot_cpp/classes/editor_plugin.hpp>
 #include <godot_cpp/classes/editor_undo_redo_manager.hpp>
+#include <godot_cpp/classes/resource.hpp>
 #include <godot_cpp/classes/translation_server.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
 
@@ -59,6 +60,8 @@ private:
 	HashMap<String, const char *> translation;
 
 	bool handles_internal(Object *p_object) const;
+
+	void _referenced_script_saved(const Ref<Resource> &p_res) const;
 
 public:
 	static HfsmEditorPlugin *get_singleton() { return instance; }

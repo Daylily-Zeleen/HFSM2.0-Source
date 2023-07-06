@@ -107,8 +107,26 @@ void StateRes::set_type(State::StateType p_state_type) {
 }
 State::StateType StateRes::get_type() const { return type; }
 void StateRes::set_state_script(const Ref<Script> &p_script) {
-	state_script = p_script;
 	if (state_script.is_valid()) {
+		Array references = state_script->get_meta(META_KEY_SCRIPT_REFENCES, Array());
+		references.erase(this);
+		if (references.is_empty()) {
+			state_script->remove_meta(META_KEY_SCRIPT_REFENCES);
+		} else {
+			state_script->set_meta(META_KEY_SCRIPT_REFENCES, references);
+		}
+	}
+
+	state_script = p_script;
+	if (state_script.is_null()) {
+		script_valid = true;
+	} else {
+		Array references = state_script->get_meta(META_KEY_SCRIPT_REFENCES, Array());
+		if (!references.has(this)) {
+			references.push_back(this);
+			state_script->set_meta(META_KEY_SCRIPT_REFENCES, references);
+		}
+
 		bool type_valid = false;
 		if (state_script->can_instantiate()) {
 			auto script_base_type = state_script->get_instance_base_type();
@@ -182,14 +200,18 @@ void StateRes::set_state_script(const Ref<Script> &p_script) {
 				}
 			}
 		}
+
 		if (!type_valid) {
-			// todo 类型错误警告
+			ELog("HFSM: The Script \"%s\" set to State is not extended from \"%s\".", state_script->get_path(), State::get_class_static());
 		}
+
+		script_valid = type_valid;
 	}
 
 	emit_changed();
 }
 Ref<Script> StateRes::get_state_script() const { return state_script; }
+bool StateRes::is_script_valid() const { return script_valid; }
 
 void StateRes::set_nested(bool p_nested) {
 	nested = p_nested;

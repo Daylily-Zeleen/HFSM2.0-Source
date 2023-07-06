@@ -118,6 +118,14 @@ void StateNode::_setup_state_res() {
 	sub_fsm_btn->set_disabled(!has_sub_fsm_check_box->is_pressed());
 	// 脚本
 	script_picker->set_edited_resource(state_res->get_state_script());
+	if (state_res->is_script_valid()) {
+		script_picker->set_modulate(Color::named("INDIAN_RED"));
+		set_self_modulate(Color::named("ORANGE"));
+	} else {
+		static const Color white = Color::named("white");
+		script_picker->set_modulate(white);
+		set_self_modulate(white);
+	}
 	// 位置
 	if (is_inside_tree()) {
 		set_position_offset(state_res->get_editor_offset());
@@ -126,15 +134,11 @@ void StateNode::_setup_state_res() {
 }
 
 // ==================
-void StateNode::__on_resize() {
-	auto size = get_size();
-	size.y = 0;
-	set_size(size);
-}
 void StateNode::_cancel_name_changed() {
 	name_line_edit->set_text(state_res->get_state_name());
-	__on_resize();
+	set_deferred(SNAME("size"), Vector2());
 }
+
 void StateNode::_accept_name_changed(const String &new_name) {
 	if (debug_mode) {
 		return;

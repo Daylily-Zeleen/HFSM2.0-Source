@@ -92,7 +92,8 @@ public:
 	// 脚本
 	void set_transition_script(const Ref<Script> &p_transition_script);
 	Ref<Script> get_transition_script() const;
-#endif
+	bool is_script_valid() const;
+#endif // FULL_VERSION
 
 private:
 	// 共有属性
@@ -112,13 +113,12 @@ private:
 #ifdef FULL_VERSION
 	// 脚本
 	Ref<Script> transition_script;
+	bool script_valid = true;
 #endif
 
 	// 变量表达式
 	bool variable_and_mode = true;
 	TypedArray<VariableExpressionRes> variable_expression_res_list; // VariableExpressionRes
-
-	// friend class FsmRes;
 };
 
 }; // namespace Hfsm

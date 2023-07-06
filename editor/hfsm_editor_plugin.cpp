@@ -51,6 +51,8 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	CRASH_COND(instance);
 	instance = this;
 
+	connect("resource_saved", TCALLABLE(_referenced_script_saved));
+
 	translation.insert("HFSM Editor", "HFSM 编辑器");
 	translation.insert("Animation:", "动画:");
 	translation.insert("Animation Blend Time:", "动画混合时间:");
@@ -111,6 +113,25 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	translation.insert(" times.", " 次后");
 }
 
+void HfsmEditorPlugin::_referenced_script_saved(const Ref<Resource> &p_res) const {
+	if (auto script = cast_to<Script>(p_res.ptr())) {
+		Array refences = script->get_meta(META_KEY_SCRIPT_REFENCES, Array());
+		refences = refences.duplicate();
+		if (refences.size() > 0) {
+			for (auto i = 0; i < refences.size(); ++i) {
+				if (auto state_res = cast_to<StateRes>(refences[i])) {
+					state_res->set_state_script(script);
+				}
+#ifdef FULL_VERSION
+				else if (auto transition_res = cast_to<TransitionRes>(refences[i])) {
+					transition_res->set_transition_script(script);
+				}
+#endif // FULL_VERSION
+			}
+		}
+	}
+}
+
 HfsmEditorPlugin::~HfsmEditorPlugin() {
 	inspector_plugin.unref();
 	if (hfsm_editor && !hfsm_editor->is_queued_for_deletion()) {
@@ -129,7 +150,8 @@ bool HfsmEditorPlugin::handles_internal(Object *p_object) const {
 }
 
 void HfsmEditorPlugin::_bind_methods() {
-	// GDBIND_BEGIN(HfsmEditorPlugin);
+	GDBIND_BEGIN(HfsmEditorPlugin);
+	GDBIND_CALBACK(_referenced_script_saved);
 }
 
 void HfsmEditorPlugin::_notification(int p_what) {

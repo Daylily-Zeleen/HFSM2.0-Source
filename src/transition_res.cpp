@@ -11,8 +11,8 @@
 #ifdef GDEXTENSION_BUILD
 
 #include <godot_cpp/classes/gd_script.hpp>
-#include <godot_cpp/classes/translation_server.hpp>
 #include <godot_cpp/classes/resource_saver.hpp>
+#include <godot_cpp/classes/translation_server.hpp>
 
 #ifdef MODULE_MONO_ENABLED
 #include <godot_cpp/classes/csharp_script.h>
@@ -154,6 +154,7 @@ void TransitionRes::_bind_methods() {
 
 	//  脚本
 	GDBIND_SETGET(transition_script);
+
 	// ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "transition_script",
 	// PROPERTY_HINT_RESOURCE_TYPE, "Script"),
 	//              "set_transition_script", "get_transition_script");
@@ -243,8 +244,26 @@ TypedArray<VariableExpressionRes> TransitionRes::get_variable_expression_res_lis
 #ifdef FULL_VERSION
 // 脚本
 void TransitionRes::set_transition_script(const Ref<Script> &p_transition_script) {
-	transition_script = p_transition_script;
 	if (transition_script.is_valid()) {
+		Array references = transition_script->get_meta(META_KEY_SCRIPT_REFENCES, Array());
+		references.erase(this);
+		if (references.is_empty()) {
+			transition_script->remove_meta(META_KEY_SCRIPT_REFENCES);
+		} else {
+			transition_script->set_meta(META_KEY_SCRIPT_REFENCES, references);
+		}
+	}
+
+	transition_script = p_transition_script;
+	if (transition_script.is_null()) {
+		script_valid = true;
+	} else {
+		Array references = transition_script->get_meta(META_KEY_SCRIPT_REFENCES, Array());
+		if (!references.has(this)) {
+			references.push_back(this);
+			transition_script->set_meta(META_KEY_SCRIPT_REFENCES, references);
+		}
+
 		bool type_valid = false;
 		if (transition_script->can_instantiate()) {
 			auto base = transition_script->get_instance_base_type();
@@ -317,13 +336,18 @@ func _refresh() -> void:
 				transition_script->reload();
 			}
 		}
+
 		if (!type_valid) {
-			// TODO:: 非法类型提示
+			ELog("HFSM: The Script \"%s\" set to Transition is not extended from \"%s\".", transition_script->get_path(), Transition::get_class_static());
 		}
+
+		script_valid = type_valid;
 	}
 	emit_changed();
 }
 Ref<Script> TransitionRes::get_transition_script() const { return transition_script; }
+bool TransitionRes::is_script_valid() const { return script_valid; }
+
 #endif
 
 TransitionBase *TransitionRes::create_transition(HFSM *p_hfsm, Ref<StateRes> &r_from_state_res, Ref<StateRes> &r_to_state_res) {

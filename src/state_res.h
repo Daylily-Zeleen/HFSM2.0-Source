@@ -15,6 +15,8 @@ using namespace godot;
 
 namespace Hfsm {
 
+#define META_KEY_SCRIPT_REFENCES SNAME("_HFSM_SCRIPT_REFENCES")
+
 class HFSM;
 class Fsm;
 class State;
@@ -55,6 +57,7 @@ public:
 	State::StateType get_type() const;
 	void set_state_script(const Ref<Script> &p_script);
 	Ref<Script> get_state_script() const;
+	bool is_script_valid() const;
 	void set_nested(bool p_nested);
 	bool is_nested() const;
 	void set_fsm_res(const Ref<class FsmRes> &p_fsm_res);
@@ -81,6 +84,8 @@ public:
 
 private:
 	Ref<Script> state_script;
+	bool script_valid = true;
+
 	// 避免循环依赖
 	Ref<class FsmRes> fsm_res;
 #ifdef TOOLS_ENABLED
