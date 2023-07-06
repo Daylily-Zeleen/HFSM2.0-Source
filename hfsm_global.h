@@ -66,7 +66,7 @@ public:
 #define IS_PROP(m_prop_usage) !bool(int(m_prop_usage) & (PROPERTY_USAGE_GROUP | PROPERTY_USAGE_CATEGORY | PROPERTY_USAGE_SUBGROUP))
 
 #ifdef FULL_VERSION
-#define IF_FULL_VERSION(m_code)
-#else // FULL_VERSION
 #define IF_FULL_VERSION(m_code) m_code
+#else // FULL_VERSION
+#define IF_FULL_VERSION(m_code)
 #endif // FULL_VERSION
