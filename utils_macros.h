@@ -213,7 +213,7 @@
 #endif // TOOLS_ENABLED
 
 #ifdef TOOLS_ENABLED
-#define ED_MSG(fmt, ...) UtilityFunctions::printerr(vformat(String(fmt), __VA_ARGS__), EditorLog::MSG_TYPE_EDITOR)
+#define ED_MSG(fmt, ...) UtilityFunctions::printerr(vformat(String(fmt), __VA_ARGS__))
 #else // TOOLS_ENABLED
 #define ED_MSG(fmt, ...)
 #endif // TOOLS_ENABLED
@@ -237,9 +237,9 @@
 
 #ifdef TOOLS_ENABLED
 #define ED_MSG(fmt, ...) EditorNode::get_singleton()->get_log()->add_message(vformat(String(fmt), __VA_ARGS__), EditorLog::MSG_TYPE_EDITOR)
-#else
+#else // TOOLS_ENABLED
 #define ED_MSG(fmt, ...)
-#endif
+#endif // TOOLS_ENABLED
 
 #ifdef DEBUG_ENABLED
 #define VLog(fmt, ...) print_verbose(vformat(String(fmt), __VA_ARGS__))
