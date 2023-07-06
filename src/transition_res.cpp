@@ -331,9 +331,9 @@ func _refresh() -> void:
 				auto lang = transition_script->get_language();
 				auto templates = lang->get_built_in_templates("Object");
 				if (templates.size() > 0) {
-					auto template = lang->make_template(templates[0].content, "MyTransition", Transition::get_class_static())->get_source_code();
-					if (template.length() > 0) {
-						transition_script->set_source_code(template);
+					auto s = lang->make_template(templates[0].content, "MyTransition", Transition::get_class_static());
+					if (s->is_valid()) {
+						transition_script->set_source_code(s->get_source_code());
 						type_valid = true;
 					}
 				}

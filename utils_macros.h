@@ -236,7 +236,7 @@
 // #include "core/variant/variant.h"
 
 #ifdef TOOLS_ENABLED
-#define ED_MSG(fmt, ...) EditorNode::get_singleton()->get_log()->add_message(vformat(String(fmt), __VA_ARGS__), EditorLog::MSG_TYPE_EDITOR)
+#define ED_MSG(fmt, ...) print_error(vformat(String(fmt), __VA_ARGS__))
 #else // TOOLS_ENABLED
 #define ED_MSG(fmt, ...)
 #endif // TOOLS_ENABLED
@@ -331,6 +331,6 @@ static Array make_arr(Args... args) {
 
 #ifdef DEV_ENABLED
 #define IF_DEV(m_code) m_code
-#else
+#else // DEV_ENABLED
 #define IF_DEV(m_code)
 #endif // DEV_ENABLED

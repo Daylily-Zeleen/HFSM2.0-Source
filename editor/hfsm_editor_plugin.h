@@ -61,7 +61,7 @@ private:
 
 	bool handles_internal(Object *p_object) const;
 
-	void _referenced_script_saved(const Ref<Resource> &p_res) const;
+	void _referenced_script_saved(const Ref<Resource> &p_res);
 
 	static PackedStringArray get_animation_list_for_state_res();
 

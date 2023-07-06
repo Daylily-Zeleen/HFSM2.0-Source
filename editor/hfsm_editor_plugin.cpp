@@ -114,18 +114,18 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	translation.insert(" times.", " 次后");
 }
 
-void HfsmEditorPlugin::_referenced_script_saved(const Ref<Resource> &p_res) const {
-	if (auto script = cast_to<Script>(p_res.ptr())) {
-		Array refences = script->get_meta(META_KEY_SCRIPT_REFENCES, Array());
+void HfsmEditorPlugin::_referenced_script_saved(const Ref<Resource> &p_res) {
+	if (auto s = cast_to<Script>(p_res.ptr())) {
+		Array refences = s->get_meta(META_KEY_SCRIPT_REFENCES, Array());
 		refences = refences.duplicate();
 		if (refences.size() > 0) {
 			for (auto i = 0; i < refences.size(); ++i) {
 				if (auto state_res = cast_to<StateRes>(refences[i])) {
-					state_res->set_state_script(script);
+					state_res->set_state_script(s);
 				}
 #ifdef FULL_VERSION
 				else if (auto transition_res = cast_to<TransitionRes>(refences[i])) {
-					transition_res->set_transition_script(script);
+					transition_res->set_transition_script(s);
 				}
 #endif // FULL_VERSION
 			}

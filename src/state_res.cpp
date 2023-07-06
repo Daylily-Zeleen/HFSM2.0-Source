@@ -26,7 +26,7 @@
 #endif // MODULE_MONO_ENABLED
 
 #ifdef TOOLS_ENABLED
-#include <core/config/engine.hpp>
+#include <core/config/engine.h>
 #endif // TOOLS_ENABLED
 
 #endif // GDEXTENSION_BUILD
@@ -191,9 +191,9 @@ void StateRes::set_state_script(const Ref<Script> &p_script) {
 						else {
 							auto templates = state_script->get_language()->get_built_in_templates("Object");
 							if (templates.size() > 0) {
-								auto template = state_script->get_language()->make_template(templates[0].content, "MyState", State::get_class_static())->get_source_code();
-								if (template.length() > 0) {
-									state_script->set_source_code();
+								auto s = state_script->get_language()->make_template(templates[0].content, "MyState", State::get_class_static());
+								if (s->is_valid()) {
+									state_script->set_source_code(s->get_source_code());
 									type_valid = true;
 								}
 							}
