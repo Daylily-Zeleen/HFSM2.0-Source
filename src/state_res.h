@@ -40,6 +40,8 @@ protected:
 	_TO_STRING()
 
 public:
+	static PackedStringArray (*get_animation_list)();
+
 	bool _set(const StringName &p_name, const Variant &p_property);
 	bool _get(const StringName &p_name, Variant &r_property) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;

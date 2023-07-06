@@ -3,11 +3,6 @@
 #include "fsm_res.h"
 #include "hfsm.h"
 
-#ifdef TOOLS_ENABLED
-#include "../editor/hfsm_editor.h"
-#include "../editor/hfsm_editor_plugin.h"
-#endif // TOOLS_ENABLED
-
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/animation_player.hpp>
 #include <godot_cpp/classes/gd_script.hpp>
@@ -16,6 +11,10 @@
 #ifdef MODULE_MONO_ENABLED
 #include <godot_cpp/classes/csharp_script.hpp>
 #endif // MODULE_MONO_ENABLED
+
+#ifdef TOOLS_ENABLED
+#include <godot_cpp/classes/engine.hpp>
+#endif // TOOLS_ENABLED
 
 #else // GDEXTENSION_BUILD
 
@@ -26,11 +25,17 @@
 #include <modules/mono/csharp_script.h>
 #endif // MODULE_MONO_ENABLED
 
+#ifdef TOOLS_ENABLED
+#include <core/config/engine.hpp>
+#endif // TOOLS_ENABLED
+
 #endif // GDEXTENSION_BUILD
 
 namespace Hfsm {
 
 #pragma region StateRes
+
+PackedStringArray (*StateRes::get_animation_list)() = nullptr;
 
 bool StateRes::_set(const StringName &p_name, const Variant &p_property) {
 	_TRY_SET_PROP(animation_name);
@@ -54,16 +59,13 @@ bool StateRes::_get(const StringName &p_name, Variant &r_property) const {
 void StateRes::_get_property_list(List<PropertyInfo> *p_list) const {
 	String animations;
 	IF_TOOLS(
-			if (HfsmEditorPlugin::get_singleton()) {
-				if (HfsmEditorPlugin::get_singleton()->get_hfsm_editor()) {
-					if (HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
-						if (HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()->get_animation_player()) {
-							PackedStringArray anim_list = HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()->get_animation_player()->call("get_animation_list");
-							for (auto &&anim : anim_list) {
-								animations += "," + anim;
-							}
-						}
+			if (get_animation_list) {
+				PackedStringArray anim_list = get_animation_list();
+				for (auto &&anim : anim_list) {
+					if (!animations.is_empty()) {
+						animations += ",";
 					}
+					animations += anim;
 				}
 			})
 	_PUSH_PROP(STRING_NAME, animation_name, PROPERTY_HINT_ENUM_SUGGESTION, animations);
@@ -128,30 +130,32 @@ void StateRes::set_state_script(const Ref<Script> &p_script) {
 		}
 
 		bool type_valid = false;
-		if (state_script->can_instantiate()) {
-			auto script_base_type = state_script->get_instance_base_type();
-			IF_GDE(if (script_base_type == State::get_class_static()) {
-				type_valid = true;
-			})
-			IF_GDM(if (script_base_type == State::get_class_static() || ClassDB::is_parent_class(State::get_class_static(), script_base_type)) {
-				type_valid = true;
-			})
-		} else {
-			if (!state_script->get_source_code().is_empty()) {
-				if (auto gds = cast_to<GDScript>(state_script.ptr())) {
-					gds->set_source_code(
-							"extends State\n\n"
-							"func _initialize() -> void:\n\tpass\n\n"
-							"func _entry() -> void:\n\tpass\n\n"
-							"func _update(delta: float) -> void:\n\tpass\n\n"
-							"func _physics_update(delta: float) -> void:\n\tpass\n\n"
-							"func _exit() -> void:\n\tpass\n");
-					type_valid = true;
-				}
+
+		auto script_base_type = state_script->get_instance_base_type();
+		if (script_base_type == StringName(State::get_class_static())) {
+			type_valid = true;
+		}
+		IF_GDM(else {
+			type_valid = ClassDB::is_parent_class(State::get_class_static(), script_base_type);
+		})
+
+		if (state_script->get_source_code().is_empty()) {
+			IF_TOOLS({
+				if (Engine::get_singleton()->is_editor_hint()) {
+					if (auto gds = cast_to<GDScript>(state_script.ptr())) {
+						gds->set_source_code(
+								"extends State\n\n"
+								"func _initialize() -> void:\n\tpass\n\n"
+								"func _entry() -> void:\n\tpass\n\n"
+								"func _update(delta: float) -> void:\n\tpass\n\n"
+								"func _physics_update(delta: float) -> void:\n\tpass\n\n"
+								"func _exit() -> void:\n\tpass\n");
+						type_valid = true;
+					}
 #ifdef MODULE_MONO_ENABLED
-				else if (auto csharp = cast_to<CSharpScript>(state_script.ptr())) {
-					csharp->set_source_code(
-							R"XXX(public partial MyState: Godot.State
+					else if (auto csharp = cast_to<CSharpScript>(state_script.ptr())) {
+						csharp->set_source_code(
+								R"XXX(public partial MyState: Godot.State
 {
 	private void _initialize()
 	{
@@ -180,25 +184,26 @@ void StateRes::set_state_script(const Ref<Script> &p_script) {
 }
 
 )XXX");
-					type_valid = true;
-				}
+						type_valid = true;
+					}
 #endif // MODULE_MONO_ENABLED
-				IF_GDM(
-						else {
-							auto templates = state_script->get_language()->get_built_in_templates("Object");
-							if (templates.size() > 0) {
-								state_script->set_source_code(state_script->get_language()->make_template(templates[0].content, "MyState", "State")->get_source_code());
+					IF_GDM(
+							else {
+								auto templates = state_script->get_language()->get_built_in_templates("Object");
+								if (templates.size() > 0) {
+									state_script->set_source_code(state_script->get_language()->make_template(templates[0].content, "MyState", State::get_class_static())->get_source_code());
 
-								type_valid = true;
-							}
-						})
-				if (type_valid) {
-					IF_GDE(ResourceSaver::get_singleton()->save(state_script);)
-					IF_GDM(ResourceSaver::save(state_script);)
+									type_valid = true;
+								}
+							})
+					if (type_valid && !state_script->get_path().is_empty()) {
+						IF_GDE(ResourceSaver::get_singleton()->save(state_script);)
+						IF_GDM(ResourceSaver::save(state_script);)
 
-					state_script->reload();
+						state_script->reload();
+					}
 				}
-			}
+			})
 		}
 
 		if (!type_valid) {

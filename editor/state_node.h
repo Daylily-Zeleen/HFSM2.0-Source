@@ -7,7 +7,7 @@
 #include <godot_cpp/classes/option_button.hpp>
 #include <godot_cpp/classes/script.hpp>
 
-#include <godot_cpp/classes/editor_script_picker.hpp>
+#include <godot_cpp/classes/editor_resource_picker.hpp>
 using namespace godot;
 #else
 #include <scene/gui/graph_node.h>
@@ -37,7 +37,7 @@ private:
 	CheckBox *has_sub_fsm_check_box = nullptr;
 
 	Button *sub_fsm_btn = nullptr;
-	EditorScriptPicker *script_picker = nullptr;
+	EditorResourcePicker *script_picker = nullptr;
 
 	void set_state_res(const Ref<class StateRes> &p_state_res);
 

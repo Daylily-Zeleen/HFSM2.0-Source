@@ -265,17 +265,20 @@ void TransitionRes::set_transition_script(const Ref<Script> &p_transition_script
 		}
 
 		bool type_valid = false;
-		if (transition_script->can_instantiate()) {
-			auto base = transition_script->get_instance_base_type();
-			if (base == Transition::get_class_static()) {
-				type_valid = true;
-			}
-			IF_GDM({
-				type_valid = ClassDB::is_parent_class(Transition::get_class_static(), base);
-			})
-		} else if (transition_script->get_source_code().is_empty() && Engine::get_singleton()->is_editor_hint()) {
-			if (GDScript *s = Object::cast_to<GDScript>(transition_script.ptr())) {
-				s->set_source_code(R"XXX(extends Transition
+
+		auto base = transition_script->get_instance_base_type();
+		if (base == StringName(Transition::get_class_static())) {
+			type_valid = true;
+		}
+		IF_GDM(else {
+			type_valid = ClassDB::is_parent_class(Transition::get_class_static(), base);
+		})
+
+		if (transition_script->get_source_code().is_empty()) {
+			IF_TOOLS({
+				if (Engine::get_singleton()->is_editor_hint()) {
+					if (GDScript *s = Object::cast_to<GDScript>(transition_script.ptr())) {
+						s->set_source_code(R"XXX(extends Transition
 
 ## <summary>
 ## Will be called every time when the HFSM update( or physics update)
@@ -294,11 +297,11 @@ func _refresh() -> void:
 	pass
 
 )XXX");
-				type_valid = true;
-			}
+						type_valid = true;
+					}
 #ifdef MODULE_MONO_ENABLED
-			else if (auto csharp = cast_to<CSharpScript>(transition_script.ptr())) {
-				s->set_source_code(R"XXX(public partial class MyTransition: Godot.Transition
+					else if (auto csharp = cast_to<CSharpScript>(transition_script.ptr())) {
+						s->set_source_code(R"XXX(public partial class MyTransition: Godot.Transition
 {
 	// <summary>
 	// Will be called every time when the HFSM update( or physics update)
@@ -319,9 +322,12 @@ func _refresh() -> void:
 }
 
 )XXX");
-				type_valid = true;
-			}
+						type_valid = true;
+					}
 #endif // MODULE_MONO_ENABLED
+				}
+			})
+
 			IF_GDM({
 				auto lang = transition_script->get_language();
 				auto templates = lang->get_built_in_templates("Object");
@@ -330,7 +336,7 @@ func _refresh() -> void:
 					type_valid = true;
 				}
 			})
-			if (type_valid) {
+			if (type_valid && !transition_script->get_path().is_empty()) {
 				IF_GDE(ResourceSaver::get_singleton()->save(transition_script);)
 				IF_GDM(ResourceSaver::save(transition_script);)
 				transition_script->reload();

@@ -119,12 +119,12 @@ void StateNode::_setup_state_res() {
 	// 脚本
 	script_picker->set_edited_resource(state_res->get_state_script());
 	if (state_res->is_script_valid()) {
-		script_picker->set_modulate(Color::named("INDIAN_RED"));
-		set_self_modulate(Color::named("ORANGE"));
-	} else {
 		static const Color white = Color::named("white");
 		script_picker->set_modulate(white);
 		set_self_modulate(white);
+	} else {
+		script_picker->set_modulate(Color::named("INDIAN_RED"));
+		set_self_modulate(Color::named("ORANGE"));
 	}
 	// 位置
 	if (is_inside_tree()) {
@@ -293,7 +293,7 @@ void StateNode::initialize() {
 		h_box->add_child(sub_fsm_btn);
 
 		// 脚本拾取器
-		script_picker = memnew(EditorScriptPicker);
+		script_picker = memnew(EditorResourcePicker);
 		script_picker->set_base_type(Script::get_class_static());
 		v_box->add_child(script_picker);
 

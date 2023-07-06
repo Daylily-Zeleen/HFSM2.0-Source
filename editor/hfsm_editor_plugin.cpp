@@ -50,6 +50,7 @@ HfsmEditorPlugin *HfsmEditorPlugin::instance = nullptr;
 HfsmEditorPlugin::HfsmEditorPlugin() {
 	CRASH_COND(instance);
 	instance = this;
+	StateRes::get_animation_list = &get_animation_list_for_state_res;
 
 	connect("resource_saved", TCALLABLE(_referenced_script_saved));
 
@@ -132,7 +133,21 @@ void HfsmEditorPlugin::_referenced_script_saved(const Ref<Resource> &p_res) cons
 	}
 }
 
+PackedStringArray HfsmEditorPlugin::get_animation_list_for_state_res() {
+	ERR_FAIL_COND_V(!get_singleton(), {});
+	ERR_FAIL_COND_V(!get_singleton()->get_hfsm_editor(), {});
+	if (auto hfsm = get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
+		if (auto player = hfsm->get_animation_player()) {
+			IF_GDE(return player->get_animation_list();)
+			IF_GDM(return player->get_animation_list();) // todo
+		}
+	}
+	return {};
+}
+
 HfsmEditorPlugin::~HfsmEditorPlugin() {
+	StateRes::get_animation_list = nullptr;
+
 	inspector_plugin.unref();
 	if (hfsm_editor && !hfsm_editor->is_queued_for_deletion()) {
 		hfsm_editor->queue_free();

@@ -63,6 +63,8 @@ private:
 
 	void _referenced_script_saved(const Ref<Resource> &p_res) const;
 
+	static PackedStringArray get_animation_list_for_state_res();
+
 public:
 	static HfsmEditorPlugin *get_singleton() { return instance; }
 
