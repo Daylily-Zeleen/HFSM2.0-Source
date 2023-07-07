@@ -244,24 +244,17 @@ TypedArray<VariableExpressionRes> TransitionRes::get_variable_expression_res_lis
 #ifdef FULL_VERSION
 // 脚本
 void TransitionRes::set_transition_script(const Ref<Script> &p_transition_script) {
-	if (transition_script.is_valid()) {
-		Array references = transition_script->get_meta(META_KEY_SCRIPT_REFENCES, Array());
-		references.erase(this);
-		if (references.is_empty()) {
-			transition_script->remove_meta(META_KEY_SCRIPT_REFENCES);
-		} else {
-			transition_script->set_meta(META_KEY_SCRIPT_REFENCES, references);
-		}
+	auto cb = TCALLABLE(set_transition_script);
+	if (transition_script.is_valid() && transition_script->is_connected(s_changed, cb)) {
+		transition_script->disconnect(s_changed, cb);
 	}
 
 	transition_script = p_transition_script;
 	if (transition_script.is_null()) {
 		script_valid = true;
 	} else {
-		Array references = transition_script->get_meta(META_KEY_SCRIPT_REFENCES, Array());
-		if (!references.has(this)) {
-			references.push_back(this);
-			transition_script->set_meta(META_KEY_SCRIPT_REFENCES, references);
+		if (transition_script.is_valid() && !transition_script->is_connected(s_changed, cb)) {
+			transition_script->connect(s_changed, cb.bind(transition_script));
 		}
 
 		bool type_valid = false;

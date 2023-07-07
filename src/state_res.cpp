@@ -109,24 +109,17 @@ void StateRes::set_type(State::StateType p_state_type) {
 }
 State::StateType StateRes::get_type() const { return type; }
 void StateRes::set_state_script(const Ref<Script> &p_script) {
-	if (state_script.is_valid()) {
-		Array references = state_script->get_meta(META_KEY_SCRIPT_REFENCES, Array());
-		references.erase(this);
-		if (references.is_empty()) {
-			state_script->remove_meta(META_KEY_SCRIPT_REFENCES);
-		} else {
-			state_script->set_meta(META_KEY_SCRIPT_REFENCES, references);
-		}
+	auto cb = TCALLABLE(set_state_script);
+	if (state_script.is_valid() && state_script->is_connected(s_changed, cb)) {
+		state_script->disconnect(s_changed, cb);
 	}
 
 	state_script = p_script;
 	if (state_script.is_null()) {
 		script_valid = true;
 	} else {
-		Array references = state_script->get_meta(META_KEY_SCRIPT_REFENCES, Array());
-		if (!references.has(this)) {
-			references.push_back(this);
-			state_script->set_meta(META_KEY_SCRIPT_REFENCES, references);
+		if (state_script.is_valid() && !state_script->is_connected(s_changed, cb)) {
+			state_script->connect(s_changed, cb.bind(state_script));
 		}
 
 		bool type_valid = false;
@@ -215,7 +208,7 @@ void StateRes::set_state_script(const Ref<Script> &p_script) {
 		script_valid = type_valid;
 	}
 
-	emit_changed();
+	call_deferred(SNAME("emit_changed"));
 }
 Ref<Script> StateRes::get_state_script() const { return state_script; }
 bool StateRes::is_script_valid() const { return script_valid; }

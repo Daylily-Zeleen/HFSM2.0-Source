@@ -15,8 +15,6 @@ using namespace godot;
 
 namespace Hfsm {
 
-#define META_KEY_SCRIPT_REFENCES SNAME("_HFSM_SCRIPT_REFENCES")
-
 class HFSM;
 class Fsm;
 class State;

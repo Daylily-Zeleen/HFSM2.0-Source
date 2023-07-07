@@ -62,6 +62,7 @@ private:
 	bool handles_internal(Object *p_object) const;
 
 	void _referenced_script_saved(const Ref<Resource> &p_res);
+	void _change_scene(Node *scene_root);
 
 	static PackedStringArray get_animation_list_for_state_res();
 

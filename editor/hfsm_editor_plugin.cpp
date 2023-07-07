@@ -35,7 +35,6 @@ bool HfsmInspectorPlugin::parse_property_internal(Object *p_object, Variant::Typ
 			if ((p_name != "variable_res") &&
 					!(p_name == "value" && ver->is_variable_as_value() && ver->get_variable_res().is_valid())) {
 				auto editor = memnew(VariableResSelector(hfsm, p_name == "value" ? ver->get_variable_res() : nullptr));
-				// editor->setup(hfsm, p_name == "value" ? ver->get_variable_res() : nullptr);
 				add_property_editor(p_name, editor);
 				return true;
 			}
@@ -53,6 +52,7 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	StateRes::get_animation_list = &get_animation_list_for_state_res;
 
 	connect("resource_saved", TCALLABLE(_referenced_script_saved));
+	connect("scene_changed", TCALLABLE(_change_scene));
 
 	translation.insert("HFSM Editor", "HFSM 编辑器");
 	translation.insert("Animation:", "动画:");
@@ -114,22 +114,28 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	translation.insert(" times.", " 次后");
 }
 
+void emit_button_toggled(Button *p_btn, bool p_toggled) {
+	p_btn->emit_signal(SNAME("toggled"), p_toggled);
+}
+
 void HfsmEditorPlugin::_referenced_script_saved(const Ref<Resource> &p_res) {
+	// TODO:: Can we find a way to avoid emiting this signal for all Scripts?
+	// We can't use meta to refer its TransitionRes/StateRes, it will be saved and cause cycle save.
 	if (auto s = cast_to<Script>(p_res.ptr())) {
-		Array refences = s->get_meta(META_KEY_SCRIPT_REFENCES, Array());
-		refences = refences.duplicate();
-		if (refences.size() > 0) {
-			for (auto i = 0; i < refences.size(); ++i) {
-				if (auto state_res = cast_to<StateRes>(refences[i])) {
-					state_res->set_state_script(s);
-				}
-#ifdef FULL_VERSION
-				else if (auto transition_res = cast_to<TransitionRes>(refences[i])) {
-					transition_res->set_transition_script(s);
-				}
-#endif // FULL_VERSION
-			}
-		}
+		s->emit_signal(SNAME("changed"));
+	}
+	// TODO:: Detect builtin scripts change.
+	// Hint: builtin scripts in inspector are not change automatically when it first time be saved, too.
+
+	// TODO:: refresh HfsmEditor's StateNodes when EditorFileSystem "filesystem_changed", of cource, only when it valid and refresh once every frame.
+}
+
+void HfsmEditorPlugin::_change_scene(Node *p_secne_root) {
+	if (!cast_to<HFSM>(p_secne_root)) {
+		hfsm_editor->edit_hfsm(nullptr);
+		hfsm_editor_btn->set_pressed(false);
+		emit_button_toggled(hfsm_editor_btn, false);
+		hfsm_editor_btn->hide();
 	}
 }
 
@@ -167,14 +173,37 @@ HfsmEditorPlugin::~HfsmEditorPlugin() {
 bool HfsmEditorPlugin::handles_internal(Object *p_object) const {
 	if (auto node = cast_to<Node>(p_object)) {
 		hfsm_editor->edit_hfsm(cast_to<HFSM>(node));
+		if (auto hfsm = cast_to<HFSM>(node)) {
+			hfsm_editor_btn->show();
+			emit_button_toggled(hfsm_editor_btn, true);
+		}
 		return true;
+	} else {
+		StringName type = p_object->get_class();
+		static const LocalVector<StringName> hfsm_types = {
+			StateRes::get_class_static(),
+			TransitionRes::get_class_static(),
+			Script::get_class_static(),
+		};
+
+		for (const auto &E : hfsm_types) {
+			if (E == type) {
+				return false;
+			}
+			IF_GDM(if (ClassDB::is_parent_class(E, type)) { return false; })
+		}
 	}
+	hfsm_editor->edit_hfsm(nullptr);
+	hfsm_editor_btn->set_pressed(false);
+	emit_button_toggled(hfsm_editor_btn, false);
+	hfsm_editor_btn->hide();
 	return false;
 }
 
 void HfsmEditorPlugin::_bind_methods() {
 	GDBIND_BEGIN(HfsmEditorPlugin);
 	GDBIND_CALBACK(_referenced_script_saved);
+	GDBIND_CALBACK(_change_scene);
 }
 
 void HfsmEditorPlugin::_notification(int p_what) {
