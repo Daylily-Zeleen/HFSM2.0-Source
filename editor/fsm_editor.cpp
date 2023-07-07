@@ -1453,6 +1453,10 @@ void FsmEditor::edit_fsm_res(const Ref<FsmRes> &p_fsm_res, HBoxContainer *p_path
 
 		ADD_DO_METHOD(this, propagate_notification, NOTIFICATION_CHILD_ORDER_CHANGED);
 		ADD_UNDO_METHOD(this, propagate_notification, NOTIFICATION_CHILD_ORDER_CHANGED);
+
+		ADD_DO_METHOD(this, queue_redraw);
+		ADD_UNDO_METHOD(this, queue_redraw);
+
 		COMMIT_ACTION();
 	}
 }
@@ -1746,4 +1750,5 @@ void FsmEditor::queue_refresh() {
 		queuing_refresh = true;
 	}
 }
+
 }; // namespace Hfsm
