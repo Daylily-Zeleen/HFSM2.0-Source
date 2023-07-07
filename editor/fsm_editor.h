@@ -142,7 +142,12 @@ private:
 
 	StateNode *_get_state_node(const NodePath &p_path);
 
+	bool queuing_refresh = false;
+	void __queue_refresh();
+
 public:
+	void queue_refresh();
+
 	FsmEditor(bool p_debug_mode = false);
 	static FsmEditor *create_fsm_editor(HBoxContainer *p_path_btn_container, bool p_debug_mode);
 

@@ -35,6 +35,8 @@ public:
 
 	static HFSMEditor *create_hfsm_editor(bool p_debug_mode = false);
 
+	void queue_refresh();
+
 private:
 	HBoxContainer *path_button_container = nullptr;
 	FsmEditor *fsm_editor = nullptr;

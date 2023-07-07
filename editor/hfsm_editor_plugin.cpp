@@ -1,6 +1,7 @@
 ﻿#include "hfsm_editor_plugin.h"
 
 #ifdef GDEXTENSION_BUILD
+#include <godot_cpp/classes/editor_file_system.hpp>
 #include <godot_cpp/classes/editor_interface.hpp>
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/templates/local_vector.hpp>
@@ -8,6 +9,7 @@
 using namespace godot;
 
 #else
+#include <editor/editor_file_system.h>
 #include <editor/editor_interface.h>
 #include <scene/gui/button.h>
 
@@ -140,6 +142,11 @@ void HfsmEditorPlugin::_change_scene(Node *p_secne_root) {
 	}
 }
 
+void HfsmEditorPlugin::_filesystem_changed() {
+	ERR_FAIL_COND(!hfsm_editor);
+	hfsm_editor->queue_refresh();
+}
+
 PackedStringArray HfsmEditorPlugin::get_animation_list_for_state_res() {
 	ERR_FAIL_COND_V(!get_singleton(), {});
 	ERR_FAIL_COND_V(!get_singleton()->get_hfsm_editor(), {});
@@ -205,6 +212,7 @@ void HfsmEditorPlugin::_bind_methods() {
 	GDBIND_BEGIN(HfsmEditorPlugin);
 	GDBIND_CALBACK(_referenced_script_saved);
 	GDBIND_CALBACK(_change_scene);
+	GDBIND_CALBACK(_filesystem_changed);
 }
 
 void HfsmEditorPlugin::_notification(int p_what) {
@@ -219,6 +227,9 @@ void HfsmEditorPlugin::_notification(int p_what) {
 			hfsm_editor = HFSMEditor::create_hfsm_editor();
 			hfsm_editor_btn = add_control_to_bottom_panel(hfsm_editor, str_localize("HFSM Editor"));
 			add_inspector_plugin(inspector_plugin);
+
+			get_editor_interface()->get_resource_filesystem()->connect("filesystem_changed", TCALLABLE(_filesystem_changed));
+
 #ifdef DEBUG_ENABLED
 			if (debugger_plugin.is_null()) {
 				debugger_plugin.instantiate();

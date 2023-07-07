@@ -254,7 +254,7 @@ void TransitionRes::set_transition_script(const Ref<Script> &p_transition_script
 		script_valid = true;
 	} else {
 		if (transition_script.is_valid() && !transition_script->is_connected(s_changed, cb)) {
-			transition_script->connect(s_changed, cb.bind(transition_script));
+			transition_script->connect(s_changed, TCALLABLE_BIND(set_transition_script, transition_script));
 		}
 
 		bool type_valid = false;

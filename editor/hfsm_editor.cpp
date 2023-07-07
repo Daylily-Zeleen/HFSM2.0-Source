@@ -140,6 +140,13 @@ void HFSMEditor::debug_highlight_activate_state(const PackedStringArray &p_activ
 
 HFSM *HFSMEditor::get_editing_hfsm() { return hfsm; }
 
+void HFSMEditor::queue_refresh() {
+	ERR_FAIL_COND(!fsm_editor);
+	if (hfsm) {
+		fsm_editor->queue_refresh();
+	}
+}
+
 void HFSMEditor::_notification(int p_what) {
 	if (p_what == NOTIFICATION_READY) {
 	}

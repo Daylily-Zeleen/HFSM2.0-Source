@@ -44,11 +44,6 @@ public:
 
 class HfsmEditorPlugin : public EditorPlugin {
 	GDCLASS(HfsmEditorPlugin, EditorPlugin)
-protected:
-	static void _bind_methods();
-
-	void _notification(int p_what);
-
 private:
 	static HfsmEditorPlugin *instance;
 
@@ -63,8 +58,14 @@ private:
 
 	void _referenced_script_saved(const Ref<Resource> &p_res);
 	void _change_scene(Node *scene_root);
+	void _filesystem_changed();
 
 	static PackedStringArray get_animation_list_for_state_res();
+
+protected:
+	static void _bind_methods();
+
+	void _notification(int p_what);
 
 public:
 	static HfsmEditorPlugin *get_singleton() { return instance; }

@@ -83,6 +83,7 @@ String FsmEditor::str_localize(const String &en_key) const { return HfsmEditorPl
 void FsmEditor::_bind_methods() {
 	GDBIND_BEGIN(FsmEditor);
 
+	GDBIND_METHOD(__queue_refresh);
 	// UNDO REDO
 	GDBIND_METHOD(__set_current_fsm_res);
 	GDBIND_METHOD(__set_selected_transition_res_list);
@@ -1729,4 +1730,20 @@ StateNode *FsmEditor::_get_state_node(const NodePath &p_path) {
 	IF_GDM(return cast_to<StateNode>(get_node(p_path));)
 }
 
+void FsmEditor::__queue_refresh() {
+	for (auto i = 0; i < get_child_count(); ++i) {
+		if (auto sn = cast_to<StateNode>(get_child(i))) {
+			sn->get_state_res()->emit_signal(SNAME("changed"));
+		}
+	}
+	queue_redraw();
+	queuing_refresh = false;
+}
+
+void FsmEditor::queue_refresh() {
+	if (!queuing_refresh) {
+		call_deferred(TNAMEOF(__queue_refresh));
+		queuing_refresh = true;
+	}
+}
 }; // namespace Hfsm

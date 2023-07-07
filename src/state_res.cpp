@@ -119,7 +119,7 @@ void StateRes::set_state_script(const Ref<Script> &p_script) {
 		script_valid = true;
 	} else {
 		if (state_script.is_valid() && !state_script->is_connected(s_changed, cb)) {
-			state_script->connect(s_changed, cb.bind(state_script));
+			state_script->connect(s_changed, TCALLABLE_BIND(set_state_script, state_script));
 		}
 
 		bool type_valid = false;
