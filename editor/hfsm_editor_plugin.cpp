@@ -3,6 +3,7 @@
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/editor_interface.hpp>
 #include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/templates/local_vector.hpp>
 
 using namespace godot;
 
