@@ -29,6 +29,7 @@ namespace Hfsm {
 
 #define s_edit_fsm_requested "_edit_fsm_requested"
 
+Ref<ImageTexture> (*StateNode::get_empty_icon)();
 Color StateNode::IN_COLOR = Color();
 Color StateNode::OUT_COLOR = Color();
 
@@ -314,9 +315,10 @@ void StateNode::initialize() {
 		}
 	}
 
-	static const Ref<ImageTexture> EMPTY_ICON = memnew(ImageTexture);
-	static const StringName port_sn = "port";
-	add_theme_icon_override(port_sn, EMPTY_ICON);
+	if (get_empty_icon) {
+		static const StringName port_sn = "port";
+		add_theme_icon_override(port_sn, get_empty_icon());
+	}
 
 	set_slot(0, true, IN_TYPE, IN_COLOR, true, OUT_TYPE, OUT_COLOR);
 	set_resizable(false);

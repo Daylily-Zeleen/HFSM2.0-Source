@@ -62,6 +62,7 @@ private:
 	bool debug_actived = false;
 
 public:
+	static Ref<ImageTexture> (*get_empty_icon)();
 	static Color IN_COLOR;
 	static Color OUT_COLOR;
 

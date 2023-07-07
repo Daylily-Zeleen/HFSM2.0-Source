@@ -62,6 +62,9 @@ private:
 
 	static PackedStringArray get_animation_list_for_state_res();
 
+	static Ref<class ImageTexture> empty_icon_for_state_node;
+	static Ref<class ImageTexture> get_empty_icon_for_state_node();
+
 protected:
 	static void _bind_methods();
 

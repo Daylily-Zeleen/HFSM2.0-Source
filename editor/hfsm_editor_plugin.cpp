@@ -4,6 +4,7 @@
 #include <godot_cpp/classes/editor_file_system.hpp>
 #include <godot_cpp/classes/editor_interface.hpp>
 #include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/image_texture.hpp>
 #include <godot_cpp/templates/local_vector.hpp>
 
 using namespace godot;
@@ -12,10 +13,12 @@ using namespace godot;
 #include <editor/editor_file_system.h>
 #include <editor/editor_interface.h>
 #include <scene/gui/button.h>
+#include <scene/resources/texture.h>
 
 #endif // GDEXTENSION_BUILD
 
 #include "hfsm_editor.h"
+#include "state_node.h"
 
 #include "../src/hfsm.h"
 #include "../src/transitions/variable_expressions/variable_expression_res.h"
@@ -48,11 +51,15 @@ bool HfsmInspectorPlugin::parse_property_internal(Object *p_object, Variant::Typ
 
 // HfsmEditorPlugin
 HfsmEditorPlugin *HfsmEditorPlugin::instance = nullptr;
+Ref<ImageTexture> HfsmEditorPlugin::empty_icon_for_state_node = nullptr;
 
 HfsmEditorPlugin::HfsmEditorPlugin() {
 	CRASH_COND(instance);
 	instance = this;
+
 	StateRes::get_animation_list = &get_animation_list_for_state_res;
+	StateNode::get_empty_icon = &get_empty_icon_for_state_node;
+	empty_icon_for_state_node.instantiate();
 
 	connect("resource_saved", TCALLABLE(_referenced_script_saved));
 	connect("scene_changed", TCALLABLE(_change_scene));
@@ -129,12 +136,11 @@ void HfsmEditorPlugin::_referenced_script_saved(const Ref<Resource> &p_res) {
 	}
 	// TODO:: Detect builtin scripts change.
 	// Hint: builtin scripts in inspector are not change automatically when it first time be saved, too.
-
-	// TODO:: refresh HfsmEditor's StateNodes when EditorFileSystem "filesystem_changed", of cource, only when it valid and refresh once every frame.
 }
 
 void HfsmEditorPlugin::_change_scene(Node *p_secne_root) {
-	if (!cast_to<HFSM>(p_secne_root)) {
+	auto hfsm = hfsm_editor->get_editing_hfsm();
+	if (!hfsm || (hfsm->get_owner() != p_secne_root && hfsm != p_secne_root)) {
 		hfsm_editor->edit_hfsm(nullptr);
 		hfsm_editor_btn->set_pressed(false);
 		emit_button_toggled(hfsm_editor_btn, false);
@@ -167,8 +173,12 @@ PackedStringArray HfsmEditorPlugin::get_animation_list_for_state_res() {
 	return {};
 }
 
+Ref<ImageTexture> HfsmEditorPlugin::get_empty_icon_for_state_node() { return empty_icon_for_state_node; }
+
 HfsmEditorPlugin::~HfsmEditorPlugin() {
 	StateRes::get_animation_list = nullptr;
+	empty_icon_for_state_node.unref();
+	StateNode::get_empty_icon = nullptr;
 
 	inspector_plugin.unref();
 	if (hfsm_editor && !hfsm_editor->is_queued_for_deletion()) {
@@ -228,7 +238,10 @@ void HfsmEditorPlugin::_notification(int p_what) {
 			hfsm_editor_btn = add_control_to_bottom_panel(hfsm_editor, str_localize("HFSM Editor"));
 			add_inspector_plugin(inspector_plugin);
 
-			get_editor_interface()->get_resource_filesystem()->connect("filesystem_changed", TCALLABLE(_filesystem_changed));
+			EditorFileSystem *fs;
+			IF_GDM(fs = get_editor_interface()->get_resource_file_system();)
+			IF_GDE(fs = get_editor_interface()->get_resource_filesystem();)
+			fs->connect("filesystem_changed", TCALLABLE(_filesystem_changed));
 
 #ifdef DEBUG_ENABLED
 			if (debugger_plugin.is_null()) {
