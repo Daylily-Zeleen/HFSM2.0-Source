@@ -264,7 +264,7 @@ void TransitionRes::set_transition_script(const Ref<Script> &p_transition_script
 			type_valid = true;
 		}
 		IF_GDM(else {
-			type_valid = ClassDB::is_parent_class(Transition::get_class_static(), base);
+			type_valid = ClassDB::is_parent_class(base, Transition::get_class_static());
 		})
 
 #ifdef TOOLS_ENABLED

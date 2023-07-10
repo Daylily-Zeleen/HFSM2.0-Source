@@ -129,7 +129,7 @@ void StateRes::set_state_script(const Ref<Script> &p_script) {
 			type_valid = true;
 		}
 		IF_GDM(else {
-			type_valid = ClassDB::is_parent_class(State::get_class_static(), script_base_type);
+			type_valid = ClassDB::is_parent_class(script_base_type, State::get_class_static());
 		})
 
 #ifdef TOOLS_ENABLED
@@ -268,7 +268,7 @@ Ref<State> StateRes::create_state(HFSM *p_hfsm, Fsm *p_fsm) {
 		if (state_script->get_instance_base_type() == State::get_class_static()) {
 			if (state_script.is_valid()) {
 				auto base_type = state_script->get_instance_base_type();
-				IF_GDM(if (ClassDB::is_parent_class(State::get_class_static(), base_type)) {
+				IF_GDM(if (ClassDB::is_parent_class(base_type, State::get_class_static())) {
 					r->set_script(state_script);
 				} else)
 
