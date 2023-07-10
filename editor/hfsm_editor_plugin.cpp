@@ -203,6 +203,8 @@ bool HfsmEditorPlugin::handles_internal(Object *p_object) const {
 			StateRes::get_class_static(),
 			TransitionRes::get_class_static(),
 			Script::get_class_static(),
+			HFSMVariableRes::get_class_static(),
+			VariableExpressionRes::get_class_static(),
 		};
 
 		for (const auto &E : hfsm_types) {
