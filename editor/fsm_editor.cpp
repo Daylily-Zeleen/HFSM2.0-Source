@@ -1152,7 +1152,7 @@ void FsmEditor::_draw_layer_draw() {
 
 		bool valid = false;
 		auto texts = get_transition_res_valid_and_texts(tr, valid);
-		Color text_color = Color::named("white");
+		Color text_color = valid ? Color::named("white") : Color::named("red");
 		if (debug_mode) {
 			if (debug_activity_from == from->get_name() && debug_activity_to == to->get_name()) {
 				text_color = text_color.lerp(activity_color, debug_activity);
