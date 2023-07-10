@@ -1591,7 +1591,6 @@ List<String> FsmEditor::get_transition_res_valid_and_texts(const Ref<TransitionR
 					} else {
 						r_valid = false;
 						ret.push_back(str_localize("Invalid \"VariableExpressionRes\"."));
-
 						break;
 					}
 				}
@@ -1613,7 +1612,7 @@ List<String> FsmEditor::get_transition_res_valid_and_texts(const Ref<TransitionR
 			switch (p_transition_res->get_auto_mode()) {
 				case TransitionRes::AUTO_TRANSIT_MODE_DELAY_TIMER: {
 					r_valid = true;
-					ret.push_back(str_localize("Auto: ") + str_localize("Delay ") + itos(static_cast<int64_t>(p_transition_res->get_auto_delay_msec())) + str_localize(" msec."));
+					ret.push_back(str_localize("Auto: ") + vformat(str_localize("Delay %d msec."), p_transition_res->get_auto_delay_msec()));
 				} break;
 				case TransitionRes::AUTO_TRANSIT_MODE_FSM_EXIT: {
 					r_valid = true;
@@ -1625,12 +1624,12 @@ List<String> FsmEditor::get_transition_res_valid_and_texts(const Ref<TransitionR
 				} break;
 				case TransitionRes::AUTO_TRANSIT_MODE_UPDATE_TIMES: {
 					r_valid = true;
-					ret.push_back(str_localize("Auto: ") + str_localize("After \"_update()\" being called ") + itos(p_transition_res->get_auto_times()) + str_localize(" times."));
+					ret.push_back(str_localize("Auto: ") + vformat(str_localize("After \"_update()\" being called %d times."), itos(p_transition_res->get_auto_times())));
 
 				} break;
 				case TransitionRes::AUTO_TRANSIT_MODE_PHYSICS_UPDATE_TIMES: {
 					r_valid = true;
-					ret.push_back(str_localize("Auto: ") + str_localize("After \"_physics_update()\" being called ") + itos(p_transition_res->get_auto_times()) + str_localize(" times."));
+					ret.push_back(str_localize("Auto: ") + vformat(str_localize("After \"_physics_update()\" being called %d times."), itos(p_transition_res->get_auto_times())));
 				}
 				default:
 					ret.push_back(String::utf8("不应发生: 非法自动转换类型。"));

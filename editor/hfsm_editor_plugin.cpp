@@ -115,13 +115,15 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	translation.insert("HFSMVariable Expressions: ", "变量表达式:");
 	translation.insert("Invalid \"VariableExpressionRes\".", "无效的\"VariableExpressionRes\"");
 	translation.insert("Auto: ", "自动: ");
-	translation.insert("Delay ", "延迟 ");
-	translation.insert(" msec.", " 毫秒");
+	translation.insert("Delay %d msec.", "延迟 %d 毫秒");
+
 	translation.insert("When sub Fsm exit.", "子状态机退出时");
 	translation.insert("After calling \"manual_exit()\".", "调用\"manual_exit()\"后");
-	translation.insert("After \"_update()\" being called ", "\"_update()\"被调用 ");
-	translation.insert("After \"_physics_update()\" being called ", "\"_physics_update()\"被调用 ");
-	translation.insert(" times.", " 次后");
+	translation.insert("After \"_update()\" being called %d times.", "\"_update()\"被调用 %d 次后");
+	translation.insert("After \"_physics_update()\" being called %d times.", "\"_physics_update()\"被调用 %d 次后");
+
+	// Operation hints.
+	translation.insert("Pressing \"Alt\" and draw a line by holding \"Middle Button\" to disconnect a Transition.", "按住Alt和鼠标中键来绘制一条删除线以删除某个转换流。");
 }
 
 void emit_button_toggled(Button *p_btn, bool p_toggled) {
@@ -131,11 +133,13 @@ void emit_button_toggled(Button *p_btn, bool p_toggled) {
 void HfsmEditorPlugin::_referenced_script_saved(const Ref<Resource> &p_res) {
 	// TODO:: Can we find a way to avoid emiting this signal for all Scripts?
 	// We can't use meta to refer its TransitionRes/StateRes, it will be saved and cause cycle save.
+	// TODO:: Detect builtin scripts change.
+	// Hint: builtin scripts in inspector are not change automatically when it first time be saved, too.
+	// Currently, I can only notify scripts which have real file in disk.
+	// And refresh the fsm editor to update when any change of filesystem to ensure I can detect built-in script changed.
 	if (auto s = cast_to<Script>(p_res.ptr())) {
 		s->emit_signal(SNAME("changed"));
 	}
-	// TODO:: Detect builtin scripts change.
-	// Hint: builtin scripts in inspector are not change automatically when it first time be saved, too.
 }
 
 void HfsmEditorPlugin::_change_scene(Node *p_secne_root) {
@@ -208,7 +212,7 @@ bool HfsmEditorPlugin::handles_internal(Object *p_object) const {
 			if (E == type) {
 				return false;
 			}
-			IF_GDM(if (ClassDB::is_parent_class(E, type)) { return false; })
+			IF_GDM(if (ClassDB::is_parent_class(type, E)) { return false; })
 		}
 	}
 	hfsm_editor->edit_hfsm(nullptr);
