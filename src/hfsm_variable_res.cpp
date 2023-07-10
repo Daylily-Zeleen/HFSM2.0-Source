@@ -67,7 +67,7 @@ void HFSMVariableRes::set_variable_name(const StringName &p_name) {
 		}
 	} while (!unique);
 
-	set_name(variable_name);
+	set_name(String(variable_name) + ": " + get_type_text());
 	emit_changed();
 }
 
@@ -85,10 +85,12 @@ void HFSMVariableRes::set_type(Variant::Type p_t) {
 				if (type == Variant::STRING && default_value.get_type() != Variant::STRING) {
 					default_value = "";
 				}
+				set_name(String(variable_name) + ": " + get_type_text());
 				emit_changed();
 			}
 		} break;
 		default:
+			set_name(String(variable_name) + ": " + get_type_text());
 			ERR_FAIL();
 			break;
 	}
@@ -147,6 +149,21 @@ Ref<HFSMVariableRes> HFSMVariableRes::create_new(const Ref<FsmRes> &p_fsm_res) {
 	ret->fsm_res = p_fsm_res;
 	ret->set_variable_name(ret->get_variable_name());
 	return ret;
+}
+
+String HFSMVariableRes::get_type_text() const {
+	switch (get_type()) {
+		case Variant::NIL:
+			return "Trigger";
+		case Variant::BOOL:
+			return "Bool";
+		case Variant::INT:
+			return "Int";
+		case Variant::STRING:
+			return "String";
+		default:
+			ERR_FAIL_V_MSG("Unknowm", "Invald type: %d" + itos(get_type()));
+	}
 }
 
 void HFSMVariableRes::set_fsm_res(const Ref<FsmRes> &p_fsm_res) {

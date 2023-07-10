@@ -45,6 +45,8 @@ public:
 
 	static Ref<HFSMVariableRes> create_new(const Ref<class FsmRes> &p_fsm_res);
 
+	String get_type_text() const;
+
 private:
 	StringName variable_name = "variable";
 	Ref<class FsmRes> fsm_res;
