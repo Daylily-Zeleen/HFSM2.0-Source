@@ -11,26 +11,46 @@ using namespace godot;
 #include <scene/gui/button.h>
 #include <scene/gui/popup_menu.h>
 
+#include <editor/editor_resource_picker.h>
 #endif // GDEXTENSION_BUILD
 
+#include "../../hfsm_global.h"
+
 namespace Hfsm {
+// todo:: bug
+
+class _VariableResSelector : public EditorResourcePicker {
+private:
+	class HFSM *hfsm;
+
+	Ref<class HFSMVariableRes> to_compare;
+
+	Vector<Ref<HFSMVariableRes>> variable_res_list;
+
+public:
+	int op_ofs = 10;
+
+	void GD_(set_create_options)(Object *p_menu_node) override;
+	bool GD_(handle_menu_selected)(int p_which) override;
+
+	_VariableResSelector() = default;
+	_VariableResSelector(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare);
+};
+
 // 变量选择器
 class VariableResSelector : public EditorProperty {
 	GDCLASS(VariableResSelector, EditorProperty)
 private:
-	const String NULL_TEXT = "<null>";
-
-	Button *btn = nullptr;
-	PopupMenu *menu = nullptr;
+	_VariableResSelector *selector = nullptr;
+	// Button *btn = nullptr;
+	// PopupMenu *menu = nullptr;
 	class HFSM *hfsm = nullptr;
 
 	Ref<class HFSMVariableRes> to_compare;
 	bool updating = false;
 
-	void _btn_pressed();
-	void _menu_index_pressed(int32_t p_index);
+	void _variable_selected(const Ref<Resource> &p_res);
 
-	String get_type_text(Variant::Type p_type);
 	void update_property_internal();
 
 protected:
@@ -40,11 +60,7 @@ public:
 	VariableResSelector();
 	VariableResSelector(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare = nullptr);
 
-#ifdef GDEXTENSION_BUILD
-	void _update_property() override { update_property_internal(); }
-#else
-	void update_property() override { update_property_internal(); }
-#endif //  GDEXTENSION_BUILD
+	void GD_(update_property)() override { update_property_internal(); }
 };
 
 }; // namespace Hfsm
