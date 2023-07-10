@@ -57,6 +57,7 @@ private:
 	StateNode *__hovered_state_node = nullptr;
 	Control *draw_layer = nullptr;
 	// ==============
+	Ref<FsmRes> current_root_fsm_res;
 	Ref<FsmRes> current_fsm_res;
 	TypedArray<StateRes> copied_state_res_list; // = TypedArray<StateRes>();
 	TypedArray<StringName> selected_state_name_list; // = TypedArray<StringName>();
@@ -72,7 +73,7 @@ private:
 	Ref<Font> font;
 
 	// ========== UNDO REDO =========
-	void __set_current_fsm_res(const Ref<FsmRes> &p_to_set);
+	void __set_current_fsm_res(const Ref<FsmRes> &p_to_set, const Ref<FsmRes> &p_root);
 	void __set_selected_state_name_list(const TypedArray<StringName> &p_to_set);
 	void __set_selected_transition_res_list(const TypedArray<TransitionRes> &p_to_set);
 	void __set_copied_transition_list(const TypedArray<TransitionRes> &p_to_set);
@@ -142,6 +143,9 @@ private:
 
 	bool queuing_refresh = false;
 	void __queue_refresh();
+	bool queuing_redraw = false;
+	void __queue_redraw_request();
+	void __queue_redraw();
 
 public:
 	void queue_refresh();

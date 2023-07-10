@@ -114,6 +114,7 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	translation.insert("Have not valid HFSMVariable Expression.", "没有合法的变量表达式");
 	translation.insert("HFSMVariable Expressions: ", "变量表达式:");
 	translation.insert("Invalid \"VariableExpressionRes\".", "无效的\"VariableExpressionRes\"");
+	translation.insert(R"("HFSMVariableRes" %s is not contained in editing HFSM.)", R"("HFSMVariableRes" %s 不存在于当前编辑中的HFSM)");
 	translation.insert("Auto: ", "自动: ");
 	translation.insert("Delay %d msec.", "延迟 %d 毫秒");
 

@@ -84,6 +84,8 @@ void FsmEditor::_bind_methods() {
 	GDBIND_BEGIN(FsmEditor);
 
 	GDBIND_METHOD(__queue_refresh);
+	GDBIND_METHOD(__queue_redraw_request);
+	GDBIND_METHOD(__queue_redraw);
 	// UNDO REDO
 	GDBIND_METHOD(__set_current_fsm_res);
 	GDBIND_METHOD(__set_selected_transition_res_list);
@@ -114,13 +116,13 @@ void FsmEditor::_bind_methods() {
 }
 
 // ========== SetGet =========
-void FsmEditor::__set_current_fsm_res(const Ref<FsmRes> &to_set) {
-	auto cb = TCALLABLE(__queue_refresh);
+void FsmEditor::__set_current_fsm_res(const Ref<FsmRes> &to_set, const Ref<FsmRes> &p_root) {
+	auto cb = TCALLABLE(__queue_redraw_request);
 	if (current_fsm_res.is_valid() && current_fsm_res->is_connected(s_changed, cb)) {
 		current_fsm_res->disconnect(s_changed, cb);
 	}
 	current_fsm_res = to_set;
-
+	current_root_fsm_res = p_root;
 	if (current_fsm_res.is_valid() && !current_fsm_res->is_connected(s_changed, cb)) {
 		current_fsm_res->connect(s_changed, cb);
 	}
@@ -1292,7 +1294,7 @@ void FsmEditor::edit_fsm_res(const Ref<FsmRes> &p_fsm_res, HBoxContainer *p_path
 		}
 
 		// 构建目标的状态机
-		__set_current_fsm_res(p_fsm_res);
+		__set_current_fsm_res(p_fsm_res, p_root_fsm_res);
 
 		//  路径按钮处理
 		//  清除路径列表
@@ -1382,8 +1384,8 @@ void FsmEditor::edit_fsm_res(const Ref<FsmRes> &p_fsm_res, HBoxContainer *p_path
 		}
 
 		// 构建目标的状态机
-		ADD_DO_METHOD(this, __set_current_fsm_res, p_fsm_res);
-		ADD_UNDO_METHOD(this, __set_current_fsm_res, current_fsm_res);
+		ADD_DO_METHOD(this, __set_current_fsm_res, p_fsm_res, p_root_fsm_res);
+		ADD_UNDO_METHOD(this, __set_current_fsm_res, current_fsm_res, current_root_fsm_res);
 
 		//  路径按钮处理
 		//  清除路径列表
@@ -1469,6 +1471,11 @@ String FsmEditor::get_variable_expression_res_valid_and_text(const Ref<VariableE
 	r_valid = false;
 	auto vr = p_ver->get_variable_res();
 	if (vr.is_valid()) {
+		if (!current_root_fsm_res->get_variable_res_list().has(vr)) {
+			r_valid = false;
+			return vformat(str_localize(R"("HFSMVariableRes" %s is not contained in editing HFSM.)"), vr->get_variable_name());
+		}
+
 		if (vr->get_type() != Variant::NIL) {
 			auto get_op_text = [p_ver]() -> String {
 				switch (p_ver->get_comparator()) {
@@ -1489,10 +1496,15 @@ String FsmEditor::get_variable_expression_res_valid_and_text(const Ref<VariableE
 				}
 			};
 			if (p_ver->is_variable_as_value()) {
-				if (auto vr = cast_to<HFSMVariableRes>(p_ver->get_value())) {
-					r_valid = Variant::can_convert(Variant::Type(vr->get_type()), Variant::Type(vr->get_type()));
+				if (auto value = cast_to<HFSMVariableRes>(p_ver->get_value())) {
+					if (!current_root_fsm_res->get_variable_res_list().has(value)) {
+						r_valid = false;
+						return vformat(str_localize(R"("HFSMVariableRes" %s is not contained in editing HFSM.)"), vr->get_variable_name());
+					}
+
+					r_valid = Variant::can_convert(Variant::Type(vr->get_type()), Variant::Type(value->get_type()));
 					if (r_valid) {
-						return String(vr->get_variable_name()) + get_op_text() + String(vr->get_variable_name());
+						return String(vr->get_variable_name()) + get_op_text() + String(value->get_variable_name());
 					} else {
 						return str_localize(R"XXX("value" can't convert to the type of "HFSMVariableRes".)XXX");
 					}
@@ -1745,6 +1757,18 @@ void FsmEditor::__queue_refresh() {
 	}
 	queue_redraw();
 	queuing_refresh = false;
+}
+
+void FsmEditor::__queue_redraw_request() {
+	if (!queuing_redraw) {
+		call_deferred(TNAMEOF(__queue_redraw));
+		queuing_redraw = true;
+	}
+}
+
+void FsmEditor::__queue_redraw() {
+	queue_redraw();
+	queuing_redraw = false;
 }
 
 void FsmEditor::queue_refresh() {
