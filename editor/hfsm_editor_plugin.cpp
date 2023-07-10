@@ -121,9 +121,6 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	translation.insert("After calling \"manual_exit()\".", "调用\"manual_exit()\"后");
 	translation.insert("After \"_update()\" being called %d times.", "\"_update()\"被调用 %d 次后");
 	translation.insert("After \"_physics_update()\" being called %d times.", "\"_physics_update()\"被调用 %d 次后");
-
-	// Operation hints.
-	translation.insert("Pressing \"Alt\" and draw a line by holding \"Middle Button\" to disconnect a Transition.", "按住Alt和鼠标中键来绘制一条删除线以删除某个转换流。");
 }
 
 void emit_button_toggled(Button *p_btn, bool p_toggled) {
@@ -274,6 +271,8 @@ void HfsmEditorPlugin::_notification(int p_what) {
 EditorUndoRedoManager *HfsmEditorPlugin::create_action(const String &p_action_name) {
 	auto undo_redo = get_singleton()->get_undo_redo();
 	undo_redo->create_action(str_localize(p_action_name), UndoRedo::MERGE_DISABLE, get_singleton()->get_hfsm_editor()->get_editing_hfsm());
+	IF_DEV(ERR_FAIL_COND_V(get_singleton()->hfsm_editor, undo_redo);)
+	get_singleton()->hfsm_editor->add_undo_redo_text(undo_redo, p_action_name);
 	return undo_redo;
 }
 

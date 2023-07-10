@@ -1,15 +1,20 @@
 ﻿#pragma once
 
 #ifdef GDEXTENSION_BUILD
+#include <godot_cpp/classes/editor_undo_redo_manager.hpp>
 #include <godot_cpp/classes/h_box_container.hpp>
 #include <godot_cpp/classes/label.hpp>
 #include <godot_cpp/classes/panel.hpp>
+#include <godot_cpp/classes/timer.hpp>
 
 using namespace godot;
 
 #else
+#include <editor/editor_undo_redo_manager.h>
 #include <scene/gui/box_container.h>
 #include <scene/gui/label.h>
+#include <scene/main/timer.h>
+
 #endif // GDEXTENSION_BUILD
 
 namespace Hfsm {
@@ -37,17 +42,22 @@ public:
 
 	void queue_refresh();
 
+	void set_error_hint(const String &p_text);
+
+	void add_undo_redo_text(EditorUndoRedoManager *p_undo_redo, const String &p_action_name);
+
 private:
 	HBoxContainer *path_button_container = nullptr;
 	FsmEditor *fsm_editor = nullptr;
 	//  TODO::实际显示内容
-	Label *tip_label = nullptr;
-	// Label *history_label = nullptr;
+	Label *hint_label = nullptr;
+	Label *history_label = nullptr;
 	//
 	Panel *mask_panel = nullptr;
 	Label *not_hfsm_label = nullptr;
 
 	HFSM *hfsm = nullptr;
+	Timer *hint_timer = nullptr;
 
 	// 调试模式下hfsm为nullptr
 	const bool debug_mode = false;
@@ -58,6 +68,11 @@ private:
 	void _inspector_property_edited(const String &p_properrty);
 	void _inspector_edited_object_changed();
 	void _edit_fsm_requested(const Ref<FsmRes> &p_fsm_res);
+	void _change_hint();
+
+	// Use for setting undo redo text, don't call normally.
+	void __do_history(const String &p_text);
+	void __undo_history(const String &p_text);
 
 	void set_connect_inspector_signal(bool p_connect);
 

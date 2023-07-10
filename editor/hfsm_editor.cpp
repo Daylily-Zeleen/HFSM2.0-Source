@@ -48,11 +48,18 @@ void HFSMEditor::initialize() {
 	fsm_editor->connect("_edit_fsm_requested", TCALLABLE(_edit_fsm_requested));
 	vbox->add_child(fsm_editor);
 
-	auto button_h_box = memnew(HBoxContainer);
-	vbox->add_child(button_h_box);
-	tip_label = memnew(Label);
-	tip_label->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
-	button_h_box->add_child(tip_label);
+	auto botton_h_box = memnew(HBoxContainer);
+	vbox->add_child(botton_h_box);
+	hint_label = memnew(Label);
+	hint_label->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
+	botton_h_box->add_child(hint_label);
+
+	history_label = memnew(Label);
+	history_label->set_h_size_flags(SizeFlags::SIZE_SHRINK_END);
+	botton_h_box->add_child(history_label);
+	if (debug_mode) {
+		botton_h_box->hide();
+	}
 
 	//
 	mask_panel = memnew(Panel);
@@ -147,8 +154,29 @@ void HFSMEditor::queue_refresh() {
 	}
 }
 
+void HFSMEditor::set_error_hint(const String &p_text) {
+	hint_label->set_self_modulate(Color(1.0, 0.0, 0.0));
+	hint_label->set_text(p_text);
+	hint_timer->start();
+}
+
+void HFSMEditor::add_undo_redo_text(EditorUndoRedoManager *p_undo_redo, const String &p_action_name) {
+	auto undo_redo = p_undo_redo;
+	ADD_DO_METHOD(this, __do_history, p_action_name);
+	ADD_UNDO_METHOD(this, __undo_history, p_action_name);
+}
+
+void HFSMEditor::__do_history(const String &p_text) {
+	history_label->set_text(p_text);
+}
+
+void HFSMEditor::__undo_history(const String &p_text) {
+	history_label->set_text((HfsmEditorPlugin::is_zh() ? "撤销: " : "Undo: ") + p_text);
+}
+
 void HFSMEditor::_notification(int p_what) {
-	if (p_what == NOTIFICATION_READY) {
+	if (p_what == NOTIFICATION_READY && !debug_mode) {
+		_change_hint();
 	}
 }
 
@@ -199,6 +227,46 @@ void HFSMEditor::set_connect_inspector_signal(bool p_connect) {
 	SET_CONNECT_INSPECTOR_SIGNAL(property_edited, p_connect);
 }
 
+void HFSMEditor::_change_hint() {
+	const static PackedStringArray en = {
+		"To rename a state, you should input \"Enter\" after change its name, if not, the nane will be reset.",
+		"Right click to popup a menu and refer short cuts.",
+		"Holding \"Alt\" and \"Middle Button\" to draw a line to disconnect Transitions.",
+		"\"Convert To Sub-FSM\" only activated when selecting at least one State and click at a selected State.",
+		"A FSM(Finite State Machine) only have a Enty State.",
+		"A Entry State can't be change to Noramal or Exit State.",
+		"If you set a Normal or Exit State to Entry State, it will change the exited Exit State to Normal State first.",
+		"Select and inspect a State, you can set its animation in inspector.",
+	};
+	const static PackedStringArray zh = {
+		"必须在修改状态名称后输入\"Enter\"确认,否则将在失去焦点时重置为改变之前的名称。",
+		"点击右键弹出操作菜单并查看相关的快捷键。",
+		"按住Alt和鼠标中键来绘制一条删除线以删除某个转换流。",
+		"只有在选中了至少一个状态并在选中的某个状态上点击右键时，\"转换为子状态机\"选项才有效。",
+		"一个FSM(有限状态机)只有一个Entry状态。",
+		"一个Entry类型的状态不能被设置为Normal或者Exit状态。",
+		"如果你将一个Normal或Exit状态设置为Entry状态, 会自动先将已有的Entry状态设置为Normal状态。",
+		"你可以通过选中一个状态，在检查器中编辑其动画属性。",
+	};
+
+	IF_DEV(ERR_FAIL_COND(en.size() != zh.size());)
+
+	const int size = en.size() < zh.size() ? en.size() : zh.size();
+	static int index = -1;
+
+	if (!is_inside_tree()) {
+		return;
+	}
+
+	index += 1;
+	if (index >= size) {
+		index = 0;
+	}
+	hint_label->set_self_modulate(Color(1, 1, 1));
+	hint_label->set_text("Tip: " + (HfsmEditorPlugin::is_zh() ? zh[index] : en[index]));
+	hint_timer->start();
+}
+
 void HFSMEditor::_inspector_edited_object_changed() {
 	set_connect_inspector_signal(false);
 }
@@ -210,13 +278,25 @@ void HFSMEditor::_edit_fsm_requested(const Ref<FsmRes> &p_fsm_res) {
 void HFSMEditor::_bind_methods() {
 	GDBIND_BEGIN(HFSMEditor);
 	GDBIND_METHOD(edit_hfsm);
+	GDBIND_METHOD(__do_history);
+	GDBIND_METHOD(__undo_history);
 
 	GDBIND_CALBACK(_inspector_edited_object_changed);
 	GDBIND_CALBACK(_inspector_property_edited);
 	GDBIND_CALBACK(_edit_fsm_requested);
+	GDBIND_CALBACK(_change_hint);
 }
 
 HFSMEditor::HFSMEditor(bool p_debug_mode) :
-		debug_mode(p_debug_mode) {}
+		debug_mode(p_debug_mode) {
+	if (debug_mode) {
+		return;
+	}
+
+	hint_timer = memnew(Timer);
+	hint_timer->set_wait_time(5.0);
+	hint_timer->connect("timeout", TCALLABLE(_change_hint));
+	add_child(hint_timer);
+}
 
 }; // namespace Hfsm
