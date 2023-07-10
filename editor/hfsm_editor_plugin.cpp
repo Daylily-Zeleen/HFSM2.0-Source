@@ -38,8 +38,8 @@ bool HfsmInspectorPlugin::parse_property_internal(Object *p_object, Variant::Typ
 		const String &p_hint_string, BitField<PropertyUsageFlags> p_usage_flags, bool p_wide) {
 	if (auto ver = cast_to<VariableExpressionRes>(p_object)) {
 		if (auto hfsm = HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
-			if ((p_name != "variable_res") &&
-					!(p_name == "value" && ver->is_variable_as_value() && ver->get_variable_res().is_valid())) {
+			if ((p_name == "variable_res") ||
+					(p_name == "value" && ver->is_variable_as_value() && ver->get_variable_res().is_valid())) {
 				auto editor = memnew(VariableResSelector(hfsm, p_name == "value" ? ver->get_variable_res() : nullptr));
 				add_property_editor(p_name, editor);
 				return true;

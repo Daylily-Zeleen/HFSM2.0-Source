@@ -40,8 +40,6 @@ public:
 	VariableResSelector();
 	VariableResSelector(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare = nullptr);
 
-	// void setup(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare = nullptr);
-
 #ifdef GDEXTENSION_BUILD
 	void _update_property() override { update_property_internal(); }
 #else

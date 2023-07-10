@@ -15,8 +15,26 @@ void VariableResSelector::_btn_pressed() {
 	if (updating) {
 		return;
 	}
+	ERR_FAIL_COND(!hfsm);
+	menu->clear();
+	Array variable_list = hfsm->get("variable_list");
+	for (size_t i = 0; i < variable_list.size(); i++) {
+		Ref<HFSMVariableRes> vr = variable_list[i];
+		if (to_compare.is_valid() &&
+				(to_compare == vr || to_compare->get_type() != vr->get_type())) {
+			continue;
+		}
+		menu->add_item(
+				vformat("%s: %s%s",
+						vr->get_variable_name(),
+						get_type_text(static_cast<Variant::Type>(vr->get_type())),
+						vr->get_comment().is_empty() ? "" : (" - " + vr->get_comment())),
+				i + 1);
+		menu->set_item_metadata(menu->get_item_count() - 1, vr);
+	}
+	menu->reset_size();
 
-	menu->set_position(btn->get_global_position() + Vector2i(0, 1) * btn->get_size().y * 2);
+	menu->set_position(btn->get_screen_position() + Vector2i(0, 1) * btn->get_size().y);
 	menu->popup();
 }
 
@@ -52,12 +70,13 @@ String VariableResSelector::get_type_text(Variant::Type p_type) {
 VariableResSelector::VariableResSelector() {
 	btn = memnew(Button);
 	btn->set_text(NULL_TEXT);
-	btn->connect("pressed", TCALLABLE(_btn_pressed));
+	btn->connect(SNAME("pressed"), TCALLABLE(_btn_pressed));
 	add_child(btn);
 
 	menu = memnew(PopupMenu);
 	menu->add_item(NULL_TEXT, 0);
 	menu->set_item_metadata(0, Variant());
+	menu->connect(SNAME("index_pressed"), TCALLABLE(_menu_index_pressed));
 	add_child(menu);
 }
 
@@ -69,21 +88,6 @@ VariableResSelector::VariableResSelector(HFSM *p_hfsm, const Ref<HFSMVariableRes
 	hfsm = p_hfsm;
 	if (to_compare.is_valid()) {
 		to_compare = p_to_compare;
-	}
-	Array variable_list = hfsm->get("variable_list");
-	for (size_t i = 0; i < variable_list.size(); i++) {
-		Ref<HFSMVariableRes> vr = variable_list[i];
-		if (to_compare.is_valid() &&
-				(to_compare == vr || to_compare->get_type() != vr->get_type())) {
-			continue;
-		}
-		menu->add_item(
-				vformat("%s: %s%s",
-						vr->get_variable_name(),
-						get_type_text(static_cast<Variant::Type>(vr->get_type())),
-						vr->get_comment().is_empty() ? "" : (" - " + vr->get_comment())),
-				i + 1);
-		menu->set_item_metadata(menu->get_item_count() - 1, vr);
 	}
 }
 
