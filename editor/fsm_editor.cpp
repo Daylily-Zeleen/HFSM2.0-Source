@@ -803,7 +803,7 @@ void FsmEditor::_popup_request(const Vector2 &p_position) {
 
 	menu->clear();
 	menu->add_item(str_localize("Add State"), ITEM_ADD_STATE);
-	menu->add_item(str_localize("Cut States"), ITEM_CUT_STATE);
+	menu->add_item(str_localize("Cut States"), ITEM_CUT_STATE, Key(KEYCODE_CUT_STATE));
 	menu->add_item(str_localize("Copy States"), ITEM_COPY_STATES, Key(KEYCODE_COPY_STATES));
 	menu->add_item(str_localize("Paste States"), ITEM_PASTE_STATES, Key(KEYCODE_PASTE_STATES));
 	menu->add_item(str_localize("Duplicate States"), ITEM_DUPLICATE_STATES, Key(KEYCODE_DUPLICATE_STATES));
