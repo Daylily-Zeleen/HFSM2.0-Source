@@ -294,7 +294,7 @@ HFSMEditor::HFSMEditor(bool p_debug_mode) :
 	}
 
 	hint_timer = memnew(Timer);
-	hint_timer->set_wait_time(5.0);
+	hint_timer->set_wait_time(10.0);
 	hint_timer->connect("timeout", TCALLABLE(_change_hint));
 	add_child(hint_timer);
 }
