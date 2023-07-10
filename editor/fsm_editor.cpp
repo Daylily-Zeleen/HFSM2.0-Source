@@ -115,7 +115,15 @@ void FsmEditor::_bind_methods() {
 
 // ========== SetGet =========
 void FsmEditor::__set_current_fsm_res(const Ref<FsmRes> &to_set) {
+	auto cb = TCALLABLE(__queue_refresh);
+	if (current_fsm_res.is_valid() && current_fsm_res->is_connected(s_changed, cb)) {
+		current_fsm_res->disconnect(s_changed, cb);
+	}
 	current_fsm_res = to_set;
+
+	if (current_fsm_res.is_valid() && !current_fsm_res->is_connected(s_changed, cb)) {
+		current_fsm_res->connect(s_changed, cb);
+	}
 	mask_panel->set_visible(current_fsm_res.is_null());
 }
 

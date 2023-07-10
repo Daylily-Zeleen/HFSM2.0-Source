@@ -40,22 +40,14 @@ public:
 
 	void add_transition_res(const Ref<TransitionRes> &p_transition_res);
 
-	void add_variable_res(const Ref<HFSMVariableRes> &p_variable_res) {
-		if (variable_res_list.find(p_variable_res) >= 0) {
-			return;
-		}
-		variable_res_list.push_back(p_variable_res);
-	}
+	void add_variable_res(const Ref<HFSMVariableRes> &p_variable_res);
 
 	// 未删除相关的 TransitionRes, 需要在编辑器里处理 undoredo
-	void remove_state_res(const Ref<StateRes> &p_state_res) {
-		state_res_list.erase(p_state_res);
-		emit_changed();
-	}
+	void remove_state_res(const Ref<StateRes> &p_state_res);
 
 	void remove_transition_res(const Ref<TransitionRes> &p_transition_res);
 
-	void remove_variable_res(const Ref<HFSMVariableRes> &p_variable_res) { variable_res_list.erase(p_variable_res); }
+	void remove_variable_res(const Ref<HFSMVariableRes> &p_variable_res);
 
 	// void set_state_res_list(Array state_res_list){
 	//     _state_res_list = Vector<Ref<StateRes>>(state_res_list);
@@ -77,8 +69,8 @@ public:
 
 private:
 	// 自己的状态列表
-	void set_state_res_list(const Array &p_state_res_list) { state_res_list = decltype(state_res_list)(p_state_res_list); }
-	void set_transition_res_list(const Array &p_transition_res_list) { transition_res_list = decltype(transition_res_list)(p_transition_res_list); }
+	void set_state_res_list(const Array &p_state_res_list);
+	void set_transition_res_list(const Array &p_transition_res_list);
 
 	// 所在的状态
 	Ref<StateRes> nested_state_res;
@@ -89,8 +81,6 @@ private:
 	TypedArray<HFSMVariableRes> variable_res_list;
 	// 转换列表
 	TypedArray<TransitionRes> transition_res_list;
-
-	// friend class HFSM;
 };
 
 }; // namespace Hfsm

@@ -233,7 +233,23 @@ void TransitionRes::set_variable_and_mode(bool p_and_mode) {
 bool TransitionRes::is_variable_and_mode() const { return variable_and_mode; }
 
 void TransitionRes::set_variable_expression_res_list(const Array &p_variable_expression_res_list) {
+	auto cb = Callable(this, SNAME("emit_changed"));
+	for (auto i = 0; i < variable_expression_res_list.size(); ++i) {
+		Ref<VariableExpressionRes> ver = variable_expression_res_list[i];
+		if (ver.is_valid() && ver->is_connected(s_changed, cb)) {
+			ver->disconnect(s_changed, cb);
+		}
+	}
+
 	variable_expression_res_list = decltype(variable_expression_res_list)(p_variable_expression_res_list);
+
+	for (auto i = 0; i < variable_expression_res_list.size(); ++i) {
+		Ref<VariableExpressionRes> ver = variable_expression_res_list[i];
+		if (ver.is_valid() && !ver->is_connected(s_changed, cb)) {
+			ver->connect(s_changed, cb);
+		}
+	}
+
 	emit_changed();
 }
 

@@ -53,6 +53,10 @@ void FsmRes::add_state_res(const Ref<StateRes> &p_state_res) {
 	} while (ununique);
 
 	state_res_list.push_back(p_state_res);
+
+	if (p_state_res.is_valid() && !p_state_res->is_connected(s_changed, cb_resource_emit_changed(this))) {
+		p_state_res->connect(s_changed, cb_resource_emit_changed(this));
+	}
 	emit_changed();
 }
 
@@ -70,11 +74,54 @@ void FsmRes::add_transition_res(const Ref<TransitionRes> &p_transition_res) {
 	}
 
 	transition_res_list.push_back(p_transition_res);
+	if (p_transition_res.is_valid() && !p_transition_res->is_connected(s_changed, cb_resource_emit_changed(this))) {
+		p_transition_res->connect(s_changed, cb_resource_emit_changed(this));
+	}
+	emit_changed();
+}
+
+void FsmRes::add_variable_res(const Ref<HFSMVariableRes> &p_variable_res) {
+	if (variable_res_list.find(p_variable_res) >= 0) {
+		return;
+	}
+	variable_res_list.push_back(p_variable_res);
+
+	if (p_variable_res.is_valid() && !p_variable_res->is_connected(s_changed, cb_resource_emit_changed(this))) {
+		p_variable_res->connect(s_changed, cb_resource_emit_changed(this));
+	}
+
+	emit_changed();
+}
+
+// 未删除相关的 TransitionRes, 需要在编辑器里处理 undoredo
+void FsmRes::remove_state_res(const Ref<StateRes> &p_state_res) {
+	state_res_list.erase(p_state_res);
+
+	if (p_state_res.is_valid() && p_state_res->is_connected(s_changed, cb_resource_emit_changed(this))) {
+		p_state_res->disconnect(s_changed, cb_resource_emit_changed(this));
+	}
+
+	emit_changed();
+}
+
+void FsmRes::remove_variable_res(const Ref<HFSMVariableRes> &p_variable_res) {
+	variable_res_list.erase(p_variable_res);
+
+	if (p_variable_res.is_valid() && p_variable_res->is_connected(s_changed, cb_resource_emit_changed(this))) {
+		p_variable_res->disconnect(s_changed, cb_resource_emit_changed(this));
+	}
+
+	emit_changed();
 }
 
 void FsmRes::remove_transition_res(const Ref<TransitionRes> &p_transition_res) {
+	auto cb = cb_resource_emit_changed(this);
 	if (transition_res_list.find(p_transition_res) >= 0) {
 		transition_res_list.erase(p_transition_res);
+		if (p_transition_res.is_valid() && p_transition_res->is_connected(s_changed, cb)) {
+			p_transition_res->disconnect(s_changed, cb);
+		}
+		emit_changed();
 	} else {
 		Ref<StateRes> add_from_state = p_transition_res->get_from_state_res();
 		Ref<StateRes> add_to_state = p_transition_res->get_to_state_res();
@@ -84,7 +131,13 @@ void FsmRes::remove_transition_res(const Ref<TransitionRes> &p_transition_res) {
 			Ref<StateRes> existed_to_res = tr->get_to_state_res();
 
 			if (add_from_state == add_to_state && existed_from_res == existed_to_res) {
-				transition_res_list.erase(transition_res_list[i]);
+				Ref<TransitionRes> tr = transition_res_list[i];
+				transition_res_list.erase(tr);
+				if (tr.is_valid() && tr->is_connected(s_changed, cb)) {
+					tr->disconnect(s_changed, cb);
+				}
+
+				emit_changed();
 				ERR_FAIL_MSG("不应发生: 不存在要移除的转换，但存在相同的连接方式，已将其移除。");
 			}
 		}
@@ -139,6 +192,14 @@ Fsm *FsmRes::create_fsm(HFSM *p_hfsm, const Ref<State> &p_nested_state, const Ve
 }
 
 void FsmRes::set_variable_res_list(const Array &p_variable_res_list) {
+	auto cb = cb_resource_emit_changed(this);
+	for (auto i = 0; i < variable_res_list.size(); ++i) {
+		Ref<HFSMVariableRes> vr = variable_res_list[i];
+		if (vr.is_valid() && vr->is_connected(s_changed, cb)) {
+			vr->disconnect(s_changed, cb);
+		}
+	}
+
 	variable_res_list = decltype(variable_res_list)(p_variable_res_list);
 	for (size_t i = 0; i < variable_res_list.size(); i++) {
 		if (auto vr = Object::cast_to<HFSMVariableRes>(variable_res_list[i])) {
@@ -149,7 +210,55 @@ void FsmRes::set_variable_res_list(const Array &p_variable_res_list) {
 			variable_res_list[i] = HFSMVariableRes::create_new(this);
 		}
 	}
+
+	for (auto i = 0; i < variable_res_list.size(); ++i) {
+		Ref<HFSMVariableRes> vr = variable_res_list[i];
+		if (vr.is_valid() && !vr->is_connected(s_changed, cb)) {
+			vr->connect(s_changed, cb);
+		}
+	}
+
+	emit_changed();
 }
+
+void FsmRes::set_state_res_list(const Array &p_state_res_list) {
+	auto cb = cb_resource_emit_changed(this);
+	for (auto i = 0; i < state_res_list.size(); ++i) {
+		Ref<StateRes> vr = state_res_list[i];
+		if (vr.is_valid() && vr->is_connected(s_changed, cb)) {
+			vr->disconnect(s_changed, cb);
+		}
+	}
+	state_res_list = decltype(state_res_list)(p_state_res_list);
+	for (auto i = 0; i < state_res_list.size(); ++i) {
+		Ref<StateRes> vr = state_res_list[i];
+		if (vr.is_valid() && !vr->is_connected(s_changed, cb)) {
+			vr->connect(s_changed, cb);
+		}
+	}
+
+	emit_changed();
+}
+
+void FsmRes::set_transition_res_list(const Array &p_transition_res_list) {
+	auto cb = cb_resource_emit_changed(this);
+	for (auto i = 0; i < transition_res_list.size(); ++i) {
+		Ref<TransitionRes> vr = transition_res_list[i];
+		if (vr.is_valid() && vr->is_connected(s_changed, cb)) {
+			vr->disconnect(s_changed, cb);
+		}
+	}
+	transition_res_list = decltype(transition_res_list)(p_transition_res_list);
+	for (auto i = 0; i < transition_res_list.size(); ++i) {
+		Ref<TransitionRes> vr = transition_res_list[i];
+		if (vr.is_valid() && !vr->is_connected(s_changed, cb)) {
+			vr->connect(s_changed, cb);
+		}
+	}
+
+	emit_changed();
+}
+
 #pragma endregion
 
 } // namespace Hfsm

@@ -70,3 +70,5 @@ public:
 #else // FULL_VERSION
 #define IF_FULL_VERSION(m_code)
 #endif // FULL_VERSION
+
+#define cb_resource_emit_changed(m_res_ptr) Callable(m_res_ptr, SNAME("emit_changed"))
