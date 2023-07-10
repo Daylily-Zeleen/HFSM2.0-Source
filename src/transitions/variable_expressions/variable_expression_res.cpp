@@ -43,25 +43,6 @@ VariableExpression *VariableExpressionRes::create_variable_expression(HFSM *p_hf
 	return nullptr;
 }
 
-// bool VariableExpressionRes::is_valid() {
-//     if (variable_res.is_valid()){
-//         if (variable_res->get_type() != Variant::NIL){
-//             if(_variable_as_value){
-//                 auto vr = Object::cast_to<HFSMVariableRes>(_value);
-//                 if(vr) return
-//                 Variant::can_convert(Variant::Type(vr->get_type()) ,
-//                 Variant::Type(variable_res->get_type()));
-//             }else{
-//                 return Variant::can_convert(_value.get_type() ,
-//                 Variant::Type(variable_res->get_type()));
-//             }
-//         }else{
-//             return true;
-//         }
-//     }
-//     return false;
-// }
-
 bool VariableExpressionRes::_set(const StringName &p_name, const Variant &p_property) {
 	_TRY_SET_PROP(comparator);
 	_TRY_SET_PROP(variable_as_value);
@@ -77,6 +58,7 @@ bool VariableExpressionRes::_get(const StringName &p_name, Variant &r_property) 
 	_TRY_GET_PROP(trigger_type);
 	return false;
 }
+
 void VariableExpressionRes::_get_property_list(List<PropertyInfo> *p_list) const {
 	if (variable_res.is_valid()) {
 		auto comparator_hint = "==,!=,>,>=,<,<=";
@@ -94,13 +76,15 @@ void VariableExpressionRes::_get_property_list(List<PropertyInfo> *p_list) const
 				break;
 		}
 
-		_PUSH_PROP(INT, comparator, PROPERTY_HINT_ENUM, comparator_hint);
-		_PUSH_PROP(BOOL, variable_as_value);
+		if (variable_res->get_type() != Variant::NIL) {
+			_PUSH_PROP(INT, comparator, PROPERTY_HINT_ENUM, comparator_hint);
+			_PUSH_PROP(BOOL, variable_as_value);
+		}
 
 		if (is_variable_as_value()) {
 			_PUSH_PROP(OBJECT, value, PROPERTY_HINT_RESOURCE_TYPE, HFSMVariableRes::get_class_static());
-		} else if (variable_res.is_valid()) {
-			if (Variant::Type(int64_t(variable_res->get_type())) != Variant::NIL) {
+		} else {
+			if (variable_res->get_type() != Variant::NIL) {
 				p_list->push_back(PropertyInfo(variable_res->get_type(), TNAMEOF(value)));
 			} else {
 				_PUSH_PROP(INT, trigger_type, PROPERTY_HINT_ENUM, "Solo,Union,Normal");
@@ -191,6 +175,7 @@ void VariableExpressionRes::set_value(const Variant &p_value) {
 		}
 	}
 }
+
 void VariableExpressionRes::set_comparator(int64_t p_op) {
 	if (variable_res.is_valid()) {
 		if (variable_res->get_type() == Variant::STRING) {
@@ -217,6 +202,7 @@ void VariableExpressionRes::set_comparator(int64_t p_op) {
 		emit_changed();
 	}
 }
+
 void VariableExpressionRes::set_variable_res(const Ref<HFSMVariableRes> &p_variable_res) {
 	if (variable_res != p_variable_res) {
 		auto ptr = cast_to<Object>(this);
