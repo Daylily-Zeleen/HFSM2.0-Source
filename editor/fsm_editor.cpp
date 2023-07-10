@@ -194,6 +194,8 @@ void FsmEditor::try_disconnect(const Vector2 &p_pos1, const Vector2 &p_pos2) {
 	Array conn_list = call("get_connection_list");
 	const Vector2 scaled_pos1 = p_pos1;
 	const Vector2 scaled_pos2 = p_pos2;
+
+	LocalVector<Pair<StateNode *, StateNode *>> to_delete;
 	for (auto i = 0; i < conn_list.size(); i++) {
 		Dictionary conn = conn_list[i];
 		auto from = _get_state_node({ StringName(conn["from"]) });
@@ -201,9 +203,21 @@ void FsmEditor::try_disconnect(const Vector2 &p_pos1, const Vector2 &p_pos2) {
 		if (from && to) {
 			auto scaled_line = get_connection_line_with_zoom(from, to);
 			if (is_judge(scaled_pos1, scaled_pos2, scaled_line[0], scaled_line[1])) {
-				delete_transition(conn["from"], conn["from_port"], conn["to"], conn["to_port"]);
+				to_delete.push_back({ from, to });
 			}
 		}
+	}
+	if (to_delete.size() > 0) {
+		HFSM_EDITOR_CREATE_ACTION("Delete State Transitions");
+		for (const auto &E : to_delete) {
+			auto tr = get_transition_res(E.first, E.second);
+			ERR_CONTINUE(tr.is_null());
+			ADD_DO_METHOD(this, disconnect_node, E.first->get_name(), 0, E.second->get_name(), 0);
+			ADD_DO_METHOD(current_fsm_res.ptr(), remove_transition_res, tr);
+			ADD_UNDO_METHOD(current_fsm_res.ptr(), add_transition_res, tr);
+			ADD_UNDO_METHOD(this, connect_node, E.first->get_name(), 0, E.second->get_name(), 0);
+		}
+		COMMIT_ACTION();
 	}
 }
 
@@ -222,24 +236,6 @@ bool FsmEditor::is_judge(const Vector2 &p_apos1, const Vector2 &p_apos2, const V
 		}
 	}
 	return false;
-}
-
-void FsmEditor::delete_transition(const StringName &p_from, int32_t p_from_slot, const StringName &p_to, int32_t p_to_slot) {
-	if (debug_mode) {
-		return;
-	}
-
-	auto from_node = cast_to<StateNode>(find_child(p_from, false, false));
-	auto to_node = cast_to<StateNode>(find_child(p_to, false, false));
-	auto tr = get_transition_res(from_node, to_node);
-	if (tr.is_valid()) {
-		HFSM_EDITOR_CREATE_ACTION("Delete State Transitions");
-		ADD_DO_METHOD(this, disconnect_node, p_from, p_from_slot, p_to, p_to_slot);
-		ADD_DO_METHOD(current_fsm_res.ptr(), remove_transition_res, tr);
-		ADD_UNDO_METHOD(current_fsm_res.ptr(), add_transition_res, tr);
-		ADD_UNDO_METHOD(this, connect_node, p_from, p_from_slot, p_to, p_to_slot);
-		COMMIT_ACTION();
-	}
 }
 
 TypedArray<TransitionRes> FsmEditor::try_select_transitions_at_pos(const Vector2 &p_pos) {

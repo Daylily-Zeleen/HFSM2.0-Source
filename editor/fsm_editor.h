@@ -85,7 +85,6 @@ private:
 	TypedArray<StateNode> get_selected_state_nodes();
 
 	bool is_judge(const Vector2 &p_apos1, const Vector2 &p_apos2, const Vector2 &p_bpos1, const Vector2 &p_bpos2);
-	void delete_transition(const StringName &p_from, int32_t p_from_slot, const StringName &p_to, int32_t p_to_slot);
 	TypedArray<TransitionRes> try_select_transitions_at_pos(const Vector2 &pos);
 
 	PackedVector2Array get_connection_line_with_zoom(StateNode *p_from, StateNode *to);
