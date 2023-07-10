@@ -46,11 +46,6 @@ void HFSMVariableRes::_bind_methods() {
 	GDBIND_SETGET(default_value);
 	// ADD_PROPERTY(PropertyInfo(Variant::NIL, "default_value"),
 	//              "set_default_value", "get_default_value");
-
-	// 编辑器专用方法
-	GDBIND_SETGET_BOOL(deleted);
-	// GDBIND_METHOD(delete_self);
-	// ClassDB::bind_method(D_METHOD("delete"), &HFSMVariableRes::delete_self);
 }
 
 void HFSMVariableRes::set_variable_name(const StringName &p_name) {
@@ -71,7 +66,11 @@ void HFSMVariableRes::set_variable_name(const StringName &p_name) {
 			}
 		}
 	} while (!unique);
+
+	set_name(variable_name);
+	emit_changed();
 }
+
 StringName HFSMVariableRes::get_variable_name() { return variable_name; }
 
 void HFSMVariableRes::set_type(Variant::Type p_t) {
@@ -101,15 +100,6 @@ void HFSMVariableRes::set_comment(const String &p_comment) {
 	emit_changed();
 }
 String HFSMVariableRes::get_comment() const { return comment; }
-
-void HFSMVariableRes::set_deleted(bool p_d) {
-	static const StringName sn = "deleted";
-	deleted = p_d;
-	if (deleted) {
-		emit_signal(sn, Ref<HFSMVariableRes>(this));
-	}
-	emit_changed();
-}
 
 void HFSMVariableRes::set_default_value(const Variant &p_default_val) {
 	if (default_value != p_default_val) {
@@ -141,8 +131,6 @@ Variant HFSMVariableRes::get_default_value() const {
 	}
 	return default_value;
 }
-bool HFSMVariableRes::is_deleted() { return deleted; }
-void HFSMVariableRes::delete_self() { set_deleted(true); }
 
 Ref<HFSMVariable> HFSMVariableRes::create_variable() {
 	Ref<HFSMVariable> ret;
@@ -157,7 +145,7 @@ Ref<HFSMVariableRes> HFSMVariableRes::create_new(const Ref<FsmRes> &p_fsm_res) {
 	Ref<HFSMVariableRes> ret;
 	ret.instantiate();
 	ret->fsm_res = p_fsm_res;
-	ret->set_name(ret->get_variable_name());
+	ret->set_variable_name(ret->get_variable_name());
 	return ret;
 }
 

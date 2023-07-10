@@ -35,13 +35,8 @@ public:
 	void set_comment(const String &p_comment);
 	String get_comment() const;
 
-	void set_deleted(bool p_d);
-
 	void set_default_value(const Variant &p_default_val);
 	Variant get_default_value() const; //  { return _default_val; }
-
-	bool is_deleted();
-	void delete_self();
 
 	Ref<class HFSMVariable> create_variable();
 
@@ -56,7 +51,6 @@ private:
 	Variant::Type type = Variant::NIL;
 	Variant default_value;
 	String comment = "";
-	bool deleted = false;
 };
 
 } // namespace Hfsm
