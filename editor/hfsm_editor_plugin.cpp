@@ -260,7 +260,7 @@ void HfsmEditorPlugin::_notification(int p_what) {
 			remove_control_from_bottom_panel(hfsm_editor);
 #ifdef DEBUG_ENABLED
 			remove_debugger_plugin(debugger_plugin);
-#endif // DEBUG_ENABLEDF
+#endif // DEBUG_ENABLED
 		} break;
 #endif // GDEXTENSION_BUILD
 		default:
@@ -271,7 +271,7 @@ void HfsmEditorPlugin::_notification(int p_what) {
 EditorUndoRedoManager *HfsmEditorPlugin::create_action(const String &p_action_name) {
 	auto undo_redo = get_singleton()->get_undo_redo();
 	undo_redo->create_action(str_localize(p_action_name), UndoRedo::MERGE_DISABLE, get_singleton()->get_hfsm_editor()->get_editing_hfsm());
-	IF_DEV(ERR_FAIL_COND_V(get_singleton()->hfsm_editor, undo_redo);)
+	IF_DEV(ERR_FAIL_COND_V(!get_singleton()->hfsm_editor, undo_redo);)
 	get_singleton()->hfsm_editor->add_undo_redo_text(undo_redo, p_action_name);
 	return undo_redo;
 }
