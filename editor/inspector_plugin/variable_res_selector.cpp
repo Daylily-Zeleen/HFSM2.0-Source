@@ -1,6 +1,5 @@
 ﻿#include "variable_res_selector.h"
 
-
 #include "../../src/hfsm.h"
 #include "../../src/hfsm_variable_res.h"
 
@@ -62,8 +61,8 @@ VariableResSelector::VariableResSelector() {
 	add_child(menu);
 }
 
-VariableResSelector::VariableResSelector(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare) {
-	// void VariableResSelector::setup(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare) {
+VariableResSelector::VariableResSelector(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare) :
+		VariableResSelector() {
 	if (hfsm) {
 		return;
 	}
