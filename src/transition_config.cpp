@@ -6,7 +6,7 @@
 #include "transitions/variable_expressions/trigger_expression.h"
 #include "transitions/variable_expressions/variable_expression.h"
 #include "transitions/variable_expressions/variable_expression_config.h"
-#include "transitions/variable_transition.h"
+#include "transitions/variable_expressions_transition.h"
 
 #ifdef GDEXTENSION_BUILD
 
@@ -362,7 +362,7 @@ TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm, Ref<StateConfi
 			ret = memnew(ExpressionTransition(p_hfsm, expression_text));
 		} break;
 		case TRANSITION_TYPE_VARIABLE_EXPRESSIONS: {
-			auto vt = memnew(VariableTransition);
+			auto vt = memnew(VariableExpressionsTransition);
 			vt->and_mode = is_and_mode();
 			for (size_t i = 0; i < variable_expression_config_list.size(); i++) {
 				Ref<VariableExpressionConfig> variable_expression_config = variable_expression_config_list[i];

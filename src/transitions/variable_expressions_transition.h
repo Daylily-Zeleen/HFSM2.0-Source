@@ -10,10 +10,10 @@ class SoloTriggerExpression;
 class UnionTriggerExpression;
 class VariableExpression;
 
-class VariableTransition : public TransitionBase {
+class VariableExpressionsTransition : public TransitionBase {
 public:
 	bool can_transit() override;
-	~VariableTransition();
+	~VariableExpressionsTransition();
 
 private:
 	bool and_mode = false;

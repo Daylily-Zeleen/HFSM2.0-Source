@@ -1,7 +1,7 @@
 ﻿#include "variable_expression_config.h"
 
 #include "../../hfsm.h"
-#include "../variable_transition.h"
+#include "../variable_expressions_transition.h"
 #include <type_traits>
 
 namespace Hfsm {

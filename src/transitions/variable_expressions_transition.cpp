@@ -1,10 +1,10 @@
-﻿#include "variable_transition.h"
+﻿#include "variable_expressions_transition.h"
 
 namespace Hfsm {
 
-#pragma region VariableTransition
+#pragma region VariableExpressionsTransition
 
-VariableTransition::~VariableTransition() {
+VariableExpressionsTransition::~VariableExpressionsTransition() {
 	for (auto &&e : solo_triggers) {
 		memdelete(e);
 	}
@@ -16,7 +16,7 @@ VariableTransition::~VariableTransition() {
 	}
 }
 
-bool VariableTransition::can_transit() {
+bool VariableExpressionsTransition::can_transit() {
 	auto ret = false;
 	// 独立触发器只有或逻辑
 	for (auto &&st : solo_triggers) {
