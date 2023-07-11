@@ -44,13 +44,6 @@ public:
 	bool _get(const StringName &p_name, Variant &r_property) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 
-	// enum StateType {
-	//     STATE_TYPE_NORMAL,
-	//     STATE_TYPE_ENTRY,
-	//     STATE_TYPE_EXIT,
-	//     STATE_TYPE_MAX,
-	// };
-
 	void set_state_name(const StringName &p_name);
 	StringName get_state_name() const;
 	void set_type(State::StateType p_state_type);
