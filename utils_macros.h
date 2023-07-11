@@ -174,10 +174,19 @@
 			vformat("%d/%d:%s", Variant::OBJECT, PROPERTY_HINT_RESOURCE_TYPE, m_class::get_class_static()), ##__VA_ARGS__)
 
 // Dynamic bind
-#define _TRY_SET_PROP_ORIGIN(m_name_id, m_prop_id, m_prop) \
-	if ((m_name_id) == TNAMEOF(m_prop)) {                  \
-		set_##m_prop(m_prop_id);                           \
-		return true;                                       \
+template <class Var, typename T>
+static T _convert_to(const Var &p_var) {
+	if constexpr (std::is_enum<T>().value) {
+		return T(int(p_var));
+	} else {
+		return T(p_var);
+	}
+}
+
+#define _TRY_SET_PROP_ORIGIN(m_name_id, m_prop_id, m_prop)               \
+	if ((m_name_id) == TNAMEOF(m_prop)) {                                \
+		set_##m_prop(_convert_to<Variant, decltype(m_prop)>(m_prop_id)); \
+		return true;                                                     \
 	}
 #define _TRY_SET_PROP(m_prop) _TRY_SET_PROP_ORIGIN(p_name, p_property, m_prop)
 

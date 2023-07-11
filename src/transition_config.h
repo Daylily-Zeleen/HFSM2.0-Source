@@ -83,8 +83,8 @@ public:
 	String get_expression_comment() const;
 
 	// 变量表达式
-	void set_variable_and_mode(bool p_and_mode);
-	bool is_variable_and_mode() const;
+	void set_and_mode(bool p_and_mode);
+	bool is_and_mode() const;
 	void set_variable_expression_config_list(const Array &p_variable_expression_config_list);
 	TypedArray<VariableExpressionConfig> get_variable_expression_config_list() const;
 
@@ -117,7 +117,7 @@ private:
 #endif
 
 	// 变量表达式
-	bool variable_and_mode = true;
+	bool and_mode = true;
 	TypedArray<VariableExpressionConfig> variable_expression_config_list; // VariableExpressionConfig
 };
 

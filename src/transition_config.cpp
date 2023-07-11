@@ -36,11 +36,9 @@ bool TransitionConfig::_set(const StringName &p_name, const Variant &p_property)
 	_TRY_SET_PROP(variable_expression_config_list);
 	_TRY_SET_PROP(expression_text);
 	_TRY_SET_PROP(expression_comment);
-	if ((p_name) == StringName("auto_mode")) {
-		set_auto_mode(AuotoTtransitMode(uint32_t(p_property)));
-		return true;
-	};
+	_TRY_SET_PROP(auto_mode);
 	_TRY_SET_PROP(auto_delay_msec);
+	_TRY_SET_PROP(and_mode);
 
 	IF_FULL_VERSION(_TRY_SET_PROP(transition_script);)
 
@@ -48,10 +46,6 @@ bool TransitionConfig::_set(const StringName &p_name, const Variant &p_property)
 		set_auto_times(p_property);
 		return true;
 	} else if (p_name == StringName("from") || p_name == StringName("to")) {
-		return true;
-	}
-	if (p_name == StringName("and_mode")) {
-		set_variable_and_mode(p_property);
 		return true;
 	}
 	return false;
@@ -72,9 +66,7 @@ bool TransitionConfig::_get(const StringName &p_name, Variant &r_property) const
 			r_property = "";
 		}
 		return true;
-	} else if (p_name == StringName("and_mode")) {
-		r_property = is_variable_and_mode();
-		return true;
+
 	} else if (p_name == StringName("update_times") || p_name == StringName("physics_update_times")) {
 		r_property = get_auto_times();
 		return true;
@@ -87,6 +79,7 @@ bool TransitionConfig::_get(const StringName &p_name, Variant &r_property) const
 	_TRY_GET_PROP(expression_comment);
 	_TRY_GET_PROP(auto_mode);
 	_TRY_GET_PROP(auto_delay_msec);
+	_TRY_GET_PROPB(and_mode);
 	return false;
 }
 
@@ -101,8 +94,7 @@ void TransitionConfig::_get_property_list(List<PropertyInfo> *p_list) const {
 					_PUSH_PROP_RESOURCE(transition_script);
 				} break;)
 		case TRANSITION_TYPE_VARIABLE_EXPRESSIONS: {
-			p_list->push_back(PropertyInfo(Variant::BOOL, "and_mode"));
-
+			_PUSH_PROP(BOOL, and_mode);
 			_PUSH_PROP_TYPED_ARRAY(variable_expression_config_list, VariableExpressionConfig);
 		} break;
 		case TRANSITION_TYPE_EXPRESSION: {
@@ -145,7 +137,7 @@ void TransitionConfig::_bind_methods() {
 	GDBIND_SETGET(expression_text);
 	GDBIND_SETGET(expression_comment);
 	// 变量表达式
-	GDBIND_SETGET_BOOL(variable_and_mode);
+	GDBIND_SETGET_BOOL(and_mode);
 	GDBIND_SETGET(variable_expression_config_list);
 	// ADD_PROPERTY(PropertyInfo(Variant::ARRAY,
 	// "variable_expression_config_list"),
@@ -226,11 +218,11 @@ void TransitionConfig::set_expression_comment(const String &p_expression_comment
 String TransitionConfig::get_expression_comment() const { return expression_comment; }
 
 // 变量表达式
-void TransitionConfig::set_variable_and_mode(bool p_and_mode) {
-	variable_and_mode = p_and_mode;
+void TransitionConfig::set_and_mode(bool p_and_mode) {
+	and_mode = p_and_mode;
 	emit_changed();
 }
-bool TransitionConfig::is_variable_and_mode() const { return variable_and_mode; }
+bool TransitionConfig::is_and_mode() const { return and_mode; }
 
 void TransitionConfig::set_variable_expression_config_list(const Array &p_variable_expression_config_list) {
 	auto cb = Callable(this, SNAME("emit_changed"));
@@ -382,7 +374,7 @@ TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm, Ref<StateConfi
 				} break;)
 		case TRANSITION_TYPE_VARIABLE_EXPRESSIONS: {
 			auto vt = memnew(VariableTransition);
-			vt->and_mode = is_variable_and_mode();
+			vt->and_mode = is_and_mode();
 			for (size_t i = 0; i < variable_expression_config_list.size(); i++) {
 				Ref<VariableExpressionConfig> variable_expression_config = variable_expression_config_list[i];
 				auto ve = variable_expression_config->create_variable_expression(p_hfsm);
