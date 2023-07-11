@@ -28,7 +28,7 @@ protected:
 	void _notification(int p_what);
 
 private:
-	enum {
+	enum MenuOption{
 		ITEM_ADD_STATE,
 		ITEM_CUT_STATE,
 		ITEM_COPY_STATES,
@@ -38,7 +38,7 @@ private:
 		ITEM_CONVERT_TO_FSM,
 	};
 
-	enum {
+	enum ShortCutKeyCode{
 		KEYCODE_ADD_STATE = int(KEY(A)) | int(KEY_MASK(SHIFT)),
 		KEYCODE_CUT_STATE = int(KEY(X)) | int(KEY_MASK(CMD_OR_CTRL)),
 		KEYCODE_COPY_STATES = int(KEY(C)) | int(KEY_MASK(CMD_OR_CTRL)),
