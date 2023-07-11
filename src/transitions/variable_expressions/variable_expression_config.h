@@ -33,13 +33,15 @@ public:
 		TRIGGER_TYPE_NORMAL,
 		TRIGGER_TYPE_MAX,
 	};
-	enum Op {
-		OP_EQUAL,
-		OP_NOT_EQUAL,
-		OP_GREATER,
-		OP_GREATER_EQUAL,
-		OP_LESS,
-		OP_LESS_EQUAL,
+
+	enum Comparator {
+		COMPARATOR_EQUAL,
+		COMPARATOR_NOT_EQUAL,
+		COMPARATOR_GREATER,
+		COMPARATOR_GREATER_EQUAL,
+		COMPARATOR_LESS,
+		COMPARATOR_LESS_EQUAL,
+		COMPARATOR_MAX,
 	};
 
 	void set_variable_config(const Ref<VariableConfig> &p_variable_config);
@@ -48,27 +50,23 @@ public:
 	void set_value(const Variant &p_value);
 	Variant get_value() const;
 
-	void set_comparator(int64_t p_op);
-	uint8_t get_comparator() const;
+	void set_comparator(Comparator p_cmp);
+	Comparator get_comparator() const;
 
-	void set_trigger_type(int64_t p_trigger_type);
-	uint8_t get_trigger_type() const;
+	void set_trigger_type(TriggerType p_trigger_type);
+	TriggerType get_trigger_type() const;
 
 	void set_variable_as_value(bool p_variable_as_value);
 	bool is_variable_as_value() const;
-
-	// Dictionary get_valid_and_text();
-
-	// Array get_property_list() const;
 
 	VariableExpression *create_variable_expression(HFSM *p_hfsm);
 
 private:
 	Ref<VariableConfig> variable_config;
 	Variant value;
-	uint8_t comparator = OP_EQUAL;
+	Comparator comparator = Comparator::COMPARATOR_EQUAL;
 	// trigger
-	uint8_t trigger_type = TRIGGER_TYPE_SOLO;
+	TriggerType trigger_type = TRIGGER_TYPE_SOLO;
 
 	// 是否使用另一个 变量资源作为 比较值
 	bool variable_as_value = false;
@@ -77,4 +75,4 @@ private:
 } // namespace Hfsm
 
 VARIANT_ENUM_CAST(Hfsm::VariableExpressionConfig::TriggerType);
-VARIANT_ENUM_CAST(Hfsm::VariableExpressionConfig::Op);
+VARIANT_ENUM_CAST(Hfsm::VariableExpressionConfig::Comparator);

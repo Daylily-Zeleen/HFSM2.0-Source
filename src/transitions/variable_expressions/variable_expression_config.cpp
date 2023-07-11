@@ -2,6 +2,7 @@
 
 #include "../../hfsm.h"
 #include "../variable_transition.h"
+#include <type_traits>
 
 namespace Hfsm {
 
@@ -10,9 +11,9 @@ Ref<VariableConfig> VariableExpressionConfig::get_variable_config() const { retu
 
 Variant VariableExpressionConfig::get_value() const { return value; }
 
-uint8_t VariableExpressionConfig::get_comparator() const { return comparator; }
+VariableExpressionConfig::Comparator VariableExpressionConfig::get_comparator() const { return comparator; }
 
-uint8_t VariableExpressionConfig::get_trigger_type() const { return trigger_type; }
+VariableExpressionConfig::TriggerType VariableExpressionConfig::get_trigger_type() const { return trigger_type; }
 
 bool VariableExpressionConfig::is_variable_as_value() const { return variable_as_value; }
 
@@ -45,9 +46,9 @@ VariableExpression *VariableExpressionConfig::create_variable_expression(HFSM *p
 
 bool VariableExpressionConfig::_set(const StringName &p_name, const Variant &p_property) {
 	_TRY_SET_PROP(comparator);
+	_TRY_SET_PROP(trigger_type);
 	_TRY_SET_PROP(variable_as_value);
 	_TRY_SET_PROP(value);
-	_TRY_SET_PROP(trigger_type);
 	return false;
 }
 
@@ -110,12 +111,12 @@ void VariableExpressionConfig::_bind_methods() {
 	BIND_CONSTANT(TRANSITION_TYPE_EXPRESSION);
 	BIND_CONSTANT(TRANSITION_TYPE_AUTO);
 
-	BIND_CONSTANT(OP_EQUAL);
-	BIND_CONSTANT(OP_NOT_EQUAL);
-	BIND_CONSTANT(OP_GREATER);
-	BIND_CONSTANT(OP_GREATER_EQUAL);
-	BIND_CONSTANT(OP_LESS);
-	BIND_CONSTANT(OP_LESS_EQUAL);
+	BIND_CONSTANT(COMPARATOR_EQUAL);
+	BIND_CONSTANT(COMPARATOR_NOT_EQUAL);
+	BIND_CONSTANT(COMPARATOR_GREATER);
+	BIND_CONSTANT(COMPARATOR_GREATER_EQUAL);
+	BIND_CONSTANT(COMPARATOR_LESS);
+	BIND_CONSTANT(COMPARATOR_LESS_EQUAL);
 }
 
 void VariableExpressionConfig::set_variable_as_value(bool p_variable_as_value) {
@@ -176,10 +177,10 @@ void VariableExpressionConfig::set_value(const Variant &p_value) {
 	}
 }
 
-void VariableExpressionConfig::set_comparator(int64_t p_op) {
+void VariableExpressionConfig::set_comparator(Comparator p_op) {
 	if (variable_config.is_valid()) {
 		if (variable_config->get_type() == Variant::STRING) {
-			if (p_op == OP_EQUAL && p_op == OP_NOT_EQUAL) {
+			if (p_op == COMPARATOR_EQUAL && p_op == COMPARATOR_NOT_EQUAL) {
 				if (p_op != comparator) {
 					comparator = p_op;
 					emit_changed();
@@ -188,7 +189,7 @@ void VariableExpressionConfig::set_comparator(int64_t p_op) {
 			}
 		} else if (variable_config->get_type() == Variant::INT ||
 				variable_config->get_type() == Variant::FLOAT) {
-			if (p_op >= OP_EQUAL && p_op < 6) {
+			if (p_op >= COMPARATOR_EQUAL && p_op < 6) {
 				if (p_op != comparator) {
 					comparator = p_op;
 					emit_changed();
@@ -197,8 +198,8 @@ void VariableExpressionConfig::set_comparator(int64_t p_op) {
 			}
 		}
 	}
-	if (comparator != OP_EQUAL) {
-		comparator = OP_EQUAL;
+	if (comparator != COMPARATOR_EQUAL) {
+		comparator = COMPARATOR_EQUAL;
 		emit_changed();
 	}
 }
@@ -220,9 +221,9 @@ void VariableExpressionConfig::set_variable_config(const Ref<VariableConfig> &p_
 	}
 }
 
-void VariableExpressionConfig::set_trigger_type(int64_t p_trigger_type) {
-	ERR_FAIL_COND(!(p_trigger_type >= 0 && p_trigger_type < TRIGGER_TYPE_MAX));
-	trigger_type = uint8_t(p_trigger_type);
+void VariableExpressionConfig::set_trigger_type(TriggerType p_trigger_type) {
+	// ERR_FAIL_COND(!(p_trigger_type >= 0 && p_trigger_type < TRIGGER_TYPE_MAX));
+	trigger_type = p_trigger_type;
 	emit_changed();
 }
 

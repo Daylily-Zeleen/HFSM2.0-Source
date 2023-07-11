@@ -14,6 +14,7 @@ public:
 		EXPRESSION_TYPE_UNION_TRIGGER,
 		EXPRESSION_TYPE_SOLO_TRIGGER,
 	};
+
 	/**
 	 * @brief 判断是否可以推进
 	 *
@@ -23,6 +24,7 @@ public:
 	 * @return false 未能确定总结果
 	 */
 	virtual bool get_result(bool p_and_mode, bool &r_result) = 0;
+
 	/**
 	 * @brief Get the expression typ object
 	 *
