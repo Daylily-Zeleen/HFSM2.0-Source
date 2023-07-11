@@ -17,13 +17,6 @@ namespace Hfsm {
 class HFSM;
 class State;
 
-enum TransitionType {
-	TRANSITION_TYPE_SCRIPT,
-	TRANSITION_TYPE_VARIABLE_EXPRESSIONS,
-	TRANSITION_TYPE_EXPRESSION,
-	TRANSITION_TYPE_AUTO,
-};
-
 // 基类
 class TransitionBase {
 public:
