@@ -66,10 +66,8 @@ public:
 	static Color IN_COLOR;
 	static Color OUT_COLOR;
 
-	enum {
-		IN_TYPE,
-		OUT_TYPE
-	};
+	static const int IN_TYPE = 0;
+	static const int OUT_TYPE = 1;
 
 	Ref<class StateConfig> get_state_config() const;
 	static StateNode *create_state_node(const Ref<StateConfig> &p_target_state_config, const Ref<class FSMConfig> &p_nested_fsm_config, bool p_debug = false);
