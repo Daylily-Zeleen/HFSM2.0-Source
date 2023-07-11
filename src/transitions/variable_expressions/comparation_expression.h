@@ -13,15 +13,15 @@ protected:
 	ComparationExpression(const Ref<Variable> &p_variable, uint8_t p_op);
 
 	enum Comparator {
-		COMOARATOR_EQUAL,
-		COMOARATOR_NOT_EQUAL,
-		COMOARATOR_GREATER,
-		COMOARATOR_GREATER_EQUAL,
-		COMOARATOR_LESS,
-		COMOARATOR_LESS_EQUAL,
+		COMPARATOR_EQUAL,
+		COMPARATOR_NOT_EQUAL,
+		COMPARATOR_GREATER,
+		COMPARATOR_GREATER_EQUAL,
+		COMPARATOR_LESS,
+		COMPARATOR_LESS_EQUAL,
 	};
 
-	Comparator op = COMOARATOR_EQUAL;
+	Comparator op = COMPARATOR_EQUAL;
 
 	bool compare_with(const Ref<Variable> &p_a, Comparator p_cmp, const Variant &p_b);
 	bool compare_with(const Ref<Variable> &p_a, Comparator p_cmp, const Variable *p_b);
@@ -58,17 +58,17 @@ private:
 #pragma region 内联实现
 inline bool ComparationExpression::compare_with(const Ref<Variable> &p_a, Comparator p_cmp, const Variant &p_b) {
 	switch (p_cmp) {
-		case COMOARATOR_EQUAL:
+		case COMPARATOR_EQUAL:
 			return p_a->get_value() == p_b;
-		case COMOARATOR_NOT_EQUAL:
+		case COMPARATOR_NOT_EQUAL:
 			return p_a->get_value() != p_b;
-		case COMOARATOR_GREATER:
+		case COMPARATOR_GREATER:
 			return !(p_a->get_value() < p_b || p_a->get_value() == p_b);
-		case COMOARATOR_GREATER_EQUAL:
+		case COMPARATOR_GREATER_EQUAL:
 			return !(p_a->get_value() < p_b);
-		case COMOARATOR_LESS:
+		case COMPARATOR_LESS:
 			return p_a->get_value() < p_b;
-		case COMOARATOR_LESS_EQUAL:
+		case COMPARATOR_LESS_EQUAL:
 			return p_a->get_value() < p_b || p_a->get_value() == p_b;
 		default:
 			return false;

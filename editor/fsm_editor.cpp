@@ -1479,17 +1479,17 @@ String FsmEditor::get_variable_expression_config_valid_and_text(const Ref<Variab
 		if (vc->get_type() != Variant::NIL) {
 			auto get_op_text = [p_ver]() -> String {
 				switch (p_ver->get_comparator()) {
-					case VariableExpressionConfig::OP_EQUAL:
+					case VariableExpressionConfig::COMPARATOR_EQUAL:
 						return " == ";
-					case VariableExpressionConfig::OP_NOT_EQUAL:
+					case VariableExpressionConfig::COMPARATOR_NOT_EQUAL:
 						return " != ";
-					case VariableExpressionConfig::OP_GREATER:
+					case VariableExpressionConfig::COMPARATOR_GREATER:
 						return " > ";
-					case VariableExpressionConfig::OP_GREATER_EQUAL:
+					case VariableExpressionConfig::COMPARATOR_GREATER_EQUAL:
 						return " >= ";
-					case VariableExpressionConfig::OP_LESS:
+					case VariableExpressionConfig::COMPARATOR_LESS:
 						return " < ";
-					case VariableExpressionConfig::OP_LESS_EQUAL:
+					case VariableExpressionConfig::COMPARATOR_LESS_EQUAL:
 						return " <= ";
 					default:
 						return " invalid operator";
@@ -1595,7 +1595,7 @@ List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 			auto variable_expression_config_list = p_transition_config->get_variable_expression_config_list();
 			if (variable_expression_config_list.size() > 0) {
 				r_valid = true;
-				ret.push_back(str_localize("Variable Expressions: ") + String(p_transition_config->is_variable_and_mode() ? "AND" : "OR"));
+				ret.push_back(str_localize("Variable Expressions: ") + String(p_transition_config->is_and_mode() ? "AND" : "OR"));
 				for (auto i = 0; i < variable_expression_config_list.size(); i++) {
 					Ref<VariableExpressionConfig> vec = variable_expression_config_list[i];
 					if (vec.is_valid()) {
