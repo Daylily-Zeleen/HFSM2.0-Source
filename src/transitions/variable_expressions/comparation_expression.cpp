@@ -22,7 +22,7 @@ namespace Hfsm {
 #endif // TOOLS_ENABLED
 
 // ComparationExpression
-ComparationExpression::ComparationExpression(const Ref<HFSMVariable> &p_variable, uint8_t p_op) :
+ComparationExpression::ComparationExpression(const Ref<Variable> &p_variable, uint8_t p_op) :
 		VariableExpression(p_variable) {
 	ERR_FAIL_COND(!(p_op >= 0 && p_op < 6));
 	op = p_op;
@@ -30,7 +30,7 @@ ComparationExpression::ComparationExpression(const Ref<HFSMVariable> &p_variable
 
 // ConstantComparationExpression
 ConstantComparationExpression::ConstantComparationExpression(
-		const Ref<HFSMVariable> &p_variable, uint8_t p_op, const Variant &p_value) :
+		const Ref<Variable> &p_variable, uint8_t p_op, const Variant &p_value) :
 		ComparationExpression(p_variable, p_op) {
 	type_convertable_check(variable, p_value.get_type());
 	value = p_value;
@@ -38,7 +38,7 @@ ConstantComparationExpression::ConstantComparationExpression(
 
 // VariableComparationExpression
 VariableComparationExpression::VariableComparationExpression(
-		const Ref<HFSMVariable> &p_variable, uint8_t p_op, const Ref<HFSMVariable> &p_value) :
+		const Ref<Variable> &p_variable, uint8_t p_op, const Ref<Variable> &p_value) :
 		ComparationExpression(p_variable, p_op) {
 	type_convertable_check(variable, p_value->get_type());
 	value = p_value;

@@ -13,21 +13,21 @@ using namespace godot;
 
 #endif // GDEXTENSION_BUILD
 
-#include "transitions/variable_expressions/variable_expression_res.h"
+#include "transitions/variable_expressions/variable_expression_config.h"
 
 namespace Hfsm {
 
 class HFSM;
-// class VariableExpressionRes;
+// class VariableExpressionConfig;
 class TransitionBase;
-class StateRes;
-// class FsmRes;
-// class TransitionRes;
+class StateConfig;
+// class FSMConfig;
+// class TransitionConfig;
 
 // 基类资源
-class TransitionRes : public Resource {
-	GDCLASS(TransitionRes, Resource)
-	// void __on_variable_expression_res_changed(const Ref<VariableExpressionRes> &p_ver);
+class TransitionConfig : public Resource {
+	GDCLASS(TransitionConfig, Resource)
+	// void __on_variable_expression_config_changed(const Ref<VariableExpressionConfig> &p_ver);
 
 protected:
 	static void _bind_methods();
@@ -54,17 +54,17 @@ public:
 		AUTO_TRANSIT_MODE_MAX,
 	};
 
-	TransitionBase *create_transition(HFSM *p_hfsm, Ref<StateRes> &r_from_state_res, Ref<StateRes> &r_to_state_res);
+	TransitionBase *create_transition(HFSM *p_hfsm, Ref<StateConfig> &r_from_state_config, Ref<StateConfig> &r_to_state_config);
 
 	bool _set(const StringName &p_name, const Variant &p_property);
 	bool _get(const StringName &p_name, Variant &r_property) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 
 	// 公用访问器
-	void set_from_state_res(const Ref<StateRes> &p_from_state_res);
-	Ref<StateRes> get_from_state_res() const;
-	void set_to_state_res(const Ref<StateRes> &p_from_to_res);
-	Ref<StateRes> get_to_state_res() const;
+	void set_from_state_config(const Ref<StateConfig> &p_from_state_config);
+	Ref<StateConfig> get_from_state_config() const;
+	void set_to_state_config(const Ref<StateConfig> &p_from_to_config);
+	Ref<StateConfig> get_to_state_config() const;
 	void set_type(TransitionType p_type);
 	TransitionType get_type() const;
 
@@ -85,8 +85,8 @@ public:
 	// 变量表达式
 	void set_variable_and_mode(bool p_and_mode);
 	bool is_variable_and_mode() const;
-	void set_variable_expression_res_list(const Array &p_variable_expression_res_list);
-	TypedArray<VariableExpressionRes> get_variable_expression_res_list() const;
+	void set_variable_expression_config_list(const Array &p_variable_expression_config_list);
+	TypedArray<VariableExpressionConfig> get_variable_expression_config_list() const;
 
 #ifdef FULL_VERSION
 	// 脚本
@@ -97,8 +97,8 @@ public:
 
 private:
 	// 共有属性
-	Ref<StateRes> from_state_res;
-	Ref<StateRes> to_state_res;
+	Ref<StateConfig> from_state_config;
+	Ref<StateConfig> to_state_config;
 	TransitionType type = TRANSITION_TYPE_AUTO;
 
 	// Auto
@@ -118,10 +118,10 @@ private:
 
 	// 变量表达式
 	bool variable_and_mode = true;
-	TypedArray<VariableExpressionRes> variable_expression_res_list; // VariableExpressionRes
+	TypedArray<VariableExpressionConfig> variable_expression_config_list; // VariableExpressionConfig
 };
 
 }; // namespace Hfsm
 
-VARIANT_ENUM_CAST(Hfsm::TransitionRes::TransitionType);
-VARIANT_ENUM_CAST(Hfsm::TransitionRes::AuotoTtransitMode);
+VARIANT_ENUM_CAST(Hfsm::TransitionConfig::TransitionType);
+VARIANT_ENUM_CAST(Hfsm::TransitionConfig::AuotoTtransitMode);

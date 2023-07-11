@@ -10,11 +10,11 @@ using namespace godot;
 #endif // GDEXTENSION_BUILD
 
 namespace Hfsm {
-class HFSMVariable;
-// class FsmRes;
+class Variable;
+// class FSMConfig;
 
-class HFSMVariableRes : public Resource {
-	GDCLASS(HFSMVariableRes, Resource)
+class VariableConfig : public Resource {
+	GDCLASS(VariableConfig, Resource)
 
 protected:
 	static void _bind_methods();
@@ -38,18 +38,18 @@ public:
 	void set_default_value(const Variant &p_default_val);
 	Variant get_default_value() const; //  { return _default_val; }
 
-	Ref<class HFSMVariable> create_variable();
+	Ref<class Variable> create_variable();
 
-	void set_fsm_res(const Ref<class FsmRes> &p_fsm_res);
-	Ref<class FsmRes> get_fsm_res() const;
+	void set_fsm_config(const Ref<class FSMConfig> &p_fsm_config);
+	Ref<class FSMConfig> get_fsm_config() const;
 
-	static Ref<HFSMVariableRes> create_new(const Ref<class FsmRes> &p_fsm_res);
+	static Ref<VariableConfig> create_new(const Ref<class FSMConfig> &p_fsm_config);
 
 	String get_type_text() const;
 
 private:
 	StringName variable_name = "variable";
-	Ref<class FsmRes> fsm_res;
+	Ref<class FSMConfig> fsm_config;
 	Variant::Type type = Variant::NIL;
 	Variant default_value;
 	String comment = "";

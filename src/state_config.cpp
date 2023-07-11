@@ -1,6 +1,6 @@
-﻿#include "state_res.h"
+﻿#include "state_config.h"
 #include "fsm.h"
-#include "fsm_res.h"
+#include "fsm_config.h"
 #include "hfsm.h"
 
 #ifdef GDEXTENSION_BUILD
@@ -33,11 +33,11 @@
 
 namespace Hfsm {
 
-#pragma region StateRes
+#pragma region StateConfig
 
-PackedStringArray (*StateRes::get_animation_list)() = nullptr;
+PackedStringArray (*StateConfig::get_animation_list)() = nullptr;
 
-bool StateRes::_set(const StringName &p_name, const Variant &p_property) {
+bool StateConfig::_set(const StringName &p_name, const Variant &p_property) {
 	_TRY_SET_PROP(animation_name);
 	IF_FULL_VERSION({
 		_TRY_SET_PROP(animation_blend_time);
@@ -47,7 +47,7 @@ bool StateRes::_set(const StringName &p_name, const Variant &p_property) {
 	return false;
 }
 
-bool StateRes::_get(const StringName &p_name, Variant &r_property) const {
+bool StateConfig::_get(const StringName &p_name, Variant &r_property) const {
 	_TRY_GET_PROP(animation_name);
 	IF_FULL_VERSION({
 		_TRY_GET_PROP(animation_blend_time);
@@ -56,7 +56,7 @@ bool StateRes::_get(const StringName &p_name, Variant &r_property) const {
 	})
 	return false;
 }
-void StateRes::_get_property_list(List<PropertyInfo> *p_list) const {
+void StateConfig::_get_property_list(List<PropertyInfo> *p_list) const {
 	String animations;
 	IF_TOOLS(
 			if (get_animation_list) {
@@ -77,13 +77,13 @@ void StateRes::_get_property_list(List<PropertyInfo> *p_list) const {
 	})
 }
 
-void StateRes::_bind_methods() {
-	GDBIND_BEGIN(StateRes);
+void StateConfig::_bind_methods() {
+	GDBIND_BEGIN(StateConfig);
 	GDADD_PROPERTY_RESOURCE(state_script);
 
 	// Not allow change state name in inspector.
 	GDADD_PROPERTY(STRING, state_name, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE);
-	GDADD_PROPERTY_RESOURCE(fsm_res, PROPERTY_USAGE_STORAGE);
+	GDADD_PROPERTY_RESOURCE(fsm_config, PROPERTY_USAGE_STORAGE);
 	GDADD_PROPERTY(INT, type, PROPERTY_HINT_ENUM, "Normal,Entry,Exit", PROPERTY_USAGE_STORAGE);
 	GDADD_PROPERTY_BOOL(nested, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE);
 
@@ -96,19 +96,19 @@ void StateRes::_bind_methods() {
 #endif
 }
 
-void StateRes::set_state_name(const StringName &p_name) {
+void StateConfig::set_state_name(const StringName &p_name) {
 	state_name = p_name;
 	// 在 StateNode 中检查重复
 	emit_changed();
 }
-StringName StateRes::get_state_name() const { return state_name; }
+StringName StateConfig::get_state_name() const { return state_name; }
 
-void StateRes::set_type(State::StateType p_state_type) {
+void StateConfig::set_type(State::StateType p_state_type) {
 	type = p_state_type;
 	emit_changed();
 }
-State::StateType StateRes::get_type() const { return type; }
-void StateRes::set_state_script(const Ref<Script> &p_script) {
+State::StateType StateConfig::get_type() const { return type; }
+void StateConfig::set_state_script(const Ref<Script> &p_script) {
 	auto cb = TCALLABLE(set_state_script);
 	if (state_script.is_valid() && state_script->is_connected(s_changed, cb)) {
 		state_script->disconnect(s_changed, cb);
@@ -210,58 +210,58 @@ void StateRes::set_state_script(const Ref<Script> &p_script) {
 
 	call_deferred(SNAME("emit_changed"));
 }
-Ref<Script> StateRes::get_state_script() const { return state_script; }
-bool StateRes::is_script_valid() const { return script_valid; }
+Ref<Script> StateConfig::get_state_script() const { return state_script; }
+bool StateConfig::is_script_valid() const { return script_valid; }
 
-void StateRes::set_nested(bool p_nested) {
+void StateConfig::set_nested(bool p_nested) {
 	nested = p_nested;
 	emit_changed();
 }
-bool StateRes::is_nested() const { return nested; }
+bool StateConfig::is_nested() const { return nested; }
 
-void StateRes::set_fsm_res(const Ref<FsmRes> &p_fsm_res) {
-	fsm_res = p_fsm_res;
+void StateConfig::set_fsm_config(const Ref<FSMConfig> &p_fsm_config) {
+	fsm_config = p_fsm_config;
 	emit_changed();
 }
-Ref<FsmRes> StateRes::get_fsm_res() const { return fsm_res; }
+Ref<FSMConfig> StateConfig::get_fsm_config() const { return fsm_config; }
 
 #ifdef TOOLS_ENABLED
-void StateRes::set_editor_offset(Vector2 p_offset) {
+void StateConfig::set_editor_offset(Vector2 p_offset) {
 	editor_offset = p_offset;
 	emit_changed();
 }
-Vector2 StateRes::get_editor_offset() const { return editor_offset; }
+Vector2 StateConfig::get_editor_offset() const { return editor_offset; }
 #endif // TOOLS_ENABLED
 
-StringName StateRes::get_animation_name() const { return animation_name; }
-void StateRes::set_animation_name(const StringName &p_anim_name) { animation_name = p_anim_name; }
+StringName StateConfig::get_animation_name() const { return animation_name; }
+void StateConfig::set_animation_name(const StringName &p_anim_name) { animation_name = p_anim_name; }
 
 #ifdef FULL_VERSION
-double StateRes::get_animation_blend_time() const { return animation_blend_time; }
-void StateRes::set_animation_blend_time(double p_blend_time) { animation_blend_time = p_blend_time; }
-double StateRes::get_animation_speed() const { return animation_speed; }
-void StateRes::set_animation_speed(double p_speed) { animation_speed = p_speed; }
-bool StateRes::get_animation_reverse() const { return animation_reverse; }
-void StateRes::set_animation_reverse(bool p_reverse) { animation_reverse = p_reverse; }
+double StateConfig::get_animation_blend_time() const { return animation_blend_time; }
+void StateConfig::set_animation_blend_time(double p_blend_time) { animation_blend_time = p_blend_time; }
+double StateConfig::get_animation_speed() const { return animation_speed; }
+void StateConfig::set_animation_speed(double p_speed) { animation_speed = p_speed; }
+bool StateConfig::get_animation_reverse() const { return animation_reverse; }
+void StateConfig::set_animation_reverse(bool p_reverse) { animation_reverse = p_reverse; }
 #endif
 
 //
-Ref<State> StateRes::create_state(HFSM *p_hfsm, Fsm *p_fsm) {
-	Ref<State> r;
-	r.instantiate();
-	r->set_name(state_name);
-	r->hfsm = p_hfsm;
-	r->type = type;
+Ref<State> StateConfig::create_state(HFSM *p_hfsm, Fsm *p_fsm) {
+	Ref<State> ret;
+	ret.instantiate();
+	ret->set_name(state_name);
+	ret->hfsm = p_hfsm;
+	ret->type = type;
 
-	r->set_animation_name(animation_name);
+	ret->set_animation_name(animation_name);
 	IF_FULL_VERSION({
-		r->animation_speed = animation_speed;
-		r->animation_blend_time = animation_blend_time;
-		r->animation_reverse = animation_reverse;
+		ret->animation_speed = animation_speed;
+		ret->animation_blend_time = animation_blend_time;
+		ret->animation_reverse = animation_reverse;
 	})
 	// 路径
 	// State 一定包含于 Fsm
-	r->path.append_array(p_fsm->get_path());
+	ret->path.append_array(p_fsm->get_path());
 
 	// 脚本处理
 	if (state_script.is_valid()) {
@@ -269,33 +269,33 @@ Ref<State> StateRes::create_state(HFSM *p_hfsm, Fsm *p_fsm) {
 			if (state_script.is_valid()) {
 				auto base_type = state_script->get_instance_base_type();
 				IF_GDM(if (ClassDB::is_parent_class(base_type, State::get_class_static())) {
-					r->set_script(state_script);
+					ret->set_script(state_script);
 				} else)
 
 				if (base_type != StringName(State::get_class_static())) {
-					r->set_script(state_script);
+					ret->set_script(state_script);
 				}
 			}
 		} else {
 			String path_text;
-			for (auto i = 0; i < r->get_path().size(); i++) {
-				path_text = path_text + Ref<State>(r->get_path()[i])->get_name();
-				if (i != i < r->get_path().size() - 1) {
+			for (auto i = 0; i < ret->get_path().size(); i++) {
+				path_text = path_text + Ref<State>(ret->get_path()[i])->get_name();
+				if (i != i < ret->get_path().size() - 1) {
 					path_text = path_text + String("/");
 				}
 			}
-			ERR_FAIL_V_MSG(r, path_text + String(": Script is not extends from 'State'."));
+			ERR_FAIL_V_MSG(ret, path_text + String(": Script is not extends from 'State'."));
 		}
 	}
 	// 内嵌状态机
-	if (fsm_res.is_valid()) {
-		r->sub_fsm = static_cast<FsmRes *>(get_fsm_res().ptr())->create_fsm(p_hfsm, r, p_fsm->get_fsm_update_queue());
+	if (fsm_config.is_valid()) {
+		ret->sub_fsm = static_cast<FSMConfig *>(get_fsm_config().ptr())->create_fsm(p_hfsm, ret, p_fsm->get_fsm_update_queue());
 	}
 
 	// Call initialized (finally allow to access HFSM).
-	r->initialize_state();
+	ret->initialize_state();
 
-	return r;
+	return ret;
 }
 
 #pragma endregion

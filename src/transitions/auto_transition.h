@@ -46,7 +46,7 @@ private:
 	uint64_t next_delay_transit_tick = 0;
 	uint64_t update_times = 0;
 
-	friend class TransitionRes;
+	friend class TransitionConfig;
 };
 
 #pragma region 内联实现

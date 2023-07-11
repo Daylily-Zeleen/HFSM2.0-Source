@@ -9,14 +9,14 @@ using namespace godot;
 
 #endif // GDEXTENSION_BUILD
 
-#include "../../hfsm_variable_res.h"
+#include "../../variable_config.h"
 namespace Hfsm {
 
 class HFSM;
 class VariableExpression;
 
-class VariableExpressionRes : public Resource {
-	GDCLASS(VariableExpressionRes, Resource)
+class VariableExpressionConfig : public Resource {
+	GDCLASS(VariableExpressionConfig, Resource)
 
 protected:
 	static void _bind_methods();
@@ -42,8 +42,8 @@ public:
 		OP_LESS_EQUAL,
 	};
 
-	void set_variable_res(const Ref<HFSMVariableRes> &p_variable_res);
-	Ref<HFSMVariableRes> get_variable_res() const;
+	void set_variable_config(const Ref<VariableConfig> &p_variable_config);
+	Ref<VariableConfig> get_variable_config() const;
 
 	void set_value(const Variant &p_value);
 	Variant get_value() const;
@@ -64,7 +64,7 @@ public:
 	VariableExpression *create_variable_expression(HFSM *p_hfsm);
 
 private:
-	Ref<HFSMVariableRes> variable_res;
+	Ref<VariableConfig> variable_config;
 	Variant value;
 	uint8_t comparator = OP_EQUAL;
 	// trigger
@@ -76,5 +76,5 @@ private:
 
 } // namespace Hfsm
 
-VARIANT_ENUM_CAST(Hfsm::VariableExpressionRes::TriggerType);
-VARIANT_ENUM_CAST(Hfsm::VariableExpressionRes::Op);
+VARIANT_ENUM_CAST(Hfsm::VariableExpressionConfig::TriggerType);
+VARIANT_ENUM_CAST(Hfsm::VariableExpressionConfig::Op);

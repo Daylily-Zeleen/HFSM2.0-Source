@@ -1,8 +1,8 @@
 ﻿#include "hfsm.h"
 #include "fsm.h"
-#include "fsm_res.h"
-#include "hfsm_variable.h"
-#include "hfsm_variable_res.h"
+#include "fsm_config.h"
+#include "variable.h"
+#include "variable_config.h"
 #include "state.h"
 
 #ifdef DEBUG_ENABLED
@@ -26,7 +26,7 @@ namespace Hfsm {
 bool HFSM::_set(const StringName &p_name, const Variant &p_property) {
 	IF_TOOLS(
 			if (p_name == StringName("variable_list")) {
-				root_fsm_res->set_variable_res_list(p_property);
+				root_fsm_config->set_variable_config_list(p_property);
 				return true;
 			})
 	return false;
@@ -35,8 +35,8 @@ bool HFSM::_set(const StringName &p_name, const Variant &p_property) {
 bool HFSM::_get(const StringName &p_name, Variant &r_property) const {
 	IF_TOOLS(
 			if (p_name == StringName("variable_list")) {
-				if (root_fsm_res.is_valid()) {
-					r_property = root_fsm_res->get_variable_res_list();
+				if (root_fsm_config.is_valid()) {
+					r_property = root_fsm_config->get_variable_config_list();
 				}
 				return true;
 			})
@@ -45,8 +45,8 @@ bool HFSM::_get(const StringName &p_name, Variant &r_property) const {
 
 void HFSM::_get_property_list(List<PropertyInfo> *p_list) const {
 	IF_TOOLS(
-			if (Engine::get_singleton()->is_editor_hint() && root_fsm_res.is_valid()) {
-				auto typed_VariableRes_array_hint_string = vformat("%d/%d:%s", Variant::OBJECT, PROPERTY_HINT_RESOURCE_TYPE, HFSMVariableRes::get_class_static());
+			if (Engine::get_singleton()->is_editor_hint() && root_fsm_config.is_valid()) {
+				auto typed_VariableRes_array_hint_string = vformat("%d/%d:%s", Variant::OBJECT, PROPERTY_HINT_RESOURCE_TYPE, VariableConfig::get_class_static());
 				p_list->push_back(PropertyInfo(Variant::ARRAY, "variable_list", PROPERTY_HINT_TYPE_STRING, typed_VariableRes_array_hint_string, PROPERTY_USAGE_EDITOR));
 			})
 }
@@ -81,7 +81,7 @@ void HFSM::_bind_methods() {
 
 	GDADD_PROPERTY(OBJECT, animation_player, PROPERTY_HINT_NODE_TYPE, AnimationPlayer::get_class_static(), PROPERTY_USAGE_DEFAULT);
 
-	GDADD_PROPERTY_RESOURCE(root_fsm_res);
+	GDADD_PROPERTY_RESOURCE(root_fsm_config);
 
 	GDBIND_CALBACK(_animation_finished);
 
@@ -125,13 +125,13 @@ HFSM::~HFSM() {
 	}
 }
 
-void HFSM::set_root_fsm_res(const Ref<FsmRes> &p_root_fsm_res) {
-	root_fsm_res = p_root_fsm_res;
+void HFSM::set_root_fsm_config(const Ref<FSMConfig> &p_root_fsm_config) {
+	root_fsm_config = p_root_fsm_config;
 	notify_property_list_changed();
 }
 
-Ref<FsmRes> HFSM::get_root_fsm_res() const {
-	return root_fsm_res;
+Ref<FSMConfig> HFSM::get_root_fsm_config() const {
+	return root_fsm_config;
 }
 
 void HFSM::manual_update() {
@@ -154,8 +154,8 @@ void HFSM::restart() {
 	root_fsm->entry();
 }
 
-Ref<HFSMVariable> HFSM::get_var(const StringName &p_variable_name) {
-	ERR_FAIL_COND_V(!variable_blackboard.has(p_variable_name), Ref<HFSMVariable>());
+Ref<Variable> HFSM::get_var(const StringName &p_variable_name) {
+	ERR_FAIL_COND_V(!variable_blackboard.has(p_variable_name), Ref<Variable>());
 	return variable_blackboard[p_variable_name];
 }
 
@@ -171,12 +171,12 @@ Array HFSM::get_vars() {
 
 Variant HFSM::get_var_value(const StringName &p_variable_name) { return get_var(p_variable_name)->get_value(); }
 Dictionary HFSM::get_vars_value() {
-	Dictionary r;
+	Dictionary ret;
 	auto arr = variable_blackboard.get_array();
 	for (size_t i = 0; i < variable_blackboard.size(); i++) {
-		r[arr[i].key] = arr[i].value->get_value();
+		ret[arr[i].key] = arr[i].value->get_value();
 	}
-	return r;
+	return ret;
 }
 
 void HFSM::set_var(const StringName &p_variable_name, const Variant &p_value) {
@@ -222,7 +222,7 @@ void HFSM::set_update_type(UpdateType p_update_type) {
 }
 
 bool HFSM::rebuild_hfsm() {
-	ERR_FAIL_COND_V(root_fsm_res.is_null(), false);
+	ERR_FAIL_COND_V(root_fsm_config.is_null(), false);
 
 	if (root_fsm) {
 		memdelete(root_fsm);
@@ -237,13 +237,13 @@ bool HFSM::rebuild_hfsm() {
 
 	// Build
 	Vector<Hfsm::Fsm *> tmp;
-	root_fsm = root_fsm_res->create_fsm(this, Ref<State>(), tmp);
+	root_fsm = root_fsm_config->create_fsm(this, Ref<State>(), tmp);
 
 	// Create variables.
-	auto variable_res_list = root_fsm_res->get_variable_res_list();
-	for (auto i = 0; i < variable_res_list.size(); i++) {
-		Ref<HFSMVariableRes> vr = variable_res_list[i];
-		auto var = vr->create_variable();
+	auto variable_config_list = root_fsm_config->get_variable_config_list();
+	for (auto i = 0; i < variable_config_list.size(); i++) {
+		Ref<VariableConfig> vc = variable_config_list[i];
+		auto var = vc->create_variable();
 
 		variable_blackboard.insert(var->get_variable_name(), var);
 

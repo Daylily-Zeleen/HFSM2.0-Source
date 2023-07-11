@@ -10,7 +10,7 @@ namespace Hfsm {
  */
 class TriggerExpression : public VariableExpression {
 public:
-	TriggerExpression(const Ref<HFSMVariable> &p_variable);
+	TriggerExpression(const Ref<Variable> &p_variable);
 
 	bool get_result(bool p_and_mode, bool &r_result) override;
 };
@@ -21,7 +21,7 @@ public:
  */
 class SoloTriggerExpression : public TriggerExpression {
 public:
-	SoloTriggerExpression(const Ref<HFSMVariable> &p_variable);
+	SoloTriggerExpression(const Ref<Variable> &p_variable);
 	//  独立触发器只关注自己
 	bool get_result(bool p_and_mode, bool &r_result) override;
 	ExpressionType get_expression_type() override;
@@ -33,7 +33,7 @@ public:
  */
 class UnionTriggerExpression : public TriggerExpression {
 public:
-	UnionTriggerExpression(const Ref<HFSMVariable> &p_variable);
+	UnionTriggerExpression(const Ref<Variable> &p_variable);
 
 	bool get_result(bool p_and_mode, bool &r_result) override;
 	ExpressionType get_expression_type() override;

@@ -29,8 +29,8 @@ protected:
 	void _notification(int p_what);
 
 private:
-	Ref<class FsmRes> nested_fsm_res;
-	Ref<class StateRes> state_res;
+	Ref<class FSMConfig> nested_fsm_config;
+	Ref<class StateConfig> state_config;
 	// ==================
 	LineEdit *name_line_edit = nullptr;
 	OptionButton *type_option_btn = nullptr;
@@ -39,19 +39,19 @@ private:
 	Button *sub_fsm_btn = nullptr;
 	EditorResourcePicker *script_picker = nullptr;
 
-	void set_state_res(const Ref<class StateRes> &p_state_res);
+	void set_state_config(const Ref<class StateConfig> &p_state_config);
 
 	// 动画交给监视器
 	// ==================
 	bool __has_duplicate_name(const String &p_to_test_name);
 	// ==================
-	void _setup_state_res();
-	void __on_resize();
+	void _setup_state_config();
+	void __on_configize();
 	void _cancel_name_changed();
 	void _accept_name_changed(const String &p_new_name);
 	void _type_option_btn_item_selected(int32_t p_idx);
 	void _set_has_sub_fsm_check_box(bool p_pressed);
-	void _request_edit_sub_fsm_res();
+	void _request_edit_sub_fsm_config();
 	void _script_selected(const Ref<Script> &p_script, bool p_edit);
 	void _script_changed(const Ref<Script> &p_script);
 	void initialize();
@@ -71,8 +71,8 @@ public:
 		OUT_TYPE
 	};
 
-	Ref<class StateRes> get_state_res() const;
-	static StateNode *create_state_node(const Ref<StateRes> &p_target_state_res, const Ref<class FsmRes> &p_nested_fsm_res, bool p_debug = false);
+	Ref<class StateConfig> get_state_config() const;
+	static StateNode *create_state_node(const Ref<StateConfig> &p_target_state_config, const Ref<class FSMConfig> &p_nested_fsm_config, bool p_debug = false);
 
 	void set_debug_actived(bool p_actived);
 	bool is_debug_actived() const;

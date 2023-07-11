@@ -11,7 +11,7 @@
 namespace Hfsm {
 
 #pragma region TriggerExpression
-TriggerExpression::TriggerExpression(const Ref<HFSMVariable> &variable) :
+TriggerExpression::TriggerExpression(const Ref<Variable> &variable) :
 		VariableExpression(variable) {
 #ifdef TOOLS_ENABLED
 	if (!Engine::get_singleton()->is_editor_hint()) {
@@ -23,13 +23,13 @@ TriggerExpression::TriggerExpression(const Ref<HFSMVariable> &variable) :
 #pragma endregion
 
 #pragma region SoloTriggerExpression
-SoloTriggerExpression::SoloTriggerExpression(const Ref<HFSMVariable> &variable) :
+SoloTriggerExpression::SoloTriggerExpression(const Ref<Variable> &variable) :
 		TriggerExpression(variable) {}
 
 #pragma endregion
 
 #pragma region UnionTrigger
-UnionTriggerExpression::UnionTriggerExpression(const Ref<HFSMVariable> &variable) :
+UnionTriggerExpression::UnionTriggerExpression(const Ref<Variable> &variable) :
 		TriggerExpression(variable) {}
 
 #pragma endregion

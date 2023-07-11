@@ -26,8 +26,8 @@ enum Op {
 	OP_LESS_EQUAL,
 };
 // 变量类
-class HFSMVariable : public RefCounted {
-	GDCLASS(HFSMVariable, RefCounted)
+class Variable : public RefCounted {
+	GDCLASS(Variable, RefCounted)
 protected:
 	static void _bind_methods();
 
@@ -46,21 +46,21 @@ public:
 
 	// 无需暴露
 	bool compare_with(const Variant &p_val, uint8_t p_op);
-	bool compare_with(const HFSMVariable *p_other, uint8_t p_op);
+	bool compare_with(const Variable *p_other, uint8_t p_op);
 
 private:
 	StringName variable_name = "";
 	Variant::Type type = Variant::NIL;
 	Variant value;
 
-	friend class HFSMVariableRes;
+	friend class VariableConfig;
 };
 
 #pragma region 内联实现
-inline StringName HFSMVariable::get_variable_name() const { return variable_name; }
+inline StringName Variable::get_variable_name() const { return variable_name; }
 
-inline Variant HFSMVariable::get_value() const { return value; }
-inline void HFSMVariable::set_value(const Variant &p_value) {
+inline Variant Variable::get_value() const { return value; }
+inline void Variable::set_value(const Variant &p_value) {
 	// 触发器特殊处理
 	if (type == Variant::NIL) {
 		value = Variant(true);
@@ -75,17 +75,17 @@ inline void HFSMVariable::set_value(const Variant &p_value) {
 	value = p_value;
 }
 
-inline bool HFSMVariable::is_trigger() const { return get_type() == Variant::NIL; }
-inline void HFSMVariable::trigger() {
+inline bool Variable::is_trigger() const { return get_type() == Variant::NIL; }
+inline void Variable::trigger() {
 	ERR_FAIL_COND(type != Variant::NIL);
 	value = Variant(true);
 }
 
-inline Variant::Type HFSMVariable::get_type() const { return type; }
+inline Variant::Type Variable::get_type() const { return type; }
 
 // 触发器专用
-inline void HFSMVariable::flush_trigger() { value = false; }
-inline bool HFSMVariable::compare_with(const Variant &val, uint8_t op) {
+inline void Variable::flush_trigger() { value = false; }
+inline bool Variable::compare_with(const Variant &val, uint8_t op) {
 	switch (op) {
 		case OP_EQUAL:
 			return get_value() == val;
@@ -104,7 +104,7 @@ inline bool HFSMVariable::compare_with(const Variant &val, uint8_t op) {
 			return false;
 	}
 }
-inline bool HFSMVariable::compare_with(const HFSMVariable *other, uint8_t op) {
+inline bool Variable::compare_with(const Variable *other, uint8_t op) {
 	return compare_with(other->get_value(), op);
 }
 

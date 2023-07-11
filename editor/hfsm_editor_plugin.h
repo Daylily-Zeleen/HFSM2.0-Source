@@ -24,18 +24,18 @@ using namespace godot;
 
 namespace Hfsm {
 
-class EditorPropertyVariableRes : public EditorProperty {
-	GDCLASS(EditorPropertyVariableRes, EditorProperty)
+class EditorPropertyVariableConfig : public EditorProperty {
+	GDCLASS(EditorPropertyVariableConfig, EditorProperty)
 public:
-	class VariableResSelector : public EditorResourcePicker {
+	class VariableConfigSelector : public EditorResourcePicker {
 	private:
 		class HFSM *hfsm = nullptr;
 		Button *edit_button = nullptr;
 		PopupMenu *edit_menu = nullptr;
 
-		Ref<class HFSMVariableRes> to_compare;
+		Ref<class VariableConfig> to_compare;
 
-		Vector<Ref<HFSMVariableRes>> variable_res_list;
+		Vector<Ref<VariableConfig>> variable_config_list;
 
 		void _resource_selected(const Ref<Resource> &p_res, bool p_inspect);
 		void _menu_popup();
@@ -49,15 +49,15 @@ public:
 		void GD_(set_create_options)(Object *p_menu_node) override;
 		bool GD_(handle_menu_selected)(int p_which) override;
 
-		VariableResSelector() = default;
-		VariableResSelector(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare);
+		VariableConfigSelector() = default;
+		VariableConfigSelector(HFSM *p_hfsm, const Ref<VariableConfig> &p_to_compare);
 	};
 
 private:
-	VariableResSelector *selector = nullptr;
+	VariableConfigSelector *selector = nullptr;
 	class HFSM *hfsm = nullptr;
 
-	Ref<class HFSMVariableRes> to_compare;
+	Ref<class VariableConfig> to_compare;
 	bool updating = false;
 
 	void _variable_selected(const Ref<Resource> &p_res);
@@ -68,8 +68,8 @@ protected:
 	static void _bind_methods();
 
 public:
-	EditorPropertyVariableRes();
-	EditorPropertyVariableRes(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare = nullptr);
+	EditorPropertyVariableConfig();
+	EditorPropertyVariableConfig(HFSM *p_hfsm, const Ref<VariableConfig> &p_to_compare = nullptr);
 
 	void GD_(update_property)() override { update_property_internal(); }
 };
@@ -115,7 +115,7 @@ private:
 	void _change_scene(Node *scene_root);
 	void _filesystem_changed();
 
-	static PackedStringArray get_animation_list_for_state_res();
+	static PackedStringArray get_animation_list_for_state_config();
 
 	static Ref<class ImageTexture> empty_icon_for_state_node;
 	static Ref<class ImageTexture> get_empty_icon_for_state_node();

@@ -22,7 +22,7 @@ private:
 
 	bool invalid = true;
 
-	friend class TransitionRes;
+	friend class TransitionConfig;
 };
 
 } // namespace Hfsm

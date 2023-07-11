@@ -10,15 +10,15 @@ using namespace godot;
 
 #endif // GDEXTENSION_BUILD
 
-#include "fsm_res.h"
+#include "fsm_config.h"
 #include "state.h"
 
 namespace Hfsm {
 
-// class FsmRes;
+// class FSMConfig;
 class Fsm;
 // class State;
-class HFSMVariable;
+class Variable;
 // 考虑状态机是非运行时设计完成的一种东西，在运行时改变状态是不合理的设计
 // 因此取消运行时改变状态类型的功能
 class HFSM : public Node {
@@ -48,7 +48,7 @@ public:
 	void manual_physics_update();
 	void restart();
 
-	Ref<HFSMVariable> get_var(const StringName &p_variable_name);
+	Ref<Variable> get_var(const StringName &p_variable_name);
 	Array get_vars();
 	Variant get_var_value(const StringName &p_variable_name);
 	Dictionary get_vars_value();
@@ -86,8 +86,8 @@ public:
 	Ref<State> get_current_state();
 	Ref<State> get_previous_state();
 
-	void set_root_fsm_res(const Ref<FsmRes> &p_root_fsm_res);
-	Ref<FsmRes> get_root_fsm_res() const;
+	void set_root_fsm_config(const Ref<FSMConfig> &p_root_fsm_config);
+	Ref<FSMConfig> get_root_fsm_config() const;
 
 	void set_animation_player(AnimationPlayer *p_animtion_player);
 	AnimationPlayer *get_animation_player() const { return animation_player; }
@@ -123,15 +123,15 @@ private:
 	// bool force_all_state_entry_behavior = ForceType::NOT_FORCE;
 	// bool force_all_fsm_entry_behavior = ForceType::NOT_FORCE;
 	//
-	// resource inspector_res;
-	Ref<FsmRes> root_fsm_res;
+	// resource inspector_config;
+	Ref<FSMConfig> root_fsm_config;
 
 	Ref<State> current_state; //= ["root"] setget , get_current_path
 	Ref<State> previous_state; // :Array = ["root"] setget , get_previous_path
 
 	Fsm *root_fsm = nullptr;
-	Vector<Ref<HFSMVariable>> trigger_list;
-	VMap<StringName, Ref<HFSMVariable>> variable_blackboard;
+	Vector<Ref<Variable>> trigger_list;
+	VMap<StringName, Ref<Variable>> variable_blackboard;
 
 	Vector<Fsm *> *active_fsm_list = nullptr;
 

@@ -10,7 +10,7 @@ namespace Hfsm {
  */
 class ComparationExpression : public VariableExpression {
 protected:
-	ComparationExpression(const Ref<HFSMVariable> &p_variable, uint8_t p_op);
+	ComparationExpression(const Ref<Variable> &p_variable, uint8_t p_op);
 
 	uint8_t op = OP_EQUAL;
 };
@@ -21,7 +21,7 @@ protected:
  */
 class ConstantComparationExpression : public ComparationExpression {
 public:
-	ConstantComparationExpression(const Ref<HFSMVariable> &p_variable, uint8_t p_op,
+	ConstantComparationExpression(const Ref<Variable> &p_variable, uint8_t p_op,
 			const Variant &p_value);
 	bool get_result(bool p_and_mode, bool &r_result) override;
 
@@ -34,13 +34,13 @@ private:
  */
 class VariableComparationExpression : public ComparationExpression {
 public:
-	VariableComparationExpression(const Ref<HFSMVariable> &p_variable, uint8_t p_op,
-			const Ref<HFSMVariable> &p_value);
+	VariableComparationExpression(const Ref<Variable> &p_variable, uint8_t p_op,
+			const Ref<Variable> &p_value);
 
 	bool get_result(bool p_and_mode, bool &r_result) override;
 
 private:
-	Ref<HFSMVariable> value;
+	Ref<Variable> value;
 };
 
 #pragma region 内联实现

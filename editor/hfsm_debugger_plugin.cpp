@@ -70,8 +70,8 @@ void HfsmDebuggerPlugin::send_debug_built(HFSM *p_hfsm) {
 		if (!DirAccess::dir_exists_absolute(cache_dir)) {
 			DirAccess::make_dir_absolute(cache_dir);
 		}
-		const auto fsm_res = p_hfsm->get_root_fsm_res();
-		auto cache_path = cache_dir.path_join(itos(hash(fsm_res)).md5_text() + ".tres");
+		const auto fsm_config = p_hfsm->get_root_fsm_config();
+		auto cache_path = cache_dir.path_join(itos(hash(fsm_config)).md5_text() + ".tres");
 
 		Error err = OK;
 
@@ -80,8 +80,8 @@ void HfsmDebuggerPlugin::send_debug_built(HFSM *p_hfsm) {
 		IF_GDE(existed=FileAccess::file_exists(cache_path);)
 
 		if (!existed) {
-			IF_GDE(err = ResourceSaver::get_singleton()->save(fsm_res, cache_path);)
-			IF_GDM(err = ResourceSaver::save(fsm_res, cache_path);)
+			IF_GDE(err = ResourceSaver::get_singleton()->save(fsm_config, cache_path);)
+			IF_GDM(err = ResourceSaver::save(fsm_config, cache_path);)
 		}
 
 		if (err == OK) {
@@ -163,12 +163,12 @@ bool HfsmDebuggerPlugin::GD_(capture)(const String &p_message, const Array &p_da
 		ERR_FAIL_COND_V(!debuggers.has(p_session), true);
 
 		auto hfsm_node_path = get_node_path(p_data);
-		const String fsm_res_path = p_data[0];
-		Ref<FsmRes> root_fsm_res;
-		IF_GDE(root_fsm_res = ResourceLoader::get_singleton()->load(fsm_res_path);)
-		IF_GDM(root_fsm_res = ResourceLoader::load(fsm_res_path);)
-		if (root_fsm_res.is_valid()) {
-			debuggers[p_session]->build(hfsm_node_path, root_fsm_res, fsm_res_path);
+		const String fsm_config_path = p_data[0];
+		Ref<FSMConfig> root_fsm_config;
+		IF_GDE(root_fsm_config = ResourceLoader::get_singleton()->load(fsm_config_path);)
+		IF_GDM(root_fsm_config = ResourceLoader::load(fsm_config_path);)
+		if (root_fsm_config.is_valid()) {
+			debuggers[p_session]->build(hfsm_node_path, root_fsm_config, fsm_config_path);
 		}
 		return true;
 	} else if (is_msg(p_message, msg_destory)) {
@@ -211,9 +211,9 @@ HfsmDebuggerPlugin::~HfsmDebuggerPlugin() {
 }
 
 // HfsmDebugger
-void HfsmDebugger::build(const NodePath &p_path, const Ref<class FsmRes> &p_root_fsm_res, const String &p_cache_path) {
+void HfsmDebugger::build(const NodePath &p_path, const Ref<class FSMConfig> &p_root_fsm_config, const String &p_cache_path) {
 	ERR_FAIL_COND(datas.has(p_path));
-	datas.insert(p_path, { p_root_fsm_res });
+	datas.insert(p_path, { p_root_fsm_config });
 
 	update_node_paths();
 }
@@ -221,12 +221,12 @@ void HfsmDebugger::build(const NodePath &p_path, const Ref<class FsmRes> &p_root
 void HfsmDebugger::destory(const NodePath &p_path) {
 	ERR_FAIL_COND(!datas.has(p_path));
 
-	DirAccess::remove_absolute(datas[p_path].root_fsm_res->get_path());
+	DirAccess::remove_absolute(datas[p_path].root_fsm_config->get_path());
 
 	datas.erase(p_path);
 
 	if (p_path == current_hfsm_path) {
-		hfsm_editor->edit_fsm_res_in_hfsm(nullptr, nullptr);
+		hfsm_editor->edit_fsm_config_in_hfsm(nullptr, nullptr);
 		current_hfsm_path = {};
 	}
 
@@ -255,8 +255,8 @@ void HfsmDebugger::update_node_paths() {
 
 void HfsmDebugger::_item_activated(int p_idx) {
 	current_hfsm_path = node_paths->get_item_metadata(p_idx);
-	auto root_fsm_res = datas[current_hfsm_path].root_fsm_res;
-	hfsm_editor->edit_fsm_res_in_hfsm(root_fsm_res, root_fsm_res);
+	auto root_fsm_config = datas[current_hfsm_path].root_fsm_config;
+	hfsm_editor->edit_fsm_config_in_hfsm(root_fsm_config, root_fsm_config);
 	hfsm_editor->debug_highlight_activate_state(datas[current_hfsm_path].current_active_path);
 }
 
@@ -284,7 +284,7 @@ HfsmDebugger::HfsmDebugger() {
 
 HfsmDebugger::~HfsmDebugger() {
 	for (const auto &E : datas) {
-		DirAccess::remove_absolute(E.value.root_fsm_res->get_path());
+		DirAccess::remove_absolute(E.value.root_fsm_config->get_path());
 	}
 }
 

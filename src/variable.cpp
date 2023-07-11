@@ -1,10 +1,10 @@
-﻿#include "hfsm_variable.h"
+﻿#include "variable.h"
 
 namespace Hfsm {
 
-#pragma region HFSMVariable
-void HFSMVariable::_bind_methods() {
-	GDBIND_BEGIN(HFSMVariable);
+#pragma region Variable
+void Variable::_bind_methods() {
+	GDBIND_BEGIN(Variable);
 
 	GDADD_PROPERTY(NIL, value);
 

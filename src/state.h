@@ -133,7 +133,7 @@ private:
 	bool animation_reverse = false;
 #endif
 
-	friend class StateRes;
+	friend class StateConfig;
 
 	void try_play_anim();
 

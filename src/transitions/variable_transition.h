@@ -23,7 +23,7 @@ private:
 	Vector<UnionTriggerExpression *> union_triggers;
 	Vector<VariableExpression *> normal_expressions;
 
-	friend class TransitionRes;
+	friend class TransitionConfig;
 };
 
 } // namespace Hfsm

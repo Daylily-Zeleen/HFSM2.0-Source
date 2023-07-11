@@ -1,12 +1,12 @@
 ﻿#pragma once
 
-#include "../../hfsm_variable.h"
+#include "../../variable.h"
 
 namespace Hfsm {
 
 class VariableExpression {
 protected:
-	VariableExpression(const Ref<HFSMVariable> &p_variable) { variable = p_variable; }
+	VariableExpression(const Ref<Variable> &p_variable) { variable = p_variable; }
 
 public:
 	enum ExpressionType {
@@ -32,7 +32,7 @@ public:
 
 protected:
 	// 变量
-	Ref<HFSMVariable> variable;
+	Ref<Variable> variable;
 };
 
 } // namespace Hfsm

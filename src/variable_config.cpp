@@ -1,12 +1,12 @@
-﻿#include "hfsm_variable_res.h"
-#include "fsm_res.h"
-#include "hfsm_variable.h"
+﻿#include "variable_config.h"
+#include "fsm_config.h"
+#include "variable.h"
 
-#include "fsm_res.h"
+#include "fsm_config.h"
 
 namespace Hfsm {
-#pragma region HFSMVariableRes
-bool HFSMVariableRes::_set(const StringName &p_name, const Variant &p_property) {
+#pragma region VariableConfig
+bool VariableConfig::_set(const StringName &p_name, const Variant &p_property) {
 	if (p_name == TNAMEOF(default_value)) {
 		if (Variant::can_convert(p_property.get_type(), type)) {
 			default_value = p_property;
@@ -18,7 +18,7 @@ bool HFSMVariableRes::_set(const StringName &p_name, const Variant &p_property) 
 	_TRY_SET_PROP(comment);
 	return false;
 }
-bool HFSMVariableRes::_get(const StringName &p_name, Variant &r_property) const {
+bool VariableConfig::_get(const StringName &p_name, Variant &r_property) const {
 	if (p_name == TNAMEOF(default_value)) {
 		if (Variant::can_convert(default_value.get_type(), type)) {
 			r_property = default_value;
@@ -30,15 +30,15 @@ bool HFSMVariableRes::_get(const StringName &p_name, Variant &r_property) const 
 	_TRY_GET_PROP(comment);
 	return false;
 }
-void HFSMVariableRes::_get_property_list(List<PropertyInfo> *p_list) const {
+void VariableConfig::_get_property_list(List<PropertyInfo> *p_list) const {
 	if (type != Variant::NIL) {
 		p_list->push_back(PropertyInfo(type, TNAMEOF(default_value)));
 	}
 	_PUSH_PROP(STRING, comment);
 }
 
-void HFSMVariableRes::_bind_methods() {
-	GDBIND_BEGIN(HFSMVariableRes);
+void VariableConfig::_bind_methods() {
+	GDBIND_BEGIN(VariableConfig);
 	GDADD_PROPERTY(STRING, variable_name);
 	GDADD_PROPERTY(INT, type, PROPERTY_HINT_ENUM, "Trigger,Bool,Int,Float,String");
 
@@ -48,17 +48,17 @@ void HFSMVariableRes::_bind_methods() {
 	//              "set_default_value", "get_default_value");
 }
 
-void HFSMVariableRes::set_variable_name(const StringName &p_name) {
-	if (!fsm_res.is_valid()) {
+void VariableConfig::set_variable_name(const StringName &p_name) {
+	if (!fsm_config.is_valid()) {
 		return;
 	}
 	bool unique = true;
 	variable_name = StringName(p_name);
 	do {
 		unique = true;
-		auto vrl = fsm_res->get_variable_res_list();
+		auto vrl = fsm_config->get_variable_config_list();
 		for (auto i = 0; i < vrl.size(); i++) {
-			Ref<HFSMVariableRes> v = vrl[i];
+			Ref<VariableConfig> v = vrl[i];
 			if (v.is_valid() && v.ptr() != this && v->get_variable_name() == variable_name) {
 				variable_name = StringName(String("@") + String(variable_name));
 				unique = false;
@@ -71,9 +71,9 @@ void HFSMVariableRes::set_variable_name(const StringName &p_name) {
 	emit_changed();
 }
 
-StringName HFSMVariableRes::get_variable_name() { return variable_name; }
+StringName VariableConfig::get_variable_name() { return variable_name; }
 
-void HFSMVariableRes::set_type(Variant::Type p_t) {
+void VariableConfig::set_type(Variant::Type p_t) {
 	switch (p_t) {
 		case Variant::NIL:
 		case Variant::BOOL:
@@ -95,15 +95,15 @@ void HFSMVariableRes::set_type(Variant::Type p_t) {
 			break;
 	}
 }
-Variant::Type HFSMVariableRes::get_type() const { return type; }
+Variant::Type VariableConfig::get_type() const { return type; }
 
-void HFSMVariableRes::set_comment(const String &p_comment) {
+void VariableConfig::set_comment(const String &p_comment) {
 	comment = p_comment;
 	emit_changed();
 }
-String HFSMVariableRes::get_comment() const { return comment; }
+String VariableConfig::get_comment() const { return comment; }
 
-void HFSMVariableRes::set_default_value(const Variant &p_default_val) {
+void VariableConfig::set_default_value(const Variant &p_default_val) {
 	if (default_value != p_default_val) {
 		if (Variant::can_convert(p_default_val.get_type(), default_value.get_type())) {
 			default_value = p_default_val;
@@ -112,7 +112,7 @@ void HFSMVariableRes::set_default_value(const Variant &p_default_val) {
 	}
 }
 
-Variant HFSMVariableRes::get_default_value() const {
+Variant VariableConfig::get_default_value() const {
 	if (default_value.get_type() == Variant::NIL) {
 		switch (type) {
 			case Variant::BOOL:
@@ -134,8 +134,8 @@ Variant HFSMVariableRes::get_default_value() const {
 	return default_value;
 }
 
-Ref<HFSMVariable> HFSMVariableRes::create_variable() {
-	Ref<HFSMVariable> ret;
+Ref<Variable> VariableConfig::create_variable() {
+	Ref<Variable> ret;
 	ret.instantiate();
 	ret->variable_name = variable_name;
 	ret->type = type;
@@ -143,15 +143,15 @@ Ref<HFSMVariable> HFSMVariableRes::create_variable() {
 	return ret;
 }
 
-Ref<HFSMVariableRes> HFSMVariableRes::create_new(const Ref<FsmRes> &p_fsm_res) {
-	Ref<HFSMVariableRes> ret;
+Ref<VariableConfig> VariableConfig::create_new(const Ref<FSMConfig> &p_fsm_config) {
+	Ref<VariableConfig> ret;
 	ret.instantiate();
-	ret->fsm_res = p_fsm_res;
+	ret->fsm_config = p_fsm_config;
 	ret->set_variable_name(ret->get_variable_name());
 	return ret;
 }
 
-String HFSMVariableRes::get_type_text() const {
+String VariableConfig::get_type_text() const {
 	switch (get_type()) {
 		case Variant::NIL:
 			return "Trigger";
@@ -166,12 +166,12 @@ String HFSMVariableRes::get_type_text() const {
 	}
 }
 
-void HFSMVariableRes::set_fsm_res(const Ref<FsmRes> &p_fsm_res) {
-	fsm_res = p_fsm_res;
+void VariableConfig::set_fsm_config(const Ref<FSMConfig> &p_fsm_config) {
+	fsm_config = p_fsm_config;
 	set_variable_name(variable_name);
 }
 
-Ref<FsmRes> HFSMVariableRes::get_fsm_res() const { return fsm_res; }
+Ref<FSMConfig> VariableConfig::get_fsm_config() const { return fsm_config; }
 
 #pragma endregion
 

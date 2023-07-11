@@ -14,12 +14,12 @@ using namespace godot;
 namespace Hfsm {
 
 class HFSM;
-// class FsmRes;
+// class FSMConfig;
 
 // 考虑状态机是非运行时设计完成的一种东西，在运行时改变状态是不合理的设计
 // 因此取消运行时改变状态类型的功能
 class Fsm {
-	friend class FsmRes;
+	friend class FSMConfig;
 
 public:
 	const TypedArray<State> &get_path() const;
@@ -69,7 +69,7 @@ private:
 	// void set_exit_state(String state_name);
 	// void set_normal_state(String state_name);
 	// void set_unique_exit_state(String state_name);
-	// friend class FsmRes;
+	// friend class FSMConfig;
 public:
 	Vector<Fsm *> *try_transit_and_get_update_queue();
 

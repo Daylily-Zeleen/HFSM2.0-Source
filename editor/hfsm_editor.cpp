@@ -15,9 +15,9 @@
 
 #endif // GDEXTENSION_BUILD
 
-#include "../src/fsm_res.h"
+#include "../src/fsm_config.h"
 #include "../src/hfsm.h"
-#include "../src/state_res.h"
+#include "../src/state_config.h"
 
 #include "fsm_editor.h"
 #include "hfsm_editor_plugin.h"
@@ -77,32 +77,32 @@ void HFSMEditor::initialize() {
 	mask_panel->hide();
 }
 
-bool HFSMEditor::try_set_nested_state_res_for_fsm_res_recursively(const Ref<FsmRes> &p_fsm_res, Ref<FsmRes> p_to_search_fsm_res) {
+bool HFSMEditor::try_set_nested_state_config_for_fsm_config_recursively(const Ref<FSMConfig> &p_fsm_config, Ref<FSMConfig> p_to_search_fsm_config) {
 	if (debug_mode) {
 		return false;
 	}
 
-	ERR_FAIL_COND_V(p_fsm_res.is_null(), false);
+	ERR_FAIL_COND_V(p_fsm_config.is_null(), false);
 
-	if (p_to_search_fsm_res.is_null()) {
-		p_to_search_fsm_res = get_editing_hfsm()->get_root_fsm_res();
+	if (p_to_search_fsm_config.is_null()) {
+		p_to_search_fsm_config = get_editing_hfsm()->get_root_fsm_config();
 	}
 
-	ERR_FAIL_COND_V(p_to_search_fsm_res.is_null(), false);
+	ERR_FAIL_COND_V(p_to_search_fsm_config.is_null(), false);
 
-	if (p_fsm_res == p_to_search_fsm_res) {
+	if (p_fsm_config == p_to_search_fsm_config) {
 		return true;
 	}
 
-	auto sr_list = p_to_search_fsm_res->get_state_res_list();
+	auto sr_list = p_to_search_fsm_config->get_state_config_list();
 	for (size_t i = 0; i < sr_list.size(); i++) {
-		Ref<StateRes> sr = sr_list[i];
-		if (sr->get_fsm_res().is_valid()) {
-			if (sr->get_fsm_res() == p_fsm_res) {
-				p_fsm_res->set_nested_state_res(sr);
+		Ref<StateConfig> sc = sr_list[i];
+		if (sc->get_fsm_config().is_valid()) {
+			if (sc->get_fsm_config() == p_fsm_config) {
+				p_fsm_config->set_nested_state_config(sc);
 				return true;
 			} else {
-				if (try_set_nested_state_res_for_fsm_res_recursively(p_fsm_res, sr->get_fsm_res())) {
+				if (try_set_nested_state_config_for_fsm_config_recursively(p_fsm_config, sc->get_fsm_config())) {
 					return true;
 				}
 			}
@@ -111,18 +111,18 @@ bool HFSMEditor::try_set_nested_state_res_for_fsm_res_recursively(const Ref<FsmR
 	return false;
 }
 
-void HFSMEditor::edit_fsm_res_in_hfsm(const Ref<FsmRes> &p_fsm_res, const Ref<FsmRes> &p_root_fsm_res) {
-	if (!debug_mode && p_fsm_res->get_nested_state_res().is_null() && get_editing_hfsm()) {
-		try_set_nested_state_res_for_fsm_res_recursively(p_fsm_res);
+void HFSMEditor::edit_fsm_config_in_hfsm(const Ref<FSMConfig> &p_fsm_config, const Ref<FSMConfig> &p_root_fsm_config) {
+	if (!debug_mode && p_fsm_config->get_nested_state_config().is_null() && get_editing_hfsm()) {
+		try_set_nested_state_config_for_fsm_config_recursively(p_fsm_config);
 	}
 
-	if (p_root_fsm_res.is_valid()) {
+	if (p_root_fsm_config.is_valid()) {
 		// 调试器开始编辑才会带上该参数
-		editing_root_fsm_res = p_root_fsm_res;
+		editing_root_fsm_config = p_root_fsm_config;
 	}
-	ERR_FAIL_COND(editing_root_fsm_res.is_null());
+	ERR_FAIL_COND(editing_root_fsm_config.is_null());
 
-	fsm_editor->edit_fsm_res(p_fsm_res, path_button_container, editing_root_fsm_res);
+	fsm_editor->edit_fsm_config(p_fsm_config, path_button_container, editing_root_fsm_config);
 }
 
 void HFSMEditor::debug_highlight_activate_state(const PackedStringArray &p_active_path) {
@@ -197,26 +197,26 @@ void HFSMEditor::edit_hfsm(HFSM *p_hfsm) {
 	mask_panel->set_visible(!p_hfsm);
 
 	if (get_editing_hfsm()) {
-		editing_root_fsm_res = hfsm->get_root_fsm_res();
-		fsm_editor->edit_fsm_res(hfsm->get_root_fsm_res(), path_button_container, editing_root_fsm_res);
+		editing_root_fsm_config = hfsm->get_root_fsm_config();
+		fsm_editor->edit_fsm_config(hfsm->get_root_fsm_config(), path_button_container, editing_root_fsm_config);
 		set_connect_inspector_signal(true);
 	} else {
-		editing_root_fsm_res.unref();
-		fsm_editor->edit_fsm_res(nullptr, path_button_container, nullptr);
+		editing_root_fsm_config.unref();
+		fsm_editor->edit_fsm_config(nullptr, path_button_container, nullptr);
 		set_connect_inspector_signal(false);
 	}
 }
 
 HFSMEditor *HFSMEditor::create_hfsm_editor(bool p_debug_mode) {
-	auto r = memnew(HFSMEditor(p_debug_mode));
-	r->initialize();
-	return r;
+	auto ret = memnew(HFSMEditor(p_debug_mode));
+	ret->initialize();
+	return ret;
 }
 
 void HFSMEditor::_inspector_property_edited(const String &p_properrty) {
-	if (!debug_mode && p_properrty == "root_fsm_res") {
+	if (!debug_mode && p_properrty == "root_fsm_config") {
 		ERR_FAIL_COND(!get_editing_hfsm());
-		if (editing_root_fsm_res != get_editing_hfsm()->get_root_fsm_res()) {
+		if (editing_root_fsm_config != get_editing_hfsm()->get_root_fsm_config()) {
 			call_deferred(TNAMEOF(edit_hfsm), get_editing_hfsm());
 		}
 	}
@@ -271,8 +271,8 @@ void HFSMEditor::_inspector_edited_object_changed() {
 	set_connect_inspector_signal(false);
 }
 
-void HFSMEditor::_edit_fsm_requested(const Ref<FsmRes> &p_fsm_res) {
-	edit_fsm_res_in_hfsm(p_fsm_res);
+void HFSMEditor::_edit_fsm_requested(const Ref<FSMConfig> &p_fsm_config) {
+	edit_fsm_config_in_hfsm(p_fsm_config);
 }
 
 void HFSMEditor::_bind_methods() {

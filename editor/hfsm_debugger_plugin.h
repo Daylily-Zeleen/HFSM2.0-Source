@@ -52,7 +52,7 @@ public:
 class HfsmDebugger : public HSplitContainer {
 	GDCLASS(HfsmDebugger, HSplitContainer)
 	struct NodeData {
-		Ref<class FsmRes> root_fsm_res;
+		Ref<class FSMConfig> root_fsm_config;
 		PackedStringArray current_active_path;
 	};
 	HashMap<NodePath, NodeData> datas;
@@ -70,7 +70,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	void build(const NodePath &p_path, const Ref<class FsmRes> &p_root_fsm_res, const String &p_cache_path);
+	void build(const NodePath &p_path, const Ref<class FSMConfig> &p_root_fsm_config, const String &p_cache_path);
 	void destory(const NodePath &p_path);
 	void update_active_path(const NodePath &p_path, const PackedStringArray &p_new_active_path);
 

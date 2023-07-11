@@ -21,7 +21,7 @@ using namespace godot;
 #include "state_node.h"
 
 #include "../src/hfsm.h"
-#include "../src/transitions/variable_expressions/variable_expression_res.h"
+#include "../src/transitions/variable_expressions/variable_expression_config.h"
 
 #ifdef DEBUG_ENABLED
 #include "hfsm_debugger_plugin.h"
@@ -29,7 +29,7 @@ using namespace godot;
 
 namespace Hfsm {
 
-void EditorPropertyVariableRes::VariableResSelector::GD_(set_create_options)(Object *p_menu_node) {
+void EditorPropertyVariableConfig::VariableConfigSelector::GD_(set_create_options)(Object *p_menu_node) {
 	PopupMenu *menu = Object::cast_to<PopupMenu>(p_menu_node);
 	if (!menu) {
 		return;
@@ -42,47 +42,47 @@ void EditorPropertyVariableRes::VariableResSelector::GD_(set_create_options)(Obj
 
 	Array variable_list = hfsm->get("variable_list");
 
-	variable_res_list.clear();
+	variable_config_list.clear();
 	auto idx = 0;
 	for (size_t i = 0; i < variable_list.size(); i++) {
-		Ref<HFSMVariableRes> vr = variable_list[i];
+		Ref<VariableConfig> vc = variable_list[i];
 		if (to_compare.is_valid() &&
-				(to_compare == vr || to_compare->get_type() != vr->get_type())) {
+				(to_compare == vc || to_compare->get_type() != vc->get_type())) {
 			continue;
 		}
 		menu->add_item(
 				vformat("%s: %s%s",
-						vr->get_variable_name(),
-						vr->get_type_text(),
-						vr->get_comment().is_empty() ? "" : (" - " + vr->get_comment())),
+						vc->get_variable_name(),
+						vc->get_type_text(),
+						vc->get_comment().is_empty() ? "" : (" - " + vc->get_comment())),
 				idx + op_ofs);
 
-		variable_res_list.push_back(vr);
+		variable_config_list.push_back(vc);
 		idx += 1;
 	}
 
 	menu->add_separator();
 }
 
-bool EditorPropertyVariableRes::VariableResSelector::GD_(handle_menu_selected)(int p_which) {
+bool EditorPropertyVariableConfig::VariableConfigSelector::GD_(handle_menu_selected)(int p_which) {
 	auto idx = p_which - op_ofs;
-	if (idx >= 0 && idx < variable_res_list.size()) {
-		set_edited_resource(variable_res_list[idx]);
-		emit_signal(SNAME("resource_changed"), variable_res_list[idx]);
+	if (idx >= 0 && idx < variable_config_list.size()) {
+		set_edited_resource(variable_config_list[idx]);
+		emit_signal(SNAME("resource_changed"), variable_config_list[idx]);
 		return true;
 	}
 
 	return false;
 }
 
-void EditorPropertyVariableRes::VariableResSelector::_resource_selected(const Ref<Resource> &p_res, bool p_inspect) {
+void EditorPropertyVariableConfig::VariableConfigSelector::_resource_selected(const Ref<Resource> &p_res, bool p_inspect) {
 	if (p_res.is_valid() && !edit_button->is_pressed()) {
 		edit_button->set_pressed_no_signal(true);
 		edit_button->emit_signal(SNAME("pressed"));
 	}
 }
 
-void EditorPropertyVariableRes::VariableResSelector::_menu_popup() {
+void EditorPropertyVariableConfig::VariableConfigSelector::_menu_popup() {
 	// Hack
 	enum MenuOption {
 		OBJ_MENU_LOAD,
@@ -122,15 +122,15 @@ void EditorPropertyVariableRes::VariableResSelector::_menu_popup() {
 	edit_menu->reset_size();
 }
 
-void EditorPropertyVariableRes::VariableResSelector::_bind_methods() {
-	GDBIND_BEGIN(VariableResSelector);
+void EditorPropertyVariableConfig::VariableConfigSelector::_bind_methods() {
+	GDBIND_BEGIN(VariableConfigSelector);
 
 	GDBIND_CALBACK(_resource_selected);
 	GDBIND_CALBACK(_menu_popup);
 }
 
-EditorPropertyVariableRes::VariableResSelector::VariableResSelector(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare) {
-	set_base_type(HFSMVariableRes::get_class_static());
+EditorPropertyVariableConfig::VariableConfigSelector::VariableConfigSelector(HFSM *p_hfsm, const Ref<VariableConfig> &p_to_compare) {
+	set_base_type(VariableConfig::get_class_static());
 	hfsm = p_hfsm;
 	if (to_compare.is_valid()) {
 		to_compare = p_to_compare;
@@ -149,28 +149,28 @@ EditorPropertyVariableRes::VariableResSelector::VariableResSelector(HFSM *p_hfsm
 }
 
 //
-void EditorPropertyVariableRes::_bind_methods() {
-	GDBIND_BEGIN(EditorPropertyVariableRes);
+void EditorPropertyVariableConfig::_bind_methods() {
+	GDBIND_BEGIN(EditorPropertyVariableConfig);
 	GDBIND_CALBACK(_variable_selected);
 }
 
-void EditorPropertyVariableRes::_variable_selected(const Ref<Resource> &p_res) {
+void EditorPropertyVariableConfig::_variable_selected(const Ref<Resource> &p_res) {
 	if (updating) {
 		return;
 	}
-	Ref<HFSMVariableRes> vr = p_res;
+	Ref<VariableConfig> vc = p_res;
 	auto obj = get_edited_object();
 	auto prop = get_edited_property();
-	if (to_compare.is_valid() && (to_compare == vr || to_compare->get_type() != vr->get_type())) {
+	if (to_compare.is_valid() && (to_compare == vc || to_compare->get_type() != vc->get_type())) {
 		return;
 	}
-	emit_changed(prop, vr);
+	emit_changed(prop, vc);
 }
 
-EditorPropertyVariableRes::EditorPropertyVariableRes() = default;
+EditorPropertyVariableConfig::EditorPropertyVariableConfig() = default;
 
-EditorPropertyVariableRes::EditorPropertyVariableRes(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare) :
-		EditorPropertyVariableRes() {
+EditorPropertyVariableConfig::EditorPropertyVariableConfig(HFSM *p_hfsm, const Ref<VariableConfig> &p_to_compare) :
+		EditorPropertyVariableConfig() {
 	if (hfsm) {
 		return;
 	}
@@ -178,31 +178,31 @@ EditorPropertyVariableRes::EditorPropertyVariableRes(HFSM *p_hfsm, const Ref<HFS
 	if (to_compare.is_valid()) {
 		to_compare = p_to_compare;
 	}
-	selector = memnew(VariableResSelector(p_hfsm, p_to_compare));
+	selector = memnew(VariableConfigSelector(p_hfsm, p_to_compare));
 	selector->connect("resource_changed", TCALLABLE(_variable_selected));
 	selector->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
 	add_child(selector);
 }
 
-void EditorPropertyVariableRes::update_property_internal() {
+void EditorPropertyVariableConfig::update_property_internal() {
 	updating = true;
-	Ref<HFSMVariableRes> vr = get_edited_object()->get(get_edited_property());
-	selector->set_edited_resource(vr);
+	Ref<VariableConfig> vc = get_edited_object()->get(get_edited_property());
+	selector->set_edited_resource(vc);
 	updating = false;
 }
 
 //
 bool HfsmInspectorPlugin::can_handle_internal(Object *p_object) const {
-	return cast_to<VariableExpressionRes>(p_object);
+	return cast_to<VariableExpressionConfig>(p_object);
 }
 
 bool HfsmInspectorPlugin::parse_property_internal(Object *p_object, Variant::Type p_type, const String &p_name, PropertyHint p_hint_type,
 		const String &p_hint_string, BitField<PropertyUsageFlags> p_usage_flags, bool p_wide) {
-	if (auto ver = cast_to<VariableExpressionRes>(p_object)) {
+	if (auto vec = cast_to<VariableExpressionConfig>(p_object)) {
 		if (auto hfsm = HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
-			if ((p_name == "variable_res") ||
-					(p_name == "value" && ver->is_variable_as_value() && ver->get_variable_res().is_valid())) {
-				auto editor = memnew(EditorPropertyVariableRes(hfsm, p_name == "value" ? ver->get_variable_res() : nullptr));
+			if ((p_name == "variable_config") ||
+					(p_name == "value" && vec->is_variable_as_value() && vec->get_variable_config().is_valid())) {
+				auto editor = memnew(EditorPropertyVariableConfig(hfsm, p_name == "value" ? vec->get_variable_config() : nullptr));
 				add_property_editor(p_name, editor);
 				return true;
 			}
@@ -219,7 +219,7 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	CRASH_COND(instance);
 	instance = this;
 
-	StateRes::get_animation_list = &get_animation_list_for_state_res;
+	StateConfig::get_animation_list = &get_animation_list_for_state_config;
 	StateNode::get_empty_icon = &get_empty_icon_for_state_node;
 	empty_icon_for_state_node.instantiate();
 
@@ -244,8 +244,8 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	translation.insert("Sub FSM", "子状态机");
 	translation.insert("Select States", "选择状态");
 	translation.insert("Delete State Transitions", "删除状态转换");
-	translation.insert("HFSM::Invalid FsmRes", "HFSM::非法情况，要编辑的 FsmRes 无效");
-	translation.insert("Please set up a FsmRes for selected HFSM node to start edit.", " ");
+	translation.insert("HFSM::Invalid FSMConfig", "HFSM::非法情况，要编辑的 FSMConfig 无效");
+	translation.insert("Please set up a FSMConfig for selected HFSM node to start edit.", " ");
 	// translation.insert("The current FSM has not contain a State.\n\n ", "当前状态机不存在状态\n\n ");
 	translation.insert("Click here to create a Entry State", "点击创建一个 起始状态");
 	translation.insert("Add State", "添加状态");
@@ -261,23 +261,23 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	translation.insert("Edit Sub-FSM", "编辑子状态机");
 	translation.insert("Select State Transitions", "选择转换");
 	translation.insert("Deselect", "取消选择");
-	translation.insert(R"("value" can't convert to the type of "HFSMVariableRes".)", "\"value\"的无法转化为\"HFSMVariableRes\"的类型");
-	translation.insert(R"("value" is not a valid "HFSMVariableRes".)", "\"value\" 不是一个有效的 \"HFSMVariableRes\"");
-	translation.insert(R"("value" can't convert to the type of "variable_res".)", "\"value\"的无法转化为\"variable_res\"的类型");
+	translation.insert(R"("value" can't convert to the type of "VariableConfig".)", "\"value\"的无法转化为\"VariableConfig\"的类型");
+	translation.insert(R"("value" is not a valid "VariableConfig".)", "\"value\" 不是一个有效的 \"VariableConfig\"");
+	translation.insert(R"("value" can't convert to the type of "variable_config".)", "\"value\"的无法转化为\"variable_config\"的类型");
 	translation.insert("Trigger: ", "触发器: ");
 	translation.insert("Solo Trigger: ", "独立触发器: ");
 	translation.insert("Union Trigger: ", "联合触发器: ");
 	translation.insert("Invalid Trigger Type:", "无效触发器类型");
-	translation.insert("Has not valid 'variable_res'", "没有有效的变量资源");
+	translation.insert("Has not valid 'variable_config'", "没有有效的变量资源");
 	translation.insert("Script: ", "脚本: ");
 	translation.insert("Script isn't extends from 'Transition'.", "脚本不是扩展自'Transition'");
 	translation.insert("You can use other type of script if this is intended.", "如果是有意的，请使用其他类型的脚本");
 	translation.insert("Script is invalid!", "脚本无效!");
 	translation.insert("Empty expression!", "表达式为空!");
-	translation.insert("Have not valid HFSMVariable Expression.", "没有合法的变量表达式");
-	translation.insert("HFSMVariable Expressions: ", "变量表达式:");
-	translation.insert("Invalid \"VariableExpressionRes\".", "无效的\"VariableExpressionRes\"");
-	translation.insert(R"("HFSMVariableRes" %s is not contained in editing HFSM.)", R"("HFSMVariableRes" %s 不存在于当前编辑中的HFSM)");
+	translation.insert("Have not valid Variable Expression.", "没有合法的变量表达式");
+	translation.insert("Variable Expressions: ", "变量表达式:");
+	translation.insert("Invalid \"VariableExpressionConfig\".", "无效的\"VariableExpressionConfig\"");
+	translation.insert(R"("VariableConfig" %s is not contained in editing HFSM.)", R"("VariableConfig" %s 不存在于当前编辑中的HFSM)");
 	translation.insert("Auto: ", "自动: ");
 	translation.insert("Delay %d msec.", "延迟 %d 毫秒");
 
@@ -293,7 +293,7 @@ void emit_button_toggled(Button *p_btn, bool p_toggled) {
 
 void HfsmEditorPlugin::_referenced_script_saved(const Ref<Resource> &p_res) {
 	// TODO:: Can we find a way to avoid emiting this signal for all Scripts?
-	// We can't use meta to refer its TransitionRes/StateRes, it will be saved and cause cycle save.
+	// We can't use meta to refer its TransitionConfig/StateConfig, it will be saved and cause cycle save.
 	// TODO:: Detect builtin scripts change.
 	// Hint: builtin scripts in inspector are not change automatically when it first time be saved, too.
 	// Currently, I can only notify scripts which have real file in disk.
@@ -318,7 +318,7 @@ void HfsmEditorPlugin::_filesystem_changed() {
 	hfsm_editor->queue_refresh();
 }
 
-PackedStringArray HfsmEditorPlugin::get_animation_list_for_state_res() {
+PackedStringArray HfsmEditorPlugin::get_animation_list_for_state_config() {
 	ERR_FAIL_COND_V(!get_singleton(), {});
 	ERR_FAIL_COND_V(!get_singleton()->get_hfsm_editor(), {});
 	if (auto hfsm = get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
@@ -341,7 +341,7 @@ PackedStringArray HfsmEditorPlugin::get_animation_list_for_state_res() {
 Ref<ImageTexture> HfsmEditorPlugin::get_empty_icon_for_state_node() { return empty_icon_for_state_node; }
 
 HfsmEditorPlugin::~HfsmEditorPlugin() {
-	StateRes::get_animation_list = nullptr;
+	StateConfig::get_animation_list = nullptr;
 	empty_icon_for_state_node.unref();
 	StateNode::get_empty_icon = nullptr;
 
@@ -364,11 +364,12 @@ bool HfsmEditorPlugin::handles_internal(Object *p_object) const {
 	} else {
 		StringName type = p_object->get_class();
 		static const LocalVector<StringName> hfsm_types = {
-			StateRes::get_class_static(),
-			TransitionRes::get_class_static(),
+			FSMConfig::get_class_static(),
+			StateConfig::get_class_static(),
+			TransitionConfig::get_class_static(),
 			Script::get_class_static(),
-			HFSMVariableRes::get_class_static(),
-			VariableExpressionRes::get_class_static(),
+			VariableConfig::get_class_static(),
+			VariableExpressionConfig::get_class_static(),
 		};
 
 		for (const auto &E : hfsm_types) {

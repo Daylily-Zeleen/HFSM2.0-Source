@@ -38,16 +38,16 @@
 #endif // GDEXTENSION_BUILD
 
 #include "hfsm_global.h"
-#include "src/fsm_res.h"
+#include "src/fsm_config.h"
 #include "src/hfsm.h"
-#include "src/hfsm_variable.h"
-#include "src/hfsm_variable_res.h"
+#include "src/variable.h"
+#include "src/variable_config.h"
 #include "src/state.h"
-#include "src/state_res.h"
-#include "src/transition_res.h"
+#include "src/state_config.h"
+#include "src/transition_config.h"
 #include "src/transitions/auto_transition.h"
 #include "src/transitions/transition.h"
-#include "src/transitions/variable_expressions/variable_expression_res.h"
+#include "src/transitions/variable_expressions/variable_expression_config.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/fsm_editor.h"
@@ -72,19 +72,19 @@ void register_core_classes() {
 	GDREGISTER_CLASS(HFSM);
 	GDREGISTER_CLASS(State);
 	GDREGISTER_CLASS(Transition);
-	GDREGISTER_CLASS(HFSMVariable);
-	GDREGISTER_CLASS(FsmRes);
-	GDREGISTER_CLASS(StateRes);
-	GDREGISTER_CLASS(TransitionRes);
-	GDREGISTER_CLASS(HFSMVariableRes);
-	GDREGISTER_CLASS(VariableExpressionRes);
+	GDREGISTER_CLASS(Variable);
+	GDREGISTER_CLASS(FSMConfig);
+	GDREGISTER_CLASS(StateConfig);
+	GDREGISTER_CLASS(TransitionConfig);
+	GDREGISTER_CLASS(VariableConfig);
+	GDREGISTER_CLASS(VariableExpressionConfig);
 }
 
 void register_editor_classes() {
 	IF_TOOLS({
 		GDREGISTER_CLASS(HfsmEditorPlugin);
-		GDREGISTER_CLASS(EditorPropertyVariableRes);
-		GDREGISTER_CLASS(EditorPropertyVariableRes::VariableResSelector);
+		GDREGISTER_CLASS(EditorPropertyVariableConfig);
+		GDREGISTER_CLASS(EditorPropertyVariableConfig::VariableConfigSelector);
 		GDREGISTER_CLASS(StateNode);
 		GDREGISTER_CLASS(FsmEditor);
 		GDREGISTER_CLASS(HfsmInspectorPlugin);

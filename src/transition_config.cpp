@@ -1,11 +1,11 @@
-﻿#include "transition_res.h"
-#include "state_res.h"
+﻿#include "transition_config.h"
+#include "state_config.h"
 #include "transitions/auto_transition.h"
 #include "transitions/expression_transition.h"
 #include "transitions/transition.h"
 #include "transitions/variable_expressions/trigger_expression.h"
 #include "transitions/variable_expressions/variable_expression.h"
-#include "transitions/variable_expressions/variable_expression_res.h"
+#include "transitions/variable_expressions/variable_expression_config.h"
 #include "transitions/variable_transition.h"
 
 #ifdef GDEXTENSION_BUILD
@@ -30,10 +30,10 @@
 
 namespace Hfsm {
 
-#pragma region TransitionRes
+#pragma region TransitionConfig
 
-bool TransitionRes::_set(const StringName &p_name, const Variant &p_property) {
-	_TRY_SET_PROP(variable_expression_res_list);
+bool TransitionConfig::_set(const StringName &p_name, const Variant &p_property) {
+	_TRY_SET_PROP(variable_expression_config_list);
 	_TRY_SET_PROP(expression_text);
 	_TRY_SET_PROP(expression_comment);
 	if ((p_name) == StringName("auto_mode")) {
@@ -57,17 +57,17 @@ bool TransitionRes::_set(const StringName &p_name, const Variant &p_property) {
 	return false;
 }
 
-bool TransitionRes::_get(const StringName &p_name, Variant &r_property) const {
+bool TransitionConfig::_get(const StringName &p_name, Variant &r_property) const {
 	if (p_name == StringName("from")) {
-		if (from_state_res.is_valid()) {
-			r_property = from_state_res->get_state_name();
+		if (from_state_config.is_valid()) {
+			r_property = from_state_config->get_state_name();
 		} else {
 			r_property = "";
 		}
 		return true;
 	} else if (p_name == StringName("to")) {
-		if (to_state_res.is_valid()) {
-			r_property = to_state_res->get_state_name();
+		if (to_state_config.is_valid()) {
+			r_property = to_state_config->get_state_name();
 		} else {
 			r_property = "";
 		}
@@ -82,7 +82,7 @@ bool TransitionRes::_get(const StringName &p_name, Variant &r_property) const {
 
 	IF_FULL_VERSION(_TRY_GET_PROP(transition_script);)
 
-	_TRY_GET_PROP(variable_expression_res_list);
+	_TRY_GET_PROP(variable_expression_config_list);
 	_TRY_GET_PROP(expression_text);
 	_TRY_GET_PROP(expression_comment);
 	_TRY_GET_PROP(auto_mode);
@@ -90,7 +90,7 @@ bool TransitionRes::_get(const StringName &p_name, Variant &r_property) const {
 	return false;
 }
 
-void TransitionRes::_get_property_list(List<PropertyInfo> *p_list) const {
+void TransitionConfig::_get_property_list(List<PropertyInfo> *p_list) const {
 	p_list->push_back(PropertyInfo(Variant::STRING, "from", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_READ_ONLY));
 	p_list->push_back(PropertyInfo(Variant::STRING, "to", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_READ_ONLY));
 
@@ -103,7 +103,7 @@ void TransitionRes::_get_property_list(List<PropertyInfo> *p_list) const {
 		case TRANSITION_TYPE_VARIABLE: {
 			p_list->push_back(PropertyInfo(Variant::BOOL, "and_mode"));
 
-			_PUSH_PROP_TYPED_ARRAY(variable_expression_res_list, VariableExpressionRes);
+			_PUSH_PROP_TYPED_ARRAY(variable_expression_config_list, VariableExpressionConfig);
 		} break;
 		case TRANSITION_TYPE_EXPRESSION: {
 			_PUSH_PROP(STRING, expression_text, PROPERTY_HINT_MULTILINE_TEXT);
@@ -130,12 +130,12 @@ void TransitionRes::_get_property_list(List<PropertyInfo> *p_list) const {
 	}
 }
 
-void TransitionRes::_bind_methods() {
-	GDBIND_BEGIN(TransitionRes);
+void TransitionConfig::_bind_methods() {
+	GDBIND_BEGIN(TransitionConfig);
 	// 通用
-	GDADD_PROPERTY_RESOURCE(from_state_res, PROPERTY_USAGE_STORAGE);
-	GDADD_PROPERTY_RESOURCE(to_state_res, PROPERTY_USAGE_STORAGE);
-	GDADD_PROPERTY(INT, type, PROPERTY_HINT_ENUM, "Script,HFSMVariable,Expression,Auto");
+	GDADD_PROPERTY_RESOURCE(from_state_config, PROPERTY_USAGE_STORAGE);
+	GDADD_PROPERTY_RESOURCE(to_state_config, PROPERTY_USAGE_STORAGE);
+	GDADD_PROPERTY(INT, type, PROPERTY_HINT_ENUM, "Script,Variable,Expression,Auto");
 
 	// Auto
 	GDBIND_SETGET(auto_mode);
@@ -146,11 +146,11 @@ void TransitionRes::_bind_methods() {
 	GDBIND_SETGET(expression_comment);
 	// 变量表达式
 	GDBIND_SETGET_BOOL(variable_and_mode);
-	GDBIND_SETGET(variable_expression_res_list);
+	GDBIND_SETGET(variable_expression_config_list);
 	// ADD_PROPERTY(PropertyInfo(Variant::ARRAY,
-	// "variable_expression_res_list"),
-	//              "get_variable_expression_res_list",
-	//              "set_variable_expression_res_list");
+	// "variable_expression_config_list"),
+	//              "get_variable_expression_config_list",
+	//              "set_variable_expression_config_list");
 
 	//  脚本
 	GDBIND_SETGET(transition_script);
@@ -160,7 +160,7 @@ void TransitionRes::_bind_methods() {
 	//              "set_transition_script", "get_transition_script");
 
 	// ClassDB::bind_method(D_METHOD("get_valid_and_texts"),
-	//                      &TransitionRes::get_valid_and_texts);
+	//                      &TransitionConfig::get_valid_and_texts);
 	// 枚举
 	BIND_CONSTANT(TRANSITION_TYPE_SCRIPT);
 	BIND_CONSTANT(TRANSITION_TYPE_VARIABLE);
@@ -176,90 +176,90 @@ void TransitionRes::_bind_methods() {
 	// BIND_CONSTANT(AUTO_TRANSIT_MODE_MAX);
 }
 
-void TransitionRes::set_from_state_res(const Ref<StateRes> &p_from_state_res) {
-	from_state_res = p_from_state_res;
+void TransitionConfig::set_from_state_config(const Ref<StateConfig> &p_from_state_config) {
+	from_state_config = p_from_state_config;
 	emit_changed();
 }
-Ref<StateRes> TransitionRes::get_from_state_res() const { return from_state_res; }
+Ref<StateConfig> TransitionConfig::get_from_state_config() const { return from_state_config; }
 
-void TransitionRes::set_to_state_res(const Ref<StateRes> &p_to_state_res) {
-	to_state_res = p_to_state_res;
+void TransitionConfig::set_to_state_config(const Ref<StateConfig> &p_to_state_config) {
+	to_state_config = p_to_state_config;
 	emit_changed();
 }
-Ref<StateRes> TransitionRes::get_to_state_res() const { return to_state_res; }
-void TransitionRes::set_type(TransitionType p_type) {
+Ref<StateConfig> TransitionConfig::get_to_state_config() const { return to_state_config; }
+void TransitionConfig::set_type(TransitionType p_type) {
 	type = p_type;
 	emit_changed();
 	notify_property_list_changed();
 }
-TransitionRes::TransitionType TransitionRes::get_type() const { return type; }
+TransitionConfig::TransitionType TransitionConfig::get_type() const { return type; }
 
 // Auto
-void TransitionRes::set_auto_mode(AuotoTtransitMode p_auto_mode) {
+void TransitionConfig::set_auto_mode(AuotoTtransitMode p_auto_mode) {
 	ERR_FAIL_COND(p_auto_mode < 0 || p_auto_mode >= AUTO_TRANSIT_MODE_MAX);
 	auto_mode = p_auto_mode;
 	emit_changed();
 	notify_property_list_changed();
 }
-TransitionRes::AuotoTtransitMode TransitionRes::get_auto_mode() const { return auto_mode; }
-void TransitionRes::set_auto_delay_msec(uint64_t p_delay_time) {
+TransitionConfig::AuotoTtransitMode TransitionConfig::get_auto_mode() const { return auto_mode; }
+void TransitionConfig::set_auto_delay_msec(uint64_t p_delay_time) {
 	auto_delay_msec = p_delay_time;
 	emit_changed();
 }
-uint64_t TransitionRes::get_auto_delay_msec() const { return auto_delay_msec; }
-void TransitionRes::set_auto_times(uint64_t p_times) {
+uint64_t TransitionConfig::get_auto_delay_msec() const { return auto_delay_msec; }
+void TransitionConfig::set_auto_times(uint64_t p_times) {
 	auto_times = p_times;
 	emit_changed();
 }
-int64_t TransitionRes::get_auto_times() const { return auto_times; }
+int64_t TransitionConfig::get_auto_times() const { return auto_times; }
 
 // 表达式
-void TransitionRes::set_expression_text(const String &p_expression_text) {
+void TransitionConfig::set_expression_text(const String &p_expression_text) {
 	expression_text = p_expression_text;
 	emit_changed();
 }
-String TransitionRes::get_expression_text() const { return expression_text; }
-void TransitionRes::set_expression_comment(const String &p_expression_comment) {
+String TransitionConfig::get_expression_text() const { return expression_text; }
+void TransitionConfig::set_expression_comment(const String &p_expression_comment) {
 	expression_comment = p_expression_comment;
 	emit_changed();
 }
-String TransitionRes::get_expression_comment() const { return expression_comment; }
+String TransitionConfig::get_expression_comment() const { return expression_comment; }
 
 // 变量表达式
-void TransitionRes::set_variable_and_mode(bool p_and_mode) {
+void TransitionConfig::set_variable_and_mode(bool p_and_mode) {
 	variable_and_mode = p_and_mode;
 	emit_changed();
 }
-bool TransitionRes::is_variable_and_mode() const { return variable_and_mode; }
+bool TransitionConfig::is_variable_and_mode() const { return variable_and_mode; }
 
-void TransitionRes::set_variable_expression_res_list(const Array &p_variable_expression_res_list) {
+void TransitionConfig::set_variable_expression_config_list(const Array &p_variable_expression_config_list) {
 	auto cb = Callable(this, SNAME("emit_changed"));
-	for (auto i = 0; i < variable_expression_res_list.size(); ++i) {
-		Ref<VariableExpressionRes> ver = variable_expression_res_list[i];
-		if (ver.is_valid() && ver->is_connected(s_changed, cb)) {
-			ver->disconnect(s_changed, cb);
+	for (auto i = 0; i < variable_expression_config_list.size(); ++i) {
+		Ref<VariableExpressionConfig> vec = variable_expression_config_list[i];
+		if (vec.is_valid() && vec->is_connected(s_changed, cb)) {
+			vec->disconnect(s_changed, cb);
 		}
 	}
 
-	variable_expression_res_list = decltype(variable_expression_res_list)(p_variable_expression_res_list);
+	variable_expression_config_list = decltype(variable_expression_config_list)(p_variable_expression_config_list);
 
-	for (auto i = 0; i < variable_expression_res_list.size(); ++i) {
-		Ref<VariableExpressionRes> ver = variable_expression_res_list[i];
-		if (ver.is_valid() && !ver->is_connected(s_changed, cb)) {
-			ver->connect(s_changed, cb);
+	for (auto i = 0; i < variable_expression_config_list.size(); ++i) {
+		Ref<VariableExpressionConfig> vec = variable_expression_config_list[i];
+		if (vec.is_valid() && !vec->is_connected(s_changed, cb)) {
+			vec->connect(s_changed, cb);
 		}
 	}
 
 	emit_changed();
 }
 
-TypedArray<VariableExpressionRes> TransitionRes::get_variable_expression_res_list() const {
-	return variable_expression_res_list;
+TypedArray<VariableExpressionConfig> TransitionConfig::get_variable_expression_config_list() const {
+	return variable_expression_config_list;
 }
 
 #ifdef FULL_VERSION
 // 脚本
-void TransitionRes::set_transition_script(const Ref<Script> &p_transition_script) {
+void TransitionConfig::set_transition_script(const Ref<Script> &p_transition_script) {
 	auto cb = TCALLABLE(set_transition_script);
 	if (transition_script.is_valid() && transition_script->is_connected(s_changed, cb)) {
 		transition_script->disconnect(s_changed, cb);
@@ -364,13 +364,13 @@ func _refresh() -> void:
 	}
 	emit_changed();
 }
-Ref<Script> TransitionRes::get_transition_script() const { return transition_script; }
-bool TransitionRes::is_script_valid() const { return script_valid; }
+Ref<Script> TransitionConfig::get_transition_script() const { return transition_script; }
+bool TransitionConfig::is_script_valid() const { return script_valid; }
 
 #endif
 
-TransitionBase *TransitionRes::create_transition(HFSM *p_hfsm, Ref<StateRes> &r_from_state_res, Ref<StateRes> &r_to_state_res) {
-	TransitionBase *r;
+TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm, Ref<StateConfig> &r_from_state_config, Ref<StateConfig> &r_to_state_config) {
+	TransitionBase *ret;
 	switch (type) {
 		IF_FULL_VERSION(
 				case TRANSITION_TYPE_SCRIPT
@@ -378,14 +378,14 @@ TransitionBase *TransitionRes::create_transition(HFSM *p_hfsm, Ref<StateRes> &r_
 					auto t = memnew(Transition);
 					t->set_script(transition_script);
 					t->hfsm = p_hfsm;
-					r = static_cast<TransitionBase *>(t);
+					ret = static_cast<TransitionBase *>(t);
 				} break;)
 		case TRANSITION_TYPE_VARIABLE: {
 			auto vt = memnew(VariableTransition);
 			vt->and_mode = is_variable_and_mode();
-			for (size_t i = 0; i < variable_expression_res_list.size(); i++) {
-				Ref<VariableExpressionRes> variable_expression_res = variable_expression_res_list[i];
-				auto ve = variable_expression_res->create_variable_expression(p_hfsm);
+			for (size_t i = 0; i < variable_expression_config_list.size(); i++) {
+				Ref<VariableExpressionConfig> variable_expression_config = variable_expression_config_list[i];
+				auto ve = variable_expression_config->create_variable_expression(p_hfsm);
 				ERR_FAIL_COND_V(!ve, nullptr);
 				switch (ve->get_expression_type()) {
 					case VariableExpression::ExpressionType::NORMAL:
@@ -401,20 +401,20 @@ TransitionBase *TransitionRes::create_transition(HFSM *p_hfsm, Ref<StateRes> &r_
 						break;
 				}
 			}
-			r = vt;
+			ret = vt;
 		} break;
 		case TRANSITION_TYPE_EXPRESSION: {
 			auto et = memnew(ExpressionTransition);
 			et->hfsm = p_hfsm;
 			et->set_expression_text(expression_text);
-			r = et;
+			ret = et;
 		} break;
 		case TRANSITION_TYPE_AUTO: {
 			auto at = memnew(AutoTransition);
 			at->mode = auto_mode;
 			at->delay_msec = auto_delay_msec;
 			at->times = auto_times;
-			r = at;
+			ret = at;
 		} break;
 		default: {
 			if (!Engine::get_singleton()->is_editor_hint()) {
@@ -422,9 +422,9 @@ TransitionBase *TransitionRes::create_transition(HFSM *p_hfsm, Ref<StateRes> &r_
 			}
 		} break;
 	}
-	r_from_state_res = get_from_state_res();
-	r_to_state_res = get_to_state_res();
-	return r;
+	r_from_state_config = get_from_state_config();
+	r_to_state_config = get_to_state_config();
+	return ret;
 }
 
 #pragma endregion

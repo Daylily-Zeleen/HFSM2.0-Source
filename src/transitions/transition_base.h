@@ -2,7 +2,7 @@
 
 #include "../../hfsm_global.h"
 #include "../hfsm.h"
-#include "../hfsm_variable.h"
+#include "../variable.h"
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/ref_counted.hpp>
@@ -55,7 +55,7 @@ private:
 	Ref<State> from_state;
 	Ref<State> to_state;
 
-	friend class FsmRes;
+	friend class FSMConfig;
 };
 
 #pragma region 内联实现

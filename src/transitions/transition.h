@@ -41,6 +41,6 @@ public:
 private:
 	HFSM *hfsm = nullptr;
 
-	friend class TransitionRes;
+	friend class TransitionConfig;
 };
 }; // namespace Hfsm
