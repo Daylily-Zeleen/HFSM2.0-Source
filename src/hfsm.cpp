@@ -236,7 +236,7 @@ bool HFSM::rebuild_hfsm() {
 	}
 
 	// Build
-	Vector<Hfsm::Fsm *> tmp;
+	Vector<Hfsm::FSM *> tmp;
 	root_fsm = root_fsm_config->create_fsm(this, Ref<State>(), tmp);
 
 	// Create variables.
@@ -443,7 +443,7 @@ void HFSM::_load_state(const Array &state) {
 	// 自身状态
 	_current_state = Ref<State>(state[2]);
 	_previous_state = state[3];
-	_active_fsm_list = reinterpret_cast<Vector<Fsm *> *>(int64_t(state[4]));
+	_active_fsm_list = reinterpret_cast<Vector<FSM *> *>(int64_t(state[4]));
 	_active = state[5];
 	// _force_all_state_entry_behavior = state[6];
 	// _force_all_fsm_entry_behavior = state[7];

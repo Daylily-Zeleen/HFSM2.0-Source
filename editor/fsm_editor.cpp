@@ -1574,7 +1574,7 @@ List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 				} break;
 				case TransitionConfig::AUTO_TRANSIT_MODE_FSM_EXIT: {
 					r_valid = true;
-					ret.push_back(str_localize("Auto: ") + str_localize("When sub Fsm exit."));
+					ret.push_back(str_localize("Auto: ") + str_localize("When sub FSM exit."));
 				} break;
 				case TransitionConfig::AUTO_TRANSIT_MODE_MANUAL: {
 					r_valid = true;

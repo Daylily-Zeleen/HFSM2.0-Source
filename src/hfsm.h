@@ -16,7 +16,7 @@ using namespace godot;
 namespace Hfsm {
 
 // class FSMConfig;
-class Fsm;
+class FSM;
 // class State;
 class Variable;
 // 考虑状态机是非运行时设计完成的一种东西，在运行时改变状态是不合理的设计
@@ -129,11 +129,11 @@ private:
 	Ref<State> current_state; //= ["root"] setget , get_current_path
 	Ref<State> previous_state; // :Array = ["root"] setget , get_previous_path
 
-	Fsm *root_fsm = nullptr;
+	FSM *root_fsm = nullptr;
 	Vector<Ref<Variable>> trigger_list;
 	VMap<StringName, Ref<Variable>> variable_blackboard;
 
-	Vector<Fsm *> *active_fsm_list = nullptr;
+	Vector<FSM *> *active_fsm_list = nullptr;
 
 	AnimationPlayer *animation_player = nullptr;
 
@@ -148,7 +148,7 @@ private:
 	// 新特性：动画状态机
 	void _animation_finished(const StringName &p_anim_name);
 
-	friend class Fsm;
+	friend class FSM;
 };
 
 #pragma region 内联实现

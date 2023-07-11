@@ -5,9 +5,9 @@
 
 namespace Hfsm {
 
-#pragma region Fsm
+#pragma region FSM
 
-// void Fsm::reset() {
+// void FSM::reset() {
 // 	current_state = current_entry_state;
 // 	for (auto &&state : state_list) {
 // 		state->reset();
@@ -17,7 +17,7 @@ namespace Hfsm {
 // 	}
 // }
 
-void Fsm::entry() { //(const Ref<State> &p_entry_state) {
+void FSM::entry() { //(const Ref<State> &p_entry_state) {
 	// if (reset_when_entry) {
 	// 	for (auto &&state : state_list) {
 	// 		state->reset();
@@ -36,7 +36,7 @@ void Fsm::entry() { //(const Ref<State> &p_entry_state) {
 		hfsm->emit_entered(current_state);
 	}
 }
-Vector<Fsm *> *Fsm::try_transit_and_get_update_queue() {
+Vector<FSM *> *FSM::try_transit_and_get_update_queue() {
 	ERR_FAIL_COND_V(!is_running(), nullptr);
 	for (auto &&transition : current_state->transition_list) {
 		if (transition->can_transit()) {
@@ -74,27 +74,27 @@ Vector<Fsm *> *Fsm::try_transit_and_get_update_queue() {
 	return nullptr;
 }
 
-void Fsm::update(double p_delta) {
+void FSM::update(double p_delta) {
 	current_state->update(p_delta);
 	hfsm->emit_updated(current_state, p_delta);
 }
 
-void Fsm::physics_update(double p_delta) {
+void FSM::physics_update(double p_delta) {
 	current_state->physics_update(p_delta);
 	hfsm->emit_physic_updated(current_state, p_delta);
 }
-void Fsm::exit_by_state() {
+void FSM::exit_by_state() {
 	running = false;
 	hfsm->emit_exited(current_state);
 	hfsm->emit_transited(current_state, Ref<State>());
 }
 
-// bool Fsm::force_transit(const StringName &p_target_state_name) {
+// bool FSM::force_transit(const StringName &p_target_state_name) {
 // 	auto target_state = get_state(p_target_state_name);
 // 	return force_transit_state(target_state);
 // }
 
-// bool Fsm::force_transit_state(Ref<State> &p_target_state) {
+// bool FSM::force_transit_state(Ref<State> &p_target_state) {
 // 	ERR_FAIL_COND_V(p_target_state->get_sub_fsm() == this, false);
 // 	ERR_FAIL_COND_V(p_target_state.is_null(), false);
 // 	ERR_FAIL_COND_V(current_state.is_null(), false);
@@ -109,7 +109,7 @@ void Fsm::exit_by_state() {
 // 	return true;
 // }
 
-// void Fsm::exit() {
+// void FSM::exit() {
 //     // ERR_FAIL_NULL(_current_state);
 //     // _current_state->exit();
 //     _running = false;
@@ -117,7 +117,7 @@ void Fsm::exit_by_state() {
 //     _hfsm->transited(_current_state, Ref<State>());
 // }
 
-// Ref<State> Fsm::get_state(const StringName &p_state_name) {
+// Ref<State> FSM::get_state(const StringName &p_state_name) {
 // 	for (auto &&state : state_list) {
 // 		if (state->get_name() == p_state_name) {
 // 			return state;
@@ -127,7 +127,7 @@ void Fsm::exit_by_state() {
 // }
 
 #ifdef ROLLBACK_NET_CODE
-Array Fsm::_save_state() {
+Array FSM::_save_state() {
 	Array ret;
 	ret.push_back(_current_state);
 	ret.push_back(_running);
@@ -136,7 +136,7 @@ Array Fsm::_save_state() {
 	}
 	return ret;
 }
-void Fsm::_load_state(const Array &state) {
+void FSM::_load_state(const Array &state) {
 	uint64_t idx = 0;
 	_running = state[idx];
 	idx++;
@@ -146,54 +146,54 @@ void Fsm::_load_state(const Array &state) {
 		s->load_state(state[idx]);
 	}
 }
-void Fsm::_interpolate_state(const Array &old_state, const Array &new_state, real_t weight) {
+void FSM::_interpolate_state(const Array &old_state, const Array &new_state, real_t weight) {
 	uint64_t idx = 1;
 	for (auto &&s : _state_list) {
 		idx++;
 		s->interpolate_state(old_state[idx], new_state[idx], weight);
 	}
 }
-Array Fsm::_get_local_input() {
+Array FSM::_get_local_input() {
 	Array ret;
 	for (auto &&s : _state_list) {
 		ret.push_back(s->get_local_input());
 	}
 	return ret;
 }
-Array Fsm::_predict_remote_input(const Array &previous_input, int64_t ticks_since_real_input) {
+Array FSM::_predict_remote_input(const Array &previous_input, int64_t ticks_since_real_input) {
 	Array ret;
 	for (size_t i = 0; i < _state_list.size(); i++) {
 		ret.push_back(_state_list.get(i)->predict_remote_input(previous_input[i], ticks_since_real_input));
 	}
 	return ret;
 }
-void Fsm::_network_process(Array &input) {
+void FSM::_network_process(Array &input) {
 	for (size_t i = 0; i < _state_list.size(); i++) {
 		_state_list.get(i)->network_process(Array(input[i]));
 	}
 }
-void Fsm::_network_preprocess(Array &input) {
+void FSM::_network_preprocess(Array &input) {
 	for (size_t i = 0; i < _state_list.size(); i++) {
 		_state_list.get(i)->network_preprocess(Array(input[i]));
 	}
 }
-void Fsm::_network_postprocess(Array &input) {
+void FSM::_network_postprocess(Array &input) {
 	for (size_t i = 0; i < _state_list.size(); i++) {
 		_state_list.get(i)->network_postprocess(Array(input[i]));
 	}
 }
-Dictionary &Fsm::_network_spawn_preprocess(Dictionary &data) {
+Dictionary &FSM::_network_spawn_preprocess(Dictionary &data) {
 	for (auto &&s : _state_list) {
 		s->network_spawn_preprocess(data);
 	}
 	return data;
 }
-void Fsm::_network_spawn(Dictionary &data) {
+void FSM::_network_spawn(Dictionary &data) {
 	for (auto &&s : _state_list) {
 		s->network_spawn(data);
 	}
 }
-void Fsm::_network_despawn() {
+void FSM::_network_despawn() {
 	for (auto &&s : _state_list) {
 		s->network_despawn();
 	}

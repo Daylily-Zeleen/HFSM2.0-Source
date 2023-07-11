@@ -21,7 +21,7 @@ using namespace godot;
 
 namespace Hfsm {
 
-class Fsm;
+class FSM;
 class HFSM;
 class TransitionBase;
 
@@ -66,7 +66,7 @@ public:
 
 	StateType get_type() const;
 
-	Fsm *get_sub_fsm();
+	FSM *get_sub_fsm();
 
 	// 新特性 动画状态机
 	StringName get_animation_name_for_playing() const;
@@ -111,7 +111,7 @@ public:
 
 	Vector<TransitionBase *> transition_list;
 	// 子状态机
-	Fsm *sub_fsm = nullptr;
+	FSM *sub_fsm = nullptr;
 
 private:
 	StringName name = "";
@@ -153,7 +153,7 @@ inline StringName State::get_name() { return name; }
 
 inline const TypedArray<State> &State::get_path() const { return path; }
 
-inline Fsm *State::get_sub_fsm() { return sub_fsm; }
+inline FSM *State::get_sub_fsm() { return sub_fsm; }
 
 inline State::StateType State::get_type() const { return type; }
 

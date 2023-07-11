@@ -93,7 +93,7 @@ void TransitionConfig::_get_property_list(List<PropertyInfo> *p_list) const {
 			_PUSH_PROP(STRING, expression_comment, PROPERTY_HINT_MULTILINE_TEXT);
 		} break;
 		case TRANSITION_TYPE_AUTO: {
-			_PUSH_PROP(INT, auto_mode, PROPERTY_HINT_ENUM, "Delay Timer,Animation Finish,Fsm Exit,Manual,Update Times,Physics Update Times");
+			_PUSH_PROP(INT, auto_mode, PROPERTY_HINT_ENUM, "Delay Timer,Animation Finish,FSM Exit,Manual,Update Times,Physics Update Times");
 			switch (auto_mode) {
 				case AUTO_TRANSIT_MODE_DELAY_TIMER: {
 					_PUSH_PROP(INT, auto_delay_msec, PROPERTY_HINT_RANGE, "0,2147483647,1,or_greater");

@@ -18,15 +18,16 @@ class HFSM;
 
 // 考虑状态机是非运行时设计完成的一种东西，在运行时改变状态是不合理的设计
 // 因此取消运行时改变状态类型的功能
-class Fsm {
+class FSM {
 	friend class FSMConfig;
 
 public:
 	const TypedArray<State> &get_path() const;
 	Ref<State> get_current_state() const;
-	Vector<Fsm *> &get_fsm_update_queue() { return fsm_update_queue; }
+	Vector<FSM *> &get_fsm_update_queue() { return fsm_update_queue; }
 
 	bool is_running() const;
+
 #ifdef ROLLBACK_NET_CODE
 	Array _save_state();
 	void _load_state(const Array &state);
@@ -48,7 +49,7 @@ private:
 	// PackedStringArray path = PackedsStringArray();
 	Vector<Ref<State>> state_list;
 	TypedArray<State> path;
-	Vector<Fsm *> fsm_update_queue;
+	Vector<FSM *> fsm_update_queue;
 	bool running = false;
 	// bool reset_when_entry = false;
 
@@ -69,9 +70,8 @@ private:
 	// void set_exit_state(String state_name);
 	// void set_normal_state(String state_name);
 	// void set_unique_exit_state(String state_name);
-	// friend class FSMConfig;
 public:
-	Vector<Fsm *> *try_transit_and_get_update_queue();
+	Vector<FSM *> *try_transit_and_get_update_queue();
 
 	// void reset();
 	void update(double p_delta);
@@ -82,9 +82,9 @@ public:
 
 #pragma region 内联实现
 
-inline const TypedArray<State> &Fsm::get_path() const { return path; }
-inline Ref<State> Fsm::get_current_state() const { return current_state; }
-inline bool Fsm::is_running() const { return running; }
+inline const TypedArray<State> &FSM::get_path() const { return path; }
+inline Ref<State> FSM::get_current_state() const { return current_state; }
+inline bool FSM::is_running() const { return running; }
 
 #pragma endregion
 

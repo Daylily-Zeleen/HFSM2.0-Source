@@ -144,10 +144,10 @@ void FSMConfig::remove_transition_config(const Ref<TransitionConfig> &p_transiti
 	}
 }
 
-Fsm *FSMConfig::create_fsm(HFSM *p_hfsm, const Ref<State> &p_nested_state, const Vector<Hfsm::Fsm *> &p_nested_fsm_update_queue) {
-	Fsm *ret = memnew(Fsm);
+FSM *FSMConfig::create_fsm(HFSM *p_hfsm, const Ref<State> &p_nested_state, const Vector<Hfsm::FSM *> &p_nested_fsm_update_queue) {
+	FSM *ret = memnew(FSM);
 	ret->hfsm = p_hfsm;
-	// Fsm 不一定包含于 State
+	// FSM 不一定包含于 State
 	if (p_nested_state.is_valid()) {
 		ret->nested_state = p_nested_state;
 		ret->path.append_array(ret->nested_state->get_path());

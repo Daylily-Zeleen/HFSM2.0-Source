@@ -12,7 +12,7 @@ using namespace godot;
 #endif // GDEXTENSION_BUILD
 namespace Hfsm {
 // class HFSM;
-// class Fsm;
+// class FSM;
 // class VariableConfig;
 
 // 状态机资源
@@ -25,7 +25,7 @@ protected:
 	_TO_STRING()
 
 public:
-	Fsm *create_fsm(class HFSM *p_hfsm, const Ref<State> &p_nested_state, const Vector<class Fsm *> &p_nested_fsm_update_queue);
+	FSM *create_fsm(class HFSM *p_hfsm, const Ref<State> &p_nested_state, const Vector<class FSM *> &p_nested_fsm_update_queue);
 
 	void set_nested_state_config(const Ref<StateConfig> &p_state_config);
 	Ref<StateConfig> get_nested_state_config() const;

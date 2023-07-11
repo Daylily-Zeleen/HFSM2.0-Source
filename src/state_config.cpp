@@ -246,7 +246,7 @@ void StateConfig::set_animation_reverse(bool p_reverse) { animation_reverse = p_
 #endif
 
 //
-Ref<State> StateConfig::create_state(HFSM *p_hfsm, Fsm *p_fsm) {
+Ref<State> StateConfig::create_state(HFSM *p_hfsm, FSM *p_fsm) {
 	Ref<State> ret;
 	ret.instantiate();
 	ret->set_name(state_name);
@@ -260,7 +260,7 @@ Ref<State> StateConfig::create_state(HFSM *p_hfsm, Fsm *p_fsm) {
 		ret->animation_reverse = animation_reverse;
 	})
 	// 路径
-	// State 一定包含于 Fsm
+	// State 一定包含于 FSM
 	ret->path.append_array(p_fsm->get_path());
 
 	// 脚本处理

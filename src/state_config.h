@@ -16,7 +16,7 @@ using namespace godot;
 namespace Hfsm {
 
 class HFSM;
-class Fsm;
+class FSM;
 class State;
 // class FSMConfig;
 
@@ -73,7 +73,7 @@ public:
 	bool get_animation_reverse() const;
 	void set_animation_reverse(bool p_reverse);
 #endif
-	Ref<State> create_state(HFSM *p_hfsm, Fsm *p_fsm);
+	Ref<State> create_state(HFSM *p_hfsm, FSM *p_fsm);
 
 private:
 	Ref<Script> state_script;

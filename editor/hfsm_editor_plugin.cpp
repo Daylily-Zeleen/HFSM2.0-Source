@@ -282,7 +282,7 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	translation.insert("Auto: ", "自动: ");
 	translation.insert("Delay %d msec.", "延迟 %d 毫秒");
 
-	translation.insert("When sub Fsm exit.", "子状态机退出时");
+	translation.insert("When sub FSM exit.", "子状态机退出时");
 	translation.insert("After calling \"manual_exit()\".", "调用\"manual_exit()\"后");
 	translation.insert("After \"_update()\" being called %d times.", "\"_update()\"被调用 %d 次后");
 	translation.insert("After \"_physics_update()\" being called %d times.", "\"_physics_update()\"被调用 %d 次后");
