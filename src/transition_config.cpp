@@ -356,17 +356,10 @@ TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm, Ref<StateConfi
 	TransitionBase *ret;
 	switch (type) {
 		case TRANSITION_TYPE_AUTO: {
-			auto at = memnew(AutoTransition);
-			at->mode = auto_mode;
-			at->delay_msec = auto_delay_msec;
-			at->times = auto_times;
-			ret = at;
+			ret = memnew(AutoTransition(auto_mode, auto_delay_msec, auto_times));
 		} break;
 		case TRANSITION_TYPE_EXPRESSION: {
-			auto et = memnew(ExpressionTransition);
-			et->hfsm = p_hfsm;
-			et->set_expression_text(expression_text);
-			ret = et;
+			ret = memnew(ExpressionTransition(p_hfsm, expression_text));
 		} break;
 		case TRANSITION_TYPE_VARIABLE_EXPRESSIONS: {
 			auto vt = memnew(VariableTransition);

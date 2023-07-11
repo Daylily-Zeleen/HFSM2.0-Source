@@ -7,10 +7,6 @@ namespace Hfsm {
 
 #pragma region ExpressionTransition
 
-void ExpressionTransition::set_expression_text(const String &expression_text) {
-	invalid = expression.parse(expression_text, HfsmGlobal::get_singleton_names()) != OK;
-}
-
 bool ExpressionTransition::can_transit() {
 	ERR_FAIL_COND_V(invalid, false);
 	auto result = expression.execute(HfsmGlobal::get_singletons(), hfsm, false);

@@ -14,15 +14,16 @@ class ExpressionTransition : public TransitionBase {
 public:
 	bool can_transit() override;
 
-	void set_expression_text(const String &expression_text);
+	ExpressionTransition(HFSM *p_hfsm, const String &p_expression_text) :
+			hfsm(p_hfsm) {
+		invalid = expression.parse(p_expression_text, HfsmGlobal::get_singleton_names()) != OK;
+	}
 
 private:
 	Expression expression;
 	HFSM *hfsm = nullptr;
 
 	bool invalid = true;
-
-	friend class TransitionConfig;
 };
 
 } // namespace Hfsm
