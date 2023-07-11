@@ -53,7 +53,6 @@
 #include "editor/fsm_editor.h"
 #include "editor/hfsm_editor.h"
 #include "editor/hfsm_editor_plugin.h"
-#include "editor/inspector_plugin/variable_res_selector.h"
 #include "editor/state_node.h"
 
 #ifdef GDEXTENSION_BUILD
@@ -84,7 +83,8 @@ void register_core_classes() {
 void register_editor_classes() {
 	IF_TOOLS({
 		GDREGISTER_CLASS(HfsmEditorPlugin);
-		GDREGISTER_CLASS(VariableResSelector);
+		GDREGISTER_CLASS(EditorPropertyVariableRes);
+		GDREGISTER_CLASS(EditorPropertyVariableRes::VariableResSelector);
 		GDREGISTER_CLASS(StateNode);
 		GDREGISTER_CLASS(FsmEditor);
 		GDREGISTER_CLASS(HfsmInspectorPlugin);

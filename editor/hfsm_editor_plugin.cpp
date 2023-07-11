@@ -22,7 +22,6 @@ using namespace godot;
 
 #include "../src/hfsm.h"
 #include "../src/transitions/variable_expressions/variable_expression_res.h"
-#include "inspector_plugin/variable_res_selector.h"
 
 #ifdef DEBUG_ENABLED
 #include "hfsm_debugger_plugin.h"
