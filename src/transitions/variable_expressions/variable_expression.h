@@ -10,9 +10,9 @@ protected:
 
 public:
 	enum ExpressionType {
-		NORMAL,
-		UNION_TRIGGER,
-		SOLO_TRIGGER,
+		EXPRESSION_TYPE_NORMAL,
+		EXPRESSION_TYPE_UNION_TRIGGER,
+		EXPRESSION_TYPE_SOLO_TRIGGER,
 	};
 	/**
 	 * @brief 判断是否可以推进
@@ -28,7 +28,7 @@ public:
 	 *
 	 * @return uint8_t 0 通用 1 联合触发器 2 SOLO 触发器
 	 */
-	virtual ExpressionType get_expression_type() { return ExpressionType::NORMAL; }
+	virtual ExpressionType get_expression_type() { return ExpressionType::EXPRESSION_TYPE_NORMAL; }
 
 protected:
 	// 变量

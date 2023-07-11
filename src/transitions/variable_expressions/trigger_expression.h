@@ -61,7 +61,7 @@ inline bool SoloTriggerExpression::get_result(bool p_and_mode, bool &r_result) {
 }
 inline VariableExpression::ExpressionType
 SoloTriggerExpression::get_expression_type() {
-	return ExpressionType::SOLO_TRIGGER;
+	return ExpressionType::EXPRESSION_TYPE_SOLO_TRIGGER;
 }
 inline bool UnionTriggerExpression::get_result(bool p_and_mode, bool &r_result) {
 	r_result = variable->get_value();
@@ -72,7 +72,7 @@ inline bool UnionTriggerExpression::get_result(bool p_and_mode, bool &r_result) 
 }
 inline VariableExpression::ExpressionType
 UnionTriggerExpression::get_expression_type() {
-	return ExpressionType::UNION_TRIGGER;
+	return ExpressionType::EXPRESSION_TYPE_UNION_TRIGGER;
 }
 
 #pragma endregion

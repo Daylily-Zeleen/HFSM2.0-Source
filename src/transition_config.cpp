@@ -100,7 +100,7 @@ void TransitionConfig::_get_property_list(List<PropertyInfo> *p_list) const {
 				: {
 					_PUSH_PROP_RESOURCE(transition_script);
 				} break;)
-		case TRANSITION_TYPE_VARIABLE: {
+		case TRANSITION_TYPE_VARIABLE_EXPRESSIONS: {
 			p_list->push_back(PropertyInfo(Variant::BOOL, "and_mode"));
 
 			_PUSH_PROP_TYPED_ARRAY(variable_expression_config_list, VariableExpressionConfig);
@@ -110,7 +110,7 @@ void TransitionConfig::_get_property_list(List<PropertyInfo> *p_list) const {
 			_PUSH_PROP(STRING, expression_comment, PROPERTY_HINT_MULTILINE_TEXT);
 		} break;
 		case TRANSITION_TYPE_AUTO: {
-			_PUSH_PROP(INT, auto_mode, PROPERTY_HINT_ENUM, "Delay Timer,Fsm Exit,Manual,Update Times,Physics Update Times");
+			_PUSH_PROP(INT, auto_mode, PROPERTY_HINT_ENUM, "Animation Finish, Delay Timer,Fsm Exit,Manual,Update Times,Physics Update Times");
 			switch (auto_mode) {
 				case AUTO_TRANSIT_MODE_DELAY_TIMER: {
 					_PUSH_PROP(INT, auto_delay_msec, PROPERTY_HINT_RANGE, "0,2147483647,1,or_greater");
@@ -163,7 +163,7 @@ void TransitionConfig::_bind_methods() {
 	//                      &TransitionConfig::get_valid_and_texts);
 	// 枚举
 	BIND_CONSTANT(TRANSITION_TYPE_SCRIPT);
-	BIND_CONSTANT(TRANSITION_TYPE_VARIABLE);
+	BIND_CONSTANT(TRANSITION_TYPE_VARIABLE_EXPRESSIONS);
 	BIND_CONSTANT(TRANSITION_TYPE_EXPRESSION);
 	BIND_CONSTANT(TRANSITION_TYPE_AUTO);
 
@@ -380,7 +380,7 @@ TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm, Ref<StateConfi
 					t->hfsm = p_hfsm;
 					ret = static_cast<TransitionBase *>(t);
 				} break;)
-		case TRANSITION_TYPE_VARIABLE: {
+		case TRANSITION_TYPE_VARIABLE_EXPRESSIONS: {
 			auto vt = memnew(VariableTransition);
 			vt->and_mode = is_variable_and_mode();
 			for (size_t i = 0; i < variable_expression_config_list.size(); i++) {
@@ -388,13 +388,13 @@ TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm, Ref<StateConfi
 				auto ve = variable_expression_config->create_variable_expression(p_hfsm);
 				ERR_FAIL_COND_V(!ve, nullptr);
 				switch (ve->get_expression_type()) {
-					case VariableExpression::ExpressionType::NORMAL:
+					case VariableExpression::ExpressionType::EXPRESSION_TYPE_NORMAL:
 						vt->normal_expressions.append(ve);
 						break;
-					case VariableExpression::ExpressionType::UNION_TRIGGER:
+					case VariableExpression::ExpressionType::EXPRESSION_TYPE_UNION_TRIGGER:
 						vt->union_triggers.append(static_cast<UnionTriggerExpression *>(ve));
 						break;
-					case VariableExpression::ExpressionType::SOLO_TRIGGER:
+					case VariableExpression::ExpressionType::EXPRESSION_TYPE_SOLO_TRIGGER:
 						vt->solo_triggers.append(static_cast<SoloTriggerExpression *>(ve));
 						break;
 					default:

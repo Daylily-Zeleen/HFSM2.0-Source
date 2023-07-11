@@ -17,14 +17,7 @@ using namespace godot;
 #endif // GDEXTENSION_BUILD
 
 namespace Hfsm {
-enum Op {
-	OP_EQUAL,
-	OP_NOT_EQUAL,
-	OP_GREATER,
-	OP_GREATER_EQUAL,
-	OP_LESS,
-	OP_LESS_EQUAL,
-};
+
 // 变量类
 class Variable : public RefCounted {
 	GDCLASS(Variable, RefCounted)
@@ -43,10 +36,6 @@ public:
 	// 触发器专用
 	void trigger();
 	void flush_trigger();
-
-	// 无需暴露
-	bool compare_with(const Variant &p_val, uint8_t p_op);
-	bool compare_with(const Variable *p_other, uint8_t p_op);
 
 private:
 	StringName variable_name = "";
@@ -85,28 +74,6 @@ inline Variant::Type Variable::get_type() const { return type; }
 
 // 触发器专用
 inline void Variable::flush_trigger() { value = false; }
-inline bool Variable::compare_with(const Variant &val, uint8_t op) {
-	switch (op) {
-		case OP_EQUAL:
-			return get_value() == val;
-		case OP_NOT_EQUAL:
-			return get_value() != val;
-		case OP_GREATER:
-			return !(get_value() < val || get_value() == val);
-		case OP_GREATER_EQUAL:
-			return !(get_value() < val);
-		case OP_LESS:
-			return get_value() < val;
-		case OP_LESS_EQUAL:
-			return get_value() < val || get_value() == val;
-
-		default:
-			return false;
-	}
-}
-inline bool Variable::compare_with(const Variable *other, uint8_t op) {
-	return compare_with(other->get_value(), op);
-}
 
 #pragma endregion
 }; // namespace Hfsm
