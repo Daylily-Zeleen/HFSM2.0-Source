@@ -36,26 +36,24 @@ void FSM::entry() { //(const Ref<State> &p_entry_state) {
 		hfsm->emit_entered(current_state);
 	}
 }
-Vector<FSM *> *FSM::try_transit_and_get_update_queue() {
-	ERR_FAIL_COND_V(!is_running(), nullptr);
-	for (auto &&transition : current_state->transition_list) {
-		if (transition->can_transit()) {
-			// 退出当前状态
-			if (!current_state->is_exited()) {
-				current_state->exit(false);
-				hfsm->emit_exited(current_state);
-			}
 
-			auto to_state = transition->get_to_state();
-			// 进入新状态（新状态如果是退出状态，则立刻完成进入行为后立刻退出，已在State::entry()中处理
-			to_state->entry();
-			hfsm->emit_transited(current_state, to_state);
-			current_state = to_state;
-			hfsm->emit_entered(current_state);
-			// if _current_state in _current_exit_state_list:
-			// 跳出循环
-			break;
+LocalVector<FSM *> *FSM::try_transit_and_get_update_queue() {
+	ERR_FAIL_COND_V(!is_running(), nullptr);
+
+	if (auto transition = current_state->try_transit()) {
+		// 退出当前状态
+		if (!current_state->is_exited()) {
+			current_state->exit(false);
+			hfsm->emit_exited(current_state);
 		}
+
+		auto to_state = transition->get_to_state();
+		// 进入新状态（新状态如果是退出状态，则立刻完成进入行为后立刻退出，已在State::entry()中处理
+		to_state->entry();
+		hfsm->emit_transited(current_state, to_state);
+		current_state = to_state;
+		hfsm->emit_entered(current_state);
+		// if _current_state in _current_exit_state_list:
 	}
 
 	if (!current_state->is_exited()) { // 当前状态仍在运行
@@ -87,6 +85,21 @@ void FSM::exit_by_state() {
 	running = false;
 	hfsm->emit_exited(current_state);
 	hfsm->emit_transited(current_state, Ref<State>());
+}
+
+void FSM::set_nested_state(const Ref<State> &p_nested_state, const LocalVector<FSM *> &p_nested_fsm_update_queue) {
+	// FSM 不一定包含于 State
+	IF_DEV(ERR_FAIL_COND(p_nested_state.is_null());)
+
+	nested_state = p_nested_state;
+	path.append_array(nested_state->get_path());
+	path.append(nested_state);
+
+	fsm_update_queue.reserve(p_nested_fsm_update_queue.size() + 1);
+	for (const auto &E : p_nested_fsm_update_queue) {
+		fsm_update_queue.push_back(E);
+	}
+	fsm_update_queue.push_back(this);
 }
 
 // bool FSM::force_transit(const StringName &p_target_state_name) {

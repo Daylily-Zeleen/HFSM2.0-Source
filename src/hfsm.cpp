@@ -1,9 +1,9 @@
 ﻿#include "hfsm.h"
 #include "fsm.h"
 #include "fsm_config.h"
+#include "state.h"
 #include "variable.h"
 #include "variable_config.h"
-#include "state.h"
 
 #ifdef DEBUG_ENABLED
 #include "../editor/hfsm_debugger_plugin.h"
@@ -236,8 +236,7 @@ bool HFSM::rebuild_hfsm() {
 	}
 
 	// Build
-	Vector<Hfsm::FSM *> tmp;
-	root_fsm = root_fsm_config->create_fsm(this, Ref<State>(), tmp);
+	root_fsm = root_fsm_config->create_fsm(this);
 
 	// Create variables.
 	auto variable_config_list = root_fsm_config->get_variable_config_list();

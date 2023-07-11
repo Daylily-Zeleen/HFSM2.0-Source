@@ -24,7 +24,7 @@ class FSM {
 public:
 	const TypedArray<State> &get_path() const;
 	Ref<State> get_current_state() const;
-	Vector<FSM *> &get_fsm_update_queue() { return fsm_update_queue; }
+	LocalVector<FSM *> &get_fsm_update_queue() { return fsm_update_queue; }
 
 	bool is_running() const;
 
@@ -49,7 +49,7 @@ private:
 	// PackedStringArray path = PackedsStringArray();
 	Vector<Ref<State>> state_list;
 	TypedArray<State> path;
-	Vector<FSM *> fsm_update_queue;
+	LocalVector<FSM *> fsm_update_queue;
 	bool running = false;
 	// bool reset_when_entry = false;
 
@@ -70,8 +70,12 @@ private:
 	// void set_exit_state(String state_name);
 	// void set_normal_state(String state_name);
 	// void set_unique_exit_state(String state_name);
+
+	void set_nested_state(const Ref<State> &p_nested_state, const LocalVector<FSM *> &p_nested_fsm_update_queue);
+	friend State::State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<Hfsm::State> &p_path, const Ref<Script> &p_script, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue);
+
 public:
-	Vector<FSM *> *try_transit_and_get_update_queue();
+	LocalVector<FSM *> *try_transit_and_get_update_queue();
 
 	// void reset();
 	void update(double p_delta);

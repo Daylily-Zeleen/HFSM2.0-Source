@@ -133,7 +133,7 @@ private:
 	Vector<Ref<Variable>> trigger_list;
 	VMap<StringName, Ref<Variable>> variable_blackboard;
 
-	Vector<FSM *> *active_fsm_list = nullptr;
+	LocalVector<FSM *> *active_fsm_list = nullptr;
 
 	AnimationPlayer *animation_player = nullptr;
 

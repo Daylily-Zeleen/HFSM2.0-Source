@@ -108,6 +108,19 @@ void State::exit_state() {
 	IF_GDM(GDVIRTUAL_CALL(_exit);)
 }
 
+State::State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<Hfsm::State> &p_path, const Ref<Script> &p_script, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue) :
+		hfsm(p_hfsm), type(p_type), path(p_path), sub_fsm(p_sub_fsm) {
+	set_name(p_name);
+
+	if (sub_fsm) {
+		sub_fsm->set_nested_state(this, p_nested_fsm_update_queue);
+	}
+
+	if (p_script.is_valid()) {
+		set_script(p_script);
+	}
+}
+
 State::~State() {
 	for (auto &&transition : transition_list) {
 		if (transition) {
@@ -126,6 +139,7 @@ void State::set_name(const StringName &p_name) {
 		name = p_name;
 	} else
 #endif // TOOLS_ENABLED
+
 	{
 		if (name == StringName("")) {
 			name = p_name;
@@ -133,6 +147,7 @@ void State::set_name(const StringName &p_name) {
 			ERR_FAIL_MSG("HFSM: Can not set state name when running.");
 		}
 	}
+
 	if (animation_name == StringName()) {
 		anim_name_for_playing = name;
 	} else {
@@ -250,6 +265,15 @@ void State::set_animation_speed(double p_speed) { animation_speed = p_speed; }
 bool State::is_animation_reverse() const { return animation_reverse; }
 void State::set_animation_reverse(bool p_reverse) { animation_reverse = p_reverse; }
 #endif
+
+inline TransitionBase *State::try_transit() {
+	for (auto &&transition : transition_list) {
+		if (transition->can_transit()) {
+			return transition;
+		}
+	}
+	return nullptr;
+}
 
 #ifdef ROLLBACK_NET_CODE
 Array State::save_state() {

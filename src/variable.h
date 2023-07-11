@@ -37,12 +37,14 @@ public:
 	void trigger();
 	void flush_trigger();
 
+	Variable() = default;
+	Variable(const StringName &p_variable_name, Variant::Type p_type, const Variant &p_default_value) :
+			variable_name(p_variable_name), type(p_type), value(p_default_value) {}
+
 private:
 	StringName variable_name = "";
 	Variant::Type type = Variant::NIL;
 	Variant value;
-
-	friend class VariableConfig;
 };
 
 #pragma region 内联实现

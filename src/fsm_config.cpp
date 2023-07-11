@@ -144,16 +144,10 @@ void FSMConfig::remove_transition_config(const Ref<TransitionConfig> &p_transiti
 	}
 }
 
-FSM *FSMConfig::create_fsm(HFSM *p_hfsm, const Ref<State> &p_nested_state, const Vector<Hfsm::FSM *> &p_nested_fsm_update_queue) {
+FSM *FSMConfig::create_fsm(HFSM *p_hfsm) {
 	FSM *ret = memnew(FSM);
 	ret->hfsm = p_hfsm;
-	// FSM 不一定包含于 State
-	if (p_nested_state.is_valid()) {
-		ret->nested_state = p_nested_state;
-		ret->path.append_array(ret->nested_state->get_path());
-		ret->path.append(ret->nested_state);
-		ret->fsm_update_queue.append_array(p_nested_fsm_update_queue);
-	}
+
 	ret->fsm_update_queue.push_back(ret);
 
 	// 构造状态列表
@@ -165,6 +159,7 @@ FSM *FSMConfig::create_fsm(HFSM *p_hfsm, const Ref<State> &p_nested_state, const
 
 		ret->state_list.push_back(state);
 	}
+
 	// 构造转换列表
 	for (size_t i = 0; i < transition_config_list.size(); i++) {
 		Ref<TransitionConfig> transition_config = transition_config_list[i];
@@ -172,19 +167,18 @@ FSM *FSMConfig::create_fsm(HFSM *p_hfsm, const Ref<State> &p_nested_state, const
 		TransitionBase *transition = transition_config->create_transition(p_hfsm, from_config, to_config);
 		//  添加到起始状态的转换列表中
 		auto from_state = state_config2state[from_config];
-		static_cast<State *>(from_state.ptr())->transition_list.append(transition);
+		from_state->_add_transition(transition);
 		// 设置转换的起始与目标状态
 		transition->from_state = from_state;
 		transition->to_state = state_config2state[to_config];
 	}
+
 	// 整理起始与结束状态
 	for (auto &&state : ret->state_list) {
 		if (state->get_type() == State::STATE_TYPE_ENTRY) {
 			ret->current_entry_state = state;
-			// ret->_default_entry_state = state;
 		} else if (state->get_type() == State::STATE_TYPE_EXIT) {
 			ret->current_exit_state_list.append(state);
-			// ret->_default_exit_state_list.append(state);
 		}
 	}
 

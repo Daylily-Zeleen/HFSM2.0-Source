@@ -3,10 +3,10 @@
 #include "../hfsm_global.h"
 
 #ifdef GDEXTENSION_BUILD
-#include <godot_cpp/variant/typed_array.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/templates/vmap.hpp>
+#include <godot_cpp/variant/typed_array.hpp>
 
 using namespace godot;
 #else
@@ -40,9 +40,6 @@ public:
 		STATE_TYPE_MAX,
 	};
 
-	~State() override;
-
-	void set_name(const StringName &p_name);
 	StringName get_name();
 
 	HFSM *get_hfsm();
@@ -109,11 +106,16 @@ public:
 	virtual void _network_despawn();
 #endif
 
+	State() = default;
+	State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<Hfsm::State> &p_path, const Ref<Script> &p_script, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue);
+
+	~State() override;
+
+private:
 	Vector<TransitionBase *> transition_list;
 	// 子状态机
 	FSM *sub_fsm = nullptr;
 
-private:
 	StringName name = "";
 	HFSM *hfsm = nullptr;
 
@@ -133,18 +135,21 @@ private:
 	bool animation_reverse = false;
 #endif
 
-	friend class StateConfig;
-
 	void try_play_anim();
+	void set_name(const StringName &p_name);
 
 public:
-	// void reset();
 	void entry();
 	void update(real_t p_delta);
 	void physics_update(real_t p_delta);
 	void exit(bool p_terminated_by_upper_level = false);
 
 	void notify_animation_finished(const StringName &p_anim);
+
+	TransitionBase *try_transit();
+
+	// For construct, don't call this in any cases.
+	void _add_transition(TransitionBase *p_transtition) { transition_list.append(p_transtition); }
 };
 
 #pragma region 内联实现
@@ -166,9 +171,11 @@ inline void State::notify_animation_finished(const StringName &p_anim) {
 		emit_signal(sn);
 	}
 }
+
 inline StringName State::get_animation_name_for_playing() const {
 	return anim_name_for_playing;
 }
+
 #pragma endregion
 
 }; // namespace Hfsm

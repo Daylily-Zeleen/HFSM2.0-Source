@@ -135,12 +135,7 @@ Variant VariableConfig::get_default_value() const {
 }
 
 Ref<Variable> VariableConfig::create_variable() {
-	Ref<Variable> ret;
-	ret.instantiate();
-	ret->variable_name = variable_name;
-	ret->type = type;
-	ret->set_value(default_value);
-	return ret;
+	return memnew(Variable(variable_name, type, default_value));
 }
 
 Ref<VariableConfig> VariableConfig::create_new(const Ref<FSMConfig> &p_fsm_config) {

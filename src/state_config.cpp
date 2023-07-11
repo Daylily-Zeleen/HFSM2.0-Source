@@ -247,50 +247,46 @@ void StateConfig::set_animation_reverse(bool p_reverse) { animation_reverse = p_
 
 //
 Ref<State> StateConfig::create_state(HFSM *p_hfsm, FSM *p_fsm) {
-	Ref<State> ret;
-	ret.instantiate();
-	ret->set_name(state_name);
-	ret->hfsm = p_hfsm;
-	ret->type = type;
-
-	ret->set_animation_name(animation_name);
-	IF_FULL_VERSION({
-		ret->animation_speed = animation_speed;
-		ret->animation_blend_time = animation_blend_time;
-		ret->animation_reverse = animation_reverse;
-	})
-	// 路径
-	// State 一定包含于 FSM
-	ret->path.append_array(p_fsm->get_path());
+	// 内嵌状态机
+	FSM *sub_fsm = nullptr;
+	if (fsm_config.is_valid()) {
+		sub_fsm = get_fsm_config()->create_fsm(p_hfsm);
+	}
 
 	// 脚本处理
-	if (state_script.is_valid()) {
-		if (state_script->get_instance_base_type() == State::get_class_static()) {
-			if (state_script.is_valid()) {
-				auto base_type = state_script->get_instance_base_type();
-				IF_GDM(if (ClassDB::is_parent_class(base_type, State::get_class_static())) {
-					ret->set_script(state_script);
-				} else)
+	Ref<Script> script_to_set = state_script;
+	if (script_to_set.is_valid()) {
+		if (script_to_set->get_instance_base_type() == State::get_class_static()) {
+			if (script_to_set.is_valid()) {
+				auto base_type = script_to_set->get_instance_base_type();
 
 				if (base_type != StringName(State::get_class_static())) {
-					ret->set_script(state_script);
+					IF_GDM(if (!ClassDB::is_parent_class(base_type, State::get_class_static())) {)
+					script_to_set.unref();
+					IF_GDM( })
 				}
 			}
 		} else {
 			String path_text;
-			for (auto i = 0; i < ret->get_path().size(); i++) {
-				path_text = path_text + Ref<State>(ret->get_path()[i])->get_name();
-				if (i != i < ret->get_path().size() - 1) {
+			for (auto i = 0; i < p_fsm->get_path().size(); i++) {
+				path_text = path_text + Ref<State>(p_fsm->get_path()[i])->get_name();
+				if (i != i < p_fsm->get_path().size() - 1) {
 					path_text = path_text + String("/");
 				}
 			}
-			ERR_FAIL_V_MSG(ret, path_text + String(": Script is not extends from 'State'."));
+
+			ERR_PRINT(path_text + String(": Script is not extends from 'State'."));
 		}
 	}
-	// 内嵌状态机
-	if (fsm_config.is_valid()) {
-		ret->sub_fsm = static_cast<FSMConfig *>(get_fsm_config().ptr())->create_fsm(p_hfsm, ret, p_fsm->get_fsm_update_queue());
-	}
+
+	auto ret = memnew(State(state_name, p_hfsm, type, p_fsm->get_path(), script_to_set, sub_fsm, p_fsm->get_fsm_update_queue()));
+
+	ret->set_animation_name(animation_name);
+	IF_FULL_VERSION({
+		ret->set_animation_speed(animation_speed);
+		ret->set_animation_blend_time(animation_blend_time);
+		ret->set_animation_reverse(animation_reverse);
+	})
 
 	// Call initialized (finally allow to access HFSM).
 	ret->initialize_state();
@@ -299,5 +295,4 @@ Ref<State> StateConfig::create_state(HFSM *p_hfsm, FSM *p_fsm) {
 }
 
 #pragma endregion
-
 }; // namespace Hfsm

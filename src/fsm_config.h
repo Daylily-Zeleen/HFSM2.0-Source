@@ -1,9 +1,10 @@
 ﻿#pragma once
 
-#include "variable_config.h"
 #include "state.h"
 #include "state_config.h"
 #include "transition_config.h"
+#include "variable_config.h"
+
 
 #ifdef GDEXTENSION_BUILD
 using namespace godot;
@@ -25,7 +26,7 @@ protected:
 	_TO_STRING()
 
 public:
-	FSM *create_fsm(class HFSM *p_hfsm, const Ref<State> &p_nested_state, const Vector<class FSM *> &p_nested_fsm_update_queue);
+	FSM *create_fsm(class HFSM *p_hfsm);
 
 	void set_nested_state_config(const Ref<StateConfig> &p_state_config);
 	Ref<StateConfig> get_nested_state_config() const;
