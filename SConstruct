@@ -42,10 +42,8 @@ sources = Glob("*.cpp") + \
 
 if env["target"] == "editor":
     cpp_paths.append("editor/")
-    cpp_paths.append("editor/inspector_plugin/")
 
-    sources = sources + Glob("editor/*.cpp") + \
-        Glob("editor/inspector_plugin/*.cpp")
+    sources = sources + Glob("editor/*.cpp")
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=cpp_paths)

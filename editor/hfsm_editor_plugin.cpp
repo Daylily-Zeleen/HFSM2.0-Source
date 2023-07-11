@@ -30,6 +30,169 @@ using namespace godot;
 
 namespace Hfsm {
 
+void EditorPropertyVariableRes::VariableResSelector::GD_(set_create_options)(Object *p_menu_node) {
+	PopupMenu *menu = Object::cast_to<PopupMenu>(p_menu_node);
+	if (!menu) {
+		return;
+	}
+
+	if (!edit_menu) {
+		edit_menu = menu;
+		edit_menu->connect("about_to_popup", TCALLABLE(_menu_popup));
+	}
+
+	Array variable_list = hfsm->get("variable_list");
+
+	variable_res_list.clear();
+	auto idx = 0;
+	for (size_t i = 0; i < variable_list.size(); i++) {
+		Ref<HFSMVariableRes> vr = variable_list[i];
+		if (to_compare.is_valid() &&
+				(to_compare == vr || to_compare->get_type() != vr->get_type())) {
+			continue;
+		}
+		menu->add_item(
+				vformat("%s: %s%s",
+						vr->get_variable_name(),
+						vr->get_type_text(),
+						vr->get_comment().is_empty() ? "" : (" - " + vr->get_comment())),
+				idx + op_ofs);
+
+		variable_res_list.push_back(vr);
+		idx += 1;
+	}
+
+	menu->add_separator();
+}
+
+bool EditorPropertyVariableRes::VariableResSelector::GD_(handle_menu_selected)(int p_which) {
+	auto idx = p_which - op_ofs;
+	if (idx >= 0 && idx < variable_res_list.size()) {
+		set_edited_resource(variable_res_list[idx]);
+		emit_signal(SNAME("resource_changed"), variable_res_list[idx]);
+		return true;
+	}
+
+	return false;
+}
+
+void EditorPropertyVariableRes::VariableResSelector::_resource_selected(const Ref<Resource> &p_res, bool p_inspect) {
+	if (p_res.is_valid() && !edit_button->is_pressed()) {
+		edit_button->set_pressed_no_signal(true);
+		edit_button->emit_signal(SNAME("pressed"));
+	}
+}
+
+void EditorPropertyVariableRes::VariableResSelector::_menu_popup() {
+	// Hack
+	enum MenuOption {
+		OBJ_MENU_LOAD,
+		OBJ_MENU_QUICKLOAD,
+		OBJ_MENU_INSPECT,
+		OBJ_MENU_CLEAR,
+		OBJ_MENU_MAKE_UNIQUE,
+		OBJ_MENU_MAKE_UNIQUE_RECURSIVE,
+		OBJ_MENU_SAVE,
+		OBJ_MENU_COPY,
+		OBJ_MENU_PASTE,
+		OBJ_MENU_SHOW_IN_FILE_SYSTEM,
+
+		TYPE_BASE_ID = 100,
+		CONVERT_BASE_ID = 1000,
+	};
+
+	ERR_FAIL_COND(!edit_menu);
+
+	constexpr int to_remove_ids[] = {
+		OBJ_MENU_LOAD,
+		OBJ_MENU_QUICKLOAD,
+		OBJ_MENU_INSPECT,
+		OBJ_MENU_MAKE_UNIQUE,
+		OBJ_MENU_MAKE_UNIQUE_RECURSIVE,
+		OBJ_MENU_SAVE,
+		OBJ_MENU_SHOW_IN_FILE_SYSTEM,
+	};
+
+	for (const auto id : to_remove_ids) {
+		auto idx = edit_menu->get_item_index(id);
+		if (idx >= 0) {
+			edit_menu->remove_item(idx);
+		}
+	}
+
+	edit_menu->reset_size();
+}
+
+void EditorPropertyVariableRes::VariableResSelector::_bind_methods() {
+	GDBIND_BEGIN(VariableResSelector);
+
+	GDBIND_CALBACK(_resource_selected);
+	GDBIND_CALBACK(_menu_popup);
+}
+
+EditorPropertyVariableRes::VariableResSelector::VariableResSelector(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare) {
+	set_base_type(HFSMVariableRes::get_class_static());
+	hfsm = p_hfsm;
+	if (to_compare.is_valid()) {
+		to_compare = p_to_compare;
+	}
+
+	connect(SNAME("resource_selected"), TCALLABLE(_resource_selected));
+	// Hack
+	for (auto i = get_child_count(true) - 1; i >= 0; --i) {
+		if (auto btn = cast_to<Button>(get_child(i, true))) {
+			if (btn->is_toggle_mode()) {
+				edit_button = btn;
+				break;
+			}
+		}
+	}
+}
+
+//
+void EditorPropertyVariableRes::_bind_methods() {
+	GDBIND_BEGIN(EditorPropertyVariableRes);
+	GDBIND_CALBACK(_variable_selected);
+}
+
+void EditorPropertyVariableRes::_variable_selected(const Ref<Resource> &p_res) {
+	if (updating) {
+		return;
+	}
+	Ref<HFSMVariableRes> vr = p_res;
+	auto obj = get_edited_object();
+	auto prop = get_edited_property();
+	if (to_compare.is_valid() && (to_compare == vr || to_compare->get_type() != vr->get_type())) {
+		return;
+	}
+	emit_changed(prop, vr);
+}
+
+EditorPropertyVariableRes::EditorPropertyVariableRes() = default;
+
+EditorPropertyVariableRes::EditorPropertyVariableRes(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare) :
+		EditorPropertyVariableRes() {
+	if (hfsm) {
+		return;
+	}
+	hfsm = p_hfsm;
+	if (to_compare.is_valid()) {
+		to_compare = p_to_compare;
+	}
+	selector = memnew(VariableResSelector(p_hfsm, p_to_compare));
+	selector->connect("resource_changed", TCALLABLE(_variable_selected));
+	selector->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
+	add_child(selector);
+}
+
+void EditorPropertyVariableRes::update_property_internal() {
+	updating = true;
+	Ref<HFSMVariableRes> vr = get_edited_object()->get(get_edited_property());
+	selector->set_edited_resource(vr);
+	updating = false;
+}
+
+//
 bool HfsmInspectorPlugin::can_handle_internal(Object *p_object) const {
 	return cast_to<VariableExpressionRes>(p_object);
 }
@@ -40,7 +203,7 @@ bool HfsmInspectorPlugin::parse_property_internal(Object *p_object, Variant::Typ
 		if (auto hfsm = HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
 			if ((p_name == "variable_res") ||
 					(p_name == "value" && ver->is_variable_as_value() && ver->get_variable_res().is_valid())) {
-				auto editor = memnew(VariableResSelector(hfsm, p_name == "value" ? ver->get_variable_res() : nullptr));
+				auto editor = memnew(EditorPropertyVariableRes(hfsm, p_name == "value" ? ver->get_variable_res() : nullptr));
 				add_property_editor(p_name, editor);
 				return true;
 			}

@@ -3,6 +3,7 @@
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/editor_inspector_plugin.hpp>
 #include <godot_cpp/classes/editor_plugin.hpp>
+#include <godot_cpp/classes/editor_property.hpp>
 #include <godot_cpp/classes/editor_undo_redo_manager.hpp>
 #include <godot_cpp/classes/resource.hpp>
 #include <godot_cpp/classes/translation_server.hpp>
@@ -15,9 +16,63 @@ using namespace godot;
 #include <editor/editor_plugin.h>
 #include <editor/editor_undo_redo_manager.h>
 
+#include <editor/editor_resource_picker.h>
+
 #endif // GDEXTENSION_BUILD
 
+#include "../hfsm_global.h"
+
 namespace Hfsm {
+
+class EditorPropertyVariableRes : public EditorProperty {
+	GDCLASS(EditorPropertyVariableRes, EditorProperty)
+public:
+	class VariableResSelector : public EditorResourcePicker {
+	private:
+		class HFSM *hfsm = nullptr;
+		Button *edit_button = nullptr;
+		PopupMenu *edit_menu = nullptr;
+
+		Ref<class HFSMVariableRes> to_compare;
+
+		Vector<Ref<HFSMVariableRes>> variable_res_list;
+
+		void _resource_selected(const Ref<Resource> &p_res, bool p_inspect);
+		void _menu_popup();
+
+	protected:
+		static void _bind_methods();
+
+	public:
+		int op_ofs = 10;
+
+		void GD_(set_create_options)(Object *p_menu_node) override;
+		bool GD_(handle_menu_selected)(int p_which) override;
+
+		VariableResSelector() = default;
+		VariableResSelector(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare);
+	};
+
+private:
+	VariableResSelector *selector = nullptr;
+	class HFSM *hfsm = nullptr;
+
+	Ref<class HFSMVariableRes> to_compare;
+	bool updating = false;
+
+	void _variable_selected(const Ref<Resource> &p_res);
+
+	void update_property_internal();
+
+protected:
+	static void _bind_methods();
+
+public:
+	EditorPropertyVariableRes();
+	EditorPropertyVariableRes(HFSM *p_hfsm, const Ref<HFSMVariableRes> &p_to_compare = nullptr);
+
+	void GD_(update_property)() override { update_property_internal(); }
+};
 
 class HfsmInspectorPlugin : public EditorInspectorPlugin {
 	GDCLASS(HfsmInspectorPlugin, EditorInspectorPlugin)
