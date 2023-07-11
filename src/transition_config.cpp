@@ -88,21 +88,12 @@ void TransitionConfig::_get_property_list(List<PropertyInfo> *p_list) const {
 	p_list->push_back(PropertyInfo(Variant::STRING, "to", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_READ_ONLY));
 
 	switch (type) {
-		IF_FULL_VERSION(
-				case TRANSITION_TYPE_SCRIPT
-				: {
-					_PUSH_PROP_RESOURCE(transition_script);
-				} break;)
-		case TRANSITION_TYPE_VARIABLE_EXPRESSIONS: {
-			_PUSH_PROP(BOOL, and_mode);
-			_PUSH_PROP_TYPED_ARRAY(variable_expression_config_list, VariableExpressionConfig);
-		} break;
 		case TRANSITION_TYPE_EXPRESSION: {
 			_PUSH_PROP(STRING, expression_text, PROPERTY_HINT_MULTILINE_TEXT);
 			_PUSH_PROP(STRING, expression_comment, PROPERTY_HINT_MULTILINE_TEXT);
 		} break;
 		case TRANSITION_TYPE_AUTO: {
-			_PUSH_PROP(INT, auto_mode, PROPERTY_HINT_ENUM, "Animation Finish, Delay Timer,Fsm Exit,Manual,Update Times,Physics Update Times");
+			_PUSH_PROP(INT, auto_mode, PROPERTY_HINT_ENUM, "Delay Timer,Animation Finish,Fsm Exit,Manual,Update Times,Physics Update Times");
 			switch (auto_mode) {
 				case AUTO_TRANSIT_MODE_DELAY_TIMER: {
 					_PUSH_PROP(INT, auto_delay_msec, PROPERTY_HINT_RANGE, "0,2147483647,1,or_greater");
@@ -117,6 +108,16 @@ void TransitionConfig::_get_property_list(List<PropertyInfo> *p_list) const {
 					break;
 			}
 		} break;
+		case TRANSITION_TYPE_VARIABLE_EXPRESSIONS: {
+			_PUSH_PROP(BOOL, and_mode);
+			_PUSH_PROP_TYPED_ARRAY(variable_expression_config_list, VariableExpressionConfig);
+		} break;
+#ifdef FULL_VERSION
+		case TRANSITION_TYPE_SCRIPT: {
+			_PUSH_PROP_RESOURCE(transition_script);
+		} break;
+#endif // FULL_VERSION
+
 		default:
 			break;
 	}
@@ -127,7 +128,7 @@ void TransitionConfig::_bind_methods() {
 	// 通用
 	GDADD_PROPERTY_RESOURCE(from_state_config, PROPERTY_USAGE_STORAGE);
 	GDADD_PROPERTY_RESOURCE(to_state_config, PROPERTY_USAGE_STORAGE);
-	GDADD_PROPERTY(INT, type, PROPERTY_HINT_ENUM, "Script,Variable,Expression,Auto");
+	GDADD_PROPERTY(INT, type, PROPERTY_HINT_ENUM, "Auto,Expression,Variable Comparation Expressions,Script");
 
 	// Auto
 	GDBIND_SETGET(auto_mode);
@@ -139,33 +140,23 @@ void TransitionConfig::_bind_methods() {
 	// 变量表达式
 	GDBIND_SETGET_BOOL(and_mode);
 	GDBIND_SETGET(variable_expression_config_list);
-	// ADD_PROPERTY(PropertyInfo(Variant::ARRAY,
-	// "variable_expression_config_list"),
-	//              "get_variable_expression_config_list",
-	//              "set_variable_expression_config_list");
-
 	//  脚本
 	GDBIND_SETGET(transition_script);
 
-	// ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "transition_script",
-	// PROPERTY_HINT_RESOURCE_TYPE, "Script"),
-	//              "set_transition_script", "get_transition_script");
-
-	// ClassDB::bind_method(D_METHOD("get_valid_and_texts"),
-	//                      &TransitionConfig::get_valid_and_texts);
 	// 枚举
-	BIND_CONSTANT(TRANSITION_TYPE_SCRIPT);
-	BIND_CONSTANT(TRANSITION_TYPE_VARIABLE_EXPRESSIONS);
-	BIND_CONSTANT(TRANSITION_TYPE_EXPRESSION);
 	BIND_CONSTANT(TRANSITION_TYPE_AUTO);
+	BIND_CONSTANT(TRANSITION_TYPE_EXPRESSION);
+	BIND_CONSTANT(TRANSITION_TYPE_VARIABLE_EXPRESSIONS);
+	IF_FULL_VERSION(BIND_CONSTANT(TRANSITION_TYPE_SCRIPT);)
+	BIND_CONSTANT(TRANSITION_TYPE_MAX);
 
-	BIND_CONSTANT(AUTO_TRANSIT_MODE_ANIMATION_FINISH);
 	BIND_CONSTANT(AUTO_TRANSIT_MODE_DELAY_TIMER);
+	BIND_CONSTANT(AUTO_TRANSIT_MODE_ANIMATION_FINISH);
 	BIND_CONSTANT(AUTO_TRANSIT_MODE_FSM_EXIT);
 	BIND_CONSTANT(AUTO_TRANSIT_MODE_MANUAL);
 	BIND_CONSTANT(AUTO_TRANSIT_MODE_UPDATE_TIMES);
 	BIND_CONSTANT(AUTO_TRANSIT_MODE_PHYSICS_UPDATE_TIMES);
-	// BIND_CONSTANT(AUTO_TRANSIT_MODE_MAX);
+	BIND_CONSTANT(AUTO_TRANSIT_MODE_MAX);
 }
 
 void TransitionConfig::set_from_state_config(const Ref<StateConfig> &p_from_state_config) {
@@ -364,14 +355,19 @@ bool TransitionConfig::is_script_valid() const { return script_valid; }
 TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm, Ref<StateConfig> &r_from_state_config, Ref<StateConfig> &r_to_state_config) {
 	TransitionBase *ret;
 	switch (type) {
-		IF_FULL_VERSION(
-				case TRANSITION_TYPE_SCRIPT
-				: {
-					auto t = memnew(Transition);
-					t->set_script(transition_script);
-					t->hfsm = p_hfsm;
-					ret = static_cast<TransitionBase *>(t);
-				} break;)
+		case TRANSITION_TYPE_AUTO: {
+			auto at = memnew(AutoTransition);
+			at->mode = auto_mode;
+			at->delay_msec = auto_delay_msec;
+			at->times = auto_times;
+			ret = at;
+		} break;
+		case TRANSITION_TYPE_EXPRESSION: {
+			auto et = memnew(ExpressionTransition);
+			et->hfsm = p_hfsm;
+			et->set_expression_text(expression_text);
+			ret = et;
+		} break;
 		case TRANSITION_TYPE_VARIABLE_EXPRESSIONS: {
 			auto vt = memnew(VariableTransition);
 			vt->and_mode = is_and_mode();
@@ -395,19 +391,11 @@ TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm, Ref<StateConfi
 			}
 			ret = vt;
 		} break;
-		case TRANSITION_TYPE_EXPRESSION: {
-			auto et = memnew(ExpressionTransition);
-			et->hfsm = p_hfsm;
-			et->set_expression_text(expression_text);
-			ret = et;
+#ifdef FULL_VERSION
+		case TRANSITION_TYPE_SCRIPT: {
+			ret = memnew(Transition(p_hfsm, transition_script));
 		} break;
-		case TRANSITION_TYPE_AUTO: {
-			auto at = memnew(AutoTransition);
-			at->mode = auto_mode;
-			at->delay_msec = auto_delay_msec;
-			at->times = auto_times;
-			ret = at;
-		} break;
+#endif // FULL_VERSION
 		default: {
 			if (!Engine::get_singleton()->is_editor_hint()) {
 				CRASH_NOW_MSG("Illegal transition type.");

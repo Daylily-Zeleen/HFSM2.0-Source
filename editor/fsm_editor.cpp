@@ -1566,63 +1566,6 @@ List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 	r_valid = false;
 
 	switch (p_transition_config->get_type()) {
-		IF_FULL_VERSION(
-				case TransitionConfig::TRANSITION_TYPE_SCRIPT
-				: {
-					auto transition_script = p_transition_config->get_transition_script();
-					if (transition_script.is_valid()) {
-						r_valid = true;
-
-						auto base = transition_script->get_instance_base_type();
-						if (base == StringName(Transition::get_class_static())) {
-							r_valid = true;
-						}
-						IF_GDM(else {
-							r_valid = ClassDB::is_parent_class(base, Transition::get_class_static());
-						})
-
-						if (r_valid) {
-							ret.push_back(
-									str_localize(FileAccess::exists(transition_script->get_path()) ? "Script: " : "Built-in Script: ") + transition_script->get_path());
-						} else {
-							ret.push_back(str_localize("Script isn't extends from \"Transition\"."));
-						}
-					} else {
-						ret.push_back(str_localize("Script is invalid!"));
-					}
-				} break;)
-		case TransitionConfig::TRANSITION_TYPE_VARIABLE_EXPRESSIONS: {
-			auto variable_expression_config_list = p_transition_config->get_variable_expression_config_list();
-			if (variable_expression_config_list.size() > 0) {
-				r_valid = true;
-				ret.push_back(str_localize("Variable Expressions: ") + String(p_transition_config->is_and_mode() ? "AND" : "OR"));
-				for (auto i = 0; i < variable_expression_config_list.size(); i++) {
-					Ref<VariableExpressionConfig> vec = variable_expression_config_list[i];
-					if (vec.is_valid()) {
-						ret.push_back(get_variable_expression_config_valid_and_text(vec, r_valid));
-						if (!r_valid) {
-							break;
-						}
-					} else {
-						r_valid = false;
-						ret.push_back(str_localize("Invalid \"VariableExpressionConfig\"."));
-						break;
-					}
-				}
-			} else {
-				ret.push_back(str_localize("Variable Expressions: ") + str_localize("Have not valid Variable Expression."));
-			}
-		} break;
-		case TransitionConfig::TRANSITION_TYPE_EXPRESSION: {
-			// 非运行时无法检测表达式合法性， 故只要表达式不为空就认为合法
-			if (p_transition_config->get_expression_text().is_empty()) {
-				ret.push_back(str_localize("Empty expression!"));
-			} else {
-				r_valid = true;
-				ret.push_back(String("Expression: ") + p_transition_config->get_expression_text());
-				ret.push_back(String("Comment: ") + p_transition_config->get_expression_comment());
-			}
-		} break;
 		case TransitionConfig::TRANSITION_TYPE_AUTO: {
 			switch (p_transition_config->get_auto_mode()) {
 				case TransitionConfig::AUTO_TRANSIT_MODE_DELAY_TIMER: {
@@ -1651,6 +1594,64 @@ List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 					break;
 			}
 		} break;
+		case TransitionConfig::TRANSITION_TYPE_EXPRESSION: {
+			// 非运行时无法检测表达式合法性， 故只要表达式不为空就认为合法
+			if (p_transition_config->get_expression_text().is_empty()) {
+				ret.push_back(str_localize("Empty expression!"));
+			} else {
+				r_valid = true;
+				ret.push_back(String("Expression: ") + p_transition_config->get_expression_text());
+				ret.push_back(String("Comment: ") + p_transition_config->get_expression_comment());
+			}
+		} break;
+		case TransitionConfig::TRANSITION_TYPE_VARIABLE_EXPRESSIONS: {
+			auto variable_expression_config_list = p_transition_config->get_variable_expression_config_list();
+			if (variable_expression_config_list.size() > 0) {
+				r_valid = true;
+				ret.push_back(str_localize("Variable Expressions: ") + String(p_transition_config->is_and_mode() ? "AND" : "OR"));
+				for (auto i = 0; i < variable_expression_config_list.size(); i++) {
+					Ref<VariableExpressionConfig> vec = variable_expression_config_list[i];
+					if (vec.is_valid()) {
+						ret.push_back(get_variable_expression_config_valid_and_text(vec, r_valid));
+						if (!r_valid) {
+							break;
+						}
+					} else {
+						r_valid = false;
+						ret.push_back(str_localize("Invalid \"VariableExpressionConfig\"."));
+						break;
+					}
+				}
+			} else {
+				ret.push_back(str_localize("Variable Expressions: ") + str_localize("Have not valid Variable Expression."));
+			}
+		} break;
+#ifdef FULL_VERSION
+		case TransitionConfig::TRANSITION_TYPE_SCRIPT: {
+			auto transition_script = p_transition_config->get_transition_script();
+			if (transition_script.is_valid()) {
+				r_valid = true;
+
+				auto base = transition_script->get_instance_base_type();
+				if (base == StringName(Transition::get_class_static())) {
+					r_valid = true;
+				}
+				IF_GDM(else {
+					r_valid = ClassDB::is_parent_class(base, Transition::get_class_static());
+				})
+
+				if (r_valid) {
+					ret.push_back(
+							str_localize(FileAccess::exists(transition_script->get_path()) ? "Script: " : "Built-in Script: ") + transition_script->get_path());
+				} else {
+					ret.push_back(str_localize("Script isn't extends from \"Transition\"."));
+				}
+			} else {
+				ret.push_back(str_localize("Script is invalid!"));
+			}
+		} break;
+
+#endif //FULL_VERSION
 		default:
 			break;
 	}

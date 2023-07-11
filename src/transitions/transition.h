@@ -38,9 +38,14 @@ public:
 
 	HFSM *get_hfsm() { return hfsm; }
 
+	Transition() = default;
+
+	Transition(HFSM *p_hfsm, const Ref<Script> &p_script) :
+			hfsm(p_hfsm) { set_script(p_script); }
+
+	operator TransitionBase *() { return static_cast<TransitionBase *>(this); }
+
 private:
 	HFSM *hfsm = nullptr;
-
-	friend class TransitionConfig;
 };
 }; // namespace Hfsm
