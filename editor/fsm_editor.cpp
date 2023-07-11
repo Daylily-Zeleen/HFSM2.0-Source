@@ -280,9 +280,9 @@ TypedArray<TransitionConfig> FsmEditor::try_select_transitions_at_pos(const Vect
 }
 
 Ref<TransitionConfig> FsmEditor::get_transition_config(StateNode *p_from, StateNode *p_to) {
-	auto tr_list = current_fsm_config->get_transition_config_list();
-	for (auto i = 0; i < tr_list.size(); i++) {
-		Ref<TransitionConfig> tc = tr_list[i];
+	auto tc_list = current_fsm_config->get_transition_config_list();
+	for (auto i = 0; i < tc_list.size(); i++) {
+		Ref<TransitionConfig> tc = tc_list[i];
 		if (tc.is_valid() && tc->get_from_state_config() == p_from->get_state_config() && tc->get_to_state_config() == p_to->get_state_config()) {
 			return tc;
 		}
@@ -406,20 +406,20 @@ void FsmEditor::_popup_menu_id_pressed(int32_t p_id) {
 			if (__hovering_state_node) {
 				return;
 			}
-			Ref<StateConfig> new_sr;
-			new_sr.instantiate();
-			new_sr->set_editor_offset((get_local_mouse_position() + get_scroll_ofs()) / get_zoom());
+			Ref<StateConfig> new_sc;
+			new_sc.instantiate();
+			new_sc->set_editor_offset((get_local_mouse_position() + get_scroll_ofs()) / get_zoom());
 			if (current_fsm_config->get_state_config_list().is_empty()) {
-				new_sr->set_type(State::STATE_TYPE_ENTRY);
+				new_sc->set_type(State::STATE_TYPE_ENTRY);
 			}
-			auto new_sn = create_state_node(new_sr);
+			auto new_sn = create_state_node(new_sc);
 
 			HFSM_EDITOR_CREATE_ACTION("Add State");
 			ADD_DO_REFERENCE(new_sn);
 			ADD_DO_METHOD(this, add_child, new_sn);
 			ADD_DO_METHOD(this, __select_mamually, make_arr<TypedArray<StateNode>>(new_sn));
-			ADD_DO_METHOD(current_fsm_config.ptr(), add_state_config, new_sr);
-			ADD_UNDO_METHOD(current_fsm_config.ptr(), remove_state_config, new_sr);
+			ADD_DO_METHOD(current_fsm_config.ptr(), add_state_config, new_sc);
+			ADD_UNDO_METHOD(current_fsm_config.ptr(), remove_state_config, new_sc);
 			ADD_UNDO_METHOD(this, __select_mamually, TypedArray<StateNode>());
 			ADD_UNDO_METHOD(this, remove_child, new_sn);
 			COMMIT_ACTION();
@@ -448,9 +448,9 @@ void FsmEditor::_popup_menu_id_pressed(int32_t p_id) {
 				to_copied_state_config.push_back(node->get_state_config());
 			}
 
-			auto tr_list = current_fsm_config->get_transition_config_list();
-			for (auto i = 0; i < tr_list.size(); i++) {
-				Ref<TransitionConfig> tc = tr_list[i];
+			auto tc_list = current_fsm_config->get_transition_config_list();
+			for (auto i = 0; i < tc_list.size(); i++) {
+				Ref<TransitionConfig> tc = tc_list[i];
 				auto from_node = cast_to<StateNode>(tc->get_from_state_config()->get_state_node());
 				auto to_node = cast_to<StateNode>(tc->get_from_state_config()->get_state_node());
 				if (!from_node || !to_node || selected_state_name_list.has(tc->get_from_state_config()->get_state_name()) || selected_state_name_list.has(tc->get_to_state_config()->get_state_name())) {
@@ -618,9 +618,9 @@ void FsmEditor::_popup_menu_id_pressed(int32_t p_id) {
 				ADD_DO_METHOD(this, __set_blocking_redraw, true);
 				ADD_UNDO_METHOD(this, __set_blocking_redraw, true);
 				// 移除相关的转换流
-				auto tr_list = current_fsm_config->get_transition_config_list();
-				for (auto i = 0; i < tr_list.size(); ++i) {
-					Ref<TransitionConfig> tc = tr_list[i];
+				auto tc_list = current_fsm_config->get_transition_config_list();
+				for (auto i = 0; i < tc_list.size(); ++i) {
+					Ref<TransitionConfig> tc = tc_list[i];
 					if (selected_state_config_list.has(tc->get_from_state_config()) ||
 							selected_state_config_list.has(tc->get_to_state_config())) {
 						StringName from = tc->get_from_state_config()->get_state_node()->get_name();
@@ -962,12 +962,12 @@ void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 						return;
 					}
 					// 双击选择转换
-					auto selected_tr_list = try_select_transitions_at_pos(mouse_pos);
+					auto selected_tc_list = try_select_transitions_at_pos(mouse_pos);
 
-					const static auto undo_redo_selected_transition = [this](const TypedArray<TransitionConfig> &P_selected_tr_list) -> void {
+					const static auto undo_redo_selected_transition = [this](const TypedArray<TransitionConfig> &p_selected_tc_list) -> void {
 						HFSM_EDITOR_CREATE_ACTION("Select State Transitions");
 						ADD_DO_METHOD(this, __set_selected_state_name_list, TypedArray<StringName>());
-						ADD_DO_METHOD(this, __set_selected_transition_config_list, P_selected_tr_list);
+						ADD_DO_METHOD(this, __set_selected_transition_config_list, p_selected_tc_list);
 						ADD_DO_METHOD(draw_layer, queue_redraw);
 						ADD_UNDO_METHOD(this, __set_selected_transition_config_list, this->selected_transition_config_list);
 						ADD_UNDO_METHOD(this, __set_selected_state_name_list, selected_state_name_list);
@@ -975,13 +975,13 @@ void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 						COMMIT_ACTION();
 					};
 
-					if (selected_tr_list.size() != selected_transition_config_list.size()) {
-						undo_redo_selected_transition(selected_tr_list);
+					if (selected_tc_list.size() != selected_transition_config_list.size()) {
+						undo_redo_selected_transition(selected_tc_list);
 					} else {
-						for (auto i = 0; i < selected_tr_list.size(); i++) {
-							Ref<TransitionConfig> tc = selected_tr_list[i];
+						for (auto i = 0; i < selected_tc_list.size(); i++) {
+							Ref<TransitionConfig> tc = selected_tc_list[i];
 							if (tc.is_valid() && !selected_transition_config_list.has(tc)) {
-								undo_redo_selected_transition(selected_tr_list);
+								undo_redo_selected_transition(selected_tc_list);
 								break;
 							}
 						}
@@ -1015,10 +1015,10 @@ void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 					} else if (!mouse_btn_event->is_alt_pressed()) {
 						// 取消选择
 						if (selected_transition_config_list.size() > 0 || selected_state_name_list.size() > 0) {
-							auto selected_tr_list = try_select_transitions_at_pos(mouse_pos);
-							if (selected_tr_list.size() == 0 && !get_top_state_node_which_hovering()) {
+							auto selected_tc_list = try_select_transitions_at_pos(mouse_pos);
+							if (selected_tc_list.size() == 0 && !get_top_state_node_which_hovering()) {
 								HFSM_EDITOR_CREATE_ACTION("Deselect");
-								ADD_DO_METHOD(this, __set_selected_transition_config_list, selected_tr_list);
+								ADD_DO_METHOD(this, __set_selected_transition_config_list, selected_tc_list);
 								ADD_DO_METHOD(this, __set_selected_state_name_list, TypedArray<StringName>());
 								ADD_DO_METHOD(draw_layer, queue_redraw);
 								ADD_UNDO_METHOD(this, __set_selected_state_name_list, selected_state_name_list);
@@ -1110,8 +1110,8 @@ void FsmEditor::_draw_layer_draw() {
 
 	Array conn_list = call("get_connection_list");
 	IF_DEV(
-			LocalVector<Ref<TransitionConfig>> dealed_tr_list;
-			dealed_tr_list.reserve(conn_list.size());)
+			LocalVector<Ref<TransitionConfig>> dealed_tc_list;
+			dealed_tc_list.reserve(conn_list.size());)
 	for (auto i = 0; i < conn_list.size(); i++) {
 		Dictionary conn = conn_list[i];
 		StringName from_name = conn["from"];
@@ -1127,8 +1127,8 @@ void FsmEditor::_draw_layer_draw() {
 		// 异常
 		ERR_CONTINUE_MSG(tc.is_null(), "HFSM:: 异常 ，存在连接当不存在对应的转换流。");
 		IF_DEV({
-			ERR_CONTINUE_MSG(dealed_tr_list.find(tc) >= 0, "不同的链接指向同一个 TransitionConfig? 这不可能");
-			dealed_tr_list.push_back(tc);
+			ERR_CONTINUE_MSG(dealed_tc_list.find(tc) >= 0, "不同的链接指向同一个 TransitionConfig? 这不可能");
+			dealed_tc_list.push_back(tc);
 		});
 		// 获取反向
 		// auto revers_tc = get_transition_config(to, from);
@@ -1569,30 +1569,29 @@ List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 		IF_FULL_VERSION(
 				case TransitionConfig::TRANSITION_TYPE_SCRIPT
 				: {
-					auto tr_script = p_transition_config->get_transition_script();
-					if (tr_script.is_valid()) {
+					auto transition_script = p_transition_config->get_transition_script();
+					if (transition_script.is_valid()) {
 						r_valid = true;
-						if (tr_script->is_class(GDScript::get_class_static()) &&
-								tr_script->get_instance_base_type() != Transition::get_class_static()) {
-							r_valid = false;
+
+						auto base = transition_script->get_instance_base_type();
+						if (base == StringName(Transition::get_class_static())) {
+							r_valid = true;
 						}
+						IF_GDM(else {
+							r_valid = ClassDB::is_parent_class(base, Transition::get_class_static());
+						})
 
 						if (r_valid) {
 							ret.push_back(
-									// 第一行名称
-									str_localize("Script: ") + (tr_script->get_path().is_empty() ? (String("Build in ") + tr_script->get_class()) : tr_script->get_path()));
-							ret.push_back(
-									// 第二行路径
-									tr_script->get_path());
+									str_localize(FileAccess::exists(transition_script->get_path()) ? "Script: " : "Built-in Script: ") + transition_script->get_path());
 						} else {
 							ret.push_back(str_localize("Script isn't extends from \"Transition\"."));
-							ret.push_back(str_localize("You can use other type of script if this is intended."));
 						}
 					} else {
 						ret.push_back(str_localize("Script is invalid!"));
 					}
 				} break;)
-		case TransitionConfig::TRANSITION_TYPE_VARIABLE: {
+		case TransitionConfig::TRANSITION_TYPE_VARIABLE_EXPRESSIONS: {
 			auto variable_expression_config_list = p_transition_config->get_variable_expression_config_list();
 			if (variable_expression_config_list.size() > 0) {
 				r_valid = true;

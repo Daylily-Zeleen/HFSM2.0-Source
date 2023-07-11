@@ -251,7 +251,7 @@ void StateNode::_script_changed(const Ref<Script> &p_script) {
 	if (p_script == state_config->get_state_script()) {
 		return;
 	}
-	HFSM_EDITOR_CREATE_ACTION(p_script->is_valid() ? "Attach state script" : "Remove state script");
+	HFSM_EDITOR_CREATE_ACTION(p_script.is_valid() ? "Attach State Script" : "Remove State Script");
 	ADD_DO_METHOD(state_config.ptr(), set_state_script, p_script);
 	ADD_UNDO_METHOD(state_config.ptr(), set_state_script, state_config->get_state_script());
 	COMMIT_ACTION();

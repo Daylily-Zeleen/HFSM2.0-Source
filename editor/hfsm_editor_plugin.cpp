@@ -30,13 +30,13 @@ using namespace godot;
 namespace Hfsm {
 
 void EditorPropertyVariableConfig::VariableConfigSelector::GD_(set_create_options)(Object *p_menu_node) {
-	PopupMenu *menu = Object::cast_to<PopupMenu>(p_menu_node);
-	if (!menu) {
+	PopupMenu *m = Object::cast_to<PopupMenu>(p_menu_node);
+	if (!m) {
 		return;
 	}
 
 	if (!edit_menu) {
-		edit_menu = menu;
+		edit_menu = m;
 		edit_menu->connect("about_to_popup", TCALLABLE(_menu_popup));
 	}
 
@@ -50,7 +50,7 @@ void EditorPropertyVariableConfig::VariableConfigSelector::GD_(set_create_option
 				(to_compare == vc || to_compare->get_type() != vc->get_type())) {
 			continue;
 		}
-		menu->add_item(
+		edit_menu->add_item(
 				vformat("%s: %s%s",
 						vc->get_variable_name(),
 						vc->get_type_text(),
@@ -61,7 +61,7 @@ void EditorPropertyVariableConfig::VariableConfigSelector::GD_(set_create_option
 		idx += 1;
 	}
 
-	menu->add_separator();
+	edit_menu->add_separator();
 }
 
 bool EditorPropertyVariableConfig::VariableConfigSelector::GD_(handle_menu_selected)(int p_which) {
@@ -237,8 +237,8 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	translation.insert(": this state is Entry State, can't set to other type.", ": 该状态当前为入口状态，不能设置为其他类型。");
 	translation.insert("Change state type", "改变状态类型");
 	translation.insert("Set Sub-FSM", "设置子状态机");
-	translation.insert("Attach state script", "附加状态脚本");
-	translation.insert("Remove state script", "移除状态脚本");
+	translation.insert("Attach State Script", "附加状态脚本");
+	translation.insert("Remove State Script", "移除状态脚本");
 	// translation.insert("Resize", "重设尺寸");
 	translation.insert("Move States", "移动状态");
 	translation.insert("Sub FSM", "子状态机");
@@ -270,6 +270,7 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	translation.insert("Invalid Trigger Type:", "无效触发器类型");
 	translation.insert("Has not valid 'variable_config'", "没有有效的变量资源");
 	translation.insert("Script: ", "脚本: ");
+	translation.insert("Built-in Script: ", "内置脚本: ");
 	translation.insert("Script isn't extends from 'Transition'.", "脚本不是扩展自'Transition'");
 	translation.insert("You can use other type of script if this is intended.", "如果是有意的，请使用其他类型的脚本");
 	translation.insert("Script is invalid!", "脚本无效!");
