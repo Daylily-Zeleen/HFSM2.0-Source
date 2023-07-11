@@ -235,7 +235,7 @@ void HFSMEditor::_change_hint() {
 		"\"Convert To Sub-FSM\" only activated when selecting at least one State and click at a selected State.",
 		"A FSM(Finite State Machine) only have a Enty State.",
 		"A Entry State can't be change to Noramal or Exit State.",
-		"If you set a Normal or Exit State to Entry State, it will change the exited Exit State to Normal State first.",
+		"If you set a Normal or Exit State to Entry State, it will change the existing Entry State to Normal State first.",
 		"Select and inspect a State, you can set its animation in inspector.",
 	};
 	const static PackedStringArray zh = {
