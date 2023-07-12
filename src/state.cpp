@@ -76,10 +76,10 @@ void State::_bind_methods() {
 	BIND_VIRTUAL_METHOD(State, _network_despawn);
 #endif
 
-	BIND_CONSTANT(STATE_TYPE_NORMAL);
-	BIND_CONSTANT(STATE_TYPE_ENTRY);
-	BIND_CONSTANT(STATE_TYPE_EXIT);
-	// BIND_CONSTANT(STATE_TYPE_MAX);
+	BIND_ENUM_CONSTANT(STATE_TYPE_NORMAL);
+	BIND_ENUM_CONSTANT(STATE_TYPE_ENTRY);
+	BIND_ENUM_CONSTANT(STATE_TYPE_EXIT);
+	BIND_ENUM_CONSTANT(STATE_TYPE_MAX);
 
 	ADD_SIGNAL(MethodInfo("animation_finished"));
 }
@@ -266,7 +266,7 @@ bool State::is_animation_reverse() const { return animation_reverse; }
 void State::set_animation_reverse(bool p_reverse) { animation_reverse = p_reverse; }
 #endif
 
-inline TransitionBase *State::try_transit() {
+TransitionBase *State::try_transit() {
 	for (auto &&transition : transition_list) {
 		if (transition->can_transit()) {
 			return transition;

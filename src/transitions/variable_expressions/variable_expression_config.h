@@ -10,6 +10,9 @@ using namespace godot;
 #endif // GDEXTENSION_BUILD
 
 #include "../../variable_config.h"
+
+#include "comparation_expression.h"
+
 namespace Hfsm {
 
 class HFSM;
@@ -34,15 +37,7 @@ public:
 		TRIGGER_TYPE_MAX,
 	};
 
-	enum Comparator {
-		COMPARATOR_EQUAL,
-		COMPARATOR_NOT_EQUAL,
-		COMPARATOR_GREATER,
-		COMPARATOR_GREATER_EQUAL,
-		COMPARATOR_LESS,
-		COMPARATOR_LESS_EQUAL,
-		COMPARATOR_MAX,
-	};
+	using Comparator = ComparationExpression::Comparator;
 
 	void set_variable_config(const Ref<VariableConfig> &p_variable_config);
 	Ref<VariableConfig> get_variable_config() const;

@@ -106,13 +106,22 @@ void VariableExpressionConfig::_bind_methods() {
 	GDBIND_SETGET(value);
 	GDBIND_SETGET(trigger_type);
 
+	BIND_ENUM_CONSTANT(TRIGGER_TYPE_SOLO);
+	BIND_ENUM_CONSTANT(TRIGGER_TYPE_UNION);
+	BIND_ENUM_CONSTANT(TRIGGER_TYPE_NORMAL);
+	BIND_ENUM_CONSTANT(TRIGGER_TYPE_MAX);
+
+	// HACK
+#define BIND_COMPARATOR_ENUM_CONSTANT(m_constant) \
+	::ClassDB::bind_integer_constant(get_class_static(), __constant_get_enum_name(Comparator::m_constant, #m_constant), #m_constant, Comparator::m_constant);
+
 	// 枚举
-	BIND_CONSTANT(COMPARATOR_EQUAL);
-	BIND_CONSTANT(COMPARATOR_NOT_EQUAL);
-	BIND_CONSTANT(COMPARATOR_GREATER);
-	BIND_CONSTANT(COMPARATOR_GREATER_EQUAL);
-	BIND_CONSTANT(COMPARATOR_LESS);
-	BIND_CONSTANT(COMPARATOR_LESS_EQUAL);
+	BIND_COMPARATOR_ENUM_CONSTANT(COMPARATOR_EQUAL);
+	BIND_COMPARATOR_ENUM_CONSTANT(COMPARATOR_NOT_EQUAL);
+	BIND_COMPARATOR_ENUM_CONSTANT(COMPARATOR_GREATER);
+	BIND_COMPARATOR_ENUM_CONSTANT(COMPARATOR_GREATER_EQUAL);
+	BIND_COMPARATOR_ENUM_CONSTANT(COMPARATOR_LESS);
+	BIND_COMPARATOR_ENUM_CONSTANT(COMPARATOR_LESS_EQUAL);
 }
 
 void VariableExpressionConfig::set_variable_as_value(bool p_variable_as_value) {
@@ -176,7 +185,7 @@ void VariableExpressionConfig::set_value(const Variant &p_value) {
 void VariableExpressionConfig::set_comparator(Comparator p_op) {
 	if (variable_config.is_valid()) {
 		if (variable_config->get_type() == Variant::STRING) {
-			if (p_op == COMPARATOR_EQUAL && p_op == COMPARATOR_NOT_EQUAL) {
+			if (p_op == Comparator::COMPARATOR_EQUAL && p_op == Comparator::COMPARATOR_NOT_EQUAL) {
 				if (p_op != comparator) {
 					comparator = p_op;
 					emit_changed();
@@ -185,7 +194,7 @@ void VariableExpressionConfig::set_comparator(Comparator p_op) {
 			}
 		} else if (variable_config->get_type() == Variant::INT ||
 				variable_config->get_type() == Variant::FLOAT) {
-			if (p_op >= COMPARATOR_EQUAL && p_op < 6) {
+			if (p_op >= Comparator::COMPARATOR_EQUAL && p_op < 6) {
 				if (p_op != comparator) {
 					comparator = p_op;
 					emit_changed();
@@ -194,8 +203,8 @@ void VariableExpressionConfig::set_comparator(Comparator p_op) {
 			}
 		}
 	}
-	if (comparator != COMPARATOR_EQUAL) {
-		comparator = COMPARATOR_EQUAL;
+	if (comparator != Comparator::COMPARATOR_EQUAL) {
+		comparator = Comparator::COMPARATOR_EQUAL;
 		emit_changed();
 	}
 }

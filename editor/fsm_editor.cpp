@@ -1479,17 +1479,17 @@ String FsmEditor::get_variable_expression_config_valid_and_text(const Ref<Variab
 		if (vc->get_type() != Variant::NIL) {
 			auto get_op_text = [p_ver]() -> String {
 				switch (p_ver->get_comparator()) {
-					case VariableExpressionConfig::COMPARATOR_EQUAL:
+					case VariableExpressionConfig::Comparator::COMPARATOR_EQUAL:
 						return " == ";
-					case VariableExpressionConfig::COMPARATOR_NOT_EQUAL:
+					case VariableExpressionConfig::Comparator::COMPARATOR_NOT_EQUAL:
 						return " != ";
-					case VariableExpressionConfig::COMPARATOR_GREATER:
+					case VariableExpressionConfig::Comparator::COMPARATOR_GREATER:
 						return " > ";
-					case VariableExpressionConfig::COMPARATOR_GREATER_EQUAL:
+					case VariableExpressionConfig::Comparator::COMPARATOR_GREATER_EQUAL:
 						return " >= ";
-					case VariableExpressionConfig::COMPARATOR_LESS:
+					case VariableExpressionConfig::Comparator::COMPARATOR_LESS:
 						return " < ";
-					case VariableExpressionConfig::COMPARATOR_LESS_EQUAL:
+					case VariableExpressionConfig::Comparator::COMPARATOR_LESS_EQUAL:
 						return " <= ";
 					default:
 						return " invalid operator";
