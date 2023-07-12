@@ -277,7 +277,7 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	translation.insert("Empty expression!", "表达式为空!");
 	translation.insert("Have not valid Variable Expression.", "没有合法的变量表达式");
 	translation.insert("Variable Expressions: ", "变量表达式:");
-	translation.insert("Invalid \"VariableExpressionConfig\".", "无效的\"VariableExpressionConfig\"");
+	translation.insert("Invalid \"VariableExpressionConfig\", index %d.", "无效的\"VariableExpressionConfig\", 索引: %d");
 	translation.insert(R"("VariableConfig" %s is not contained in editing HFSM.)", R"("VariableConfig" %s 不存在于当前编辑中的HFSM)");
 	translation.insert("Auto: ", "自动: ");
 	translation.insert("Delay %d msec.", "延迟 %d 毫秒");

@@ -1156,9 +1156,22 @@ void FsmEditor::_draw_layer_draw() {
 		draw_layer->draw_set_transform(center_pos, angle, clamped_scale);
 		draw_layer->draw_colored_polygon(TRIANGLE_POINTS, triangle_color);
 
-		bool valid = false;
+		TransitionConfigValidLevel valid = TRANSITION_CONFIG_VALID_LEVEL_ERROR;
 		auto texts = get_transition_config_valid_and_texts(tc, valid);
-		Color text_color = valid ? Color::named("white") : Color::named("red");
+
+		Color text_color;
+		switch (valid) {
+			case TRANSITION_CONFIG_VALID_LEVEL_ERROR: {
+				text_color = Color::named("red");
+			} break;
+			case TRANSITION_CONFIG_VALID_LEVEL_WARNING: {
+				text_color = Color::named("yellow");
+			} break;
+			default: {
+				text_color = Color::named("white");
+			} break;
+		}
+
 		if (debug_mode) {
 			if (debug_activity_from == from->get_name() && debug_activity_to == to->get_name()) {
 				text_color = text_color.lerp(activity_color, debug_activity);
@@ -1467,12 +1480,12 @@ void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 	}
 }
 
-String FsmEditor::get_variable_expression_config_valid_and_text(const Ref<VariableExpressionConfig> &p_ver, bool &r_valid) const {
-	r_valid = false;
+String FsmEditor::get_variable_expression_config_valid_and_text(const Ref<VariableExpressionConfig> &p_ver, TransitionConfigValidLevel &r_valid) const {
+	r_valid = TRANSITION_CONFIG_VALID_LEVEL_ERROR;
 	auto vc = p_ver->get_variable_config();
 	if (vc.is_valid()) {
 		if (!current_root_fsm_config->get_variable_config_list().has(vc)) {
-			r_valid = false;
+			r_valid = TRANSITION_CONFIG_VALID_LEVEL_ERROR;
 			return vformat(str_localize(R"("VariableConfig" %s is not contained in editing HFSM.)"), vc->get_variable_name());
 		}
 
@@ -1498,12 +1511,12 @@ String FsmEditor::get_variable_expression_config_valid_and_text(const Ref<Variab
 			if (p_ver->is_variable_as_value()) {
 				if (auto value = cast_to<VariableConfig>(p_ver->get_value())) {
 					if (!current_root_fsm_config->get_variable_config_list().has(value)) {
-						r_valid = false;
+						r_valid = TRANSITION_CONFIG_VALID_LEVEL_ERROR;
 						return vformat(str_localize(R"("VariableConfig" %s is not contained in editing HFSM.)"), vc->get_variable_name());
 					}
 
-					r_valid = Variant::can_convert(Variant::Type(vc->get_type()), Variant::Type(value->get_type()));
-					if (r_valid) {
+					r_valid = Variant::can_convert(Variant::Type(vc->get_type()), Variant::Type(value->get_type())) ? TRANSITION_CONFIG_VALID_LEVEL_NONE : TRANSITION_CONFIG_VALID_LEVEL_ERROR;
+					if (r_valid == TRANSITION_CONFIG_VALID_LEVEL_NONE) {
 						return String(vc->get_variable_name()) + get_op_text() + String(value->get_variable_name());
 					} else {
 						return str_localize(R"XXX("value" can't convert to the type of "VariableConfig".)XXX");
@@ -1512,8 +1525,8 @@ String FsmEditor::get_variable_expression_config_valid_and_text(const Ref<Variab
 					return str_localize(R"XXX("value" is not a valid "VariableConfig".)XXX");
 				}
 			} else {
-				r_valid = Variant::can_convert(p_ver->get_value().get_type(), Variant::Type(vc->get_type()));
-				if (r_valid) {
+				r_valid = Variant::can_convert(p_ver->get_value().get_type(), Variant::Type(vc->get_type())) ? TRANSITION_CONFIG_VALID_LEVEL_NONE : TRANSITION_CONFIG_VALID_LEVEL_ERROR;
+				if (r_valid == TRANSITION_CONFIG_VALID_LEVEL_NONE) {
 					String value_text = "";
 					switch (vc->get_type()) {
 						case Variant::BOOL:
@@ -1538,7 +1551,7 @@ String FsmEditor::get_variable_expression_config_valid_and_text(const Ref<Variab
 				}
 			}
 		} else {
-			r_valid = true;
+			r_valid = TRANSITION_CONFIG_VALID_LEVEL_NONE;
 			String vrn = { vc->get_variable_name() };
 			switch (p_ver->get_trigger_type()) {
 				case VariableExpressionConfig::TRIGGER_TYPE_NORMAL:
@@ -1551,7 +1564,7 @@ String FsmEditor::get_variable_expression_config_valid_and_text(const Ref<Variab
 					return str_localize("Union Trigger: ") + vrn;
 					break;
 				default:
-					r_valid = false;
+					r_valid = TRANSITION_CONFIG_VALID_LEVEL_ERROR;
 					return str_localize("Invalid Trigger Type:") + vrn;
 					break;
 			}
@@ -1561,14 +1574,14 @@ String FsmEditor::get_variable_expression_config_valid_and_text(const Ref<Variab
 	}
 }
 
-List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<TransitionConfig> &p_transition_config, bool &r_valid) const {
+List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<TransitionConfig> &p_transition_config, TransitionConfigValidLevel &r_valid) const {
 	List<String> ret;
-	r_valid = false;
+	r_valid = TRANSITION_CONFIG_VALID_LEVEL_ERROR;
 
 	switch (p_transition_config->get_type()) {
 		case TransitionConfig::TRANSITION_TYPE_AUTO: {
 			switch (p_transition_config->get_auto_mode()) {
-				r_valid = p_transition_config->get_auto_mode() >= 0 && p_transition_config->get_auto_mode() < TransitionConfig::AUTO_TRANSIT_MODE_MAX;
+				r_valid = (p_transition_config->get_auto_mode() >= 0 && p_transition_config->get_auto_mode() < TransitionConfig::AUTO_TRANSIT_MODE_MAX) ? TRANSITION_CONFIG_VALID_LEVEL_NONE : TRANSITION_CONFIG_VALID_LEVEL_ERROR;
 				case TransitionConfig::AUTO_TRANSIT_MODE_DELAY_TIMER: {
 					ret.push_back(str_localize("Auto: ") + vformat(str_localize("Delay %d msec."), p_transition_config->get_auto_delay_msec()));
 				} break;
@@ -1593,10 +1606,11 @@ List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 					if (auto hfsm = HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
 						if (auto anim_player = hfsm->get_animation_player()) {
 							if (!anim_player->has_animation(anim)) {
-								r_valid = false;
+								r_valid = TRANSITION_CONFIG_VALID_LEVEL_ERROR;
 								ret.push_back(str_localize("Error: The AnimationPlayer which is setted to editing HFSM has not animation \"%s\"."));
 							}
 						} else {
+							r_valid = TRANSITION_CONFIG_VALID_LEVEL_WARNING;
 							ret.push_back(str_localize("Warning: The editing HFSM has not setted an AnimationPlayer."));
 						}
 					}
@@ -1611,7 +1625,7 @@ List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 			if (p_transition_config->get_expression_text().is_empty()) {
 				ret.push_back(str_localize("Empty expression!"));
 			} else {
-				r_valid = true;
+				r_valid = TRANSITION_CONFIG_VALID_LEVEL_NONE;
 				ret.push_back(String("Expression: ") + p_transition_config->get_expression_text());
 				ret.push_back(String("Comment: ") + p_transition_config->get_expression_comment());
 			}
@@ -1619,18 +1633,18 @@ List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 		case TransitionConfig::TRANSITION_TYPE_VARIABLE_EXPRESSIONS: {
 			auto variable_expression_config_list = p_transition_config->get_variable_expression_config_list();
 			if (variable_expression_config_list.size() > 0) {
-				r_valid = true;
+				r_valid = TRANSITION_CONFIG_VALID_LEVEL_NONE;
 				ret.push_back(str_localize("Variable Expressions: ") + String(p_transition_config->is_and_mode() ? "AND" : "OR"));
 				for (auto i = 0; i < variable_expression_config_list.size(); i++) {
 					Ref<VariableExpressionConfig> vec = variable_expression_config_list[i];
 					if (vec.is_valid()) {
 						ret.push_back(get_variable_expression_config_valid_and_text(vec, r_valid));
-						if (!r_valid) {
+						if (r_valid == TRANSITION_CONFIG_VALID_LEVEL_ERROR) {
 							break;
 						}
 					} else {
-						r_valid = false;
-						ret.push_back(str_localize("Invalid \"VariableExpressionConfig\"."));
+						r_valid = TRANSITION_CONFIG_VALID_LEVEL_ERROR;
+						ret.push_back(vformat(str_localize("Invalid \"VariableExpressionConfig\", index %d."), i));
 						break;
 					}
 				}
@@ -1642,17 +1656,17 @@ List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 		case TransitionConfig::TRANSITION_TYPE_SCRIPT: {
 			auto transition_script = p_transition_config->get_transition_script();
 			if (transition_script.is_valid()) {
-				r_valid = true;
+				r_valid = TRANSITION_CONFIG_VALID_LEVEL_NONE;
 
 				auto base = transition_script->get_instance_base_type();
 				if (base == StringName(Transition::get_class_static())) {
-					r_valid = true;
+					r_valid = TRANSITION_CONFIG_VALID_LEVEL_NONE;
 				}
 				IF_GDM(else {
-					r_valid = ClassDB::is_parent_class(base, Transition::get_class_static());
+					r_valid = ClassDB::is_parent_class(base, Transition::get_class_static()) ? TRANSITION_CONFIG_VALID_LEVEL_NONE : TRANSITION_CONFIG_VALID_LEVEL_ERROR;
 				})
 
-				if (r_valid) {
+				if (r_valid == TRANSITION_CONFIG_VALID_LEVEL_NONE) {
 					ret.push_back(
 							str_localize(FileAccess::exists(transition_script->get_path()) ? "Script: " : "Built-in Script: ") + transition_script->get_path());
 				} else {

@@ -28,7 +28,7 @@ protected:
 	void _notification(int p_what);
 
 private:
-	enum MenuOption{
+	enum MenuOption {
 		ITEM_ADD_STATE,
 		ITEM_CUT_STATE,
 		ITEM_COPY_STATES,
@@ -38,7 +38,13 @@ private:
 		ITEM_CONVERT_TO_FSM,
 	};
 
-	enum ShortCutKeyCode{
+	enum TransitionConfigValidLevel {
+		TRANSITION_CONFIG_VALID_LEVEL_NONE,
+		TRANSITION_CONFIG_VALID_LEVEL_WARNING,
+		TRANSITION_CONFIG_VALID_LEVEL_ERROR,
+	};
+
+	enum ShortCutKeyCode {
 		KEYCODE_ADD_STATE = int(KEY(A)) | int(KEY_MASK(SHIFT)),
 		KEYCODE_CUT_STATE = int(KEY(X)) | int(KEY_MASK(CMD_OR_CTRL)),
 		KEYCODE_COPY_STATES = int(KEY(C)) | int(KEY_MASK(CMD_OR_CTRL)),
@@ -112,8 +118,8 @@ private:
 	void _state_node_reconnected_requested(const StringName &p_old_name, const StringName &p_new_name);
 	void _debug_tween_activity(float p_activity, const StringName &p_from, const StringName &p_to);
 	// ======== 检查 ==========
-	String get_variable_expression_config_valid_and_text(const Ref<class VariableExpressionConfig> &p_ver, bool &r_valid) const;
-	List<String> get_transition_config_valid_and_texts(const Ref<TransitionConfig> &p_transition_config, bool &r_valid) const;
+	String get_variable_expression_config_valid_and_text(const Ref<class VariableExpressionConfig> &p_ver, TransitionConfigValidLevel &r_valid) const;
+	List<String> get_transition_config_valid_and_texts(const Ref<TransitionConfig> &p_transition_config, TransitionConfigValidLevel &r_valid) const;
 	// ==================
 	String str_localize(const String &p_en_key) const;
 
