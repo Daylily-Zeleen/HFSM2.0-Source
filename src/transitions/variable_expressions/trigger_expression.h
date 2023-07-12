@@ -29,7 +29,7 @@ public:
 
 /**
  * @brief 联合触发器
- * 同时考虑其他 联合触发器（在山层检查时分离）
+ * 同时考虑其他 联合触发器（在上层检查时分离）
  */
 class UnionTriggerExpression : public TriggerExpression {
 public:
@@ -38,43 +38,5 @@ public:
 	bool get_result(bool p_and_mode, bool &r_result) override;
 	ExpressionType get_expression_type() override;
 };
-
-#pragma region 内联实现
-
-inline bool TriggerExpression::get_result(bool p_and_mode, bool &r_result) {
-	r_result = variable->get_value();
-	// 与 + 假  or 或 + 真
-	if ((p_and_mode && !r_result) || (!p_and_mode && r_result)) {
-		return true;
-	} else {
-		return false;
-	}
-}
-//  独立触发器只关注自己
-inline bool SoloTriggerExpression::get_result(bool p_and_mode, bool &r_result) {
-	r_result = variable->get_value();
-	if (r_result) {
-		return true;
-	} else {
-		return false;
-	}
-}
-inline VariableExpression::ExpressionType
-SoloTriggerExpression::get_expression_type() {
-	return ExpressionType::EXPRESSION_TYPE_SOLO_TRIGGER;
-}
-inline bool UnionTriggerExpression::get_result(bool p_and_mode, bool &r_result) {
-	r_result = variable->get_value();
-	if (!r_result) {
-		return true;
-	}
-	return false;
-}
-inline VariableExpression::ExpressionType
-UnionTriggerExpression::get_expression_type() {
-	return ExpressionType::EXPRESSION_TYPE_UNION_TRIGGER;
-}
-
-#pragma endregion
 
 } // namespace Hfsm

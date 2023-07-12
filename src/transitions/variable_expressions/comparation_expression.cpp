@@ -22,26 +22,48 @@ namespace Hfsm {
 #endif // TOOLS_ENABLED
 
 // ComparationExpression
-ComparationExpression::ComparationExpression(const Ref<Variable> &p_variable, uint8_t p_op) :
+ComparationExpression::ComparationExpression(const Ref<Variable> &p_variable, Comparator p_comparator) :
 		VariableExpression(p_variable) {
-	ERR_FAIL_COND(!(p_op >= 0 && p_op < 6));
-	op = p_op;
+	ERR_FAIL_COND(!(p_comparator >= 0 && p_comparator < 6));
+	comparator = p_comparator;
 }
 
 // ConstantComparationExpression
 ConstantComparationExpression::ConstantComparationExpression(
-		const Ref<Variable> &p_variable, uint8_t p_op, const Variant &p_value) :
-		ComparationExpression(p_variable, p_op) {
+		const Ref<Variable> &p_variable, Comparator p_comparator, const Variant &p_value) :
+		ComparationExpression(p_variable, p_comparator) {
 	type_convertable_check(variable, p_value.get_type());
 	value = p_value;
 }
 
+bool ConstantComparationExpression::get_result(bool p_and_mode,
+		bool &r_result) {
+	r_result = compare_with(variable, comparator, value);
+	// 与 + 假  or 或 + 真
+	if ((p_and_mode && !r_result) || (!p_and_mode && r_result)) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 // VariableComparationExpression
 VariableComparationExpression::VariableComparationExpression(
-		const Ref<Variable> &p_variable, uint8_t p_op, const Ref<Variable> &p_value) :
-		ComparationExpression(p_variable, p_op) {
+		const Ref<Variable> &p_variable, Comparator p_comparator, const Ref<Variable> &p_value) :
+		ComparationExpression(p_variable, p_comparator) {
 	type_convertable_check(variable, p_value->get_type());
 	value = p_value;
+}
+
+bool VariableComparationExpression::get_result(bool p_and_mode,
+		bool &r_result) {
+	r_result = compare_with(variable, comparator, value.ptr());
+	// 与 + 假  or 或 + 真
+	if ((p_and_mode && !r_result) || (!p_and_mode && r_result)) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 } // namespace Hfsm
