@@ -281,11 +281,13 @@ HfsmEditorPlugin::HfsmEditorPlugin() {
 	translation.insert(R"("VariableConfig" %s is not contained in editing HFSM.)", R"("VariableConfig" %s 不存在于当前编辑中的HFSM)");
 	translation.insert("Auto: ", "自动: ");
 	translation.insert("Delay %d msec.", "延迟 %d 毫秒");
-
+	translation.insert("After playing animation \"%s\" finish.", "在动画\"%s\"播放结束后");
 	translation.insert("When sub FSM exit.", "子状态机退出时");
 	translation.insert("After calling \"manual_exit()\".", "调用\"manual_exit()\"后");
 	translation.insert("After \"_update()\" being called %d times.", "\"_update()\"被调用 %d 次后");
 	translation.insert("After \"_physics_update()\" being called %d times.", "\"_physics_update()\"被调用 %d 次后");
+	translation.insert("Error: The AnimationPlayer which is setted to editing HFSM has not animation \"%s\".", "Error: 设置给编辑中的HFSM的AnimationPlayer不含有指定动画\"%s\"");
+	translation.insert("Warning: The editing HFSM has not setted an AnimationPlayer.", "Warning: 编辑中的HFSM未设置AnimationPlayer");
 }
 
 void emit_button_toggled(Button *p_btn, bool p_toggled) {

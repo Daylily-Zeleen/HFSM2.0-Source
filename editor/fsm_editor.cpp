@@ -1568,27 +1568,39 @@ List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 	switch (p_transition_config->get_type()) {
 		case TransitionConfig::TRANSITION_TYPE_AUTO: {
 			switch (p_transition_config->get_auto_mode()) {
+				r_valid = p_transition_config->get_auto_mode() >= 0 && p_transition_config->get_auto_mode() < TransitionConfig::AUTO_TRANSIT_MODE_MAX;
 				case TransitionConfig::AUTO_TRANSIT_MODE_DELAY_TIMER: {
-					r_valid = true;
 					ret.push_back(str_localize("Auto: ") + vformat(str_localize("Delay %d msec."), p_transition_config->get_auto_delay_msec()));
 				} break;
 				case TransitionConfig::AUTO_TRANSIT_MODE_FSM_EXIT: {
-					r_valid = true;
 					ret.push_back(str_localize("Auto: ") + str_localize("When sub FSM exit."));
 				} break;
 				case TransitionConfig::AUTO_TRANSIT_MODE_MANUAL: {
-					r_valid = true;
 					ret.push_back(str_localize("Auto: ") + str_localize("After calling \"manual_exit()\"."));
 				} break;
 				case TransitionConfig::AUTO_TRANSIT_MODE_UPDATE_TIMES: {
-					r_valid = true;
 					ret.push_back(str_localize("Auto: ") + vformat(str_localize("After \"_update()\" being called %d times."), itos(p_transition_config->get_auto_times())));
-
 				} break;
 				case TransitionConfig::AUTO_TRANSIT_MODE_PHYSICS_UPDATE_TIMES: {
-					r_valid = true;
 					ret.push_back(str_localize("Auto: ") + vformat(str_localize("After \"_physics_update()\" being called %d times."), itos(p_transition_config->get_auto_times())));
-				}
+				} break;
+				case TransitionConfig::AUTO_TRANSIT_MODE_ANIMATION_FINISH: {
+					auto anim = p_transition_config->get_from_state_config()->get_animation_name();
+					if (String(anim).strip_edges().is_empty()) {
+						anim = p_transition_config->get_from_state_config()->get_state_name();
+					}
+					ret.push_back(str_localize("Auto: ") + vformat(str_localize("After playing animation \"%s\" finish."), anim));
+					if (auto hfsm = HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
+						if (auto anim_player = hfsm->get_animation_player()) {
+							if (!anim_player->has_animation(anim)) {
+								r_valid = false;
+								ret.push_back(str_localize("Error: The AnimationPlayer which is setted to editing HFSM has not animation \"%s\"."));
+							}
+						} else {
+							ret.push_back(str_localize("Warning: The editing HFSM has not setted an AnimationPlayer."));
+						}
+					}
+				} break;
 				default:
 					ret.push_back(String::utf8("不应发生: 非法自动转换类型。"));
 					break;
@@ -1650,7 +1662,6 @@ List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 				ret.push_back(str_localize("Script is invalid!"));
 			}
 		} break;
-
 #endif //FULL_VERSION
 		default:
 			break;
