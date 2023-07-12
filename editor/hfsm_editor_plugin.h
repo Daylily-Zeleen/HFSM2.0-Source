@@ -4,13 +4,18 @@
 #include <godot_cpp/classes/editor_inspector_plugin.hpp>
 #include <godot_cpp/classes/editor_plugin.hpp>
 #include <godot_cpp/classes/editor_property.hpp>
+#include <godot_cpp/classes/editor_resource_picker.hpp>
 #include <godot_cpp/classes/editor_undo_redo_manager.hpp>
 #include <godot_cpp/classes/resource.hpp>
 #include <godot_cpp/classes/translation_server.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
 
 using namespace godot;
-#else
+namespace godot {
+class ImageTexture;
+};
+
+#else // GDEXTENSION_BUILD
 #include <core/string/translation.h>
 #include <editor/editor_inspector.h>
 #include <editor/editor_plugin.h>
@@ -18,6 +23,7 @@ using namespace godot;
 
 #include <editor/editor_resource_picker.h>
 
+class ImageTexture;
 #endif // GDEXTENSION_BUILD
 
 #include "../hfsm_global.h"
@@ -28,6 +34,9 @@ class EditorPropertyVariableConfig : public EditorProperty {
 	GDCLASS(EditorPropertyVariableConfig, EditorProperty)
 public:
 	class VariableConfigSelector : public EditorResourcePicker {
+#ifdef GDEXTENSION_BUILD
+		GDCLASS(VariableConfigSelector, EditorResourcePicker)
+#endif // GDEXTENSION_BUILD
 	private:
 		class HFSM *hfsm = nullptr;
 		Button *edit_button = nullptr;
@@ -117,8 +126,8 @@ private:
 
 	static PackedStringArray get_animation_list_for_state_config();
 
-	static Ref<class ImageTexture> empty_icon_for_state_node;
-	static Ref<class ImageTexture> get_empty_icon_for_state_node();
+	static Ref<ImageTexture> empty_icon_for_state_node;
+	static Ref<ImageTexture> get_empty_icon_for_state_node();
 
 protected:
 	static void _bind_methods();

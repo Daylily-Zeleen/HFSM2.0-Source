@@ -5,6 +5,7 @@
 #include <godot_cpp/classes/editor_interface.hpp>
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/image_texture.hpp>
+#include <godot_cpp/classes/popup_menu.hpp>
 #include <godot_cpp/templates/local_vector.hpp>
 
 using namespace godot;

@@ -4,19 +4,22 @@
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/ref_counted.hpp>
-#include <godot_cpp/templates/vector.hpp>
-#include <godot_cpp/templates/vmap.hpp>
+#include <godot_cpp/templates/local_vector.hpp>
 #include <godot_cpp/variant/typed_array.hpp>
 
 using namespace godot;
+
+namespace godot {
+class Script;
+};
 #else
 #include <core/object/ref_counted.h>
-#include <core/templates/vmap.h>
 #include <core/variant/typed_array.h>
 
 #include <core/object/script_language.h>
 #include <core/object/gdvirtual.gen.inc>
 
+class Script;
 #endif // GDEXTENSION_BUILD
 
 namespace Hfsm {

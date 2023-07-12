@@ -228,35 +228,33 @@ void HFSMEditor::set_connect_inspector_signal(bool p_connect) {
 }
 
 void HFSMEditor::_change_hint() {
-	const static PackedStringArray en = {
-		"To rename a state, you should input \"Enter\" after change its name, if not, the nane will be reset.",
-		"Right click to popup a menu and refer short cuts.",
-		"Holding \"Alt\" and \"Middle Button\" to draw a line to disconnect Transitions.",
-		"\"Convert To Sub-FSM\" only activated when selecting at least one State and click at a selected State.",
-		"A FSM(Finite State Machine) only have a Enty State.",
-		"A Entry State can't be change to Noramal or Exit State.",
-		"If you set a Normal or Exit State to Entry State, it will change the existing Entry State to Normal State first.",
-		"Select and inspect a State, you can set its animation in inspector.",
-		"The expression of ExpressionTransition is base on its HFSM node, you can use all built-in singletons in expression.",
-		"A Trigger Variable like a bool Variable, but it will be reset to \"false\" after processing the try transit stage.",
-		"Trigger a \"Solo Trigger\" will make its Transition can transit without concerning other VariableExpressions.",
-		"Only all \"Union Trigger\"s are triggered at the same time can make Transition can transit.",
-	};
+	const static PackedStringArray en = make_arr<PackedStringArray>(
+			"To rename a state, you should input \"Enter\" after change its name, if not, the nane will be reset.",
+			"Right click to popup a menu and refer short cuts.",
+			R"(Holding "Alt" and "Middle Button" to draw a line to disconnect Transitions.)",
+			"\"Convert To Sub-FSM\" only activated when selecting at least one State and click at a selected State.",
+			"A FSM(Finite State Machine) only have a Enty State.",
+			"A Entry State can't be change to Noramal or Exit State.",
+			"If you set a Normal or Exit State to Entry State, it will change the existing Entry State to Normal State first.",
+			"Select and inspect a State, you can set its animation in inspector.",
+			"The expression of ExpressionTransition is base on its HFSM node, you can use all built-in singletons in expression.",
+			"A Trigger Variable like a bool Variable, but it will be reset to \"false\" after processing the try transit stage.",
+			"Trigger a \"Solo Trigger\" will make its Transition can transit without concerning other VariableExpressions.",
+			"Only all \"Union Trigger\"s are triggered at the same time can make Transition can transit.");
 
-	const static PackedStringArray zh = {
-		"必须在修改状态名称后输入\"Enter\"确认,否则将在失去焦点时重置为改变之前的名称。",
-		"点击右键弹出操作菜单并查看相关的快捷键。",
-		"按住Alt和鼠标中键来绘制一条删除线以删除某个转换流。",
-		"只有在选中了至少一个状态并在选中的某个状态上点击右键时，\"转换为子状态机\"选项才有效。",
-		"一个FSM(有限状态机)只有一个Entry状态。",
-		"一个Entry类型的状态不能被设置为Normal或者Exit状态。",
-		"如果你将一个Normal或Exit状态设置为Entry状态, 会自动先将已有的Entry状态设置为Normal状态。",
-		"你可以通过选中一个状态，在检查器中编辑其动画属性。",
-		"ExpressionTransition的表达式基于所属的HFSM节点,你可以在表达式中使用所有内建单例。",
-		"触发器(Trigger)变量与布尔(bool)变量类似,但它会在尝试转换的阶ws段结束后被重置为\"false\"。",
-		"触发一个\"Solo Trigger\"会在不考虑其他VariableExpression的前提下使其Transition能够转换。",
-		"只有在所有的\"Union Trigger\"均被触发时会使其Transition能够转换(不考虑其他VariableExpression)。",
-	};
+	const static PackedStringArray zh = make_arr<PackedStringArray>(
+			"必须在修改状态名称后输入\"Enter\"确认,否则将在失去焦点时重置为改变之前的名称。",
+			"点击右键弹出操作菜单并查看相关的快捷键。",
+			"按住Alt和鼠标中键来绘制一条删除线以删除某个转换流。",
+			"只有在选中了至少一个状态并在选中的某个状态上点击右键时，\"转换为子状态机\"选项才有效。",
+			"一个FSM(有限状态机)只有一个Entry状态。",
+			"一个Entry类型的状态不能被设置为Normal或者Exit状态。",
+			"如果你将一个Normal或Exit状态设置为Entry状态, 会自动先将已有的Entry状态设置为Normal状态。",
+			"你可以通过选中一个状态，在检查器中编辑其动画属性。",
+			"ExpressionTransition的表达式基于所属的HFSM节点,你可以在表达式中使用所有内建单例。",
+			"触发器(Trigger)变量与布尔(bool)变量类似,但它会在尝试转换的阶ws段结束后被重置为\"false\"。",
+			"触发一个\"Solo Trigger\"会在不考虑其他VariableExpression的前提下使其Transition能够转换。",
+			"只有在所有的\"Union Trigger\"均被触发时会使其Transition能够转换(不考虑其他VariableExpression)。");
 
 	IF_DEV(ERR_FAIL_COND(en.size() != zh.size());)
 

@@ -112,8 +112,14 @@ void VariableExpressionConfig::_bind_methods() {
 	BIND_ENUM_CONSTANT(TRIGGER_TYPE_MAX);
 
 	// HACK
+
+#ifdef GDEXTENSION_BUILD
+#define BIND_COMPARATOR_ENUM_CONSTANT(m_constant) \
+	godot::ClassDB::bind_integer_constant(get_class_static(), godot::_gde_constant_get_enum_name(Comparator::m_constant, #m_constant), #m_constant, Comparator::m_constant);
+#else // GDEXTENSION_BUILD
 #define BIND_COMPARATOR_ENUM_CONSTANT(m_constant) \
 	::ClassDB::bind_integer_constant(get_class_static(), __constant_get_enum_name(Comparator::m_constant, #m_constant), #m_constant, Comparator::m_constant);
+#endif // GDEXTENSION_BUILD
 
 	// 枚举
 	BIND_COMPARATOR_ENUM_CONSTANT(COMPARATOR_EQUAL);

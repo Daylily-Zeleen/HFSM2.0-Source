@@ -4,6 +4,7 @@
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/animation_player.hpp>
+#include <godot_cpp/templates/vmap.hpp>
 using namespace godot;
 #else
 #include <scene/animation/animation_player.h>

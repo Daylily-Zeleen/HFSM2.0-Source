@@ -75,11 +75,11 @@ void HfsmDebuggerPlugin::send_debug_built(HFSM *p_hfsm) {
 
 		Error err = OK;
 
-		bool existed = false;
-		IF_GDM(existed=FileAccess::exists(cache_path);)
-		IF_GDE(existed=FileAccess::file_exists(cache_path);)
+		bool existing = false;
+		IF_GDM(existing=FileAccess::exists(cache_path);)
+		IF_GDE(existing=FileAccess::file_exists(cache_path);)
 
-		if (!existed) {
+		if (!existing) {
 			IF_GDE(err = ResourceSaver::get_singleton()->save(fsm_config, cache_path);)
 			IF_GDM(err = ResourceSaver::save(fsm_config, cache_path);)
 		}

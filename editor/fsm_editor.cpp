@@ -4,6 +4,7 @@
 #include <godot_cpp/classes/editor_inspector.hpp>
 #include <godot_cpp/classes/editor_interface.hpp>
 #include <godot_cpp/classes/editor_settings.hpp>
+#include <godot_cpp/classes/file_access.hpp>
 #include <godot_cpp/classes/font.hpp>
 #include <godot_cpp/classes/gd_script.hpp>
 #include <godot_cpp/classes/input.hpp>
@@ -1667,8 +1668,11 @@ List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 				})
 
 				if (r_valid == TRANSITION_CONFIG_VALID_LEVEL_NONE) {
+					bool existing = false;
+					IF_GDM(existing = FileAccess::exists(transition_script->get_path());)
+					IF_GDE(existing = FileAccess::file_exists(transition_script->get_path());)
 					ret.push_back(
-							str_localize(FileAccess::exists(transition_script->get_path()) ? "Script: " : "Built-in Script: ") + transition_script->get_path());
+							str_localize(existing ? "Script: " : "Built-in Script: ") + transition_script->get_path());
 				} else {
 					ret.push_back(str_localize("Script isn't extends from \"Transition\"."));
 				}

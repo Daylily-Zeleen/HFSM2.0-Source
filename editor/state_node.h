@@ -3,9 +3,11 @@
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/check_box.hpp>
 #include <godot_cpp/classes/graph_node.hpp>
+#include <godot_cpp/classes/image_texture.hpp>
 #include <godot_cpp/classes/line_edit.hpp>
 #include <godot_cpp/classes/option_button.hpp>
 #include <godot_cpp/classes/script.hpp>
+
 
 #include <godot_cpp/classes/editor_resource_picker.hpp>
 using namespace godot;
