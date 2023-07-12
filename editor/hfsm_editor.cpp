@@ -237,7 +237,12 @@ void HFSMEditor::_change_hint() {
 		"A Entry State can't be change to Noramal or Exit State.",
 		"If you set a Normal or Exit State to Entry State, it will change the existing Entry State to Normal State first.",
 		"Select and inspect a State, you can set its animation in inspector.",
+		"The expression of ExpressionTransition is base on its HFSM node, you can use all built-in singletons in expression.",
+		"A Trigger Variable like a bool Variable, but it will be reset to \"false\" after processing the try transit stage.",
+		"Trigger a \"Solo Trigger\" will make its Transition can transit without concerning other VariableExpressions.",
+		"Only all \"Union Trigger\"s are triggered at the same time can make Transition can transit.",
 	};
+
 	const static PackedStringArray zh = {
 		"必须在修改状态名称后输入\"Enter\"确认,否则将在失去焦点时重置为改变之前的名称。",
 		"点击右键弹出操作菜单并查看相关的快捷键。",
@@ -247,6 +252,10 @@ void HFSMEditor::_change_hint() {
 		"一个Entry类型的状态不能被设置为Normal或者Exit状态。",
 		"如果你将一个Normal或Exit状态设置为Entry状态, 会自动先将已有的Entry状态设置为Normal状态。",
 		"你可以通过选中一个状态，在检查器中编辑其动画属性。",
+		"ExpressionTransition的表达式基于所属的HFSM节点,你可以在表达式中使用所有内建单例。",
+		"触发器(Trigger)变量与布尔(bool)变量类似,但它会在尝试转换的阶ws段结束后被重置为\"false\"。",
+		"触发一个\"Solo Trigger\"会在不考虑其他VariableExpression的前提下使其Transition能够转换。",
+		"只有在所有的\"Union Trigger\"均被触发时会使其Transition能够转换(不考虑其他VariableExpression)。",
 	};
 
 	IF_DEV(ERR_FAIL_COND(en.size() != zh.size());)
