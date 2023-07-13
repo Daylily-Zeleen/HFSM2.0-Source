@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import tools.post_action as post_action
 import os
 import sys
 
@@ -63,17 +64,43 @@ env.Append(CPPDEFINES=["GDEXTENSION_BUILD"])
 if env["dev_build"]:
     pass
 
-if env["platform"] == "macos":
-    library = env.SharedLibrary(
-        "demo/bin/libgdexample.{}.{}.framework/libgdexample.{}.{}".format(
+
+lib_name = "hfsm"
+
+
+def get_bin_file_name_base(env):
+    if env["platform"] == "macos":
+        return "lib_name.{}.{}.framework/lib_name.{}.{}".format(
             env["platform"], env["target"], env["platform"], env["target"]
-        ),
-        source=sources,
-    )
-else:
-    library = env.SharedLibrary(
-        "demo/bin/libgdexample{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
-        source=sources,
-    )
+        ).replace("lib_name", lib_name)
+    else:
+        return "lib_name{}{}".format(
+            env["suffix"], env["SHLIBSUFFIX"]).replace("lib_name", lib_name)
+
+
+bin_file_name_base = get_bin_file_name_base(env)
+
+library = env.SharedLibrary("build/" + bin_file_name_base, source=sources)
+
+if not env.dev_build:
+    env["bin_file_name_base"] = bin_file_name_base
+
+    # def finish(target, source, env):
+    #     if os.path.exists("bin/" + env["bin_file_name_base"]):
+    #         os.remove("bin/" + env["bin_file_name_base"])
+
+    #     os.rename("build/" + env["bin_file_name_base"],
+    #               "bin/" + env["bin_file_name_base"])
+    #     print("=== POST")
+
+    # finish_command = env.Command('finish', [], finish)
+
+    # BUILD_TARGETS
+    import tools.post_action as post_action
+    finish_command = env.Command('finish', [], post_action.finish)
+    env.AddPostAction(finish_command, BUILD_TARGETS)
+
+    if 'finish' not in BUILD_TARGETS:
+        BUILD_TARGETS.append('finish')
 
 Default(library)
