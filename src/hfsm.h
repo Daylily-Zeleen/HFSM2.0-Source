@@ -7,6 +7,7 @@
 #include <godot_cpp/templates/vmap.hpp>
 using namespace godot;
 #else
+#include <core/templates/vmap.h>
 #include <scene/animation/animation_player.h>
 
 #endif // GDEXTENSION_BUILD

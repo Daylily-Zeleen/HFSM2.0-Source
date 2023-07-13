@@ -174,6 +174,7 @@
 			vformat("%d/%d:%s", Variant::OBJECT, PROPERTY_HINT_RESOURCE_TYPE, m_class::get_class_static()), ##__VA_ARGS__)
 
 // Dynamic bind
+#include <type_traits>
 template <class Var, typename T>
 static T _convert_to(const Var &p_var) {
 	if constexpr (std::is_enum<T>().value) {
@@ -230,13 +231,14 @@ static T _convert_to(const Var &p_var) {
 #ifdef DEBUG_ENABLED
 #define VLog(fmt, ...) UtilityFunctions::print_verbose(vformat(String(fmt), __VA_ARGS__))
 #define DLog(fmt, ...) UtilityFunctions::print(vformat(String(fmt), __VA_ARGS__))
+#define WLog(fmt, ...) UtilityFunctions::print(vformat(String("[%s:%d]") + fmt, __FILE__, __LINE__, __VA_ARGS__))
+#define ELog(fmt, ...) UtilityFunctions::printerr(vformat(String("[%s:%d]") + fmt, __FILE__, __LINE__, __VA_ARGS__))
 #else // DEBUG_ENABLED
 #define VLog(fmt, ...)
 #define DLog(fmt, ...)
+#define WLog(fmt, ...)
+#define ELog(fmt, ...)
 #endif // DEBUG_ENABLED
-
-#define WLog(fmt, ...) UtilityFunctions::print(vformat(String("[%s:%d]") + fmt, __FILE__, __LINE__, __VA_ARGS__))
-#define ELog(fmt, ...) UtilityFunctions::printerr(vformat(String("[%s:%d]") + fmt, __FILE__, __LINE__, __VA_ARGS__))
 
 #else // GDEXTENSION_BUILD
 #ifdef TOOLS_ENABLED
@@ -253,13 +255,16 @@ static T _convert_to(const Var &p_var) {
 #ifdef DEBUG_ENABLED
 #define VLog(fmt, ...) print_verbose(vformat(String(fmt), __VA_ARGS__))
 #define DLog(fmt, ...) print_line(vformat(String(fmt), __VA_ARGS__))
-#else
-#define VLog(fmt, ...)
-#define DLog(fmt, ...)
-#endif
 
 #define WLog(fmt, ...) print_line(vformat(String("[%s:%d]") + fmt, __FILE__, __LINE__, __VA_ARGS__))
 #define ELog(fmt, ...) print_error(vformat(String("[%s:%d]") + fmt, __FILE__, __LINE__, __VA_ARGS__))
+#else
+#define VLog(fmt, ...)
+#define DLog(fmt, ...)
+
+#define WLog(fmt, ...)
+#define ELog(fmt, ...)
+#endif
 
 #endif // GDEXTENSION_BUILD
 
@@ -313,6 +318,14 @@ static Array make_arr(Args... args) {
 #endif // GDEXTENSION_BUILD
 
 // ==========================
+
+#if defined(DEBUG_ENABLED) && defined(TOOLS_ENABLED)
+#define IF_DEBUG_TOOL(m_code) m_code
+#define IF_NOT_DEBUG_TOOL(m_code)
+#else // defined (DEBUG_ENABLED) && defined (TOOLS_ENABLED)
+#define IF_DEBUG_TOOL(m_code)
+#define IF_NOT_DEBUG_TOOL(m_code) m_code
+#endif //defined (DEBUG_ENABLED) && defined (TOOLS_ENABLED)
 
 #ifdef DEBUG_ENABLED
 #define IF_DEBUG(m_debug_code) m_debug_code

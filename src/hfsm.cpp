@@ -5,9 +5,9 @@
 #include "variable.h"
 #include "variable_config.h"
 
-#ifdef DEBUG_ENABLED
+#if defined(DEBUG_ENABLED) && defined(TOOLS_ENABLED)
 #include "../editor/hfsm_debugger_plugin.h"
-#endif // DEBUG_ENABLED
+#endif // defined ( DEBUG_ENABLED) && defined (TOOLS_ENABLED)
 
 #ifndef DEBUG_IN_EDITOR
 #ifdef TOOLS_ENABLED
@@ -121,7 +121,7 @@ HFSM::HFSM() = default;
 HFSM::~HFSM() {
 	if (root_fsm) {
 		memdelete(root_fsm);
-		IF_DEBUG(HfsmDebuggerPlugin::send_debug_destroy(this);)
+		IF_DEBUG_TOOL(HfsmDebuggerPlugin::send_debug_destroy(this);)
 	}
 }
 
@@ -226,7 +226,7 @@ bool HFSM::rebuild_hfsm() {
 
 	if (root_fsm) {
 		memdelete(root_fsm);
-		IF_DEBUG(HfsmDebuggerPlugin::send_debug_destroy(this);)
+		IF_DEBUG_TOOL(HfsmDebuggerPlugin::send_debug_destroy(this);)
 	}
 
 	// Clear Variables
@@ -251,7 +251,7 @@ bool HFSM::rebuild_hfsm() {
 		}
 	}
 
-	IF_DEBUG(HfsmDebuggerPlugin::send_debug_built(this);)
+	IF_DEBUG_TOOL(HfsmDebuggerPlugin::send_debug_built(this);)
 	return true;
 }
 
@@ -297,7 +297,7 @@ void HFSM::_notification(int p_what) {
 			}
 			physics_process_internal(get_physics_process_delta_time());
 		} break;
-#ifdef DEBUG_ENABLED
+#if defined(DEBUG_ENABLED) && defined(TOOLS_ENABLED)
 		case NOTIFICATION_ENTER_TREE: {
 			if (root_fsm) {
 				HfsmDebuggerPlugin::send_debug_built(this);
@@ -308,7 +308,7 @@ void HFSM::_notification(int p_what) {
 				HfsmDebuggerPlugin::send_debug_destroy(this);
 			}
 		} break;
-#endif // DEBUG_ENABLED
+#endif // defined ( DEBUG_ENABLED) && defined (TOOLS_ENABLED)
 
 		default:
 			break;
@@ -395,7 +395,7 @@ void HFSM::emit_transited(const Ref<State> &p_from_state, const Ref<State> &p_to
 	previous_state = p_from_state;
 	current_state = p_to_state;
 	emit_signal(sn, p_from_state, p_to_state);
-	IF_DEBUG(HfsmDebuggerPlugin::send_debug_update_active_path(this));
+	IF_DEBUG_TOOL(HfsmDebuggerPlugin::send_debug_update_active_path(this));
 }
 
 void HFSM::emit_entered(const Ref<State> &p_state) {
