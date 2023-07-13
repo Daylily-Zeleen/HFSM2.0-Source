@@ -4,6 +4,10 @@
 
 #include "fsm_config.h"
 
+#ifdef DEBUG_ENABLED
+#include <godot_cpp/variant/utility_functions.hpp>
+#endif // DEBUG_ENABLED
+
 namespace Hfsm {
 #pragma region VariableConfig
 bool VariableConfig::_set(const StringName &p_name, const Variant &p_property) {
