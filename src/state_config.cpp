@@ -33,6 +33,38 @@
 
 namespace Hfsm {
 
+#define GD_TEMPLATE "extends State\n\n"                                       \
+					"func _initialize() -> void:\n\tpass\n\n"                 \
+					"func _entry() -> void:\n\tpass\n\n"                      \
+					"func _update(delta: float) -> void:\n\tpass\n\n"         \
+					"func _physics_update(delta: float) -> void:\n\tpass\n\n" \
+					"func _exit() -> void:\n\tpass\n"
+
+#define CSHARP_TEMPLATE                              \
+	"(public partial MyState: Godot.State\n"         \
+	"{\n"                                            \
+	"	private void _initialize()\n"                  \
+	"	{\n"                                           \
+	"		// Called after setup internal.\n"            \
+	"	}\n\n"                                         \
+	"	private void _entry()\n"                       \
+	"	{\n"                                           \
+	"		// Called when entered this state.\n"         \
+	"	}\n\n"                                         \
+	"	private void _update(float p_delta)\n"         \
+	"	{\n"                                           \
+	"		// Called when update this state.\n"          \
+	"	}\n\n"                                         \
+	"	private void _physics_update(float p_delta)\n" \
+	"	{\n"                                           \
+	"		// Called when physics update this state.\n"  \
+	"	}\n\n"                                         \
+	"	private void _exit()\n"                        \
+	"	{\n"                                           \
+	"		// Called when exit this state.\n"            \
+	"	}\n"                                           \
+	"}\n\n"
+
 #pragma region StateConfig
 
 PackedStringArray (*StateConfig::get_animation_list)() = nullptr;
@@ -136,47 +168,12 @@ void StateConfig::set_state_script(const Ref<Script> &p_script) {
 		if (state_script->get_source_code().is_empty()) {
 			if (Engine::get_singleton()->is_editor_hint()) {
 				if (auto gds = cast_to<GDScript>(state_script.ptr())) {
-					gds->set_source_code(
-							"extends State\n\n"
-							"func _initialize() -> void:\n\tpass\n\n"
-							"func _entry() -> void:\n\tpass\n\n"
-							"func _update(delta: float) -> void:\n\tpass\n\n"
-							"func _physics_update(delta: float) -> void:\n\tpass\n\n"
-							"func _exit() -> void:\n\tpass\n");
+					gds->set_source_code(GD_TEMPLATE);
 					type_valid = true;
 				}
 #ifdef MODULE_MONO_ENABLED
 				else if (auto csharp = cast_to<CSharpScript>(state_script.ptr())) {
-					csharp->set_source_code(
-							R"XXX(public partial MyState: Godot.State
-{
-	private void _initialize()
-	{
-		// Called after setup internal.
-	}
-
-	private void _entry()
-	{
-		// Called when entered this state.
-	}
-
-	private void _update(float p_delta)
-	{
-		// Called when update this state.
-	}
-
-	private void _physics_update(float p_delta)
-	{
-		// Called when physics update this state.
-	}
-
-	private void _exit()
-	{
-		// Called when exit this state.
-	}
-}
-
-)XXX");
+					csharp->set_source_code(CSHARP_TEMPLATE);
 					type_valid = true;
 				}
 #endif // MODULE_MONO_ENABLED
@@ -198,8 +195,8 @@ void StateConfig::set_state_script(const Ref<Script> &p_script) {
 					state_script->reload();
 				}
 			}
-#endif // TOOLS_ENABLED
 		}
+#endif // TOOLS_ENABLED
 
 		if (!type_valid) {
 			ED_MSG("HFSM: The Script \"%s\" set to State is not extended from \"%s\".", state_script->get_path(), State::get_class_static());

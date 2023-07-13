@@ -32,6 +32,38 @@ namespace Hfsm {
 
 #pragma region TransitionConfig
 
+#define GD_TEMPLATE                                                                              \
+	"extends Transition\n\n"                                                                     \
+	"# Will be called every time when the HFSM update( or physics update)\n"                     \
+	"# Your must to overried this method to determine whether transit to the to state or not.\n" \
+	"# <returns> Can transit or not.</returns>\n"                                                \
+	"func _can_transit() -> bool:\n"                                                             \
+	"	# Your check logic.\n"                                                                     \
+	"	return false;\n\n\n"                                                                       \
+	"# Will be called every time when the HFSM entry the from state.\n"                          \
+	"func _refresh() -> void:\n"                                                                 \
+	"	pass\n"
+
+#define CSHARP_TEMPLTE                                                                             \
+	"public partial class MyTransition: Godot.Transition\n"                                        \
+	"{\n"                                                                                          \
+	"	// <summary>\n"                                                                              \
+	"	// Will be called every time when the HFSM update( or physics update)\n"                     \
+	"	// Your must to overried this method to determine whether transit to the to state or not.\n" \
+	"	// </summary>\n"                                                                             \
+	"	// <returns> Can transit or not.</returns>\n"                                                \
+	"	private bool _can_transit()\n"                                                               \
+	"	{\n"                                                                                         \
+	"		return false;\n"                                                                            \
+	"	}\n\n"                                                                                       \
+	"	// <summary>\n"                                                                              \
+	"	// Will be called every time when the HFSM entry the from state.\n"                          \
+	"	// </summary>\n"                                                                             \
+	"	private void _refresh()\n"                                                                   \
+	"	{\n"                                                                                         \
+	"	}\n"                                                                                         \
+	"}"
+
 bool TransitionConfig::_set(const StringName &p_name, const Variant &p_property) {
 	_TRY_SET_PROP(variable_expression_config_list);
 	_TRY_SET_PROP(expression_text);
@@ -141,7 +173,7 @@ void TransitionConfig::_bind_methods() {
 	GDBIND_SETGET_BOOL(and_mode);
 	GDBIND_SETGET(variable_expression_config_list);
 	//  脚本
-	GDBIND_SETGET(transition_script);
+	IF_FULL_VERSION(GDBIND_SETGET(transition_script);)
 
 	// 枚举
 	BIND_ENUM_CONSTANT(TRANSITION_TYPE_AUTO);
@@ -270,50 +302,12 @@ void TransitionConfig::set_transition_script(const Ref<Script> &p_transition_scr
 		if (transition_script->get_source_code().is_empty()) {
 			if (Engine::get_singleton()->is_editor_hint()) {
 				if (GDScript *s = Object::cast_to<GDScript>(transition_script.ptr())) {
-					s->set_source_code(R"XXX(extends Transition
-
-## <summary>
-## Will be called every time when the HFSM update( or physics update)
-## Your must to overried this method to determine whether transit to the to state or not.
-## </summary>
-## <returns> Can transit or not.</returns>
-func _can_transit() -> bool:
-	# Your check logic.
-	return false;
-
-
-## <summary>
-## Will be called every time when the HFSM entry the from state.
-## </summary>
-func _refresh() -> void:
-	pass
-
-)XXX");
+					s->set_source_code(GD_TEMPLATE);
 					type_valid = true;
 				}
 #ifdef MODULE_MONO_ENABLED
 				else if (auto csharp = cast_to<CSharpScript>(transition_script.ptr())) {
-					s->set_source_code(R"XXX(public partial class MyTransition: Godot.Transition
-{
-	// <summary>
-	// Will be called every time when the HFSM update( or physics update)
-	// Your must to overried this method to determine whether transit to the to state or not.
-	// </summary>
-	// <returns> Can transit or not.</returns>
-	private bool _can_transit()
-	{
-		return false;
-	}
-	
-	// <summary>
-	// Will be called every time when the HFSM entry the from state.
-	// </summary>
-	private void _refresh()
-	{
-	}
-}
-
-)XXX");
+					s->set_source_code(CHARP_TEMPLATE);
 					type_valid = true;
 				}
 #endif // MODULE_MONO_ENABLED
@@ -350,7 +344,7 @@ func _refresh() -> void:
 Ref<Script> TransitionConfig::get_transition_script() const { return transition_script; }
 bool TransitionConfig::is_script_valid() const { return script_valid; }
 
-#endif
+#endif // FULL_VERSION
 
 TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm, Ref<StateConfig> &r_from_state_config, Ref<StateConfig> &r_to_state_config) {
 	TransitionBase *ret;
