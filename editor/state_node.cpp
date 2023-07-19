@@ -29,9 +29,7 @@ namespace Hfsm {
 
 #define s_edit_fsm_requested "_edit_fsm_requested"
 
-Ref<ImageTexture> (*StateNode::get_empty_icon)();
-Color StateNode::IN_COLOR = Color();
-Color StateNode::OUT_COLOR = Color();
+Ref<ImageTexture> (*StateNode::get_empty_icon)() = nullptr;
 
 String StateNode::str_localize(const String &p_en_key) const {
 	return HfsmEditorPlugin::str_localize(p_en_key);
@@ -120,7 +118,7 @@ void StateNode::_setup_state_config() {
 	// 脚本
 	script_picker->set_edited_resource(state_config->get_state_script());
 	if (state_config->is_script_valid()) {
-		static const Color white = Color::named("white");
+		const Color white = Color::named("white");
 		script_picker->set_modulate(white);
 		set_self_modulate(white);
 	} else {
@@ -230,12 +228,13 @@ void StateNode::_set_has_sub_fsm_check_box(bool p_pressed) {
 	ADD_UNDO_METHOD(state_config.ptr(), set_fsm_config, state_config->get_fsm_config());
 	COMMIT_ACTION();
 }
+
 void StateNode::_request_edit_sub_fsm_config() {
 	if (state_config->get_fsm_config().is_valid()) {
-		const static StringName sn = s_edit_fsm_requested;
-		emit_signal(sn, state_config->get_fsm_config());
+		emit_signal(SNAME(s_edit_fsm_requested), state_config->get_fsm_config());
 	}
 }
+
 void StateNode::_script_selected(const Ref<Script> &p_script, bool p_edit) {
 	if (debug_mode) {
 		return;
@@ -316,11 +315,10 @@ void StateNode::initialize() {
 	}
 
 	if (get_empty_icon) {
-		static const StringName port_sn = "port";
-		add_theme_icon_override(port_sn, get_empty_icon());
+		add_theme_icon_override(SNAME("port"), get_empty_icon());
 	}
 
-	set_slot(0, true, IN_TYPE, IN_COLOR, true, OUT_TYPE, OUT_COLOR);
+	set_slot(0, true, IN_TYPE, IN_COLOR(), true, OUT_TYPE, OUT_COLOR());
 	set_resizable(false);
 
 	// 信号功能连接

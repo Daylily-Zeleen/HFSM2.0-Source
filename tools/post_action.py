@@ -1,12 +1,17 @@
 ﻿import os
+import sys
 
-def finish(target, source, env):
-    if os.path.exists("bin/" + env["bin_file_name_base"]):
-        os.remove("bin/" + env["bin_file_name_base"])
 
-    os.rename("build/" + env["bin_file_name_base"],
-              "bin/" + env["bin_file_name_base"])
-    print("== cpy")
+def move_dynamic_library(build_dir, target_dir, suffixs=[".so", ".dylib", ".wasm", ".dll"]):
+    for file in os.listdir(build_dir):
+        for suffix in suffixs:
+            if file.endswith(suffix):
+                target_file = os.path.join(target_dir, file)
+                if os.path.exists(target_file):
+                    os.remove(target_file)
+                os.rename(os.path.join(build_dir, file), target_file)
+                print("== move: ", file)
+                break
 
-def get_executor():
-    return finish
+
+move_dynamic_library(sys.argv[1], sys.argv[2])

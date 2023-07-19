@@ -170,8 +170,7 @@ inline bool State::is_animation_playing() const { return animation_playing; }
 inline void State::notify_animation_finished(const StringName &p_anim) {
 	if (get_animation_name_for_playing() == p_anim) {
 		animation_playing = false;
-		static const StringName sn = "animation_finished";
-		emit_signal(sn);
+		emit_signal(SNAME("animation_finished"));
 	}
 }
 

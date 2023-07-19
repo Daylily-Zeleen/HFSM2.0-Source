@@ -6,15 +6,16 @@
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/dir_access.hpp>
-#include <godot_cpp/classes/project_settings.hpp>
-#include <godot_cpp/classes/engine_debugger.hpp>
+#include <godot_cpp/classes/editor_debugger_session.hpp>
 #include <godot_cpp/classes/editor_interface.hpp>
 #include <godot_cpp/classes/editor_paths.hpp>
-#include <godot_cpp/classes/editor_debugger_session.hpp>
-#include <godot_cpp/classes/resource_loader.hpp>
-#include <godot_cpp/classes/file_access.hpp>
 #include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/engine_debugger.hpp>
+#include <godot_cpp/classes/file_access.hpp>
+#include <godot_cpp/classes/project_settings.hpp>
+#include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/classes/resource_saver.hpp>
+
 #else
 #include <core/config/project_settings.h>
 #include <core/io/dir_access.h>
@@ -37,8 +38,7 @@ namespace Hfsm {
 uint32_t hash(const Variant &p_var) {
 	if (auto obj = Object::cast_to<Object>(p_var)) {
 		uint32_t ret = 0;
-		static const StringName mn = "get_property_list";
-		TypedArray<Dictionary> props = obj->call(mn);
+		TypedArray<Dictionary> props = obj->call(SNAME("get_property_list"));
 		for (auto i = 0; i < props.size(); ++i) {
 			Dictionary p = props[i];
 			ret = hash_murmur3_one_32(hash(obj->get(p["name"])), ret);
@@ -76,8 +76,8 @@ void HfsmDebuggerPlugin::send_debug_built(HFSM *p_hfsm) {
 		Error err = OK;
 
 		bool existing = false;
-		IF_GDM(existing=FileAccess::exists(cache_path);)
-		IF_GDE(existing=FileAccess::file_exists(cache_path);)
+		IF_GDM(existing = FileAccess::exists(cache_path);)
+		IF_GDE(existing = FileAccess::file_exists(cache_path);)
 
 		if (!existing) {
 			IF_GDE(err = ResourceSaver::get_singleton()->save(fsm_config, cache_path);)

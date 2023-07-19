@@ -47,7 +47,7 @@ namespace Hfsm {
 
 #define set_editor_inspector_signal_connected(p_connected)                                           \
 	{                                                                                                \
-		static const StringName s_edited_object_changed = "edited_object_changed";                   \
+		const auto s_edited_object_changed = SNAME("edited_object_changed");                         \
 		auto inspector = HfsmEditorPlugin::get_singleton()->get_editor_interface()->get_inspector(); \
 		auto cb = TCALLABLE(_disconnect_inspecting_transition_config);                               \
                                                                                                      \
@@ -923,7 +923,7 @@ void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 	}
 
 	static bool to_disconnect = false;
-	static const auto set_input_as_handled = [this]() { this->get_tree()->get_root()->set_input_as_handled(); };
+	const auto set_input_as_handled = [this]() { this->get_tree()->get_root()->set_input_as_handled(); };
 
 	if (auto mouse_btn_event = Object::cast_to<InputEventMouseButton>(p_event.ptr())) {
 		auto mouse_pos = draw_layer->get_local_mouse_position(); // mouse_btn_event->get_position(); //- draw_layer->get_position();
@@ -965,7 +965,7 @@ void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 					// 双击选择转换
 					auto selected_tc_list = try_select_transitions_at_pos(mouse_pos);
 
-					const static auto undo_redo_selected_transition = [this](const TypedArray<TransitionConfig> &p_selected_tc_list) -> void {
+					const auto undo_redo_selected_transition = [this](const TypedArray<TransitionConfig> &p_selected_tc_list) -> void {
 						HFSM_EDITOR_CREATE_ACTION("Select State Transitions");
 						ADD_DO_METHOD(this, __set_selected_state_name_list, TypedArray<StringName>());
 						ADD_DO_METHOD(this, __set_selected_transition_config_list, p_selected_tc_list);
@@ -990,7 +990,7 @@ void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 					set_input_as_handled();
 				} else if (!mouse_btn_event->is_pressed()) {
 					if (selection_dirty) {
-						const static auto undo_redo_select_nodes = [this]() {
+						const auto undo_redo_select_nodes = [this]() {
 							HFSM_EDITOR_CREATE_ACTION("Select States");
 							ADD_DO_METHOD(this, __set_selected_transition_config_list, TypedArray<TransitionConfig>());
 							ADD_DO_METHOD(this, __select_state_nodes, this->selected_state_name_list);
@@ -1107,7 +1107,7 @@ void FsmEditor::_draw_layer_draw() {
 		}
 	}
 
-	const Color unactivated_triangle_color = StateNode::OUT_COLOR.lerp(StateNode::IN_COLOR, 0.5f);
+	const Color unactivated_triangle_color = StateNode::OUT_COLOR().lerp(StateNode::IN_COLOR(), 0.5f);
 
 	Array conn_list = call("get_connection_list");
 	IF_DEV(
@@ -1581,8 +1581,8 @@ List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 
 	switch (p_transition_config->get_type()) {
 		case TransitionConfig::TRANSITION_TYPE_AUTO: {
+			r_valid = (p_transition_config->get_auto_mode() >= 0 && p_transition_config->get_auto_mode() < TransitionConfig::AUTO_TRANSIT_MODE_MAX) ? TRANSITION_CONFIG_VALID_LEVEL_NONE : TRANSITION_CONFIG_VALID_LEVEL_ERROR;
 			switch (p_transition_config->get_auto_mode()) {
-				r_valid = (p_transition_config->get_auto_mode() >= 0 && p_transition_config->get_auto_mode() < TransitionConfig::AUTO_TRANSIT_MODE_MAX) ? TRANSITION_CONFIG_VALID_LEVEL_NONE : TRANSITION_CONFIG_VALID_LEVEL_ERROR;
 				case TransitionConfig::AUTO_TRANSIT_MODE_DELAY_TIMER: {
 					ret.push_back(str_localize("Auto: ") + vformat(str_localize("Delay %d msec."), p_transition_config->get_auto_delay_msec()));
 				} break;

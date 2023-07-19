@@ -15,11 +15,6 @@
 namespace Hfsm {
 
 void HfsmGlobal::init_static() {
-	IF_TOOLS({
-		StateNode::IN_COLOR = Color::named("ORANGE");
-		StateNode::OUT_COLOR = Color::named("GREEN");
-	})
-
 	auto &singleton_names = _singleton_names();
 	auto &singletons = _singletons();
 

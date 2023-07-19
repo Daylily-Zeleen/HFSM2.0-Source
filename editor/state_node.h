@@ -8,7 +8,6 @@
 #include <godot_cpp/classes/option_button.hpp>
 #include <godot_cpp/classes/script.hpp>
 
-
 #include <godot_cpp/classes/editor_resource_picker.hpp>
 using namespace godot;
 #else
@@ -65,8 +64,8 @@ private:
 
 public:
 	static Ref<ImageTexture> (*get_empty_icon)();
-	static Color IN_COLOR;
-	static Color OUT_COLOR;
+	static Color IN_COLOR() { return Color::named("ORANGE"); }
+	static Color OUT_COLOR() { return Color::named("GREEN"); }
 
 	static const int IN_TYPE = 0;
 	static const int OUT_TYPE = 1;

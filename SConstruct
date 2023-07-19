@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import tools.post_action as post_action
 import os
 import sys
 
@@ -80,27 +79,11 @@ def get_bin_file_name_base(env):
 
 bin_file_name_base = get_bin_file_name_base(env)
 
-library = env.SharedLibrary("build/" + bin_file_name_base, source=sources)
-
 if not env.dev_build:
-    env["bin_file_name_base"] = bin_file_name_base
+    library = env.SharedLibrary("build/" + bin_file_name_base, source=sources)
+else:
+    library = env.SharedLibrary(
+        "demo/bin/" + bin_file_name_base, source=sources)
 
-    # def finish(target, source, env):
-    #     if os.path.exists("bin/" + env["bin_file_name_base"]):
-    #         os.remove("bin/" + env["bin_file_name_base"])
-
-    #     os.rename("build/" + env["bin_file_name_base"],
-    #               "bin/" + env["bin_file_name_base"])
-    #     print("=== POST")
-
-    # finish_command = env.Command('finish', [], finish)
-
-    # BUILD_TARGETS
-    import tools.post_action as post_action
-    finish_command = env.Command('finish', [], post_action.finish)
-    env.AddPostAction(finish_command, BUILD_TARGETS)
-
-    if 'finish' not in BUILD_TARGETS:
-        BUILD_TARGETS.append('finish')
 
 Default(library)

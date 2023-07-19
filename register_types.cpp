@@ -40,14 +40,15 @@
 #include "hfsm_global.h"
 #include "src/fsm_config.h"
 #include "src/hfsm.h"
-#include "src/variable.h"
-#include "src/variable_config.h"
 #include "src/state.h"
 #include "src/state_config.h"
 #include "src/transition_config.h"
 #include "src/transitions/auto_transition.h"
 #include "src/transitions/transition.h"
 #include "src/transitions/variable_expressions/variable_expression_config.h"
+#include "src/variable.h"
+#include "src/variable_config.h"
+
 
 #ifdef TOOLS_ENABLED
 #include "editor/fsm_editor.h"
@@ -82,6 +83,13 @@ void register_core_classes() {
 
 void register_editor_classes() {
 	IF_TOOLS({
+		// GDREGISTER_INTERNAL_CLASS(HfsmEditorPlugin);
+		// GDREGISTER_INTERNAL_CLASS(EditorPropertyVariableConfig);
+		// GDREGISTER_INTERNAL_CLASS(EditorPropertyVariableConfig::VariableConfigSelector);
+		// GDREGISTER_INTERNAL_CLASS(StateNode);
+		// GDREGISTER_INTERNAL_CLASS(FsmEditor);
+		// GDREGISTER_INTERNAL_CLASS(HfsmInspectorPlugin);
+		// GDREGISTER_INTERNAL_CLASS(HFSMEditor);
 		GDREGISTER_CLASS(HfsmEditorPlugin);
 		GDREGISTER_CLASS(EditorPropertyVariableConfig);
 		GDREGISTER_CLASS(EditorPropertyVariableConfig::VariableConfigSelector);

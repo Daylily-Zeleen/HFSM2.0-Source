@@ -367,7 +367,7 @@ bool HfsmEditorPlugin::handles_internal(Object *p_object) const {
 		return true;
 	} else {
 		StringName type = p_object->get_class();
-		static const LocalVector<StringName> hfsm_types = {
+		const LocalVector<StringName> hfsm_types = {
 			FSMConfig::get_class_static(),
 			StateConfig::get_class_static(),
 			TransitionConfig::get_class_static(),
