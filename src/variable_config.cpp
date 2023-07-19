@@ -4,9 +4,9 @@
 
 #include "fsm_config.h"
 
-#ifdef DEBUG_ENABLED
+#if defined(DEBUG_ENABLED) && defined(GDEXTENSION_BUILD)
 #include <godot_cpp/variant/utility_functions.hpp>
-#endif // DEBUG_ENABLED
+#endif // defined(DEBUG_ENABLED) && defined(GDEXTENSION_BUILD)
 
 namespace Hfsm {
 #pragma region VariableConfig

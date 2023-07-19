@@ -33,7 +33,7 @@ namespace Hfsm {
 #pragma region TransitionConfig
 
 #define GD_TEMPLATE                                                                              \
-	"extends Transition\n\n"                                                                     \
+	"extends Transition\n\n\n"                                                                     \
 	"# Will be called every time when the HFSM update( or physics update)\n"                     \
 	"# Your must to overried this method to determine whether transit to the to state or not.\n" \
 	"# <returns> Can transit or not.</returns>\n"                                                \

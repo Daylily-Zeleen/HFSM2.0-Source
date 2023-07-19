@@ -40,8 +40,10 @@ public:
 
 	Transition() = default;
 
-	Transition(HFSM *p_hfsm, const Ref<Script> &p_script) :
-			hfsm(p_hfsm) { set_script(p_script); }
+	Transition(HFSM *p_hfsm, const Ref<Script> &p_script) {
+		hfsm = p_hfsm;
+		set_script(p_script);
+	}
 
 	operator TransitionBase *() { return static_cast<TransitionBase *>(this); }
 

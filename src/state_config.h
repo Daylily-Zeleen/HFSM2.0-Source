@@ -25,6 +25,9 @@ class StateConfig : public Resource {
 
 #ifdef TOOLS_ENABLED
 public:
+	void _set_state_node(Node *p_state_nde) { state_node = p_state_nde; }
+	Node *_get_state_node() const { return state_node; }
+
 	void set_state_node(Node *p_state_nde) { state_node = p_state_nde; }
 	Node *get_state_node() const { return state_node; }
 

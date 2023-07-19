@@ -1450,8 +1450,8 @@ void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 				auto sn = create_state_node(sc, p_fsm_config);
 				ADD_DO_REFERENCE(sn);
 
-				ADD_DO_METHOD(sc.ptr(), set_state_node, sn);
-				ADD_UNDO_METHOD(sc.ptr(), set_state_node, old_state_node);
+				ADD_DO_METHOD(sc.ptr(), _set_state_node, sn);
+				ADD_UNDO_METHOD(sc.ptr(), _set_state_node, old_state_node);
 				ADD_DO_METHOD(this, add_child, sn);
 				ADD_UNDO_METHOD(this, remove_child, sn);
 			}

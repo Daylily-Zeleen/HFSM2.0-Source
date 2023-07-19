@@ -33,11 +33,11 @@
 
 namespace Hfsm {
 
-#define GD_TEMPLATE "extends State\n\n"                                       \
-					"func _initialize() -> void:\n\tpass\n\n"                 \
-					"func _entry() -> void:\n\tpass\n\n"                      \
-					"func _update(delta: float) -> void:\n\tpass\n\n"         \
-					"func _physics_update(delta: float) -> void:\n\tpass\n\n" \
+#define GD_TEMPLATE "extends State\n\n\n"                                       \
+					"func _initialize() -> void:\n\tpass\n\n\n"                 \
+					"func _entry() -> void:\n\tpass\n\n\n"                      \
+					"func _update(delta: float) -> void:\n\tpass\n\n\n"         \
+					"func _physics_update(delta: float) -> void:\n\tpass\n\n\n" \
 					"func _exit() -> void:\n\tpass\n"
 
 #define CSHARP_TEMPLATE                              \
@@ -124,7 +124,8 @@ void StateConfig::_bind_methods() {
 	ADD_GROUP("Animation", "animation_");
 
 #ifdef TOOLS_ENABLED
-	GDBIND_SETGET(state_node);
+	GDBIND_METHOD(_set_state_node);
+	GDBIND_METHOD(_get_state_node);
 #endif
 }
 
