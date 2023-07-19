@@ -55,7 +55,7 @@ public:
 		AUTO_TRANSIT_MODE_MAX,
 	};
 
-	TransitionBase *create_transition(HFSM *p_hfsm, Ref<StateConfig> &r_from_state_config, Ref<StateConfig> &r_to_state_config);
+	TransitionBase *create_transition(HFSM *p_hfsm);
 
 	bool _set(const StringName &p_name, const Variant &p_property);
 	bool _get(const StringName &p_name, Variant &r_property) const;

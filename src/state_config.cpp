@@ -277,7 +277,7 @@ Ref<State> StateConfig::create_state(HFSM *p_hfsm, FSM *p_fsm) {
 		}
 	}
 
-	auto ret = memnew(State(state_name, p_hfsm, type, p_fsm->get_path(), script_to_set, sub_fsm, p_fsm->get_fsm_update_queue()));
+	auto ret = memnew(State(state_name, p_hfsm, type, p_fsm->get_path(), state_script, sub_fsm, p_fsm->get_fsm_update_queue()));
 
 	ret->set_animation_name(animation_name);
 	IF_FULL_VERSION({

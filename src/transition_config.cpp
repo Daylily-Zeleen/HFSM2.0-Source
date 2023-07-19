@@ -33,7 +33,7 @@ namespace Hfsm {
 #pragma region TransitionConfig
 
 #define GD_TEMPLATE                                                                              \
-	"extends Transition\n\n\n"                                                                     \
+	"extends Transition\n\n\n"                                                                   \
 	"# Will be called every time when the HFSM update( or physics update)\n"                     \
 	"# Your must to overried this method to determine whether transit to the to state or not.\n" \
 	"# <returns> Can transit or not.</returns>\n"                                                \
@@ -346,7 +346,7 @@ bool TransitionConfig::is_script_valid() const { return script_valid; }
 
 #endif // FULL_VERSION
 
-TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm, Ref<StateConfig> &r_from_state_config, Ref<StateConfig> &r_to_state_config) {
+TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm) {
 	TransitionBase *ret;
 	switch (type) {
 		case TRANSITION_TYPE_AUTO: {
@@ -389,8 +389,6 @@ TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm, Ref<StateConfi
 			}
 		} break;
 	}
-	r_from_state_config = get_from_state_config();
-	r_to_state_config = get_to_state_config();
 	return ret;
 }
 

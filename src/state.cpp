@@ -110,7 +110,7 @@ void State::exit_state() {
 
 State::State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<Hfsm::State> &p_path, const Ref<Script> &p_script, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue) {
 	if (p_script.is_valid()) {
-		set_script(p_script);
+		call_deferred(SNAME("set_script"), p_script);
 	}
 
 	hfsm = p_hfsm;
