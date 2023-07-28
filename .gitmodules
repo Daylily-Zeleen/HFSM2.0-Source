@@ -1,0 +1,3 @@
+[submodule "HFSM2"]
+	path = demo
+	url = https://github.com/Daylily-Zeleen/HFSM2.git
