@@ -19,7 +19,7 @@ There have not plan to public source code currently.
 8. Attch GDScript/CSharpScript to implement Transition Logic (full version only).
 
 ## Some usage hints:
-    I have not time to write a prefect document and create some demos, I can only remain some hints here.
+I have not time to write a prefect document and create some demos, I can only remain some hints here.
 1. This plugin's basic concept is like the [3.x version](https://github.com/Daylily-Zeleen/HierarchicalFiniteStateMachine), you can refer its document.
     But be careful, the has many naming different between these two plugins, and this 4.1 version have removed some over desined, such as "agent", and so on.
 2. To start edit a `HFSM` node, your should create a `FSMConfig` resource and set to `HFSM`'s property `root_fsm_config`.

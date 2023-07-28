@@ -19,7 +19,7 @@
 8. 能够附加GDSCruot/CSharpScript来实现转换流逻辑。
 
 ## Some usage hints:
-    我没有时间来编写一个详细的文档和创建一些demo，只能在此留下一些使用提示。
+我没有时间来编写一个详细的文档和创建一些demo，只能在此留下一些使用提示。
 1. 该插件的基本概念与[3.x版本](https://github.com/Daylily-Zeleen/HierarchicalFiniteStateMachine)相似，可以参考旧版的文档。
     需要注意的是，这两个插件有多出命名差异，并且该插件删除了诸如"agent"之类的过度设计。
 2. 你需要为`HFSM`的`root_fsm_config`属性设置一个`FSMConfig`资源以开始编辑。
