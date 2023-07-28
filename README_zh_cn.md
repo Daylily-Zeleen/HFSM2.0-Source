@@ -4,7 +4,7 @@
 
 [HFSM](https://github.com/Daylily-Zeleen/HierarchicalFiniteStateMachine)的加强版。
 
-该残酷是编译完成后的二进制文件插件，遵循MIT许可证。
+该仓库是编译完成后的二进制文件插件，遵循MIT许可证。
 目前没有公布源代码的计划。
 
 ## 特性

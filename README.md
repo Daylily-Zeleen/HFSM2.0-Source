@@ -41,7 +41,7 @@ I have not time to write a prefect document and create some demos, I can only re
     HfsmDebuggerPlugin
     HfsmDebugger
     ```
-9. According to the design, you should not access all `xxxConfig` classes, they are only store the HFSM struct/info for constructing `HFSM`.
+9. According to the design, you should not access all `xxxConfig` classes, they are only store the HFSM structure/infomation for constructing `HFSM`.
     ```
     FSMConfig
 	StateConfig
