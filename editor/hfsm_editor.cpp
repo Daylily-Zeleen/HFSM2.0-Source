@@ -229,6 +229,7 @@ void HFSMEditor::set_connect_inspector_signal(bool p_connect) {
 
 void HFSMEditor::_change_hint() {
 	const PackedStringArray en = make_arr<PackedStringArray>(
+			"Holding \"Shift\" and drag a line from a State to another State by left button to create a Transition.",
 			"To rename a state, you should input \"Enter\" after change its name, if not, the nane will be reset.",
 			"Right click to popup a menu and refer short cuts.",
 			R"(Holding "Alt" and "Middle Button" to draw a line to disconnect Transitions.)",
@@ -242,7 +243,8 @@ void HFSMEditor::_change_hint() {
 			"Trigger a \"Solo Trigger\" will make its Transition can transit without concerning other VariableExpressions.",
 			"Only all \"Union Trigger\"s are triggered at the same time can make Transition can transit.");
 
-	const std::array<const char *, 12> zh = {
+	const std::array<const char *, 13> zh = {
+		"按住Shift和鼠标左键从一个状态连接到另一个状态来实现创建转换流。",
 		"必须在修改状态名称后输入\"Enter\"确认,否则将在失去焦点时重置为改变之前的名称。",
 		"点击右键弹出操作菜单并查看相关的快捷键。",
 		"按住Alt和鼠标中键来绘制一条删除线以删除某个转换流。",
