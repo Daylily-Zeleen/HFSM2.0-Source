@@ -12,24 +12,6 @@ env = SConscript("../godot-cpp/SConstruct")
 # - CPPDEFINES are for pre-processor defines
 # - LINKFLAGS are for linking flags
 
-
-def scan_files(directory, prefix=None, postfix=None):
-    files_list = []
-
-    for root, sub_dirs, files in os.walk(directory):
-        for special_file in files:
-            if postfix:
-                if special_file.endswith(postfix):
-                    files_list.append(os.path.join(root, special_file))
-            elif prefix:
-                if special_file.startswith(prefix):
-                    files_list.append(os.path.join(root, special_file))
-            else:
-                files_list.append(os.path.join(root, special_file))
-
-    return files_list
-
-
 cpp_paths = ["./",
              "src/",
              "src/transitions/",
@@ -40,7 +22,7 @@ sources = Glob("*.cpp") + \
     Glob("src/transitions/*.cpp") + \
     Glob("src/transitions/variable_expressions/*.cpp")
 
-if env["target"] == "editor":
+if env["target"] == "editor" or env["target"] == "template_debug":
     cpp_paths.append("editor/")
 
     sources = sources + Glob("editor/*.cpp")
@@ -79,11 +61,7 @@ def get_bin_file_name_base(env):
 
 bin_file_name_base = get_bin_file_name_base(env)
 
-if not env.dev_build:
-    library = env.SharedLibrary("build/" + bin_file_name_base, source=sources)
-else:
-    library = env.SharedLibrary(
-        "demo/bin/" + bin_file_name_base, source=sources)
+library = env.SharedLibrary("build/" + bin_file_name_base, source=sources)
 
 
 Default(library)
