@@ -20,6 +20,21 @@ class FSM;
 class State;
 // class FSMConfig;
 
+class Utils {
+	Utils() = default;
+
+public:
+	static bool is_script_instacne_type_valid(const Ref<Script> &p_script, const StringName &p_class_name, LocalVector<StringName> (*p_get_require_methods)());
+
+#ifdef TOOLS_ENABLED
+#ifdef MODULE_MONO_ENABLED
+	static void set_template_if_source_code_is_empty(const Ref<Script> &p_script, const char *p_gds_template, const char *p_charp_template);
+#else // MODULE_MONO_ENABLED
+	static void set_template_if_source_code_is_empty(const Ref<Script> &p_script, const char *p_gds_template);
+#endif // MODULE_MONO_ENABLED
+#endif // TOOLS_ENABLED
+};
+
 class StateConfig : public Resource {
 	GDCLASS(StateConfig, Resource)
 

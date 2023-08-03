@@ -12,7 +12,9 @@
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/templates/list.hpp>
-
+#ifdef MODULE_MONO_ENABLED
+#include <godot_cpp/classes/c_sharp_script.hpp>
+#endif // MODULE_MONO_ENABLED
 #ifdef TOOLS_ENABLED
 #include <godot_cpp/classes/engine.hpp>
 #endif // TOOLS_ENABLED

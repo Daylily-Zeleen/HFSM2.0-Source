@@ -9,15 +9,11 @@
 
 #endif
 
-
 #ifdef DEBUG_ENABLED
 #ifndef TOOLS_ENABLED
 #define TOOLS_ENABLED
 #endif // TOOLS_ENABLED
 #endif //  DEBUG_ENABLED
-
-
-
 
 // 字符常量以 utf8 进行编译
 #pragma execution_character_set("utf-8")
@@ -27,6 +23,8 @@
 #include <godot_cpp/templates/hash_map.hpp>
 #include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/string_name.hpp>
+
+#define MODULE_MONO_ENABLED
 
 #include "utils_macros.h"
 
@@ -82,3 +80,11 @@ public:
 #endif // FULL_VERSION
 
 #define cb_resource_emit_changed(m_res_ptr) Callable(m_res_ptr, SNAME("emit_changed"))
+
+#ifdef MODULE_MONO_ENABLED
+#define IF_MONO(m_code) m_code
+#define IF_NOT_MONO(m_code)
+#else // MODULE_MONO_ENABLED
+#define IF_MONO(m_code)
+#define IF_NOT_MONO(m_code) m_code
+#endif // MODULE_MONO_ENABLED

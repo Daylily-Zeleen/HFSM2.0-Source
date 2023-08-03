@@ -15,7 +15,7 @@
 #include <godot_cpp/classes/translation_server.hpp>
 
 #ifdef MODULE_MONO_ENABLED
-#include <godot_cpp/classes/csharp_script.h>
+#include <godot_cpp/classes/c_sharp_script.hpp>
 #endif // MODULE_MONO_ENABLED
 
 #else // GDEXTENSION_BUILD
@@ -44,25 +44,28 @@ namespace Hfsm {
 	"func _refresh() -> void:\n"                                                                 \
 	"	pass\n"
 
-#define CSHARP_TEMPLTE                                                                             \
-	"public partial class MyTransition: Godot.Transition\n"                                        \
-	"{\n"                                                                                          \
-	"	// <summary>\n"                                                                              \
-	"	// Will be called every time when the HFSM update( or physics update)\n"                     \
-	"	// Your must to overried this method to determine whether transit to the to state or not.\n" \
-	"	// </summary>\n"                                                                             \
-	"	// <returns> Can transit or not.</returns>\n"                                                \
-	"	private bool _can_transit()\n"                                                               \
-	"	{\n"                                                                                         \
-	"		return false;\n"                                                                            \
-	"	}\n\n"                                                                                       \
-	"	// <summary>\n"                                                                              \
-	"	// Will be called every time when the HFSM entry the from state.\n"                          \
-	"	// </summary>\n"                                                                             \
-	"	private void _refresh()\n"                                                                   \
-	"	{\n"                                                                                         \
-	"	}\n"                                                                                         \
+#ifdef MODULE_MONO_ENABLED
+#define CSHARP_TEMPLATE                                                                                \
+	"// Because GDExtension has not ability to generate binding for C#, extends form RefCounted here." \
+	"public partial class MyTransition: Godot.RefCounted\n"                                            \
+	"{\n"                                                                                              \
+	"	// <summary>\n"                                                                                  \
+	"	// Will be called every time when the HFSM update( or physics update)\n"                         \
+	"	// Your must to overried this method to determine whether transit to the to state or not.\n"     \
+	"	// </summary>\n"                                                                                 \
+	"	// <returns> Can transit or not.</returns>\n"                                                    \
+	"	private bool _can_transit()\n"                                                                   \
+	"	{\n"                                                                                             \
+	"		return false;\n"                                                                                \
+	"	}\n\n"                                                                                           \
+	"	// <summary>\n"                                                                                  \
+	"	// Will be called every time when the HFSM entry the from state.\n"                              \
+	"	// </summary>\n"                                                                                 \
+	"	private void _refresh()\n"                                                                       \
+	"	{\n"                                                                                             \
+	"	}\n"                                                                                             \
 	"}"
+#endif // MODULE_MONO_ENABLED
 
 bool TransitionConfig::_set(const StringName &p_name, const Variant &p_property) {
 	_TRY_SET_PROP(variable_expression_config_list);
@@ -288,58 +291,19 @@ void TransitionConfig::set_transition_script(const Ref<Script> &p_transition_scr
 			transition_script->connect(s_changed, TCALLABLE_BIND(set_transition_script, transition_script));
 		}
 
-		bool type_valid = false;
-
-		auto base = transition_script->get_instance_base_type();
-		if (base == StringName(Transition::get_class_static())) {
-			type_valid = true;
-		}
-		IF_GDM(else {
-			type_valid = ClassDB::is_parent_class(base, Transition::get_class_static());
+		IF_TOOLS({
+			IF_MONO(Utils::set_template_if_source_code_is_empty(transition_script, GD_TEMPLATE, CSHARP_TEMPLATE);)
+			IF_NOT_MONO(Utils::set_template_if_source_code_is_empty(state_script, GD_TEMPLATE);)
 		})
 
-#ifdef TOOLS_ENABLED
-		if (transition_script->get_source_code().is_empty()) {
-			if (Engine::get_singleton()->is_editor_hint()) {
-				if (GDScript *s = Object::cast_to<GDScript>(transition_script.ptr())) {
-					s->set_source_code(GD_TEMPLATE);
-					type_valid = true;
-				}
-#ifdef MODULE_MONO_ENABLED
-				else if (auto csharp = cast_to<CSharpScript>(transition_script.ptr())) {
-					s->set_source_code(CHARP_TEMPLATE);
-					type_valid = true;
-				}
-#endif // MODULE_MONO_ENABLED
-			}
+		script_valid = Utils::is_script_instacne_type_valid(transition_script, Transition::get_class_static(), [] {static const LocalVector<StringName> methods =  { "_refresh", "can_transit" };return methods; });
 
-			IF_GDM({
-				auto lang = transition_script->get_language();
-				auto templates = lang->get_built_in_templates("Object");
-				if (templates.size() > 0) {
-					auto s = lang->make_template(templates[0].content, "MyTransition", Transition::get_class_static());
-					if (s->is_valid()) {
-						transition_script->set_source_code(s->get_source_code());
-						type_valid = true;
-					}
-				}
-			})
-
-			if (type_valid && !transition_script->get_path().is_empty()) {
-				IF_GDE(ResourceSaver::get_singleton()->save(transition_script);)
-				IF_GDM(ResourceSaver::save(transition_script);)
-				transition_script->reload();
-			}
+		if (!script_valid) {
+			ED_MSG("HFSM: The Script \"%s\" set to Transition is invalid (not extended from \"%s\" (GDScript) or have illegal methods).", transition_script->get_path(), Transition::get_class_static());
 		}
-#endif // TOOLS_ENABLED
-
-		if (!type_valid) {
-			ED_MSG("HFSM: The Script \"%s\" set to Transition is not extended from \"%s\".", transition_script->get_path(), Transition::get_class_static());
-		}
-
-		script_valid = type_valid;
 	}
-	emit_changed();
+
+	call_deferred(SNAME("emit_changed"));
 }
 Ref<Script> TransitionConfig::get_transition_script() const { return transition_script; }
 bool TransitionConfig::is_script_valid() const { return script_valid; }

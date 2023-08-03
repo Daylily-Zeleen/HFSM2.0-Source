@@ -9,11 +9,12 @@
 #include <godot_cpp/classes/resource_saver.hpp>
 
 #ifdef MODULE_MONO_ENABLED
-#include <godot_cpp/classes/csharp_script.hpp>
+#include <godot_cpp/classes/c_sharp_script.hpp>
 #endif // MODULE_MONO_ENABLED
 
 #ifdef TOOLS_ENABLED
 #include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/file_access.hpp>
 #endif // TOOLS_ENABLED
 
 #else // GDEXTENSION_BUILD
@@ -22,7 +23,9 @@
 #include <scene/animation/animation_player.h>
 
 #ifdef MODULE_MONO_ENABLED
+#include <core/io/file_access.h>
 #include <modules/mono/csharp_script.h>
+
 #endif // MODULE_MONO_ENABLED
 
 #ifdef TOOLS_ENABLED
@@ -40,30 +43,152 @@ namespace Hfsm {
 					"func _physics_update(delta: float) -> void:\n\tpass\n\n\n" \
 					"func _exit() -> void:\n\tpass\n"
 
-#define CSHARP_TEMPLATE                              \
-	"(public partial MyState: Godot.State\n"         \
-	"{\n"                                            \
-	"	private void _initialize()\n"                  \
-	"	{\n"                                           \
-	"		// Called after setup internal.\n"            \
-	"	}\n\n"                                         \
-	"	private void _entry()\n"                       \
-	"	{\n"                                           \
-	"		// Called when entered this state.\n"         \
-	"	}\n\n"                                         \
-	"	private void _update(float p_delta)\n"         \
-	"	{\n"                                           \
-	"		// Called when update this state.\n"          \
-	"	}\n\n"                                         \
-	"	private void _physics_update(float p_delta)\n" \
-	"	{\n"                                           \
-	"		// Called when physics update this state.\n"  \
-	"	}\n\n"                                         \
-	"	private void _exit()\n"                        \
-	"	{\n"                                           \
-	"		// Called when exit this state.\n"            \
-	"	}\n"                                           \
+#ifdef MODULE_MONO_ENABLED
+#define CSHARP_TEMPLATE                                                                                \
+	"// Because GDExtension has not ability to generate binding for C#, extends form RefCounted here." \
+	"public partial class MyState: Godot.RefCounted\n"                                                 \
+	"{\n"                                                                                              \
+	"	private void _initialize()\n"                                                                    \
+	"	{\n"                                                                                             \
+	"		// Called after setup internal.\n"                                                              \
+	"	}\n\n"                                                                                           \
+	"	private void _entry()\n"                                                                         \
+	"	{\n"                                                                                             \
+	"		// Called when entered this state.\n"                                                           \
+	"	}\n\n"                                                                                           \
+	"	private void _update(float p_delta)\n"                                                           \
+	"	{\n"                                                                                             \
+	"		// Called when update this state.\n"                                                            \
+	"	}\n\n"                                                                                           \
+	"	private void _physics_update(float p_delta)\n"                                                   \
+	"	{\n"                                                                                             \
+	"		// Called when physics update this state.\n"                                                    \
+	"	}\n\n"                                                                                           \
+	"	private void _exit()\n"                                                                          \
+	"	{\n"                                                                                             \
+	"		// Called when exit this state.\n"                                                              \
+	"	}\n"                                                                                             \
 	"}\n\n"
+#endif // MODULE_MONO_ENABLED
+
+// Script verify
+bool Utils::is_script_instacne_type_valid(const Ref<Script> &p_script, const StringName &p_class_name, LocalVector<StringName> (*p_get_require_methods)()) {
+	if (p_script.is_null()) {
+		return false;
+	}
+
+	IF_MONO({
+		// (C# is not support builtin mode).
+		if (auto csharp_script = Object::cast_to<CSharpScript>(p_script.ptr())) {
+			bool (*file_existed)(const String &);
+			IF_GDE(file_existed = &FileAccess::file_exists);
+			IF_GDM(file_existed = &FileAccess::exists);
+			ERR_FAIL_COND_V_MSG(!file_existed(csharp_script->get_path()), false, vformat("The CSharp script \"%s\" is not existed on disk.", csharp_script->get_path()));
+		}
+	})
+
+	// Type is mathed, currently only avaliable in Godot module.
+	if (p_script->get_instance_base_type() == State::get_class_static()) {
+		return true;
+	}
+	IF_GDM(else {
+		if (ClassDB::is_parent_class(script_base_type, State::get_class_static())) {
+			return true;
+		}
+	})
+
+	// GDScript require type correct.
+	ERR_FAIL_COND_V(Object::cast_to<GDScript>(p_script.ptr()), false);
+
+	// Type not match, check virtual methods only.
+	// TODO:: Because of the limitation of GDExtension, here using a stupid way to check methods.
+	// 		Waiting for the ClassDB singleton/static methods.
+	auto script_methods = p_script->get_script_method_list();
+	auto find_method_info = [script_methods](const StringName &p_method_name) {
+		for (auto i = 0; i < script_methods.size(); ++i) {
+			Dictionary m = script_methods[i];
+			if (StringName(m["name"]) == p_method_name) {
+				return m;
+			}
+		}
+		return Dictionary();
+	};
+
+	const String suffix = ", please fix it and rebuild project.";
+	for (const StringName &method_name : p_get_require_methods()) {
+		if (!p_script->has_method(method_name)) {
+			continue;
+		}
+		const auto mi = ClassDB::get_method(p_class_name, method_name);
+		ERR_FAIL_COND_V(!mi, false); // Should never happen.
+		Dictionary m = find_method_info(method_name);
+		ERR_FAIL_COND_V(m.is_empty(), false);
+
+		TypedArray<Dictionary> args = m["args"];
+		// Check count.
+		ERR_FAIL_COND_V_MSG(args.size() != mi->get_argument_count(), false, vformat("The method \"%s\" of script \"%s\" argument count is require %d", method_name, p_script->get_path(), mi->get_argument_count()) + suffix);
+		// Check types.
+		for (auto i = 0; i < mi->get_argument_count(); ++i) {
+			Dictionary arg = args[i];
+			const auto arg_info = mi->get_argument_info(i);
+			ERR_FAIL_COND_V_MSG(int(arg["type"]) != arg_info.type, false, vformat("The method \"%s\" argument %d of script \"%s\" is require %s", method_name, i + 1, p_script->get_path(), Variant::get_type_name(arg_info.type)) + suffix);
+		}
+	}
+
+	return true;
+}
+
+#ifdef TOOLS_ENABLED
+#ifdef MODULE_MONO_ENABLED
+void Utils::set_template_if_source_code_is_empty(const Ref<Script> &p_script, const char *p_gds_template, const char *p_charp_template)
+#else // MODULE_MONO_ENABLED
+void Utils::set_template_if_source_code_is_empty(const Ref<Script> &p_script, const char *p_gds_template)
+#endif // MODULE_MONO_ENABLED
+{
+	if (!p_script->get_source_code().is_empty()) {
+		return;
+	}
+
+	IF_MONO({
+		// CSharp
+		if (auto csharp = Object::cast_to<CSharpScript>(p_script.ptr())) {
+			bool (*file_existed)(const String &);
+			IF_GDE(file_existed = &FileAccess::file_exists);
+			IF_GDM(file_existed = &FileAccess::exists);
+			if (file_existed(csharp->get_path())) {
+				// Only print a warning if is a valid C sharp script.
+				WARN_PRINT(vformat("The CSharpScript \"%s\" is empty, or you need rebuild CSharp project.", csharp->get_path()));
+				WARN_PRINT("You can use script template:");
+				WARN_PRINT(p_charp_template);
+				return;
+			}
+		}
+	})
+
+	// GDScript
+	if (auto gds = Object::cast_to<GDScript>(p_script.ptr())) {
+		gds->set_source_code(p_gds_template);
+	}
+
+	IF_GDM(else {
+		// Others
+		auto templates = p_script->get_language()->get_built_in_templates(Object::get_class_static());
+		if (templates.size() > 0) {
+			auto s = p_script->get_language()->make_template(templates[0].content, "MyState", State::get_class_static());
+			if (s->is_valid()) {
+				p_script->set_source_code(s->get_source_code());
+			}
+		}
+	})
+
+	// Try save and reload.
+	if (!p_script->get_path().is_empty()) {
+		IF_GDE(ResourceSaver::get_singleton()->save(p_script);)
+		IF_GDM(ResourceSaver::save(p_script);)
+		p_script->reload();
+	}
+}
+#endif // TOOLS_ENABLED
 
 #pragma region StateConfig
 
@@ -140,7 +265,9 @@ void StateConfig::set_type(State::StateType p_state_type) {
 	type = p_state_type;
 	emit_changed();
 }
+
 State::StateType StateConfig::get_type() const { return type; }
+
 void StateConfig::set_state_script(const Ref<Script> &p_script) {
 	auto cb = TCALLABLE(set_state_script);
 	if (state_script.is_valid() && state_script->is_connected(s_changed, cb)) {
@@ -155,60 +282,23 @@ void StateConfig::set_state_script(const Ref<Script> &p_script) {
 			state_script->connect(s_changed, TCALLABLE_BIND(set_state_script, state_script));
 		}
 
-		bool type_valid = false;
-
-		auto script_base_type = state_script->get_instance_base_type();
-		if (script_base_type == StringName(State::get_class_static())) {
-			type_valid = true;
-		}
-		IF_GDM(else {
-			type_valid = ClassDB::is_parent_class(script_base_type, State::get_class_static());
+		IF_TOOLS({
+			IF_MONO(Utils::set_template_if_source_code_is_empty(state_script, GD_TEMPLATE, CSHARP_TEMPLATE);)
+			IF_NOT_MONO(Utils::set_template_if_source_code_is_empty(state_script, GD_TEMPLATE);)
 		})
 
-#ifdef TOOLS_ENABLED
-		if (state_script->get_source_code().is_empty()) {
-			if (Engine::get_singleton()->is_editor_hint()) {
-				if (auto gds = cast_to<GDScript>(state_script.ptr())) {
-					gds->set_source_code(GD_TEMPLATE);
-					type_valid = true;
-				}
-#ifdef MODULE_MONO_ENABLED
-				else if (auto csharp = cast_to<CSharpScript>(state_script.ptr())) {
-					csharp->set_source_code(CSHARP_TEMPLATE);
-					type_valid = true;
-				}
-#endif // MODULE_MONO_ENABLED
-				IF_GDM(
-						else {
-							auto templates = state_script->get_language()->get_built_in_templates("Object");
-							if (templates.size() > 0) {
-								auto s = state_script->get_language()->make_template(templates[0].content, "MyState", State::get_class_static());
-								if (s->is_valid()) {
-									state_script->set_source_code(s->get_source_code());
-									type_valid = true;
-								}
-							}
-						})
-				if (type_valid && !state_script->get_path().is_empty()) {
-					IF_GDE(ResourceSaver::get_singleton()->save(state_script);)
-					IF_GDM(ResourceSaver::save(state_script);)
+		script_valid = Utils::is_script_instacne_type_valid(state_script, State::get_class_static(), [] {static const LocalVector<StringName> methods =  { "_initialize", "_entry", "_update", "_physics_update", "_exit" };return methods; });
 
-					state_script->reload();
-				}
-			}
+		if (!script_valid) {
+			ED_MSG("HFSM: The Script \"%s\" set to State is invalid (not extended from \"%s\" (GDScript) or have illegal methods).", state_script->get_path(), State::get_class_static());
 		}
-#endif // TOOLS_ENABLED
-
-		if (!type_valid) {
-			ED_MSG("HFSM: The Script \"%s\" set to State is not extended from \"%s\".", state_script->get_path(), State::get_class_static());
-		}
-
-		script_valid = type_valid;
 	}
 
 	call_deferred(SNAME("emit_changed"));
 }
+
 Ref<Script> StateConfig::get_state_script() const { return state_script; }
+
 bool StateConfig::is_script_valid() const { return script_valid; }
 
 void StateConfig::set_nested(bool p_nested) {
