@@ -39,11 +39,11 @@ public:
 	HFSM();
 	~HFSM() override;
 
-	enum UpdateType {
-		UPDATE_TYPE_IDLE_AND_PHYSICS,
-		UPDATE_TYPE_IDLE,
-		UPDATE_TYPE_PHYSICS,
-		UPDATE_TYPE_MANUAL,
+	enum HFSMUpdateType {
+		HFSM_UPDATE_TYPE_IDLE_AND_PHYSICS,
+		HFSM_UPDATE_TYPE_IDLE,
+		HFSM_UPDATE_TYPE_PHYSICS,
+		HFSM_UPDATE_TYPE_MANUAL,
 	};
 
 	void manual_update();
@@ -82,8 +82,8 @@ public:
 	void set_active(bool p_v);
 	bool is_active();
 
-	void set_update_type(UpdateType p_t);
-	UpdateType get_update_type();
+	void set_update_type(HFSMUpdateType p_t);
+	HFSMUpdateType get_update_type();
 
 	Ref<State> get_current_state();
 	Ref<State> get_previous_state();
@@ -118,7 +118,7 @@ private:
 	bool active = true;
 
 	// Dictionary agents;
-	UpdateType update_type = UpdateType::UPDATE_TYPE_IDLE_AND_PHYSICS;
+	HFSMUpdateType update_type = HFSMUpdateType::HFSM_UPDATE_TYPE_IDLE_AND_PHYSICS;
 
 	// 高级选项
 	bool disable_rename_to_snake_case = false;
@@ -160,7 +160,7 @@ inline void HFSM::set_active(bool p_v) {
 }
 inline bool HFSM::is_active() { return active; }
 
-inline HFSM::UpdateType HFSM::get_update_type() { return update_type; }
+inline HFSM::HFSMUpdateType HFSM::get_update_type() { return update_type; }
 
 inline Ref<State> HFSM::get_current_state() { return current_state; }
 inline Ref<State> HFSM::get_previous_state() { return previous_state; }
@@ -174,4 +174,4 @@ inline void HFSM::_animation_finished(const StringName &p_anim_name) {
 
 }; // namespace Hfsm
 
-VARIANT_ENUM_CAST(Hfsm::HFSM::UpdateType);
+VARIANT_ENUM_CAST(Hfsm::HFSM::HFSMUpdateType);

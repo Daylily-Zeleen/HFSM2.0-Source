@@ -99,10 +99,10 @@ void HFSM::_bind_methods() {
 	BIND_VIRTUAL_METHOD(HFSM, _network_despawn);
 #endif
 	// 常量
-	BIND_ENUM_CONSTANT(UPDATE_TYPE_IDLE_AND_PHYSICS);
-	BIND_ENUM_CONSTANT(UPDATE_TYPE_IDLE);
-	BIND_ENUM_CONSTANT(UPDATE_TYPE_PHYSICS);
-	BIND_ENUM_CONSTANT(UPDATE_TYPE_MANUAL);
+	BIND_ENUM_CONSTANT(HFSM_UPDATE_TYPE_IDLE_AND_PHYSICS);
+	BIND_ENUM_CONSTANT(HFSM_UPDATE_TYPE_IDLE);
+	BIND_ENUM_CONSTANT(HFSM_UPDATE_TYPE_PHYSICS);
+	BIND_ENUM_CONSTANT(HFSM_UPDATE_TYPE_MANUAL);
 
 	//  信号
 	const auto PropertyInfoState = [](const String &p_name = "state") {
@@ -135,12 +135,12 @@ Ref<FSMConfig> HFSM::get_root_fsm_config() const {
 }
 
 void HFSM::manual_update() {
-	ERR_FAIL_COND(update_type != UPDATE_TYPE_MANUAL);
+	ERR_FAIL_COND(update_type != HFSM_UPDATE_TYPE_MANUAL);
 	process_internal(get_process_delta_time());
 }
 
 void HFSM::manual_physics_update() {
-	ERR_FAIL_COND(update_type != UPDATE_TYPE_MANUAL);
+	ERR_FAIL_COND(update_type != HFSM_UPDATE_TYPE_MANUAL);
 	physics_process_internal(get_process_delta_time());
 }
 
@@ -190,8 +190,8 @@ void HFSM::set_integer(const StringName &p_interger_name, int64_t p_value) { var
 void HFSM::set_float(const StringName &p_float_name, double p_value) { variable_blackboard[p_float_name]->set_value(p_value); }
 void HFSM::set_string(const StringName &p_string_name, const String &p_value) { variable_blackboard[p_string_name]->set_value(p_value); }
 
-void HFSM::set_update_type(UpdateType p_update_type) {
-	update_type = UpdateType(p_update_type);
+void HFSM::set_update_type(HFSMUpdateType p_update_type) {
+	update_type = HFSMUpdateType(p_update_type);
 #ifndef DEBUG_IN_EDITOR
 	IF_TOOLS(
 			if (Engine::get_singleton()->is_editor_hint()) {
@@ -199,19 +199,19 @@ void HFSM::set_update_type(UpdateType p_update_type) {
 			})
 #endif // DEBUG_IN_EDITOR
 	switch (update_type) {
-		case UPDATE_TYPE_IDLE: {
+		case HFSM_UPDATE_TYPE_IDLE: {
 			set_physics_process(false);
 			set_process(true);
 		} break;
-		case UPDATE_TYPE_PHYSICS: {
+		case HFSM_UPDATE_TYPE_PHYSICS: {
 			set_physics_process(true);
 			set_process(false);
 		} break;
-		case UPDATE_TYPE_IDLE_AND_PHYSICS: {
+		case HFSM_UPDATE_TYPE_IDLE_AND_PHYSICS: {
 			set_physics_process(true);
 			set_process(true);
 		} break;
-		case UPDATE_TYPE_MANUAL: {
+		case HFSM_UPDATE_TYPE_MANUAL: {
 			set_physics_process(false);
 			set_process(false);
 		} break;
@@ -317,8 +317,8 @@ void HFSM::_notification(int p_what) {
 
 void HFSM::process_internal(double p_delta) {
 	switch (update_type) {
-		case UPDATE_TYPE_PHYSICS:
-		case UPDATE_TYPE_IDLE_AND_PHYSICS: {
+		case HFSM_UPDATE_TYPE_PHYSICS:
+		case HFSM_UPDATE_TYPE_IDLE_AND_PHYSICS: {
 			if (root_fsm->is_running()) {
 				active_fsm_list = root_fsm->try_transit_and_get_update_queue();
 			}
@@ -334,7 +334,7 @@ void HFSM::process_internal(double p_delta) {
 
 	for (auto &&fsm : *active_fsm_list) {
 		fsm->update(p_delta);
-		if (update_type == UPDATE_TYPE_IDLE) {
+		if (update_type == HFSM_UPDATE_TYPE_IDLE) {
 			fsm->physics_update(p_delta);
 		}
 	}
@@ -353,7 +353,7 @@ void HFSM::physics_process_internal(double p_delta) {
 
 	for (auto &&fsm : *active_fsm_list) {
 		fsm->physics_update(p_delta);
-		if (update_type == UPDATE_TYPE_IDLE) {
+		if (update_type == HFSM_UPDATE_TYPE_IDLE) {
 			fsm->update(p_delta);
 		}
 	}
@@ -369,8 +369,8 @@ void HFSM::flush_trigger() {
 void HFSM::emit_updated(const Ref<State> &p_state, double p_delta) {
 	static const StringName sn = "updated";
 	switch (update_type) {
-		case UPDATE_TYPE_IDLE_AND_PHYSICS:
-		case UPDATE_TYPE_IDLE:
+		case HFSM_UPDATE_TYPE_IDLE_AND_PHYSICS:
+		case HFSM_UPDATE_TYPE_IDLE:
 			emit_signal(sn, p_state, p_delta);
 			break;
 		default:
@@ -381,8 +381,8 @@ void HFSM::emit_updated(const Ref<State> &p_state, double p_delta) {
 void HFSM::emit_physic_updated(const Ref<State> &p_state, double p_delta) {
 	static const StringName sn = "physic_updated";
 	switch (update_type) {
-		case UPDATE_TYPE_IDLE_AND_PHYSICS:
-		case UPDATE_TYPE_PHYSICS:
+		case HFSM_UPDATE_TYPE_IDLE_AND_PHYSICS:
+		case HFSM_UPDATE_TYPE_PHYSICS:
 			emit_signal(sn, p_state, p_delta);
 			break;
 		default:
