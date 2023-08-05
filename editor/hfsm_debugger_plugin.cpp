@@ -53,15 +53,19 @@ uint32_t hash(const Variant &p_var) {
 
 String HfsmDebuggerPlugin::get_cache_dir() {
 	if (ProjectSettings::get_singleton()->get_setting_with_override("application/config/use_hidden_project_data_directory")) {
-		return "res://.godot/.hfsm/";
+		return "res://.godot/editor/";
 	} else {
-		return "res://godot/.hfsm/";
+		return "res://godot/editor/";
 	}
+}
+
+bool HfsmDebuggerPlugin::can_debug() {
+	return !Engine::get_singleton()->is_editor_hint() && EngineDebugger::get_singleton() && EngineDebugger::get_singleton()->is_active();
 }
 
 void HfsmDebuggerPlugin::send_debug_built(HFSM *p_hfsm) {
 	IF_DEBUG({
-		if (Engine::get_singleton()->is_editor_hint() || !EngineDebugger::get_singleton()) {
+		if (!can_debug()) {
 			return;
 		}
 
@@ -92,7 +96,7 @@ void HfsmDebuggerPlugin::send_debug_built(HFSM *p_hfsm) {
 
 void HfsmDebuggerPlugin::send_debug_destroy(HFSM *p_hfsm) {
 	IF_DEBUG({
-		if (Engine::get_singleton()->is_editor_hint() || !EngineDebugger::get_singleton()) {
+		if (!can_debug()) {
 			return;
 		}
 		send_debug_msg(p_hfsm, msg_destory, Array());
@@ -101,7 +105,7 @@ void HfsmDebuggerPlugin::send_debug_destroy(HFSM *p_hfsm) {
 
 void HfsmDebuggerPlugin::send_debug_update_active_path(HFSM *p_hfsm) {
 	IF_DEBUG({
-		if (Engine::get_singleton()->is_editor_hint() || !EngineDebugger::get_singleton()) {
+		if (!can_debug()) {
 			return;
 		}
 		auto path_state = p_hfsm->get_current_state()->get_path();
@@ -142,6 +146,7 @@ void HfsmDebuggerPlugin::_session_stoped(SessionID p_session_id) {
 	debuggers.erase(p_session_id);
 }
 
+// Without debug valid check.
 void HfsmDebuggerPlugin::send_debug_msg(HFSM *p_hfsm, const String &p_msg, Array p_data) {
 	if (p_hfsm->is_inside_tree()) {
 		p_data.push_back(p_hfsm->get_path());

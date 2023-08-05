@@ -33,6 +33,8 @@ class HfsmDebuggerPlugin : public EditorDebuggerPlugin {
 
 	static String get_cache_dir();
 
+	static bool can_debug();
+
 protected:
 	static void _bind_methods();
 
