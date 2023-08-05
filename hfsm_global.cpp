@@ -20,6 +20,9 @@ void HfsmGlobal::init_static() {
 
 	IF_GDE({
 		auto sigleton_list = Engine::get_singleton()->get_singleton_list();
+		// TODO:: Waiting for ClassDB singleton.
+		sigleton_list.remove_at(sigleton_list.find("ClassDB"));
+		
 		singleton_names.resize(sigleton_list.size());
 		singletons.resize(sigleton_list.size());
 		for (auto i = 0; i < sigleton_list.size(); ++i) {
