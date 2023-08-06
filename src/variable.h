@@ -27,7 +27,7 @@ protected:
 public:
 	StringName get_variable_name() const;
 
-	Variant::Type get_type() const;
+	Variant::Type get_variable_type() const;
 
 	Variant get_value() const;
 	void set_value(const Variant &p_value);
@@ -66,13 +66,13 @@ inline void Variable::set_value(const Variant &p_value) {
 	value = p_value;
 }
 
-inline bool Variable::is_trigger() const { return get_type() == Variant::NIL; }
+inline bool Variable::is_trigger() const { return get_variable_type() == Variant::NIL; }
 inline void Variable::trigger() {
 	ERR_FAIL_COND(type != Variant::NIL);
 	value = Variant(true);
 }
 
-inline Variant::Type Variable::get_type() const { return type; }
+inline Variant::Type Variable::get_variable_type() const { return type; }
 
 // 触发器专用
 inline void Variable::flush_trigger() { value = false; }

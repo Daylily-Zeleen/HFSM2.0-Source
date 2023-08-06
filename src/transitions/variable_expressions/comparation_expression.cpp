@@ -10,7 +10,7 @@
 namespace Hfsm {
 
 #define _type_convertable_check(m_variable, m_value_type) \
-	CRASH_COND(!Variant::can_convert(m_value_type, (m_variable)->get_type()))
+	CRASH_COND(!Variant::can_convert(m_value_type, (m_variable)->get_variable_type()))
 
 #ifdef TOOLS_ENABLED
 #define type_convertable_check(m_variable, m_value_type)   \
@@ -51,7 +51,7 @@ bool ConstantComparationExpression::get_result(bool p_and_mode,
 VariableComparationExpression::VariableComparationExpression(
 		const Ref<Variable> &p_variable, Comparator p_comparator, const Ref<Variable> &p_value) :
 		ComparationExpression(p_variable, p_comparator) {
-	type_convertable_check(variable, p_value->get_type());
+	type_convertable_check(variable, p_value->get_variable_type());
 	value = p_value;
 }
 

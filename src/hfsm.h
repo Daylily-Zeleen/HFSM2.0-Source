@@ -51,7 +51,7 @@ public:
 	void restart();
 
 	Ref<Variable> get_var(const StringName &p_variable_name);
-	Array get_vars();
+	TypedArray<Variable> get_vars();
 	Variant get_var_value(const StringName &p_variable_name);
 	Dictionary get_vars_value();
 	void set_var(const StringName &p_variable_name, const Variant &p_value = Variant());

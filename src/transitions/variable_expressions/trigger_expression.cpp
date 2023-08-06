@@ -15,7 +15,7 @@ TriggerExpression::TriggerExpression(const Ref<Variable> &variable) :
 		VariableExpression(variable) {
 #ifdef TOOLS_ENABLED
 	if (!Engine::get_singleton()->is_editor_hint()) {
-		CRASH_COND(variable->get_type() != Variant::NIL);
+		CRASH_COND(variable->get_variable_type() != Variant::NIL);
 	}
 #endif // TOOLS_ENABLED
 }

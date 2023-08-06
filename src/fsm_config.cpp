@@ -178,9 +178,9 @@ FSM *FSMConfig::create_fsm(HFSM *p_hfsm) {
 
 	// 整理起始与结束状态
 	for (auto &&state : ret->state_list) {
-		if (state->get_type() == State::STATE_TYPE_ENTRY) {
+		if (state->get_state_type() == State::STATE_TYPE_ENTRY) {
 			ret->current_entry_state = state;
-		} else if (state->get_type() == State::STATE_TYPE_EXIT) {
+		} else if (state->get_state_type() == State::STATE_TYPE_EXIT) {
 			ret->current_exit_state_list.append(state);
 		}
 	}

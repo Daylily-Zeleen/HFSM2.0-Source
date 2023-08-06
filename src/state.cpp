@@ -36,7 +36,9 @@ void State::_bind_methods() {
 
 	GDBIND_METHOD(get_name);
 	GDBIND_METHOD(get_hfsm);
+	GDBIND_METHOD(get_path);
 	GDBIND_METHOD(is_exited);
+	GDBIND_METHOD(get_state_type);
 	GDBIND_METHOD(manual_exit);
 	GDBIND_METHOD(get_animation_name_for_playing);
 	GDBIND_METHOD(is_animation_playing);
@@ -48,21 +50,11 @@ void State::_bind_methods() {
 		GDADD_PROPERTY_BOOL(animation_reverse);
 	})
 
-	GDVIRTUAL_BIND(_initialize);
-	GDVIRTUAL_BIND(_entry);
-	GDVIRTUAL_BIND(_update, "delta");
-	GDVIRTUAL_BIND(_physics_update, "delta");
-	GDVIRTUAL_BIND(_exit);
-
-	// ClassDB::bind_method(D_METHOD("_initialize"), &State::_initialize);
-	// ClassDB::bind_method(D_METHOD("_entry"), &State::_entry);
-	// ClassDB::bind_method(D_METHOD("_update", "delta"), &State::_update);
-	// ClassDB::bind_method(D_METHOD("_physics_update", "delta"),
-	//                      &State::_physics_update);
-	// ClassDB::bind_method(D_METHOD("_exit"), &State::_exit);
-
-	// ClassDB::bind_method(D_METHOD("get_path"), &State::get_path);
-	// ClassDB::bind_method(D_METHOD("get_type"), &State::get_type);
+	GDVIRTUAL_BIND(initialize_state);
+	GDVIRTUAL_BIND(entry_state);
+	GDVIRTUAL_BIND(update_state, "delta");
+	GDVIRTUAL_BIND(physics_update_state, "delta");
+	GDVIRTUAL_BIND(exit_state);
 
 #ifdef ROLLBACK_NET_CODE
 	BIND_VIRTUAL_METHOD(State, _save_state);
@@ -87,27 +79,22 @@ void State::_bind_methods() {
 }
 
 void State::initialize_state() {
-	IF_GDE(call(SNAME("_initialize"));)
-	IF_GDM(GDVIRTUAL_CALL(_initialize);)
+	GDVIRTUAL_CALL(_initialize);
 }
 
 void State::entry_state() {
-	IF_GDE(call(SNAME("_entry"));)
-	IF_GDM(GDVIRTUAL_CALL(_entry);)
+	GDVIRTUAL_CALL(_entry);
 }
 void State::update_state(real_t p_delta) {
-	IF_GDE(call(SNAME("_update"), p_delta);)
-	IF_GDM(GDVIRTUAL_CALL(_update, p_delta);)
+	GDVIRTUAL_CALL(_update, p_delta);
 }
 
 void State::physics_update_state(real_t p_delta) {
-	IF_GDE(call(SNAME("_physics_update"), p_delta);)
-	IF_GDM(GDVIRTUAL_CALL(_physics_update, p_delta);)
+	GDVIRTUAL_CALL(_physics_update, p_delta);
 }
 
 void State::exit_state() {
-	IF_GDE(call(SNAME("_exit"));)
-	IF_GDM(GDVIRTUAL_CALL(_exit);)
+	GDVIRTUAL_CALL(_exit);
 }
 
 State::State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<Hfsm::State> &p_path, const Ref<Script> &p_script, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue) {

@@ -23,7 +23,7 @@ VariableExpression *VariableExpressionConfig::create_variable_expression(HFSM *p
 	auto v = p_hfsm->get_var(variable_config->get_variable_name());
 	ERR_FAIL_COND_V(!v.is_valid(), nullptr);
 	//  触发器
-	if (v->get_type() == Variant::NIL) {
+	if (v->get_variable_type() == Variant::NIL) {
 		switch (trigger_type) {
 			case TRIGGER_TYPE_NORMAL:
 				return memnew(TriggerExpression(v));

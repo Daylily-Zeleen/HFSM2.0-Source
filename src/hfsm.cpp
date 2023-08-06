@@ -75,11 +75,11 @@ void HFSM::_bind_methods() {
 
 	GDBIND_METHOD(rebuild_hfsm);
 
-	GDADD_PROPERTY(INT, update_type, PROPERTY_HINT_ENUM, "Idle And Physics,Idle,Physics,Manual");
+	GDADD_PROPERTY(INT, update_type, PROPERTY_HINT_ENUM, "Idle And Physics,Idle,Physics,Manual", PROPERTY_USAGE_DEFAULT, "HFSMUpdateType");
 
 	GDADD_PROPERTY_BOOL(active, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE);
 
-	GDADD_PROPERTY(OBJECT, animation_player, PROPERTY_HINT_NODE_TYPE, AnimationPlayer::get_class_static(), PROPERTY_USAGE_DEFAULT);
+	GDADD_PROPERTY(OBJECT, animation_player, PROPERTY_HINT_NODE_TYPE, AnimationPlayer::get_class_static(), PROPERTY_USAGE_DEFAULT, AnimationPlayer::get_class_static());
 
 	GDADD_PROPERTY_RESOURCE(root_fsm_config);
 
@@ -159,8 +159,8 @@ Ref<Variable> HFSM::get_var(const StringName &p_variable_name) {
 	return variable_blackboard[p_variable_name];
 }
 
-Array HFSM::get_vars() {
-	Array ret;
+TypedArray<Variable> HFSM::get_vars() {
+	TypedArray<Variable> ret;
 	ret.resize(variable_blackboard.size());
 	auto arr = variable_blackboard.get_array();
 	for (auto i = 0; i < ret.size(); i++) {

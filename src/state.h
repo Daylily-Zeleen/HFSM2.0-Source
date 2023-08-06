@@ -62,9 +62,10 @@ public:
 	virtual void physics_update_state(real_t p_delta);
 	virtual void exit_state();
 
-	const TypedArray<State> &get_path() const;
+	const TypedArray<State> &get_path_const_ref() const;
+	TypedArray<State> get_path() const;
 
-	StateType get_type() const;
+	StateType get_state_type() const;
 
 	FSM *get_sub_fsm();
 
@@ -159,11 +160,12 @@ public:
 
 inline StringName State::get_name() { return name; }
 
-inline const TypedArray<State> &State::get_path() const { return path; }
+inline const TypedArray<State> &State::get_path_const_ref() const { return path; }
+inline TypedArray<State> State::get_path() const { return path; }
 
 inline FSM *State::get_sub_fsm() { return sub_fsm; }
 
-inline State::StateType State::get_type() const { return type; }
+inline State::StateType State::get_state_type() const { return type; }
 
 inline bool State::is_animation_playing() const { return animation_playing; }
 
