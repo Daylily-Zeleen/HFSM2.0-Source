@@ -59,7 +59,7 @@ def main():
         for suffix in dynamic_lib_suffixs:
             if not f.endswith(suffix):
                 continue
-            shutil.copyfile(path_join("build", f), path_join(dst_dir, f))
+            shutil.copyfile(path_join("build", f), path_join(dst_dir, f.replace(".dev.", ".")))
 
     # Copy readme and license.
     if os.path.exists("README.md"):
