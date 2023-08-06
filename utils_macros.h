@@ -54,6 +54,10 @@
 		return StringName(#m_property);                   \
 	}()
 
+#define GDBIND_METHOD_DIFF(m_method_name, m_method, ...)   \
+	{ using TM_##m_method = decltype(&T_BIND::m_method); } \
+	ClassDB::bind_method(D_METHOD(m_method_name, ##__VA_ARGS__), &T_BIND::m_method)
+
 #define GDBIND_METHOD(m_method, ...)                       \
 	{ using TM_##m_method = decltype(&T_BIND::m_method); } \
 	ClassDB::bind_method(D_METHOD(#m_method, ##__VA_ARGS__), &T_BIND::m_method)
@@ -95,6 +99,9 @@
 #define NAMEOF(m_obj_ptr, m_property) StringName(#m_property)
 
 #define GDBIND_BEGIN(m_class) using T_BIND = m_class
+
+#define GDBIND_METHOD_DIFF(m_method_name, m_method, ...) \
+	ClassDB::bind_method(D_METHOD(m_method_name, ##__VA_ARGS__), &T_BIND::m_method)
 #define GDBIND_METHOD(m_method, ...) ClassDB::bind_method(D_METHOD(#m_method, ##__VA_ARGS__), &T_BIND::m_method)
 
 #ifdef GDEXTENSION_BUILD
@@ -307,7 +314,8 @@ static Array make_arr(Args... args) {
 #define GDVIRTUAL0R(r_type, m_method)
 #define GDVIRTUAL1(m_method, m_type1)
 #define GDVIRTUAL1R(r_type, m_method, m_type1)
-#define GDVIRTUAL_BIND(m_method, ...) // BIND_VIRTUAL_METHOD(T_BIND, m_method)// GDE 目前无法真正绑定虚方法
+#define GDVIRTUAL_BIND(m_method, ...) BIND_VIRTUAL_METHOD(T_BIND, m_method) // TODO:: 等待GDE实现自定义的虚方法绑定
+#define GDVIRTUAL_CALL(m_method, ...) call(SNAME(#m_method), ##__VA_ARGS__)
 
 #endif //GDEXTENSION_BUILD
 

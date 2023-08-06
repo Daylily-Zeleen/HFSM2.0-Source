@@ -18,12 +18,11 @@ public:
 	GDVIRTUAL0R(bool, _can_transit);
 
 	void refresh() override {
-		IF_GDE(call(SNAME("_refresh"));)
-		IF_GDM(GDVIRTUAL_CALL(_refresh);)
+		GDVIRTUAL_CALL(_refresh);
 	}
 
 	bool can_transit() override {
-		IF_GDE(return bool(call(SNAME("_can_transit")));)
+		IF_GDE(return bool(GDVIRTUAL_CALL(_can_transit));)
 		IF_GDM({
 			bool ret;
 			if (GDVIRTUAL_CALL(_can_transit, ret)) {
