@@ -77,15 +77,15 @@ bool Utils::is_script_instacne_type_valid(const Ref<Script> &p_script, const Str
 		return false;
 	}
 
-	IF_MONO({
+	IF_MONO({ IF_TOOLS({
 		// (C# is not support builtin mode).
 		if (auto csharp_script = Object::cast_to<CSharpScript>(p_script.ptr())) {
 			bool (*file_existed)(const String &);
 			IF_GDE(file_existed = &FileAccess::file_exists);
 			IF_GDM(file_existed = &FileAccess::exists);
-			ERR_FAIL_COND_V_MSG(!file_existed(csharp_script->get_path()), false, vformat("The CSharp script \"%s\" is not existed on disk.", csharp_script->get_path()));
+			ERR_FAIL_COND_V_MSG(!file_existed(csharp_script->get_path()), false, vformat("HFSM: The CSharp script \"%s\" is not existed on disk.", csharp_script->get_path()));
 		}
-	})
+	}) })
 
 	// Type is mathed, currently only avaliable in Godot module.
 	if (p_script->get_instance_base_type() == State::get_class_static()) {
@@ -98,7 +98,8 @@ bool Utils::is_script_instacne_type_valid(const Ref<Script> &p_script, const Str
 	})
 
 	// GDScript require type correct.
-	ERR_FAIL_COND_V(Object::cast_to<GDScript>(p_script.ptr()), false);
+	bool gds_instance_base_type_invalid = Object::cast_to<GDScript>(p_script.ptr());
+	ERR_FAIL_COND_V(gds_instance_base_type_invalid, false);
 
 	// Type not match, check virtual methods only.
 	// TODO:: Because of the limitation of GDExtension, here using a stupid way to check methods.
@@ -341,33 +342,10 @@ Ref<State> StateConfig::create_state(HFSM *p_hfsm, FSM *p_fsm) {
 		sub_fsm = get_fsm_config()->create_fsm(p_hfsm);
 	}
 
-	// 脚本处理
-	Ref<Script> script_to_set = state_script;
-	if (script_to_set.is_valid()) {
-		if (script_to_set->get_instance_base_type() == State::get_class_static()) {
-			if (script_to_set.is_valid()) {
-				auto base_type = script_to_set->get_instance_base_type();
-
-				if (base_type != StringName(State::get_class_static())) {
-					IF_GDM(if (!ClassDB::is_parent_class(base_type, State::get_class_static())) {)
-					script_to_set.unref();
-					IF_GDM( })
-				}
-			}
-		} else {
-			String path_text;
-			for (auto i = 0; i < p_fsm->get_path().size(); i++) {
-				path_text = path_text + Ref<State>(p_fsm->get_path()[i])->get_name();
-				if (i != i < p_fsm->get_path().size() - 1) {
-					path_text = path_text + String("/");
-				}
-			}
-
-			ERR_PRINT(path_text + String(": Script is not extends from 'State'."));
-		}
+	if (!script_valid) {
+		WARN_PRINT(vformat("\"%s\" is not a valid script for State, will create a State without script.", state_script->get_path()));
 	}
-
-	auto ret = memnew(State(state_name, p_hfsm, type, p_fsm->get_path(), state_script, sub_fsm, p_fsm->get_fsm_update_queue()));
+	auto ret = memnew(State(state_name, p_hfsm, type, p_fsm->get_path(), script_valid ? state_script : Ref<Script>(), sub_fsm, p_fsm->get_fsm_update_queue()));
 
 	ret->set_animation_name(animation_name);
 	IF_FULL_VERSION({
