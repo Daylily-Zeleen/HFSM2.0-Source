@@ -68,5 +68,11 @@ I have not time to write a prefect document and create some demos, I can only re
 
 ## Change log:
 2023.8.7 - v2.0.1
-1. Temporary fix the error about `ClassDB`.
-2. Add wrappers of HFSM core classes to improve usability for C# developers. 
+1. Temporarily fix the error about `ClassDB`.
+2. Add wrappers of HFSM core classes to improve usability for C# developers.
+3. To fit C# script, do some rename:
+   1. `Variable.get_type()` -> `Variable.get_variable_type()`
+   2. `HFSM.UpdateType` -> `HFSM.HFSMUpdateType`
+4. Add methods:
+   1. `State.get_path()`
+   2. `State.get_state_type()`

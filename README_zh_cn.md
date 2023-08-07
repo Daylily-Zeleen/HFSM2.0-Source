@@ -69,3 +69,9 @@
 2023.8.7 - v2.0.1
 1. 暂时修复关于`ClassDB`的错误。
 2. 新增HFSM核心类的C#类包装，方便C#开发者使用。
+3. 为了兼容C#脚本，做出了一下重命名:
+   2. `Variable.get_type()` -> `Variable.get_variable_type()`
+   3. `HFSM.UpdateType` -> `HFSM.HFSMUpdateType`
+4. 新增方法：
+   1. `State.get_path()`
+   2. `State.get_state_type()`
