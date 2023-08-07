@@ -163,7 +163,9 @@ void TransitionConfig::_bind_methods() {
 	// 通用
 	GDADD_PROPERTY_RESOURCE(from_state_config, PROPERTY_USAGE_STORAGE);
 	GDADD_PROPERTY_RESOURCE(to_state_config, PROPERTY_USAGE_STORAGE);
-	GDADD_PROPERTY(INT, type, PROPERTY_HINT_ENUM, "Auto,Expression,Variable Comparation Expressions,Script");
+	String type_hint_string = "Auto,Expression,Variable Comparation Expressions";
+	IF_FULL_VERSION(type_hint_string += String(",Script"));
+	GDADD_PROPERTY(INT, type, PROPERTY_HINT_ENUM, type_hint_string);
 
 	// Auto
 	GDBIND_SETGET(auto_mode);
