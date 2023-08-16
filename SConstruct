@@ -61,6 +61,6 @@ def get_bin_file(env):
 
 bin_file = get_bin_file(env)
 
-library = env.SharedLibrary(bin_file_name_base, source=sources)
+library = env.SharedLibrary(bin_file, source=sources)
 
 Default(library)
