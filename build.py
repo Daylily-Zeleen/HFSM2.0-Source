@@ -61,12 +61,12 @@ def main():
     dynamic_lib_suffixs = [".so", ".dylib", ".wasm", ".dll"]
 
     # Copy dynamic library.
-    dst_dir = plugin_dir  # path_join(plugin_dir, "bin")
-    for f in os.listdir("build"):
+    dst_dir = path_join(plugin_dir, "bin")
+    for f in os.listdir("bin"):
         for suffix in dynamic_lib_suffixs:
             if not f.endswith(suffix):
                 continue
-            shutil.copyfile(path_join("build", f), path_join(
+            shutil.copyfile(path_join("bin", f), path_join(
                 dst_dir, f.replace(".dev.", ".")))
 
     # Copy readme and license.
@@ -85,7 +85,10 @@ def main():
         shutil.copyfile("LICENSE", path_join("demo", "LICENSE"))
 
     # Copy to dist
-    shutil.copytree("demo/addons/", "dist/addons")
+    dist_dir = "dist/addons"
+    if os.path.exists(dist_dir):
+        shutil.rmtree(dist_dir)
+    shutil.copytree("demo/addons/", dist_dir)
 
     # Zip files.
     zip_file_path = "bin\com.daylily_zeleen.hfsm2.zip"

@@ -49,7 +49,6 @@
 #include "src/variable.h"
 #include "src/variable_config.h"
 
-
 #ifdef TOOLS_ENABLED
 #include "editor/fsm_editor.h"
 #include "editor/hfsm_editor.h"
