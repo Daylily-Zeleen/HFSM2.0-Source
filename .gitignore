@@ -1,6 +1,6 @@
 #
 hfsm/tool.py
-build
+/build
 .vscode
 *.dblite
 .clangd

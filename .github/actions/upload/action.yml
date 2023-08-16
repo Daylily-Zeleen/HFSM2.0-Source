@@ -1,0 +1,34 @@
+name: Godot Universal Serializer 2 Upload
+description: Upload Godot Cpp and the Godot Universal Serializer 2 Extension.
+
+inputs:
+  platform:
+    required: true
+    description: Target platform.
+  artifact_file_suffix:
+    default: ''
+    description: Target artifact file suffix.
+
+runs:
+  using: composite
+  steps:
+    # - name: Copy dynamic library to dist dir.
+    #   shell: sh
+    #   if: ${{ inputs.platform != 'macos' }}
+    #   run: |
+    #     cp -r bin/hfsm2.${{ inputs.artifact_file_suffix }} dist/addons/com.daylily_zeleen.hfsm2/bin/hfsm2.${{ inputs.artifact_file_suffix }}
+
+    # - name: Copy readme and license.
+    #   shell: sh
+    #   run: |
+    #     cp README.md dist/addons/com.daylily_zeleen.hfsm2/README.md
+    #     cp README_zh_cn.md dist/addons/com.daylily_zeleen.hfsm2/README_zh_cn.md
+    #     cp LICENSE dist/addons/com.daylily_zeleen.hfsm2/LICENSE
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Godot Universal Serializer 2
+        path: |
+          ${{ github.workspace }}/dist/**
+        retention-days: 14
