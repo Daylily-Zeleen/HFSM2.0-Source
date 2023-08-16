@@ -1,4 +1,4 @@
-﻿#include "transition_config.h"
+#include "transition_config.h"
 #include "state_config.h"
 #include "transitions/auto_transition.h"
 #include "transitions/expression_transition.h"

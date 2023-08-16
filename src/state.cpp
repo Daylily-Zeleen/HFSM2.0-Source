@@ -1,4 +1,4 @@
-﻿/*
+/*
 ** EPITECH PROJECT, 2022
 ** HFSM
 ** File description:

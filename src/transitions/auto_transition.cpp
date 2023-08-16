@@ -1,4 +1,4 @@
-﻿
+
 #include "auto_transition.h"
 
 namespace Hfsm {

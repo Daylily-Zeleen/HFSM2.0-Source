@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "variable_expression.h"
 

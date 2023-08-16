@@ -1,4 +1,4 @@
-﻿#include "expression_transition.h"
+#include "expression_transition.h"
 
 #include "../../hfsm_global.h"
 #include "../state.h"

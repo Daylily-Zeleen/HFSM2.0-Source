@@ -1,4 +1,4 @@
-﻿#include "variable_expressions_transition.h"
+#include "variable_expressions_transition.h"
 
 namespace Hfsm {
 

@@ -1,4 +1,4 @@
-﻿#include "variable_expression_config.h"
+#include "variable_expression_config.h"
 
 #include "../../hfsm.h"
 #include "../variable_expressions_transition.h"

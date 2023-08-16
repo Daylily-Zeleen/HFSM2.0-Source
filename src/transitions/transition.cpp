@@ -1,4 +1,4 @@
-﻿#include "transition.h"
+#include "transition.h"
 
 namespace Hfsm {
 

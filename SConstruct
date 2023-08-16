@@ -12,15 +12,18 @@ env = SConscript("gdextension_dependencies/godot-cpp/SConstruct")
 # - CPPDEFINES are for pre-processor defines
 # - LINKFLAGS are for linking flags
 
-cpp_paths = ["./",
-             "src/",
-             "src/transitions/",
-             "src/transitions/variable_expressions/",
-             ]
-sources = Glob("*.cpp") + \
-    Glob("src/*.cpp") + \
-    Glob("src/transitions/*.cpp") + \
-    Glob("src/transitions/variable_expressions/*.cpp")
+cpp_paths = [
+    "./",
+    "src/",
+    "src/transitions/",
+    "src/transitions/variable_expressions/",
+]
+sources = (
+    Glob("*.cpp")
+    + Glob("src/*.cpp")
+    + Glob("src/transitions/*.cpp")
+    + Glob("src/transitions/variable_expressions/*.cpp")
+)
 
 if env["target"] == "editor" or env["target"] == "template_debug":
     cpp_paths.append("editor/")
@@ -55,8 +58,7 @@ def get_bin_file(env):
             env["platform"], env["target"], env["platform"], env["target"]
         ).replace("lib_name", lib_name)
     else:
-        return "bin/lib_name{}{}".format(
-            env["suffix"], env["SHLIBSUFFIX"]).replace("lib_name", lib_name)
+        return "bin/lib_name{}{}".format(env["suffix"], env["SHLIBSUFFIX"]).replace("lib_name", lib_name)
 
 
 bin_file = get_bin_file(env)

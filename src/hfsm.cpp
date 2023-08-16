@@ -1,4 +1,4 @@
-﻿#include "hfsm.h"
+#include "hfsm.h"
 #include "fsm.h"
 #include "fsm_config.h"
 #include "state.h"

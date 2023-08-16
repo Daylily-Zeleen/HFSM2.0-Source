@@ -1,4 +1,4 @@
-﻿#include "comparation_expression.h"
+#include "comparation_expression.h"
 
 #ifdef TOOLS_ENABLED
 #ifdef GDEXTENSION_BUILD

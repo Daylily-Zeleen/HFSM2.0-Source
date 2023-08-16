@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 // #define ROLLBACK_NET_CODE
 // #define DEBUG_IN_EDITOR
 

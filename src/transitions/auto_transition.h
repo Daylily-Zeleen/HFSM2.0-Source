@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "../fsm.h"
 #include "../state.h"

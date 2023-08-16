@@ -7,8 +7,7 @@ env_modular = env_modules.Clone()
 
 if env.editor_build:
     env_modular.add_source_files(env.modules_sources, "editor/*.cpp")
-    env_modular.add_source_files(
-        env.modules_sources, "editor/inspector_plugin/*.cpp")
+    env_modular.add_source_files(env.modules_sources, "editor/inspector_plugin/*.cpp")
 
 env_modular.add_source_files(env.modules_sources, "*.cpp")
 env_modular.add_source_files(env.modules_sources, "src/*.cpp")

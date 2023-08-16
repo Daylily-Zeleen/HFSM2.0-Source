@@ -1,4 +1,4 @@
-﻿#include "variable.h"
+#include "variable.h"
 
 namespace Hfsm {
 

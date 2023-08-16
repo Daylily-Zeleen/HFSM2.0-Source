@@ -1,4 +1,4 @@
-﻿#include "hfsm_editor_plugin.h"
+#include "hfsm_editor_plugin.h"
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/editor_file_system.hpp>

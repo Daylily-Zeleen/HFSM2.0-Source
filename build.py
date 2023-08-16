@@ -1,4 +1,4 @@
-﻿import os
+import os
 import sys
 import zipfile
 import shutil
@@ -6,14 +6,14 @@ from os.path import join as path_join
 
 
 def main():
+    # save_as_utf8()
     args = "scons"
     debug_and_relaese = True
     custom_api_file_defined = False
     for arg in sys.argv:
         if arg == "-h" or arg == "--help":
             os.system("scons -h")
-            print(
-                "\nIf you have not specify \"target\" argument, this tool will build both debug and relaese. ")
+            print('\nIf you have not specify "target" argument, this tool will build both debug and relaese.')
             return
 
         if arg.startswith("python"):
@@ -21,7 +21,7 @@ def main():
         if arg == sys.argv[0]:
             continue
         if arg.count("scons") > 0:
-            print("Should not use \"scons\" argument, skip it.")
+            print('Should not use "scons" argument, skip it.')
             continue
         if arg.startswith("custom_api_file"):
             custom_api_file_defined = True
@@ -37,8 +37,9 @@ def main():
 
     bin_dir = "bin"
     # Remove all last build files.
-    for f in os.listdir(bin_dir):
-        os.remove(path_join(bin_dir, f))
+    if os.path.exists(bin_dir):
+        for f in os.listdir(bin_dir):
+            os.remove(path_join(bin_dir, f))
 
     # Buiild.
     if debug_and_relaese:
@@ -66,8 +67,7 @@ def main():
         for suffix in dynamic_lib_suffixs:
             if not f.endswith(suffix):
                 continue
-            shutil.copyfile(path_join("bin", f), path_join(
-                dst_dir, f.replace(".dev.", ".")))
+            shutil.copyfile(path_join("bin", f), path_join(dst_dir, f.replace(".dev.", ".")))
 
     # Copy readme and license.
     if os.path.exists("README.md"):
@@ -75,10 +75,8 @@ def main():
         shutil.copyfile("README.md", path_join("demo", "README.md"))
 
     if os.path.exists("README_zh_cn.md"):
-        shutil.copyfile("README_zh_cn.md", path_join(
-            plugin_dir, "README_zh_cn.md"))
-        shutil.copyfile("README_zh_cn.md", path_join(
-            "demo", "README_zh_cn.md"))
+        shutil.copyfile("README_zh_cn.md", path_join(plugin_dir, "README_zh_cn.md"))
+        shutil.copyfile("README_zh_cn.md", path_join("demo", "README_zh_cn.md"))
 
     if os.path.exists("LICENSE"):
         shutil.copyfile("LICENSE", path_join(plugin_dir, "LICENSE"))
@@ -94,7 +92,7 @@ def main():
     zip_file_path = "bin\com.daylily_zeleen.hfsm2.zip"
     if os.path.exists(zip_file_path):
         os.remove(zip_file_path)
-    zip_file = zipfile.ZipFile(zip_file_path, "w",)
+    zip_file = zipfile.ZipFile(zip_file_path, "w")
     zip_files_recursively(zip_file, "demo/addons")
     zip_file.close()
 
@@ -107,8 +105,33 @@ def zip_files_recursively(zip_file: zipfile.ZipFile, dir: str):
         if os.path.isdir(path):
             zip_files_recursively(zip_file, path)
         else:
-            zip_file.write(path, path.removeprefix("demo/"),)
+            dst = path
+            if dst.startswith("demo/"):
+                dst = dst.replace("demo/", "", 1)
+            zip_file.write(path, dst)
 
 
-if __name__ == '__main__':
+def save_as_utf8(dir: str = "."):
+    for f in os.listdir(dir):
+        path = path_join(dir, f)
+        if f == "gdextension_dependencies":
+            continue
+        if os.path.isdir(path):
+            save_as_utf8(path)
+        else:
+            if not f.endswith(".h") and not f.endswith(".cpp"):
+                continue
+            rfile = open(path, "rb")
+            data = rfile.read().decode("utf-8-sig")
+            rfile.close()
+
+            # os.remove(path)
+
+            text_utf8 = data.encode("utf-8")
+            wfile = open(path, "wb")
+            wfile.write(text_utf8)
+            wfile.close()
+
+
+if __name__ == "__main__":
     main()

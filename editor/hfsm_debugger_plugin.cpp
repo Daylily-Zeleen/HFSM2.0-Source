@@ -1,4 +1,4 @@
-﻿#include "hfsm_debugger_plugin.h"
+#include "hfsm_debugger_plugin.h"
 
 #include "../src/hfsm.h"
 #include "hfsm_editor.h"

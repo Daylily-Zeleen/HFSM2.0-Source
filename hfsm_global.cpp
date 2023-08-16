@@ -1,4 +1,4 @@
-﻿#include "hfsm_global.h"
+#include "hfsm_global.h"
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/engine.hpp>
@@ -22,7 +22,7 @@ void HfsmGlobal::init_static() {
 		auto sigleton_list = Engine::get_singleton()->get_singleton_list();
 		// TODO:: Waiting for ClassDB singleton.
 		sigleton_list.remove_at(sigleton_list.find("ClassDB"));
-		
+
 		singleton_names.resize(sigleton_list.size());
 		singletons.resize(sigleton_list.size());
 		for (auto i = 0; i < sigleton_list.size(); ++i) {

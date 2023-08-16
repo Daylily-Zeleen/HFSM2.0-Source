@@ -1,4 +1,4 @@
-﻿#include "trigger_expression.h"
+#include "trigger_expression.h"
 
 #ifdef TOOLS_ENABLED
 #ifdef GDEXTENSION_BUILD

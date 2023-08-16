@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/editor_inspector_plugin.hpp>

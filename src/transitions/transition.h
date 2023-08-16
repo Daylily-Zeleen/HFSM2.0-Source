@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "transition_base.h"
 
@@ -51,4 +51,5 @@ public:
 private:
 	HFSM *hfsm = nullptr;
 };
+
 }; // namespace Hfsm

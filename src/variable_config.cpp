@@ -1,4 +1,4 @@
-﻿#include "variable_config.h"
+#include "variable_config.h"
 #include "fsm_config.h"
 #include "variable.h"
 

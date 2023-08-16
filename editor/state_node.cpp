@@ -1,4 +1,4 @@
-﻿#include "state_node.h"
+#include "state_node.h"
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/time.hpp>

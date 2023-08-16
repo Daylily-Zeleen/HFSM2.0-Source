@@ -1,4 +1,4 @@
-﻿#include "hfsm_editor.h"
+#include "hfsm_editor.h"
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/button.hpp>

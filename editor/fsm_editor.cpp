@@ -1,4 +1,4 @@
-﻿#include "fsm_editor.h"
+#include "fsm_editor.h"
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/editor_inspector.hpp>
@@ -45,23 +45,25 @@ namespace Hfsm {
 #define CONN_POS_OFFSET 50.0f
 #define MOVE_ZONE_HIGHT 30.0f
 
-#define set_editor_inspector_signal_connected(p_connected)                                           \
-	{                                                                                                \
-		const auto s_edited_object_changed = SNAME("edited_object_changed");                         \
-		auto inspector = HfsmEditorPlugin::get_singleton()->get_editor_interface()->get_inspector(); \
-		auto cb = TCALLABLE(_disconnect_inspecting_transition_config);                               \
-                                                                                                     \
-		bool connected = inspector->is_connected(s_edited_object_changed, cb);                       \
-		if constexpr (p_connected) {                                                                 \
-			if (connected) {                                                                         \
-				inspector->disconnect(s_edited_object_changed, cb);                                  \
-			}                                                                                        \
-		}                                                                                            \
-		if constexpr (!(p_connected)) {                                                              \
-			if (!inspector) {                                                                        \
-				inspector->connect(s_edited_object_changed, cb);                                     \
-			}                                                                                        \
-		}                                                                                            \
+#define set_editor_inspector_signal_connected(p_connected)                     \
+	{                                                                          \
+		const auto s_edited_object_changed = SNAME("edited_object_changed");   \
+		auto inspector = HfsmEditorPlugin::get_singleton()                     \
+								 ->get_editor_interface()                      \
+								 ->get_inspector();                            \
+		auto cb = TCALLABLE(_disconnect_inspecting_transition_config);         \
+                                                                               \
+		bool connected = inspector->is_connected(s_edited_object_changed, cb); \
+		if constexpr (p_connected) {                                           \
+			if (connected) {                                                   \
+				inspector->disconnect(s_edited_object_changed, cb);            \
+			}                                                                  \
+		}                                                                      \
+		if constexpr (!(p_connected)) {                                        \
+			if (!inspector) {                                                  \
+				inspector->connect(s_edited_object_changed, cb);               \
+			}                                                                  \
+		}                                                                      \
 	}
 
 #define TRIANGLE_TEXTURE_WIDTH 32
@@ -70,17 +72,23 @@ namespace Hfsm {
 #define ADD_DO_DEFERRED_CALL_METHOD(m_obj_ptr, m_method, ...)        \
 	DECLTYPE_METHOD_RETURN_TYPE(m_obj_ptr, m_method, ##__VA_ARGS__); \
 	undo_redo->add_do_method(m_obj_ptr, "call_deferred", #m_method, ##__VA_ARGS__)
-#define ADD_UNDO_DEFERRED_CALL_METHOD(m_obj_ptr, m_method, ...)      \
-	DECLTYPE_METHOD_RETURN_TYPE(m_obj_ptr, m_method, ##__VA_ARGS__); \
-	undo_redo->add_undo_method(m_obj_ptr, "call_deferred", #m_method, ##__VA_ARGS__)
+#define ADD_UNDO_DEFERRED_CALL_METHOD(m_obj_ptr, m_method, ...)       \
+	DECLTYPE_METHOD_RETURN_TYPE(m_obj_ptr, m_method, ##__VA_ARGS__);  \
+	undo_redo->add_undo_method(m_obj_ptr, "call_deferred", #m_method, \
+			##__VA_ARGS__)
 #else
-#define ADD_DO_DEFERRED_CALL_METHOD(m_obj_ptr, m_method, ...) undo_redo->add_do_method(m_obj_ptr, "call_deferred", #m_method, ##__VA_ARGS__)
-#define ADD_UNDO_DEFERRED_CALL_METHOD(m_obj_ptr, m_method, ...) undo_redo->add_undo_method(m_obj_ptr, "call_deferred", #m_method, ##__VA_ARGS__)
+#define ADD_DO_DEFERRED_CALL_METHOD(m_obj_ptr, m_method, ...) \
+	undo_redo->add_do_method(m_obj_ptr, "call_deferred", #m_method, ##__VA_ARGS__)
+#define ADD_UNDO_DEFERRED_CALL_METHOD(m_obj_ptr, m_method, ...) \
+	undo_redo->add_undo_method(m_obj_ptr, "call_deferred", #m_method, ##__VA_ARGS__)
 #endif // IDE_TYPE_SAFE
 
 #define s_edit_fsm_requested "_edit_fsm_requested"
 
-String FsmEditor::str_localize(const String &en_key) const { return HfsmEditorPlugin::str_localize(en_key); }
+String FsmEditor::str_localize(const String &en_key) const {
+	return HfsmEditorPlugin::str_localize(en_key);
+}
+
 void FsmEditor::_bind_methods() {
 	GDBIND_BEGIN(FsmEditor);
 

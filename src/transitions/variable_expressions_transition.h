@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "transition_base.h"
 #include "variable_expressions/comparation_expression.h"

@@ -1,4 +1,4 @@
-﻿#include "fsm.h"
+#include "fsm.h"
 #include "hfsm.h"
 #include "state.h"
 #include "transitions/transition_base.h"
