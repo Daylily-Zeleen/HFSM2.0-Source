@@ -9,6 +9,7 @@ hfsm_4.0.code-workspace
 demo
 demo_backup
 bin
+dist
 /CmakeLists.txt
 /.clangd
 /.clang-tidy

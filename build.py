@@ -5,14 +5,15 @@ import shutil
 from os.path import join as path_join
 
 
-
 def main():
     args = "scons"
     debug_and_relaese = True
+    custom_api_file_defined = False
     for arg in sys.argv:
         if arg == "-h" or arg == "--help":
             os.system("scons -h")
-            print("\nIf you have not specify \"target\" argument, this tool will build both debug and relaese. ")
+            print(
+                "\nIf you have not specify \"target\" argument, this tool will build both debug and relaese. ")
             return
 
         if arg.startswith("python"):
@@ -22,11 +23,17 @@ def main():
         if arg.count("scons") > 0:
             print("Should not use \"scons\" argument, skip it.")
             continue
+        if arg.startswith("custom_api_file"):
+            custom_api_file_defined = True
 
         args += " " + arg
 
         if arg.startswith("target"):
             debug_and_relaese = False
+
+    # Use 4.1 stable mono apis as default.
+    if not custom_api_file_defined:
+        args += " custom_api_file=gdextension_dependencies/extension_api.4.1.stable.mono.json"
 
     bin_dir = "bin"
     # Remove all last build files.
@@ -50,42 +57,48 @@ def main():
     print("Build finished, post processiong...")
 
     # Post process
-    plugin_dir = "demo/addons/com.daylily_zeleen.hfsm"
+    plugin_dir = "demo/addons/com.daylily_zeleen.hfsm2"
     dynamic_lib_suffixs = [".so", ".dylib", ".wasm", ".dll"]
 
     # Copy dynamic library.
-    dst_dir = plugin_dir # path_join(plugin_dir, "bin")
+    dst_dir = plugin_dir  # path_join(plugin_dir, "bin")
     for f in os.listdir("build"):
         for suffix in dynamic_lib_suffixs:
             if not f.endswith(suffix):
                 continue
-            shutil.copyfile(path_join("build", f), path_join(dst_dir, f.replace(".dev.", ".")))
+            shutil.copyfile(path_join("build", f), path_join(
+                dst_dir, f.replace(".dev.", ".")))
 
     # Copy readme and license.
     if os.path.exists("README.md"):
         shutil.copyfile("README.md", path_join(plugin_dir, "README.md"))
         shutil.copyfile("README.md", path_join("demo", "README.md"))
-    
+
     if os.path.exists("README_zh_cn.md"):
-        shutil.copyfile("README_zh_cn.md", path_join(plugin_dir, "README_zh_cn.md"))
-        shutil.copyfile("README_zh_cn.md", path_join("demo", "README_zh_cn.md"))
+        shutil.copyfile("README_zh_cn.md", path_join(
+            plugin_dir, "README_zh_cn.md"))
+        shutil.copyfile("README_zh_cn.md", path_join(
+            "demo", "README_zh_cn.md"))
 
     if os.path.exists("LICENSE"):
         shutil.copyfile("LICENSE", path_join(plugin_dir, "LICENSE"))
         shutil.copyfile("LICENSE", path_join("demo", "LICENSE"))
 
+    # Copy to dist
+    shutil.copytree("demo/addons/", "dist/addons")
+
     # Zip files.
-    zip_file_path = "bin\com.daylily_zeleen.hfsm.zip"
+    zip_file_path = "bin\com.daylily_zeleen.hfsm2.zip"
     if os.path.exists(zip_file_path):
         os.remove(zip_file_path)
-    zip_file = zipfile.ZipFile(zip_file_path,"w",)
+    zip_file = zipfile.ZipFile(zip_file_path, "w",)
     zip_files_recursively(zip_file, "demo/addons")
     zip_file.close()
 
     print("Done!")
 
 
-def zip_files_recursively(zip_file:zipfile.ZipFile, dir:str):
+def zip_files_recursively(zip_file: zipfile.ZipFile, dir: str):
     for f in os.listdir(dir):
         path = path_join(dir, f)
         if os.path.isdir(path):

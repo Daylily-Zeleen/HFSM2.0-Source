@@ -2,7 +2,7 @@
 import os
 import sys
 
-env = SConscript("../godot-cpp/SConstruct")
+env = SConscript("gdextension_dependencies/godot-cpp/SConstruct")
 
 # For the reference:
 # - CCFLAGS are compilation flags shared between C and C++
@@ -46,22 +46,21 @@ if env["dev_build"]:
     pass
 
 
-lib_name = "hfsm"
+lib_name = "hfsm2"
 
 
-def get_bin_file_name_base(env):
+def get_bin_file(env):
     if env["platform"] == "macos":
-        return "lib_name.{}.{}.framework/lib_name.{}.{}".format(
+        return "demo/addons/com.daylily_zeleen.hfsm2/bin/lib_name.{}.{}.framework/lib_name.{}.{}".format(
             env["platform"], env["target"], env["platform"], env["target"]
         ).replace("lib_name", lib_name)
     else:
-        return "lib_name{}{}".format(
+        return "bin/lib_name{}{}".format(
             env["suffix"], env["SHLIBSUFFIX"]).replace("lib_name", lib_name)
 
 
-bin_file_name_base = get_bin_file_name_base(env)
+bin_file = get_bin_file(env)
 
-library = env.SharedLibrary("build/" + bin_file_name_base, source=sources)
-
+library = env.SharedLibrary(bin_file_name_base, source=sources)
 
 Default(library)
