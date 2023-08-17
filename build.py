@@ -6,7 +6,7 @@ from os.path import join as path_join
 
 
 def main():
-    add_copyright()
+    # add_copyright()
     # save_as_utf8()
     args = "scons"
     debug_and_relaese = True
@@ -139,7 +139,8 @@ def save_as_utf8(dir: str = "."):
 
 
 def add_copyright(dir: str = "."):
-    from misc.copyright_headers import generate_header_text as gen_header_text
+    from misc.scripts.copyright_headers import generate_header_text as gen_header_text
+
     for f in os.listdir(dir):
         path = path_join(dir, f)
         if f == "gdextension_dependencies":
@@ -152,7 +153,7 @@ def add_copyright(dir: str = "."):
 
             header_text = gen_header_text(f)
 
-            rf = open(path, "r")
+            rf = open(path, "r", encoding="utf-8")
             text = rf.read()
             rf.close()
 

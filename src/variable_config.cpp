@@ -1,12 +1,37 @@
+/**************************************************************************/
+/*  variable_config.cpp                                                   */
+/**************************************************************************/
+/*                         This file is part of:                          */
+/*                   Hierarchical Finite State Machine                    */
+/*            https://github.com/Daylily-Zeleen/HFSM2.0-Source            */
+/**************************************************************************/
+/* Copyright (c) 2023-present Daylily Zeleen.                             */
+/*                                                                        */
+/* Permission is hereby granted, free of charge, to any person obtaining  */
+/* a copy of this software and associated documentation files (the        */
+/* "Software"), to deal in the Software without restriction, including    */
+/* without limitation the rights to use, copy, modify, merge, publish,    */
+/* distribute, sublicense, and/or sell copies of the Software, and to     */
+/* permit persons to whom the Software is furnished to do so, subject to  */
+/* the following conditions:                                              */
+/*                                                                        */
+/* The above copyright notice and this permission notice shall be         */
+/* included in all copies or substantial portions of the Software.        */
+/*                                                                        */
+/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
+/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
+/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
+/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
+/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
+/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
+/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
+/**************************************************************************/
+
 #include "variable_config.h"
 #include "fsm_config.h"
 #include "variable.h"
 
 #include "fsm_config.h"
-
-#if defined(DEBUG_ENABLED) && defined(GDEXTENSION_BUILD)
-#include <godot_cpp/variant/utility_functions.hpp>
-#endif // defined(DEBUG_ENABLED) && defined(GDEXTENSION_BUILD)
 
 namespace Hfsm {
 #pragma region VariableConfig
@@ -128,8 +153,8 @@ Variant VariableConfig::get_default_value() const {
 			case Variant::STRING:
 				return "";
 			case Variant::NIL: {
-				WLog("Trigger type is using boolean, but this should not be called.");
-				return false; //
+				IF_DEBUG(WARN_PRINT(vformat("[%s:%d]", __FILE__, __LINE__) + vformat("Trigger type is using boolean, but \"get_default_value()\" should not be called."));)
+				return false;
 			}
 			default:
 				ERR_FAIL_V_MSG({}, "Illegal variable type");

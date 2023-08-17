@@ -1,3 +1,32 @@
+/**************************************************************************/
+/*  utils_macros.h                                                        */
+/**************************************************************************/
+/*                         This file is part of:                          */
+/*                   Hierarchical Finite State Machine                    */
+/*            https://github.com/Daylily-Zeleen/HFSM2.0-Source            */
+/**************************************************************************/
+/* Copyright (c) 2023-present Daylily Zeleen.                             */
+/*                                                                        */
+/* Permission is hereby granted, free of charge, to any person obtaining  */
+/* a copy of this software and associated documentation files (the        */
+/* "Software"), to deal in the Software without restriction, including    */
+/* without limitation the rights to use, copy, modify, merge, publish,    */
+/* distribute, sublicense, and/or sell copies of the Software, and to     */
+/* permit persons to whom the Software is furnished to do so, subject to  */
+/* the following conditions:                                              */
+/*                                                                        */
+/* The above copyright notice and this permission notice shall be         */
+/* included in all copies or substantial portions of the Software.        */
+/*                                                                        */
+/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
+/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
+/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
+/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
+/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
+/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
+/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
+/**************************************************************************/
+
 #pragma once
 
 /*
@@ -229,23 +258,12 @@ static T _convert_to(const Var &p_var) {
 #include <godot_cpp/variant/utility_functions.hpp>
 #endif // TOOLS_ENABLED
 
-#ifdef TOOLS_ENABLED
-#define ED_MSG(fmt, ...) UtilityFunctions::printerr(vformat(String(fmt), __VA_ARGS__))
-#else // TOOLS_ENABLED
-#define ED_MSG(fmt, ...)
-#endif // TOOLS_ENABLED
+#define ED_MSG(fmt, ...) IF_TOOLS(UtilityFunctions::printerr(vformat(fmt, ##__VA_ARGS__)))
 
-#ifdef DEBUG_ENABLED
-#define VLog(fmt, ...) UtilityFunctions::print_verbose(vformat(String(fmt), __VA_ARGS__))
-#define DLog(fmt, ...) WARN_PRINT(vformat(String(fmt), __VA_ARGS__))
-#define WLog(fmt, ...) WARN_PRINT(vformat(String("[%s:%d]") + fmt, __FILE__, __LINE__, __VA_ARGS__))
-#define ELog(fmt, ...) UtilityFunctions::printerr(vformat(String("[%s:%d]") + fmt, __FILE__, __LINE__, __VA_ARGS__))
-#else // DEBUG_ENABLED
-#define VLog(fmt, ...)
-#define DLog(fmt, ...)
-#define WLog(fmt, ...)
-#define ELog(fmt, ...)
-#endif // DEBUG_ENABLED
+#define VLog(fmt, ...) IF_DEBUG(UtilityFunctions::print_verbose(vformat(fmt, ##__VA_ARGS__)))
+#define DLog(fmt, ...) IF_DEBUG(WARN_PRINT(vformat(fmt, ##__VA_ARGS__)))
+#define WLog(fmt, ...) IF_DEBUG(WARN_PRINT(vformat("[%s:%d]", __FILE__, __LINE__) + vformat(fmt, ##__VA_ARGS__)))
+#define ELog(fmt, ...) IF_DEBUG(UtilityFunctions::printerr(vformat("[%s:%d]", __FILE__, __LINE__) + vformat(fmt, ##__VA_ARGS__)))
 
 #else // GDEXTENSION_BUILD
 #ifdef TOOLS_ENABLED
@@ -253,25 +271,12 @@ static T _convert_to(const Var &p_var) {
 #endif // TOOLS_ENABLED
 // #include "core/variant/variant.h"
 
-#ifdef TOOLS_ENABLED
-#define ED_MSG(fmt, ...) print_error(vformat(String(fmt), __VA_ARGS__))
-#else // TOOLS_ENABLED
-#define ED_MSG(fmt, ...)
-#endif // TOOLS_ENABLED
+#define ED_MSG(fmt, ...) IF_TOOLS(print_error(vformat(fmt, ##__VA_ARGS__)))
 
-#ifdef DEBUG_ENABLED
-#define VLog(fmt, ...) print_verbose(vformat(String(fmt), __VA_ARGS__))
-#define DLog(fmt, ...) print_line(vformat(String(fmt), __VA_ARGS__))
-
-#define WLog(fmt, ...) print_line(vformat(String("[%s:%d]") + fmt, __FILE__, __LINE__, __VA_ARGS__))
-#define ELog(fmt, ...) print_error(vformat(String("[%s:%d]") + fmt, __FILE__, __LINE__, __VA_ARGS__))
-#else
-#define VLog(fmt, ...)
-#define DLog(fmt, ...)
-
-#define WLog(fmt, ...)
-#define ELog(fmt, ...)
-#endif
+#define VLog(fmt, ...) IF_DEBUG(print_verbose(vformat(fmt, ##__VA_ARGS__)))
+#define DLog(fmt, ...) IF_DEBUG(print_line(vformat(fmt, ##__VA_ARGS__)))
+#define WLog(fmt, ...) IF_DEBUG(print_line(vformat("[%s:%d]", __FILE__, __LINE__) + vformat(fmt, ##__VA_ARGS__)))
+#define ELog(fmt, ...) IF_DEBUG(print_error(vformat("[%s:%d]", __FILE__, __LINE__) + vformat(fmt, ##__VA_ARGS__)))
 
 #endif // GDEXTENSION_BUILD
 

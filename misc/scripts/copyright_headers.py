@@ -8,10 +8,10 @@ header = """\
 /*  $filename                                                             */
 /**************************************************************************/
 /*                         This file is part of:                          */
-/*                      GODOT UNIVERSAL SERIALIZER                        */
-/*  https://github.com/Daylily-Zeleen/GUS-Godot-Universal-Serializer-2.0  */
+/*                   Hierarchical Finite State Machine                    */
+/*            https://github.com/Daylily-Zeleen/HFSM2.0-Source            */
 /**************************************************************************/
-/* Copyright (c) 2022-present Daylily Zeleen.                             */
+/* Copyright (c) 2023-present Daylily Zeleen.                             */
 /*                                                                        */
 /* Permission is hereby granted, free of charge, to any person obtaining  */
 /* a copy of this software and associated documentation files (the        */
@@ -34,61 +34,71 @@ header = """\
 /**************************************************************************/
 """
 
-fname = sys.argv[1]
 
-# Handle replacing $filename with actual filename and keep alignment
-fsingle = fname.strip()
-if fsingle.find("/") != -1:
-    fsingle = fsingle[fsingle.rfind("/") + 1 :]
-rep_fl = "$filename"
-rep_fi = fsingle
-len_fl = len(rep_fl)
-len_fi = len(rep_fi)
-# Pad with spaces to keep alignment
-if len_fi < len_fl:
-    for x in range(len_fl - len_fi):
-        rep_fi += " "
-elif len_fl < len_fi:
-    for x in range(len_fi - len_fl):
-        rep_fl += " "
-if header.find(rep_fl) != -1:
-    text = header.replace(rep_fl, rep_fi)
-else:
-    text = header.replace("$filename", fsingle)
-text += "\n"
+def generate_header_text(file_name: str):
+    # Handle replacing $filename with actual filename and keep alignment
+    fsingle = file_name.strip()
+    if fsingle.find("/") != -1:
+        fsingle = fsingle[fsingle.rfind("/") + 1 :]
+    rep_fl = "$filename"
+    rep_fi = fsingle
+    len_fl = len(rep_fl)
+    len_fi = len(rep_fi)
+    # Pad with spaces to keep alignment
+    if len_fi < len_fl:
+        for x in range(len_fl - len_fi):
+            rep_fi += " "
+    elif len_fl < len_fi:
+        for x in range(len_fi - len_fl):
+            rep_fl += " "
+    if header.find(rep_fl) != -1:
+        text = header.replace(rep_fl, rep_fi)
+    else:
+        text = header.replace("$filename", fsingle)
+    text += "\n"
+    return text
 
-# We now have the proper header, so we want to ignore the one in the original file
-# and potentially empty lines and badly formatted lines, while keeping comments that
-# come after the header, and then keep everything non-header unchanged.
-# To do so, we skip empty lines that may be at the top in a first pass.
-# In a second pass, we skip all consecutive comment lines starting with "/*",
-# then we can append the rest (step 2).
 
-fileread = open(fname.strip(), "r")
-line = fileread.readline()
-header_done = False
+def main():
+    fname = sys.argv[1]
+    text = generate_header_text(fname)
 
-while line.strip() == "":  # Skip empty lines at the top
+    # We now have the proper header, so we want to ignore the one in the original file
+    # and potentially empty lines and badly formatted lines, while keeping comments that
+    # come after the header, and then keep everything non-header unchanged.
+    # To do so, we skip empty lines that may be at the top in a first pass.
+    # In a second pass, we skip all consecutive comment lines starting with "/*",
+    # then we can append the rest (step 2).
+
+    fileread = open(fname.strip(), "r")
     line = fileread.readline()
+    header_done = False
 
-if line.find("/**********") == -1:  # Godot header starts this way
-    # Maybe starting with a non-Godot comment, abort header magic
-    header_done = True
+    while line.strip() == "":  # Skip empty lines at the top
+        line = fileread.readline()
 
-while not header_done:  # Handle header now
-    if line.find("/*") != 0:  # No more starting with a comment
+    if line.find("/**********") == -1:  # Godot header starts this way
+        # Maybe starting with a non-Godot comment, abort header magic
         header_done = True
-        if line.strip() != "":
-            text += line
-    line = fileread.readline()
 
-while line != "":  # Dump everything until EOF
-    text += line
-    line = fileread.readline()
+    while not header_done:  # Handle header now
+        if line.find("/*") != 0:  # No more starting with a comment
+            header_done = True
+            if line.strip() != "":
+                text += line
+        line = fileread.readline()
 
-fileread.close()
+    while line != "":  # Dump everything until EOF
+        text += line
+        line = fileread.readline()
 
-# Write
-filewrite = open(fname.strip(), "w")
-filewrite.write(text)
-filewrite.close()
+    fileread.close()
+
+    # Write
+    filewrite = open(fname.strip(), "w")
+    filewrite.write(text)
+    filewrite.close()
+
+
+if __name__ == "__main__":
+    main()
