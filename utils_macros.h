@@ -237,8 +237,8 @@ static T _convert_to(const Var &p_var) {
 
 #ifdef DEBUG_ENABLED
 #define VLog(fmt, ...) UtilityFunctions::print_verbose(vformat(String(fmt), __VA_ARGS__))
-#define DLog(fmt, ...) UtilityFunctions::print(vformat(String(fmt), __VA_ARGS__))
-#define WLog(fmt, ...) UtilityFunctions::print(vformat(String("[%s:%d]") + fmt, __FILE__, __LINE__, __VA_ARGS__))
+#define DLog(fmt, ...) WARN_PRINT(vformat(String(fmt), __VA_ARGS__))
+#define WLog(fmt, ...) WARN_PRINT(vformat(String("[%s:%d]") + fmt, __FILE__, __LINE__, __VA_ARGS__))
 #define ELog(fmt, ...) UtilityFunctions::printerr(vformat(String("[%s:%d]") + fmt, __FILE__, __LINE__, __VA_ARGS__))
 #else // DEBUG_ENABLED
 #define VLog(fmt, ...)

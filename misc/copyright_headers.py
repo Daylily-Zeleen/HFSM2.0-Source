@@ -8,7 +8,7 @@ header = """\
 /*  $filename                                                             */
 /**************************************************************************/
 /*                         This file is part of:                          */
-/*                      GODOT UNIVERSAL SERIALIZER                        */
+/*                   Hierarchical Finite State Machine                    */
 /*            https://github.com/Daylily-Zeleen/HFSM2.0-Source            */
 /**************************************************************************/
 /* Copyright (c) 2022-present Daylily Zeleen.                             */

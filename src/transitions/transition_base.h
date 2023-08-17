@@ -44,6 +44,7 @@ public:
 	virtual void _network_spawn(Dictionary &data);
 	virtual void _network_despawn();
 #endif
+
 private:
 	Ref<State> from_state;
 	Ref<State> to_state;

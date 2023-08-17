@@ -15,6 +15,12 @@
 #endif // TOOLS_ENABLED
 #endif //  DEBUG_ENABLED
 
+#ifdef TOOLS_ENABLED
+#ifndef DEV_ENABLED
+#define DEV_ENABLED
+#endif // DEV_ENABLED
+#endif // TOOLS_ENABLED
+
 // 字符常量以 utf8 进行编译
 #pragma execution_character_set("utf-8")
 

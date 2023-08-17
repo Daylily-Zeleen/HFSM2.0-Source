@@ -10,6 +10,7 @@ def main():
     args = "scons"
     debug_and_relaese = True
     custom_api_file_defined = False
+    platform = ""
     for arg in sys.argv:
         if arg == "-h" or arg == "--help":
             os.system("scons -h")
@@ -25,6 +26,8 @@ def main():
             continue
         if arg.startswith("custom_api_file"):
             custom_api_file_defined = True
+        if arg.startswith("platform") or arg.startswith("p="):
+            platform = arg.split("=", 1)[1]
 
         args += " " + arg
 
@@ -63,11 +66,12 @@ def main():
 
     # Copy dynamic library.
     dst_dir = path_join(plugin_dir, "bin")
-    for f in os.listdir("bin"):
-        for suffix in dynamic_lib_suffixs:
-            if not f.endswith(suffix):
-                continue
-            shutil.copyfile(path_join("bin", f), path_join(dst_dir, f.replace(".dev.", ".")))
+    if platform != "macos":
+        for f in os.listdir("bin"):
+            for suffix in dynamic_lib_suffixs:
+                if not f.endswith(suffix):
+                    continue
+                shutil.copyfile(path_join("bin", f), path_join(dst_dir, f.replace(".dev.", ".")))
 
     # Copy readme and license.
     if os.path.exists("README.md"):
