@@ -1,5 +1,5 @@
-name: Godot Universal Serializer 2 Build
-description: Build Godot Cpp and the Godot Universal Serializer 2 Extension.
+name: HFSM2 Build
+description: Build Godot Cpp and the HFSM2 Extension.
 
 inputs:
   platform:
@@ -39,7 +39,7 @@ runs:
         SCONS_CACHE_DIR: .scons-cache
       run: |
         cd gdextension_dependencies/godot-cpp && scons target=${{ inputs.target }} platform=${{ inputs.platform }} arch=${{ inputs.arch }} generate_bindings=yes ${{ inputs.sconsflags }} optimize=speed
-    - name: Build Godot Universal Serializer 2
+    - name: Build HFSM2
       shell: sh
       env:
         SCONS_CACHE: .scons-cache
