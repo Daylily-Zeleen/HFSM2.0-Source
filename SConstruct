@@ -49,16 +49,13 @@ if env["dev_build"]:
     pass
 
 
-lib_name = "hfsm2"
-
-
 def get_bin_file(env):
     if env["platform"] == "macos":
-        return "demo/addons/com.daylily_zeleen.hfsm2/bin/lib_name.{}.{}.framework/lib_name.{}.{}".format(
+        return "demo/addons/com.daylily_zeleen.hfsm2/bin/libhfsm2.{}.{}.framework/libhfsm2.{}.{}".format(
             env["platform"], env["target"], env["platform"], env["target"]
-        ).replace("lib_name", lib_name)
+        )
     else:
-        return "bin/lib_name{}{}".format(env["suffix"], env["SHLIBSUFFIX"]).replace("lib_name", lib_name)
+        return "bin/libhfsm2{}{}".format(env["suffix"], env["SHLIBSUFFIX"])
 
 
 bin_file = get_bin_file(env)

@@ -16,7 +16,7 @@ runs:
     #   shell: sh
     #   if: ${{ inputs.platform != 'macos' }}
     #   run: |
-    #     cp -r bin/hfsm2.${{ inputs.artifact_file_suffix }} dist/addons/com.daylily_zeleen.hfsm2/bin/hfsm2.${{ inputs.artifact_file_suffix }}
+    #     cp -r bin/hfsm2.${{ inputs.artifact_file_suffix }} dist/addons/com.daylily_zeleen.hfsm2/bin/libhfsm2.${{ inputs.artifact_file_suffix }}
 
     # - name: Copy readme and license.
     #   shell: sh
