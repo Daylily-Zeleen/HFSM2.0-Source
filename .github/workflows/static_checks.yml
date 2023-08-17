@@ -33,9 +33,9 @@ jobs:
         run: |
           bash ./misc/scripts/file_format.sh
 
-      # - name: Header guards formatting checks (header_guards.sh)
-      #   run: |
-      #     bash ./misc/header_guards.sh
+      - name: Header guards formatting checks (header_guards.sh)
+        run: |
+          bash ./misc/header_guards.sh
 
       - name: Python style checks via black (black_format.sh)
         run: |
