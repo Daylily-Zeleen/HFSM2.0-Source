@@ -29,8 +29,6 @@
 
 #include "hfsm.h"
 #include "fsm.h"
-#include "fsm_config.h"
-#include "state.h"
 #include "variable.h"
 #include "variable_config.h"
 

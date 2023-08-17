@@ -47,7 +47,7 @@ namespace Hfsm {
 class HFSM;
 class FSM;
 class State;
-// class FSMConfig;
+class FSMConfig;
 
 class Utils {
 	Utils() = default;
@@ -100,8 +100,8 @@ public:
 	bool is_script_valid() const;
 	void set_nested(bool p_nested);
 	bool is_nested() const;
-	void set_fsm_config(const Ref<class FSMConfig> &p_fsm_config);
-	Ref<class FSMConfig> get_fsm_config() const;
+	void set_fsm_config(const Ref<FSMConfig> &p_fsm_config);
+	Ref<FSMConfig> get_fsm_config() const;
 
 #ifdef TOOLS_ENABLED
 	void set_editor_offset(Vector2 p_offset);
@@ -127,7 +127,7 @@ private:
 	bool script_valid = true;
 
 	// 避免循环依赖
-	Ref<class FSMConfig> fsm_config;
+	Ref<FSMConfig> fsm_config;
 #ifdef TOOLS_ENABLED
 	Vector2 editor_offset;
 #endif //TOOLS_ENABLED

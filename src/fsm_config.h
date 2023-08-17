@@ -32,7 +32,6 @@
 #include "state.h"
 #include "state_config.h"
 #include "transition_config.h"
-#include "variable_config.h"
 
 #ifdef GDEXTENSION_BUILD
 using namespace godot;
@@ -42,7 +41,7 @@ using namespace godot;
 namespace Hfsm {
 // class HFSM;
 // class FSM;
-// class VariableConfig;
+class VariableConfig;
 
 // 状态机资源
 class FSMConfig : public Resource {
@@ -63,20 +62,20 @@ public:
 	// 转换列表
 	TypedArray<TransitionConfig> get_transition_config_list() const { return transition_config_list; }
 	// 变量列表
-	TypedArray<VariableConfig> get_variable_config_list() const { return variable_config_list; }
+	TypedArray<class VariableConfig> get_variable_config_list() const { return variable_config_list; }
 
 	void add_state_config(const Ref<StateConfig> &p_state_config);
 
 	void add_transition_config(const Ref<TransitionConfig> &p_transition_config);
 
-	void add_variable_config(const Ref<VariableConfig> &p_variable_config);
+	void add_variable_config(const Ref<class VariableConfig> &p_variable_config);
 
 	// 未删除相关的 TransitionConfig, 需要在编辑器里处理 undoredo
 	void remove_state_config(const Ref<StateConfig> &p_state_config);
 
 	void remove_transition_config(const Ref<TransitionConfig> &p_transition_config);
 
-	void remove_variable_config(const Ref<VariableConfig> &p_variable_config);
+	void remove_variable_config(const Ref<class VariableConfig> &p_variable_config);
 
 	// void set_state_config_list(Array state_config_list){
 	//     _state_config_list = Vector<Ref<StateConfig>>(state_config_list);
@@ -107,7 +106,7 @@ private:
 	// 自己的状态列表
 	TypedArray<StateConfig> state_config_list;
 	// 变量列表
-	TypedArray<VariableConfig> variable_config_list;
+	TypedArray<class VariableConfig> variable_config_list;
 	// 转换列表
 	TypedArray<TransitionConfig> transition_config_list;
 };

@@ -42,14 +42,14 @@ using namespace godot;
 
 #endif // GDEXTENSION_BUILD
 
+#include "state_config.h"
 #include "transitions/variable_expressions/variable_expression_config.h"
 
 namespace Hfsm {
 
 class HFSM;
-// class VariableExpressionConfig;
 class TransitionBase;
-class StateConfig;
+// class StateConfig;
 // class FSMConfig;
 // class TransitionConfig;
 

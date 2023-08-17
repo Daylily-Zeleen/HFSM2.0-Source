@@ -37,11 +37,11 @@
 #include <godot_cpp/classes/panel.hpp>
 #include <godot_cpp/classes/popup_menu.hpp>
 
+#include <godot_cpp/classes/font.hpp>
 using namespace godot;
 
 #else // GDEXTENSION_BUILD
 #include <scene/gui/graph_edit.h>
-
 #endif // GDEXTENSION_BUILD
 
 namespace Hfsm {

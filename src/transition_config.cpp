@@ -28,13 +28,11 @@
 /**************************************************************************/
 
 #include "transition_config.h"
-#include "state_config.h"
 #include "transitions/auto_transition.h"
 #include "transitions/expression_transition.h"
 #include "transitions/transition.h"
 #include "transitions/variable_expressions/trigger_expression.h"
 #include "transitions/variable_expressions/variable_expression.h"
-#include "transitions/variable_expressions/variable_expression_config.h"
 #include "transitions/variable_expressions_transition.h"
 
 #ifdef GDEXTENSION_BUILD

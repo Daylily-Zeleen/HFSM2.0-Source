@@ -65,12 +65,13 @@
 
 namespace Hfsm {
 
-#define GD_TEMPLATE "extends State\n\n\n"                                       \
-					"func _initialize() -> void:\n\tpass\n\n\n"                 \
-					"func _entry() -> void:\n\tpass\n\n\n"                      \
-					"func _update(delta: float) -> void:\n\tpass\n\n\n"         \
-					"func _physics_update(delta: float) -> void:\n\tpass\n\n\n" \
-					"func _exit() -> void:\n\tpass\n"
+#define GD_TEMPLATE                                             \
+	"extends State\n\n\n"                                       \
+	"func _initialize() -> void:\n\tpass\n\n\n"                 \
+	"func _entry() -> void:\n\tpass\n\n\n"                      \
+	"func _update(delta: float) -> void:\n\tpass\n\n\n"         \
+	"func _physics_update(delta: float) -> void:\n\tpass\n\n\n" \
+	"func _exit() -> void:\n\tpass\n"
 
 #ifdef MODULE_MONO_ENABLED
 #define CSHARP_TEMPLATE                                                                                \

@@ -33,6 +33,7 @@
 #include "state_config.h"
 #include "transition_config.h"
 #include "transitions/transition_base.h"
+#include "variable_config.h"
 
 namespace Hfsm {
 

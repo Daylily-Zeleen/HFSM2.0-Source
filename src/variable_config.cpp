@@ -28,10 +28,10 @@
 /**************************************************************************/
 
 #include "variable_config.h"
-#include "fsm_config.h"
-#include "variable.h"
 
 #include "fsm_config.h"
+
+#include "variable.h"
 
 namespace Hfsm {
 #pragma region VariableConfig

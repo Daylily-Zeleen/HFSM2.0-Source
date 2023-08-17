@@ -49,7 +49,12 @@ using namespace godot;
 
 #endif // GDEXTENSION_BUILD
 
+#include "../src/fsm_config.h"
+
 namespace Hfsm {
+
+// class FSMConfig;
+class StateConfig;
 
 class StateNode : public GraphNode {
 	GDCLASS(StateNode, GraphNode)
@@ -59,8 +64,8 @@ protected:
 	void _notification(int p_what);
 
 private:
-	Ref<class FSMConfig> nested_fsm_config;
-	Ref<class StateConfig> state_config;
+	Ref<FSMConfig> nested_fsm_config;
+	Ref<StateConfig> state_config;
 	// ==================
 	LineEdit *name_line_edit = nullptr;
 	OptionButton *type_option_btn = nullptr;
@@ -69,7 +74,7 @@ private:
 	Button *sub_fsm_btn = nullptr;
 	EditorResourcePicker *script_picker = nullptr;
 
-	void set_state_config(const Ref<class StateConfig> &p_state_config);
+	void set_state_config(const Ref<StateConfig> &p_state_config);
 
 	// 动画交给监视器
 	// ==================

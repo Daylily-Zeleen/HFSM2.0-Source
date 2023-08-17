@@ -33,11 +33,14 @@
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/animation_player.hpp>
+#include <godot_cpp/templates/local_vector.hpp>
 #include <godot_cpp/templates/vmap.hpp>
+
 using namespace godot;
 #else
 #include <core/templates/vmap.h>
 #include <scene/animation/animation_player.h>
+#include <core/templates/local_vector.hpp>
 
 #endif // GDEXTENSION_BUILD
 
@@ -48,8 +51,8 @@ namespace Hfsm {
 
 // class FSMConfig;
 class FSM;
-// class State;
 class Variable;
+
 // 考虑状态机是非运行时设计完成的一种东西，在运行时改变状态是不合理的设计
 // 因此取消运行时改变状态类型的功能
 class HFSM : public Node {

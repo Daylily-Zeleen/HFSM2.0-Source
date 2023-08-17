@@ -47,6 +47,7 @@ using namespace godot;
 
 namespace Hfsm {
 class HfsmDebugger;
+class FSMConfig;
 
 class HfsmDebuggerPlugin : public EditorDebuggerPlugin {
 	GDCLASS(HfsmDebuggerPlugin, EditorDebuggerPlugin)
@@ -83,7 +84,7 @@ public:
 class HfsmDebugger : public HSplitContainer {
 	GDCLASS(HfsmDebugger, HSplitContainer)
 	struct NodeData {
-		Ref<class FSMConfig> root_fsm_config;
+		Ref<FSMConfig> root_fsm_config;
 		PackedStringArray current_active_path;
 	};
 	HashMap<NodePath, NodeData> datas;
@@ -101,7 +102,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	void build(const NodePath &p_path, const Ref<class FSMConfig> &p_root_fsm_config, const String &p_cache_path);
+	void build(const NodePath &p_path, const Ref<FSMConfig> &p_root_fsm_config, const String &p_cache_path);
 	void destory(const NodePath &p_path);
 	void update_active_path(const NodePath &p_path, const PackedStringArray &p_new_active_path);
 

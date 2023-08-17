@@ -31,6 +31,7 @@
 
 #include "../fsm.h"
 #include "../state.h"
+#include "../transition_config.h"
 #include "transition_base.h"
 
 #ifdef GDEXTENSION_BUILD

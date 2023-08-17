@@ -48,7 +48,6 @@
 
 #endif // GDEXTENSION_BUILD
 
-#include "../src/fsm_config.h"
 #include "../src/state_config.h"
 
 #include "hfsm_editor.h"

@@ -40,7 +40,7 @@ using namespace godot;
 
 namespace Hfsm {
 class Variable;
-// class FSMConfig;
+class FSMConfig;
 
 class VariableConfig : public Resource {
 	GDCLASS(VariableConfig, Resource)
@@ -67,18 +67,18 @@ public:
 	void set_default_value(const Variant &p_default_val);
 	Variant get_default_value() const; //  { return _default_val; }
 
-	Ref<class Variable> create_variable();
+	Ref<Variable> create_variable();
 
-	void set_fsm_config(const Ref<class FSMConfig> &p_fsm_config);
-	Ref<class FSMConfig> get_fsm_config() const;
+	void set_fsm_config(const Ref<FSMConfig> &p_fsm_config);
+	Ref<FSMConfig> get_fsm_config() const;
 
-	static Ref<VariableConfig> create_new(const Ref<class FSMConfig> &p_fsm_config);
+	static Ref<VariableConfig> create_new(const Ref<FSMConfig> &p_fsm_config);
 
 	String get_type_text() const;
 
 private:
 	StringName variable_name = "variable";
-	Ref<class FSMConfig> fsm_config;
+	Ref<FSMConfig> fsm_config;
 	Variant::Type type = Variant::NIL;
 	Variant default_value;
 	String comment = "";
