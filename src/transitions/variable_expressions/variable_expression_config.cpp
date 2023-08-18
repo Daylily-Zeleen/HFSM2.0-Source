@@ -47,10 +47,10 @@ VariableExpressionConfig::TriggerType VariableExpressionConfig::get_trigger_type
 bool VariableExpressionConfig::is_variable_as_value() const { return variable_as_value; }
 
 VariableExpression *VariableExpressionConfig::create_variable_expression(HFSM *p_hfsm) {
-	ERR_FAIL_COND_V(!variable_config.is_valid(), nullptr);
+	ERR_FAIL_COND_V_MSG(!variable_config.is_valid(), nullptr, "Create VariableExpression failed, \"variable_config\" is null.");
 	// 获取变量类型
 	auto v = p_hfsm->get_var(variable_config->get_variable_name());
-	ERR_FAIL_COND_V(!v.is_valid(), nullptr);
+	ERR_FAIL_COND_V_MSG(!v.is_valid(), nullptr, "Create VariableExpression failed, has not variable: " + variable_config->get_variable_name());
 	//  触发器
 	if (v->get_variable_type() == Variant::NIL) {
 		switch (trigger_type) {
@@ -70,7 +70,7 @@ VariableExpression *VariableExpressionConfig::create_variable_expression(HFSM *p
 			return memnew(ConstantComparationExpression(variable_config, comparator, value));
 		}
 	}
-	return nullptr;
+	ERR_FAIL_COND_V_MSG(!v.is_valid(), nullptr, "Create VariableExpression failed.");
 }
 
 bool VariableExpressionConfig::_set(const StringName &p_name, const Variant &p_property) {

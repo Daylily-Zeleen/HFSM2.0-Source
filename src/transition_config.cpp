@@ -340,7 +340,7 @@ bool TransitionConfig::is_script_valid() const { return script_valid; }
 #endif // FULL_VERSION
 
 TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm) {
-	TransitionBase *ret;
+	TransitionBase *ret = nullptr;
 	switch (type) {
 		case TRANSITION_TYPE_AUTO: {
 			ret = memnew(AutoTransition(auto_mode, auto_delay_msec, auto_times));
@@ -354,7 +354,7 @@ TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm) {
 			for (size_t i = 0; i < variable_expression_config_list.size(); i++) {
 				Ref<VariableExpressionConfig> variable_expression_config = variable_expression_config_list[i];
 				auto ve = variable_expression_config->create_variable_expression(p_hfsm);
-				ERR_FAIL_COND_V(!ve, nullptr);
+				ERR_FAIL_COND_V_MSG(!ve, memnew(AutoTransition(AUTO_TRANSIT_MODE_MANUAL, auto_delay_msec, auto_times)), "Create Variable Expression Transition failed, will create a manual Transition to replace it.");
 				switch (ve->get_expression_type()) {
 					case VariableExpression::ExpressionType::EXPRESSION_TYPE_NORMAL:
 						vt->normal_expressions.append(ve);
@@ -381,7 +381,7 @@ TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm) {
 #endif // FULL_VERSION
 		default: {
 			if (!Engine::get_singleton()->is_editor_hint()) {
-				CRASH_NOW_MSG("Illegal transition type.");
+				CRASH_NOW_MSG("Illegal transition type: " + itos(type));
 			}
 		} break;
 	}
