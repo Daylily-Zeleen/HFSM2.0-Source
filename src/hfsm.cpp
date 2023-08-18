@@ -262,9 +262,6 @@ bool HFSM::rebuild_hfsm() {
 		variable_blackboard.erase(variable_blackboard.getk(variable_blackboard.size() - 1));
 	}
 
-	// Build
-	root_fsm = root_fsm_config->create_fsm(this);
-
 	// Create variables.
 	auto variable_config_list = root_fsm_config->get_variable_config_list();
 	for (auto i = 0; i < variable_config_list.size(); i++) {
@@ -277,6 +274,9 @@ bool HFSM::rebuild_hfsm() {
 			trigger_list.push_back(var);
 		}
 	}
+
+	// Build
+	root_fsm = root_fsm_config->create_fsm(this);
 
 	IF_DEBUG_TOOL(HfsmDebuggerPlugin::send_debug_built(this);)
 	return true;
