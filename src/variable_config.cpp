@@ -78,23 +78,23 @@ void VariableConfig::_bind_methods() {
 }
 
 void VariableConfig::set_variable_name(const StringName &p_name) {
-	if (!fsm_config.is_valid()) {
-		return;
-	}
-	bool unique = true;
+	// Only check if FSMConfig valid.
 	variable_name = StringName(p_name);
-	do {
-		unique = true;
-		auto vrl = fsm_config->get_variable_config_list();
-		for (auto i = 0; i < vrl.size(); i++) {
-			Ref<VariableConfig> v = vrl[i];
-			if (v.is_valid() && v.ptr() != this && v->get_variable_name() == variable_name) {
-				variable_name = StringName(String("@") + String(variable_name));
-				unique = false;
-				break;
+	if (fsm_config.is_valid()) {
+		bool unique = true;
+		do {
+			unique = true;
+			auto vrl = fsm_config->get_variable_config_list();
+			for (auto i = 0; i < vrl.size(); i++) {
+				Ref<VariableConfig> v = vrl[i];
+				if (v.is_valid() && v.ptr() != this && v->get_variable_name() == variable_name) {
+					variable_name = StringName(String("@") + String(variable_name));
+					unique = false;
+					break;
+				}
 			}
-		}
-	} while (!unique);
+		} while (!unique);
+	}
 
 	set_name(String(variable_name) + ": " + get_type_text());
 	emit_changed();
@@ -183,10 +183,12 @@ String VariableConfig::get_type_text() const {
 			return "Bool";
 		case Variant::INT:
 			return "Int";
+		case Variant::FLOAT:
+			return "Float";
 		case Variant::STRING:
 			return "String";
 		default:
-			ERR_FAIL_V_MSG("Unknowm", "Invald type: %d" + itos(get_type()));
+			ERR_FAIL_V_MSG("Unknowm", "Invald type: " + itos(get_type()));
 	}
 }
 
