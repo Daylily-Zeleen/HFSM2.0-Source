@@ -54,14 +54,12 @@ VariableExpression *VariableExpressionConfig::create_variable_expression(HFSM *p
 	//  触发器
 	if (v->get_variable_type() == Variant::NIL) {
 		switch (trigger_type) {
-			case TRIGGER_TYPE_NORMAL:
-				return memnew(TriggerExpression(v));
 			case TRIGGER_TYPE_UNION:
 				return memnew(UnionTriggerExpression(v));
 			case TRIGGER_TYPE_SOLO:
 				return memnew(SoloTriggerExpression(v));
 			default:
-				break;
+				return memnew(TriggerExpression(v));
 		}
 	} else {
 		if (variable_as_value) {
@@ -70,7 +68,6 @@ VariableExpression *VariableExpressionConfig::create_variable_expression(HFSM *p
 			return memnew(ConstantComparationExpression(v, comparator, value));
 		}
 	}
-	ERR_FAIL_COND_V_MSG(!v.is_valid(), nullptr, "Create VariableExpression failed.");
 }
 
 bool VariableExpressionConfig::_set(const StringName &p_name, const Variant &p_property) {
