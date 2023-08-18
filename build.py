@@ -8,6 +8,8 @@ from os.path import join as path_join
 def main():
     # add_copyright()
     # save_as_utf8()
+    if os.path.exists("dist"):
+        shutil.rmtree("dist")
     args = "scons"
     debug_and_relaese = True
     custom_api_file_defined = False

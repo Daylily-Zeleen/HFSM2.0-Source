@@ -23,7 +23,7 @@ runs:
       with:
         path: |
           ${{ github.workspace }}/.scons-cache/
-          ${{ github.workspace }}/godot-cpp/.scons-cache/
+          ${{ github.workspace }}/gdextension_dependencies/godot-cpp/.scons-cache/
         key: ${{ inputs.platform }}_${{ inputs.arch }}_${{ inputs.target }}_cache
     - name: Setup python and scons
       uses: ./.github/actions/deps

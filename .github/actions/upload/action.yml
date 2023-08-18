@@ -31,4 +31,4 @@ runs:
         name: HFSM2
         path: |
           ${{ github.workspace }}/dist/**
-        retention-days: 14
+        retention-days: 1
