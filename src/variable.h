@@ -31,6 +31,8 @@
 
 #include "../hfsm_global.h"
 
+#include <type_traits>
+
 #ifdef GDEXTENSION_BUILD
 #ifdef TOOLS_ENABLED
 #include <godot_cpp/classes/engine.hpp>
@@ -67,8 +69,8 @@ public:
 	void flush_trigger();
 
 	Variable() = default;
-	Variable(const StringName &p_variable_name, Variant::Type p_type, const Variant &p_default_value) :
-			variable_name(p_variable_name), type(p_type), value(p_default_value) {}
+	Variable(StringName p_variable_name, Variant::Type p_type, Variant p_default_value) :
+			variable_name(std::move(p_variable_name)), type(p_type), value(std::move(p_default_value)) {}
 
 private:
 	StringName variable_name = "";

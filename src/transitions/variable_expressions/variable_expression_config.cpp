@@ -65,9 +65,9 @@ VariableExpression *VariableExpressionConfig::create_variable_expression(HFSM *p
 		}
 	} else {
 		if (variable_as_value) {
-			return memnew(VariableComparationExpression(variable_config, comparator, value));
+			return memnew(VariableComparationExpression(v, comparator, value));
 		} else {
-			return memnew(ConstantComparationExpression(variable_config, comparator, value));
+			return memnew(ConstantComparationExpression(v, comparator, value));
 		}
 	}
 	ERR_FAIL_COND_V_MSG(!v.is_valid(), nullptr, "Create VariableExpression failed.");
