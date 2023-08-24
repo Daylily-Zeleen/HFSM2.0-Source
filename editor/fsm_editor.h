@@ -90,7 +90,7 @@ private:
 	Panel *mask_panel = nullptr;
 	Label *mask_hint = nullptr;
 	StateNode *__hovering_state_node = nullptr;
-	Control *draw_layer = nullptr;
+	Control *connection_layer = nullptr;
 	// ==============
 	Ref<FSMConfig> current_root_fsm_config;
 	Ref<FSMConfig> current_fsm_config;

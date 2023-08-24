@@ -48,15 +48,30 @@ void HfsmGlobal::init_static() {
 	auto &singletons = _singletons();
 
 	IF_GDE({
-		auto sigleton_list = Engine::get_singleton()->get_singleton_list();
-		// TODO:: Waiting for ClassDB singleton.
-		sigleton_list.remove_at(sigleton_list.find("ClassDB"));
+		auto singleton_list = Engine::get_singleton()->get_singleton_list();
 
-		singleton_names.resize(sigleton_list.size());
-		singletons.resize(sigleton_list.size());
-		for (auto i = 0; i < sigleton_list.size(); ++i) {
-			singleton_names[i] = sigleton_list[i];
-			singletons[i] = Engine::get_singleton()->get_singleton({ sigleton_list[i] });
+		// Step1: collect unbound classes;
+		PackedStringArray unbound_classes;
+		for (auto klass : singleton_list) {
+			if (!ClassDB::has_instance_binding_callbacks(klass)) {
+				unbound_classes.append(klass);
+			}
+		}
+
+		// Step2: remove unbound classes;
+		for (auto klass : unbound_classes) {
+			auto idx = singleton_list.find(klass);
+			if (idx >= 0) {
+				singleton_list.remove_at(idx);
+			}
+		}
+
+		// Step3: Collect Signeltons.
+		singleton_names.resize(singleton_list.size());
+		singletons.resize(singleton_list.size());
+		for (auto i = 0; i < singleton_list.size(); ++i) {
+			singleton_names[i] = singleton_list[i];
+			singletons[i] = Engine::get_singleton()->get_singleton({ singleton_list[i] });
 		}
 	})
 

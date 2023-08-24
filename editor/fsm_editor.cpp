@@ -682,8 +682,8 @@ void FsmEditor::_popup_menu_id_pressed(int32_t p_id) {
 				ADD_DO_METHOD(this, __set_blocking_redraw, false);
 				ADD_UNDO_METHOD(this, __set_blocking_redraw, false);
 				ADD_UNDO_METHOD(this, __select_mamually, get_selected_state_nodes());
-				ADD_DO_METHOD(draw_layer, queue_redraw);
-				ADD_UNDO_METHOD(draw_layer, queue_redraw);
+				ADD_DO_METHOD(connection_layer, queue_redraw);
+				ADD_UNDO_METHOD(connection_layer, queue_redraw);
 				COMMIT_ACTION();
 			} else if (selected_transition_config_list.size() >= 0) {
 				HFSM_EDITOR_CREATE_ACTION("Delete State Transitions");
@@ -795,8 +795,8 @@ void FsmEditor::_popup_menu_id_pressed(int32_t p_id) {
 
 			ADD_DO_METHOD(this, __set_blocking_redraw, false);
 			ADD_UNDO_METHOD(this, __set_blocking_redraw, false);
-			ADD_DO_METHOD(draw_layer, queue_redraw);
-			ADD_UNDO_METHOD(draw_layer, queue_redraw);
+			ADD_DO_METHOD(connection_layer, queue_redraw);
+			ADD_UNDO_METHOD(connection_layer, queue_redraw);
 			COMMIT_ACTION();
 
 		} break;
@@ -834,8 +834,8 @@ void FsmEditor::_connection_request(const StringName &p_from, int p_from_slot, c
 	ADD_DO_DEFERRED_CALL_METHOD(this, __set_selected_transition_config_list, new_transiion_config_list);
 	ADD_UNDO_DEFERRED_CALL_METHOD(this, __set_selected_transition_config_list, selected_transition_config_list);
 
-	ADD_DO_METHOD(draw_layer, queue_redraw);
-	ADD_UNDO_METHOD(draw_layer, queue_redraw);
+	ADD_DO_METHOD(connection_layer, queue_redraw);
+	ADD_UNDO_METHOD(connection_layer, queue_redraw);
 	COMMIT_ACTION();
 }
 
@@ -879,7 +879,7 @@ void FsmEditor::_popup_request(const Vector2 &p_position) {
 	menu->popup();
 }
 
-void FsmEditor::_transition_config_updated() { draw_layer->queue_redraw(); }
+void FsmEditor::_transition_config_updated() { connection_layer->queue_redraw(); }
 
 void FsmEditor::_node_selected(Object *node) {
 	auto sn = cast_to<StateNode>(node);
@@ -962,7 +962,7 @@ void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 	const auto set_input_as_handled = [this]() { this->get_tree()->get_root()->set_input_as_handled(); };
 
 	if (auto mouse_btn_event = Object::cast_to<InputEventMouseButton>(p_event.ptr())) {
-		auto mouse_pos = draw_layer->get_local_mouse_position(); // mouse_btn_event->get_position(); //- draw_layer->get_position();
+		auto mouse_pos = connection_layer->get_local_mouse_position(); // mouse_btn_event->get_position(); //- connection_layer->get_position();
 		switch (mouse_btn_event->get_button_index()) {
 			case MOUSE_BUTTON(WHEEL_UP):
 			case MOUSE_BUTTON(WHEEL_DOWN): {
@@ -989,7 +989,7 @@ void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 					to_disconnect = false;
 					try_disconnect(mouse_pos, disconnect_line[0]);
 					disconnect_line.resize(0);
-					draw_layer->queue_redraw();
+					connection_layer->queue_redraw();
 					set_input_as_handled();
 				}
 			} break;
@@ -1005,10 +1005,10 @@ void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 						HFSM_EDITOR_CREATE_ACTION("Select State Transitions");
 						ADD_DO_METHOD(this, __set_selected_state_name_list, TypedArray<StringName>());
 						ADD_DO_METHOD(this, __set_selected_transition_config_list, p_selected_tc_list);
-						ADD_DO_METHOD(draw_layer, queue_redraw);
+						ADD_DO_METHOD(connection_layer, queue_redraw);
 						ADD_UNDO_METHOD(this, __set_selected_transition_config_list, this->selected_transition_config_list);
 						ADD_UNDO_METHOD(this, __set_selected_state_name_list, selected_state_name_list);
-						ADD_UNDO_METHOD(draw_layer, queue_redraw);
+						ADD_UNDO_METHOD(connection_layer, queue_redraw);
 						COMMIT_ACTION();
 					};
 
@@ -1057,10 +1057,10 @@ void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 								HFSM_EDITOR_CREATE_ACTION("Deselect");
 								ADD_DO_METHOD(this, __set_selected_transition_config_list, selected_tc_list);
 								ADD_DO_METHOD(this, __set_selected_state_name_list, TypedArray<StringName>());
-								ADD_DO_METHOD(draw_layer, queue_redraw);
+								ADD_DO_METHOD(connection_layer, queue_redraw);
 								ADD_UNDO_METHOD(this, __set_selected_state_name_list, selected_state_name_list);
 								ADD_UNDO_METHOD(this, __set_selected_transition_config_list, selected_transition_config_list);
-								ADD_UNDO_METHOD(draw_layer, queue_redraw);
+								ADD_UNDO_METHOD(connection_layer, queue_redraw);
 								COMMIT_ACTION();
 							}
 						}
@@ -1076,8 +1076,8 @@ void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 	} else if (auto mouse_motion_event = Object::cast_to<InputEventMouseMotion>(p_event.ptr())) {
 		if (to_disconnect) {
 			// 删除
-			disconnect_line.set(1, draw_layer->get_local_mouse_position());
-			draw_layer->queue_redraw();
+			disconnect_line.set(1, connection_layer->get_local_mouse_position());
+			connection_layer->queue_redraw();
 			set_input_as_handled();
 		}
 	}
@@ -1190,8 +1190,8 @@ void FsmEditor::_draw_layer_draw() {
 			triangle_color = selected ? activity_color : triangle_color;
 			set_connection_activity(from_name, 0, to_name, 0, selected ? 1.0 : 0.0);
 		}
-		draw_layer->draw_set_transform(center_pos, angle, clamped_scale);
-		draw_layer->draw_colored_polygon(TRIANGLE_POINTS, triangle_color);
+		connection_layer->draw_set_transform(center_pos, angle, clamped_scale);
+		connection_layer->draw_colored_polygon(TRIANGLE_POINTS, triangle_color);
 
 		TransitionConfigValidLevel valid = TRANSITION_CONFIG_VALID_LEVEL_ERROR;
 		auto texts = get_transition_config_valid_and_texts(tc, valid);
@@ -1227,28 +1227,28 @@ void FsmEditor::_draw_layer_draw() {
 		if (angle <= Math_PI * 0.5f && angle > -Math_PI * 0.5f) {
 			// 上方正向显示
 			top = (line_count * char_high) * Vector2(0, -1);
-			draw_layer->draw_set_transform(center_pos, angle, clamped_scale);
+			connection_layer->draw_set_transform(center_pos, angle, clamped_scale);
 		} else {
 			// 上方反向显示
 			top = (CLAMP(line_count - 1, 1.2, line_count) * char_high) * Vector2(0, 1);
-			draw_layer->draw_set_transform(center_pos, angle + Math_PI, clamped_scale);
+			connection_layer->draw_set_transform(center_pos, angle + Math_PI, clamped_scale);
 		}
 
 		for (auto i = 0; i < line_count; i++) {
 			String text = texts[i];
 			auto string_size = font->get_string_size(text);
-			draw_layer->draw_string(font, top + Vector2(-string_size.x / 2.0f, i * string_size.y), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, text_color);
+			connection_layer->draw_string(font, top + Vector2(-string_size.x / 2.0f, i * string_size.y), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, text_color);
 		}
 	}
 
 	if (disconnect_line.size() == 2) {
-		draw_layer->draw_set_transform(Vector2(0, 0), 0.0, Vector2(1, 1));
-		draw_layer->draw_line(disconnect_line[0], disconnect_line[1], Color::named("royal_blue"), 5, true);
+		connection_layer->draw_set_transform(Vector2(0, 0), 0.0, Vector2(1, 1));
+		connection_layer->draw_line(disconnect_line[0], disconnect_line[1], Color::named("royal_blue"), 5, true);
 	}
 
 	static bool dirty = false;
 	if (!dirty) {
-		draw_layer->call_deferred(TNAMEOF(queue_redraw));
+		connection_layer->call_deferred(TNAMEOF(queue_redraw));
 		dirty = true;
 	} else {
 		dirty = false;
@@ -1271,13 +1271,22 @@ void FsmEditor::initialize() {
 	// Hack
 	for (auto i = 0; i < get_child_count(true); ++i) {
 		if (auto ctrl = cast_to<Control>(get_child(i, true))) {
-			if (ctrl->get_name() == StringName("CLAYER")) {
-				draw_layer = ctrl;
+			if (ctrl->get_class() == decltype(ctrl->get_class())(Control::get_class_static())) {
+				TypedArray<Dictionary> signal_conn_list = ctrl->call(TNAMEOF(get_signal_connection_list), "draw");
+				if (signal_conn_list.size() != 1) {
+					continue;
+				}
+				if (ctrl->get_mouse_filter() != MOUSE_FILTER_IGNORE) {
+					continue;
+				}
+				connection_layer = ctrl;
+				break;
 			}
 		}
 	}
-	CRASH_COND(!draw_layer);
-	draw_layer->set_mouse_filter(MOUSE_FILTER_PASS);
+	CRASH_COND_MSG(!connection_layer, "Gets connection_layer of GraphEdit is faild on your Godot version. Please open a issue on \"https://github.com/Daylily-Zeleen/HFSM2/issues\"");
+
+	connection_layer->set_mouse_filter(MOUSE_FILTER_PASS);
 
 	menu = memnew(PopupMenu);
 	menu->connect("id_pressed", TCALLABLE(_popup_menu_id_pressed));
@@ -1736,11 +1745,11 @@ void FsmEditor::_notification(int p_what) {
 				return;
 			}
 			connection_dirty = true;
-			draw_layer->queue_redraw();
+			connection_layer->queue_redraw();
 		} break;
 		case NOTIFICATION_READY: {
 			set_process(false);
-			draw_layer->connect("draw", TCALLABLE(_draw_layer_draw));
+			connection_layer->connect("draw", TCALLABLE(_draw_layer_draw));
 
 			connect("gui_input", TCALLABLE(_gui_input_internal));
 			connect("end_node_move", TCALLABLE(_end_node_move));
@@ -1749,7 +1758,7 @@ void FsmEditor::_notification(int p_what) {
 			propagate_notification(NOTIFICATION_THEME_CHANGED);
 		} break;
 		case NOTIFICATION_DRAW: {
-			draw_layer->queue_redraw();
+			connection_layer->queue_redraw();
 		} break;
 		case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED:
 		case NOTIFICATION_THEME_CHANGED: {
