@@ -366,6 +366,8 @@ static Array make_arr(Args... args) {
 
 #ifdef DEV_ENABLED
 #define IF_DEV(m_code) m_code
+#define IF_NOT_DEV(m_code)
 #else // DEV_ENABLED
 #define IF_DEV(m_code)
+#define IF_NOT_DEV(m_code) m_code
 #endif // DEV_ENABLED

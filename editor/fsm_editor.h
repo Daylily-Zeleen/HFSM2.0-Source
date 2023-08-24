@@ -182,6 +182,41 @@ private:
 	void __queue_redraw_request();
 	void __queue_redraw();
 
+	template <typename TFuncAction, std::enable_if<std::is_invocable_r_v<bool, TFuncAction, StringName, StringName>> *valve = nullptr>
+	void foreach_connection_by_names(TFuncAction p_action) {
+		IF_GDE({
+			Array conn_list = call("get_connection_list");
+			for (auto i = 0; i < conn_list.size(); i++) {
+				Dictionary conn = conn_list[i];
+				const StringName from = conn.has("from") ? conn["from"] : conn["from_node"];
+				const StringName to = conn.has("to") ? conn["to"] : conn["to_node"];
+
+				if (p_action(from, to)) {
+					return;
+				}
+			}
+		})
+		IF_GDM({
+			List<Connection> conn_list;
+			get_connection_list(&conn_list);
+			for (auto conn : conn_list) {
+				if (p_action(conn.from_node, conn.to_node)) {
+					return;
+				}
+			}
+		})
+	}
+
+	template <typename TFuncAction, std::enable_if<std::is_invocable_r_v<bool, TFuncAction, StateNode *, StateNode *>> *valve = nullptr>
+	void foreach_connection_by_nodes(TFuncAction p_action) {
+		const auto action = [this, p_action](const StringName &p_from, const StringName &p_to) -> bool {
+			auto from = _get_state_node({ p_from });
+			auto to = _get_state_node({ p_from });
+			return p_action(from, to);
+		};
+		foreach_connection_by_names(action);
+	}
+
 public:
 	void queue_refresh();
 

@@ -171,20 +171,22 @@ void FsmEditor::__set_selected_state_name_list(const TypedArray<StringName> &p_t
 		selected_state_name_list = p_to_set;
 	}
 	selected_transition_config_list.clear();
-	Array conn_list = call("get_connection_list");
-	for (auto i = 0; i < conn_list.size(); i++) {
-		Dictionary conn = conn_list[i];
-		auto from = _get_state_node({ StringName(conn["from"]) });
-		auto to = _get_state_node({ StringName(conn["to"]) });
-		if (from && to) {
-			if (selected_state_name_list.has(from->get_state_config()->get_state_name()) && selected_state_name_list.has(to->get_state_config()->get_state_name())) {
-				auto tc = get_transition_config(from, to);
-				if (tc.is_valid()) {
-					selected_transition_config_list.push_back(tc);
-				}
+
+	foreach_connection_by_nodes([this](StateNode *p_from, StateNode *p_to) -> bool {
+		if (!p_from || !p_to) {
+			return false;
+		}
+
+		if (selected_state_name_list.has(p_from->get_state_config()->get_state_name()) && selected_state_name_list.has(p_to->get_state_config()->get_state_name())) {
+			auto tc = get_transition_config(p_from, p_to);
+			if (tc.is_valid()) {
+				selected_transition_config_list.push_back(tc);
 			}
 		}
-	}
+
+		return false;
+	});
+
 	__set_selected_transition_config_list(selected_transition_config_list);
 }
 
@@ -238,22 +240,20 @@ void FsmEditor::try_disconnect(const Vector2 &p_pos1, const Vector2 &p_pos2) {
 		return;
 	}
 
-	Array conn_list = call("get_connection_list");
 	const Vector2 scaled_pos1 = p_pos1;
 	const Vector2 scaled_pos2 = p_pos2;
 
 	LocalVector<Pair<StateNode *, StateNode *>> to_delete;
-	for (auto i = 0; i < conn_list.size(); i++) {
-		Dictionary conn = conn_list[i];
-		auto from = _get_state_node({ StringName(conn["from"]) });
-		auto to = _get_state_node({ StringName(conn["to"]) });
-		if (from && to) {
-			auto scaled_line = get_connection_line_with_zoom(from, to);
+	foreach_connection_by_nodes([this, &to_delete, scaled_pos1, scaled_pos2](StateNode *p_from, StateNode *p_to) -> bool {
+		if (p_from && p_to) {
+			auto scaled_line = get_connection_line_with_zoom(p_from, p_to);
 			if (is_judge(scaled_pos1, scaled_pos2, scaled_line[0], scaled_line[1])) {
-				to_delete.push_back({ from, to });
+				to_delete.push_back({ p_from, p_to });
 			}
 		}
-	}
+		return false;
+	});
+
 	if (to_delete.size() > 0) {
 		HFSM_EDITOR_CREATE_ACTION("Delete State Transitions");
 		for (const auto &E : to_delete) {
@@ -288,13 +288,8 @@ bool FsmEditor::is_judge(const Vector2 &p_apos1, const Vector2 &p_apos2, const V
 TypedArray<TransitionConfig> FsmEditor::try_select_transitions_at_pos(const Vector2 &p_pos) {
 	TypedArray<TransitionConfig> ret;
 	float graph_zoom = get_zoom();
-	Array conn_list = call("get_connection_list");
-	for (auto i = 0; i < conn_list.size(); i++) {
-		Dictionary conn = conn_list[i];
-		const StringName from_name = conn["from"];
-		const StringName to_name = conn["to"];
-		auto from = _get_state_node({ StringName(conn["from"]) });
-		auto to = _get_state_node({ StringName(conn["to"]) });
+
+	foreach_connection_by_nodes([this, graph_zoom, p_pos, &ret](StateNode *from, StateNode *to) {
 		auto scaled_line = get_connection_line_with_zoom(from, to);
 		Vector2 scaled_from_pos = scaled_line[0];
 		Vector2 scaled_to_pos = scaled_line[1];
@@ -311,7 +306,8 @@ TypedArray<TransitionConfig> FsmEditor::try_select_transitions_at_pos(const Vect
 				ret.push_back(tc);
 			}
 		}
-	}
+		return false;
+	});
 
 	return ret;
 }
@@ -420,17 +416,17 @@ void FsmEditor::_state_node_reconnected_requested(const StringName &p_old_name, 
 	if (!get_node_or_null({ p_new_name })) {
 		return;
 	}
-	TypedArray<Dictionary> conn_list = call(SNAME("get_connection_list"));
-	for (auto i = 0; i < conn_list.size(); ++i) {
-		Dictionary conn = conn_list[i];
-		if (StringName(conn["from"]) == p_old_name) {
-			disconnect_node(p_old_name, 0, conn["to"], 0);
-			connect_node(p_new_name, 0, conn["to"], 0);
-		} else if (StringName(conn["to"]) == p_old_name) {
-			disconnect_node(conn["from"], 0, p_old_name, 0);
-			connect_node(conn["from"], 0, p_new_name, 0);
+
+	foreach_connection_by_names([this, p_old_name, p_new_name](const StringName &p_from, const StringName &p_to) {
+		if (p_from == p_old_name) {
+			disconnect_node(p_old_name, 0, p_to, 0);
+			connect_node(p_new_name, 0, p_to, 0);
+		} else if (p_to == p_old_name) {
+			disconnect_node(p_from, 0, p_old_name, 0);
+			connect_node(p_from, 0, p_new_name, 0);
 		}
-	}
+		return false;
+	});
 }
 
 void FsmEditor::_popup_menu_id_pressed(int32_t p_id) {
@@ -1119,15 +1115,14 @@ void FsmEditor::_draw_layer_draw() {
 	}
 
 	if (connection_dirty) {
-		Array conn_list = call("get_connection_list");
-		for (auto i = 0; i < conn_list.size(); i++) {
-			Dictionary conn = conn_list[i];
-			auto from = _get_state_node({ StringName(conn["from"]) });
-			auto to = _get_state_node({ StringName(conn["to"]) });
+		foreach_connection_by_names([this](const StringName &p_from, const StringName &p_to) {
+			auto from = _get_state_node({ p_from });
+			auto to = _get_state_node({ p_to });
 			if (!from || !to) {
-				disconnect_node(conn["from"], conn["from_port"], conn["to"], conn["to_port"]);
+				disconnect_node(p_from, 0, p_to, 0);
 			}
-		}
+			return false;
+		});
 		connection_dirty = false;
 	}
 
@@ -1145,26 +1140,28 @@ void FsmEditor::_draw_layer_draw() {
 
 	const Color unactivated_triangle_color = StateNode::OUT_COLOR().lerp(StateNode::IN_COLOR(), 0.5f);
 
-	Array conn_list = call("get_connection_list");
-	IF_DEV(
-			LocalVector<Ref<TransitionConfig>> dealed_tc_list;
-			dealed_tc_list.reserve(conn_list.size());)
-	for (auto i = 0; i < conn_list.size(); i++) {
-		Dictionary conn = conn_list[i];
-		StringName from_name = conn["from"];
-		StringName to_name = conn["to"];
-
-		auto from = _get_state_node({ StringName(conn["from"]) });
-		auto to = _get_state_node({ StringName(conn["to"]) });
+#ifdef DEV_ENABLED
+	LocalVector<Ref<TransitionConfig>> dealed_tc_list;
+	IF_GDE(dealed_tc_list.reserve(get_connection_list().size()));
+	IF_GDM(List<Connection> conn_list;
+			get_connection_list(&conn_list);
+			dealed_tc_list.reserve(conn_list.size()));
+	const auto action = [this, unactivated_triangle_color, &dealed_tc_list](const StringName &from_name, const StringName &to_name)
+#else // DEV_ENABLED
+	const auto action = [this, unactivated_triangle_color](const StringName &from_name, const StringName &to_name)
+#endif // DEV_ENABLED
+	{
+		auto from = _get_state_node({ from_name });
+		auto to = _get_state_node({ to_name });
 		if (!from || !to) {
-			continue;
+			return false;
 		}
 		// 正向
 		auto tc = get_transition_config(from, to);
 		// 异常
-		ERR_CONTINUE_MSG(tc.is_null(), "HFSM:: 异常 ，存在连接当不存在对应的转换流。");
+		ERR_FAIL_COND_V_MSG(tc.is_null(), false, "HFSM:: 异常 ，存在连接当不存在对应的转换流。");
 		IF_DEV({
-			ERR_CONTINUE_MSG(dealed_tc_list.find(tc) >= 0, "不同的链接指向同一个 TransitionConfig? 这不可能");
+			ERR_FAIL_COND_V_MSG(dealed_tc_list.find(tc) >= 0, false, "不同的链接指向同一个 TransitionConfig? 这不可能");
 			dealed_tc_list.push_back(tc);
 		});
 		// 获取反向
@@ -1239,7 +1236,11 @@ void FsmEditor::_draw_layer_draw() {
 			auto string_size = font->get_string_size(text);
 			connection_layer->draw_string(font, top + Vector2(-string_size.x / 2.0f, i * string_size.y), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, text_color);
 		}
-	}
+
+		return false;
+	};
+
+	foreach_connection_by_names(action);
 
 	if (disconnect_line.size() == 2) {
 		connection_layer->draw_set_transform(Vector2(0, 0), 0.0, Vector2(1, 1));
@@ -1338,11 +1339,10 @@ void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 		__set_blocking_redraw(true);
 		// 处理画面显示
 		// 断连接
-		Array conn_list = call("get_connection_list");
-		for (auto i = 0; i < conn_list.size(); i++) {
-			Dictionary conn = conn_list[i];
-			disconnect_node(conn["from"], conn["from_port"], conn["to"], conn["to_port"]);
-		}
+		foreach_connection_by_names([this](const StringName &p_from, const StringName &p_to) {
+			disconnect_node(p_from, 0, p_to, 0);
+			return false;
+		});
 
 		// 移除状态
 		for (auto i = 0; i < get_child_count(); i++) {
@@ -1426,12 +1426,11 @@ void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 		ADD_UNDO_METHOD(this, __set_blocking_redraw, true);
 		// 处理画面显示
 		// 断连接
-		Array conn_list = call("get_connection_list");
-		for (auto i = 0; i < conn_list.size(); i++) {
-			Dictionary conn = conn_list[i];
-			ADD_DO_METHOD(this, disconnect_node, conn["from"], conn["from_port"], conn["to"], conn["to_port"]);
-			ADD_UNDO_DEFERRED_CALL_METHOD(this, connect_node, conn["from"], conn["from_port"], conn["to"], conn["to_port"]);
-		}
+		foreach_connection_by_names([this, undo_redo](const StringName &p_from, const StringName &p_to) {
+			ADD_DO_METHOD(this, disconnect_node, p_from, 0, p_to, 0);
+			ADD_UNDO_DEFERRED_CALL_METHOD(this, connect_node, p_from, 0, p_to, 0);
+			return false;
+		});
 
 		// 移除状态
 		for (auto i = 0; i < get_child_count(); i++) {
@@ -1794,11 +1793,10 @@ void FsmEditor::debug_highlight_active_state(const StringName &p_state_name, boo
 		}
 	}
 
-	TypedArray<Dictionary> conn_list = call(SNAME("get_connection_list"));
-	for (auto i = 0; i < conn_list.size(); ++i) {
-		Dictionary conn = conn_list[i];
-		set_connection_activity(conn["from"], 0, conn["to"], 0, 0.0);
-	}
+	foreach_connection_by_names([this](const StringName &p_from, const StringName &p_to) {
+		set_connection_activity(p_from, 0, p_to, 0, 0.0);
+		return false;
+	});
 
 	if (prev_activated && next_activated && prev_activated != next_activated) {
 		auto from = prev_activated->get_name();
