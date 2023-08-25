@@ -337,7 +337,7 @@ void HfsmEditorPlugin::_referenced_script_saved(const Ref<Resource> &p_res) {
 }
 
 void HfsmEditorPlugin::_change_scene(Node *p_secne_root) {
-	auto hfsm = hfsm_editor->get_editing_hfsm();
+	auto hfsm = cast_to<HFSM>(hfsm_editor->get_editing_hfsm());
 	if (!hfsm || (hfsm->get_owner() != p_secne_root && hfsm != p_secne_root)) {
 		hfsm_editor->edit_hfsm(nullptr);
 		hfsm_editor_btn->set_pressed(false);

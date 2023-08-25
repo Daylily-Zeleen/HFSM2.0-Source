@@ -170,14 +170,16 @@ void FsmEditor::__set_selected_state_name_list(const TypedArray<StringName> &p_t
 	if (selected_state_name_list != p_to_set) {
 		selected_state_name_list = p_to_set;
 	}
-	selected_transition_config_list.clear();
 
+	selected_transition_config_list.clear();
 	foreach_connection_by_nodes([this](StateNode *p_from, StateNode *p_to) -> bool {
 		if (!p_from || !p_to) {
 			return false;
 		}
 
-		if (selected_state_name_list.has(p_from->get_state_config()->get_state_name()) && selected_state_name_list.has(p_to->get_state_config()->get_state_name())) {
+		auto from_name = p_from->get_state_config()->get_state_name();
+		auto to_name = p_to->get_state_config()->get_state_name();
+		if (selected_state_name_list.has(from_name) && selected_state_name_list.has(to_name)) {
 			auto tc = get_transition_config(p_from, p_to);
 			if (tc.is_valid()) {
 				selected_transition_config_list.push_back(tc);
@@ -193,10 +195,12 @@ void FsmEditor::__set_selected_state_name_list(const TypedArray<StringName> &p_t
 TypedArray<StateNode> FsmEditor::get_selected_state_nodes() {
 	TypedArray<StateNode> ret;
 	for (auto i = 0; i < get_child_count(); i++) {
-		auto node = cast_to<StateNode>(get_child(i));
-		if (node && selected_state_name_list.has(node->get_state_config()->get_state_name())) {
-			ERR_CONTINUE_EDMSG(!node->is_selected(), "Unbelivalble!");
-			ret.push_back(node);
+		if (auto node = cast_to<StateNode>(get_child(i))) {
+			auto state_name = node->get_state_config()->get_state_name();
+			if (selected_state_name_list.has(state_name)) {
+				ERR_CONTINUE_EDMSG(!node->is_selected(), "Unbelievable!");
+				ret.push_back(node);
+			}
 		}
 	}
 	return ret;
@@ -404,6 +408,7 @@ void FsmEditor::__select_mamually(const TypedArray<StateNode> &p_target_nodes) {
 	}
 	__set_selected_state_name_list(to_select_state_name_list.duplicate());
 	bakcup_selected_state_name_list = to_select_state_name_list;
+	selection_dirty = false;
 }
 
 // ==================
@@ -450,10 +455,10 @@ void FsmEditor::_popup_menu_id_pressed(int32_t p_id) {
 			HFSM_EDITOR_CREATE_ACTION("Add State");
 			ADD_DO_REFERENCE(new_sn);
 			ADD_DO_METHOD(this, add_child, new_sn);
-			ADD_DO_METHOD(this, __select_mamually, make_arr<TypedArray<StateNode>>(new_sn));
 			ADD_DO_METHOD(current_fsm_config.ptr(), add_state_config, new_sc);
-			ADD_UNDO_METHOD(current_fsm_config.ptr(), remove_state_config, new_sc);
+			ADD_DO_METHOD(this, __select_mamually, make_arr<TypedArray<StateNode>>(new_sn));
 			ADD_UNDO_METHOD(this, __select_mamually, TypedArray<StateNode>());
+			ADD_UNDO_METHOD(current_fsm_config.ptr(), remove_state_config, new_sc);
 			ADD_UNDO_METHOD(this, remove_child, new_sn);
 			COMMIT_ACTION();
 		} break;
@@ -1023,7 +1028,7 @@ void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 				} else if (!mouse_btn_event->is_pressed()) {
 					if (selection_dirty) {
 						const auto undo_redo_select_nodes = [this]() {
-							HFSM_EDITOR_CREATE_ACTION("Select States");
+							HFSM_EDITOR_CREATE_ACTION(selected_state_name_list.size() == 0 ? "Deselect" : "Select States");
 							ADD_DO_METHOD(this, __set_selected_transition_config_list, TypedArray<TransitionConfig>());
 							ADD_DO_METHOD(this, __select_state_nodes, this->selected_state_name_list);
 							ADD_UNDO_METHOD(this, __select_state_nodes, this->bakcup_selected_state_name_list.duplicate());

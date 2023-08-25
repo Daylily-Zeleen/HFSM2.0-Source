@@ -174,11 +174,11 @@ void HFSMEditor::debug_highlight_activate_state(const PackedStringArray &p_activ
 	fsm_editor->debug_highlight_active_state(actived_state, idx != p_active_path.size() - 1);
 }
 
-HFSM *HFSMEditor::get_editing_hfsm() { return hfsm; }
+HFSM *HFSMEditor::get_editing_hfsm() { return cast_to<HFSM>(hfsm); }
 
 void HFSMEditor::queue_refresh() {
 	ERR_FAIL_COND(!fsm_editor);
-	if (hfsm) {
+	if (get_editing_hfsm()) {
 		fsm_editor->queue_refresh();
 	}
 }
