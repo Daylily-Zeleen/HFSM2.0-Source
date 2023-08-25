@@ -70,29 +70,6 @@ using namespace godot;
 #include "../utils_macros.h"
 #endif // GDEXTENSION_BUILD
 
-namespace Hfsm {
-
-class HfsmGlobal {
-private:
-	static PackedStringArray &_singleton_names() {
-		static PackedStringArray singleton_names;
-		return singleton_names;
-	}
-	static Array &_singletons() {
-		static Array singletons;
-		return singletons;
-	}
-
-public:
-	static const PackedStringArray &get_singleton_names() { return _singleton_names(); }
-	static const Array &get_singletons() { return _singletons(); }
-
-	static void init_static();
-	static void deinit_static();
-};
-
-}; // namespace Hfsm
-
 #ifdef GDEXTENSION_BUILD
 #define MOUSE_BUTTON(m_btn) MOUSE_BUTTON_##m_btn
 #define KEY_MASK(m_btn) KEY_MASK_##m_btn
@@ -123,3 +100,48 @@ public:
 #define IF_MONO(m_code)
 #define IF_NOT_MONO(m_code) m_code
 #endif // MODULE_MONO_ENABLED
+
+#if defined(GDE_COMPATIBILITY_ENABLED) && defined(GDEXTENSION_BUILD)
+#define IF_GDE_COMPATIBLE(m_code) m_code
+#define IF_NOT_GDE_COMPATIBLE(m_code)
+#else //defined (GDE_COMPATIBILITY_ENABLED) && defined (GDEXTENSION_BUILD)
+#define IF_GDE_COMPATIBLE(m_code)
+#define IF_NOT_GDE_COMPATIBLE(m_code) m_code
+#endif // defined (GDE_COMPATIBILITY_ENABLED) && defined (GDEXTENSION_BUILD)
+
+namespace Hfsm {
+
+class HfsmGlobal {
+private:
+	static PackedStringArray &_singleton_names() {
+		static PackedStringArray singleton_names;
+		return singleton_names;
+	}
+	static Array &_singletons() {
+		static Array singletons;
+		return singletons;
+	}
+
+#ifdef GDE_COMPATIBILITY_ENABLED
+	struct GodotVersion {
+		int major;
+		int minor;
+		int patch;
+	};
+
+	static GodotVersion godot_version;
+#endif //  GDE_COMPATIBILITY_ENABLED
+
+public:
+	static const PackedStringArray &get_singleton_names() { return _singleton_names(); }
+	static const Array &get_singletons() { return _singletons(); }
+
+	static void init_static();
+	static void deinit_static();
+
+#ifdef GDE_COMPATIBILITY_ENABLED
+	static bool is_4_point_2_or_later();
+#endif // GDE_COMPATIBILITY_ENABLED
+};
+
+}; // namespace Hfsm

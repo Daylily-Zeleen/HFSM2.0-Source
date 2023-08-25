@@ -43,7 +43,16 @@
 
 namespace Hfsm {
 
+#ifdef GDE_COMPATIBILITY_ENABLED
+HfsmGlobal::GodotVersion HfsmGlobal::godot_version;
+#endif // GDE_COMPATIBILITY_ENABLED
+
 void HfsmGlobal::init_static() {
+#ifdef GDE_COMPATIBILITY_ENABLED
+	Dictionary version_info = Engine::get_singleton()->get_version_info();
+	godot_version = { version_info["major"], version_info["minor"], version_info["patch"] };
+#endif // GDE_COMPATIBILITY_ENABLED
+
 	auto &singleton_names = _singleton_names();
 	auto &singletons = _singletons();
 
@@ -93,5 +102,17 @@ void HfsmGlobal::deinit_static() {
 	_singleton_names().clear();
 	_singletons().clear();
 }
+
+#ifdef GDE_COMPATIBILITY_ENABLED
+bool HfsmGlobal::is_4_point_2_or_later() {
+	if (godot_version.major > 4) {
+		return true;
+	}
+	if (godot_version.minor >= 2) {
+		return true;
+	}
+	return false;
+}
+#endif // GDE_COMPATIBILITY_ENABLED
 
 } // namespace Hfsm

@@ -217,6 +217,62 @@ private:
 		foreach_connection_by_names(action);
 	}
 
+#ifdef GDE_COMPATIBILITY_ENABLED
+	// Incompatible APIs
+	struct IncompatibleAPIs {
+		StringName get_scroll_ofs;
+		StringName set_scroll_ofs;
+		StringName set_snap;
+		StringName get_snap;
+		StringName set_use_snap;
+		StringName is_using_snap;
+		StringName get_zoom_hbox;
+	};
+
+	IncompatibleAPIs incompatible_apis;
+#endif // GDE_COMPATIBILITY_ENABLED
+
+	Vector2 _get_scroll_offset() {
+		IF_GDM(return get_scroll_offset();)
+		IF_NOT_GDE_COMPATIBLE(return get_scroll_offset());
+		IF_GDE_COMPATIBLE(return call(incompatible_apis.get_scroll_ofs));
+	}
+
+	void _set_scroll_offset(const Vector2 &p_offset) {
+		IF_GDM(set_scroll_offset(p_offset);)
+		IF_NOT_GDE_COMPATIBLE(set_scroll_offset(p_offset);)
+		IF_GDE_COMPATIBLE(call(incompatible_apis.set_scroll_ofs, p_offset);)
+	}
+
+	void _set_snapping_distance(int p_snapping_distance) {
+		IF_GDM(set_snapping_distance(p_snapping_distance);)
+		IF_NOT_GDE_COMPATIBLE(set_snapping_distance(p_snapping_distance);)
+		IF_GDE_COMPATIBLE(call(incompatible_apis.set_snap, p_snapping_distance);)
+	}
+
+	int _get_snapping_distance() {
+		IF_GDM(return get_snapping_distance();)
+		IF_NOT_GDE_COMPATIBLE(return get_snapping_distance();)
+		IF_GDE_COMPATIBLE(return call(incompatible_apis.get_snap);)
+	}
+
+	void _set_snapping_enabled(bool p_enabled) {
+		IF_GDM(set_snapping_enabled(p_enabled);)
+		IF_NOT_GDE_COMPATIBLE(set_snapping_enabled(p_enabled);)
+		IF_GDE_COMPATIBLE(call(incompatible_apis.set_use_snap, p_enabled);)
+	}
+	bool _is_snapping_enabled() {
+		IF_GDM(return is_snapping_enabled();)
+		IF_NOT_GDE_COMPATIBLE(return is_snapping_enabled();)
+		IF_GDE_COMPATIBLE(return call(incompatible_apis.is_using_snap);)
+	}
+
+	HBoxContainer *_get_menu_hbox() {
+		IF_GDM(return get_menu_hbox();)
+		IF_NOT_GDE_COMPATIBLE(return get_menu_hbox();)
+		IF_GDE_COMPATIBLE(return Object::cast_to<HBoxContainer>(call(incompatible_apis.get_zoom_hbox));)
+	}
+
 public:
 	void queue_refresh();
 

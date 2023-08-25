@@ -441,7 +441,7 @@ void FsmEditor::_popup_menu_id_pressed(int32_t p_id) {
 			}
 			Ref<StateConfig> new_sc;
 			new_sc.instantiate();
-			new_sc->set_editor_offset((get_local_mouse_position() + get_scroll_ofs()) / get_zoom());
+			new_sc->set_editor_offset((get_local_mouse_position() + _get_scroll_offset()) / get_zoom());
 			if (current_fsm_config->get_state_config_list().is_empty()) {
 				new_sc->set_type(State::STATE_TYPE_ENTRY);
 			}
@@ -547,7 +547,7 @@ void FsmEditor::_popup_menu_id_pressed(int32_t p_id) {
 				center += state_config->get_editor_offset();
 			}
 			center /= static_cast<float>(copied_state_config_list.size());
-			auto mouse_offset = (get_local_mouse_position() + get_scroll_ofs()) / static_cast<float>(get_zoom());
+			auto mouse_offset = (get_local_mouse_position() + _get_scroll_offset()) / static_cast<float>(get_zoom());
 			// 计算偏移
 			auto offset = center - mouse_offset;
 			// 复制
@@ -1257,6 +1257,30 @@ void FsmEditor::_draw_layer_draw() {
 }
 
 void FsmEditor::initialize() {
+#ifdef GDE_COMPATIBILITY_ENABLED
+	if (!HfsmGlobal::is_4_point_2_or_later()) {
+		incompatible_apis = {
+			"get_scroll_ofs",
+			"set_scroll_ofs",
+			"set_snap",
+			"get_snap",
+			"set_use_snap",
+			"is_using_snap",
+			"get_zoom_hbox",
+		};
+	} else {
+		incompatible_apis = {
+			"get_scroll_offset",
+			"set_scroll_offset",
+			"set_snapping_distance",
+			"get_snapping_distance",
+			"set_snapping_enabled",
+			"is_snapping_enabled",
+			"get_menu_hbox",
+		};
+	}
+#endif //GDE_COMPATIBILITY_ENABLED
+
 	set_name("FsmEditor");
 	set_v_size_flags(SIZE_EXPAND_FILL);
 	add_valid_connection_type(StateNode::OUT_TYPE, StateNode::IN_TYPE);
