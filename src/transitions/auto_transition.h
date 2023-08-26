@@ -44,7 +44,7 @@
 
 #endif // GDEXTENSION_BUILD
 
-namespace Hfsm {
+namespace HFSM2 {
 
 // 自动转换
 class AutoTransition : public TransitionBase {
@@ -122,4 +122,4 @@ inline bool AutoTransition::can_transit() {
 
 #pragma endregion
 
-} // namespace Hfsm
+} // namespace HFSM2

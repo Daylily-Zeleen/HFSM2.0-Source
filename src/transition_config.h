@@ -45,7 +45,7 @@ using namespace godot;
 #include "state_config.h"
 #include "transitions/variable_expressions/variable_expression_config.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 class HFSM;
 class TransitionBase;
@@ -151,7 +151,7 @@ private:
 	TypedArray<VariableExpressionConfig> variable_expression_config_list; // VariableExpressionConfig
 };
 
-}; // namespace Hfsm
+}; // namespace HFSM2
 
-VARIANT_ENUM_CAST(Hfsm::TransitionConfig::TransitionType);
-VARIANT_ENUM_CAST(Hfsm::TransitionConfig::AuotoTtransitMode);
+VARIANT_ENUM_CAST(HFSM2::TransitionConfig::TransitionType);
+VARIANT_ENUM_CAST(HFSM2::TransitionConfig::AuotoTtransitMode);

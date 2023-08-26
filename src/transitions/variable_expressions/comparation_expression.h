@@ -31,7 +31,7 @@
 
 #include "variable_expression.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 /**
  * @brief 比较表达式基类
@@ -107,4 +107,4 @@ inline bool ComparationExpression::compare_with(const Ref<Variable> &p_a, Compar
 }
 
 #pragma endregion
-} // namespace Hfsm
+} // namespace HFSM2

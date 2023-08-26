@@ -51,7 +51,7 @@ class Script;
 class Script;
 #endif // GDEXTENSION_BUILD
 
-namespace Hfsm {
+namespace HFSM2 {
 
 class FSM;
 class HFSM;
@@ -140,7 +140,7 @@ public:
 #endif
 
 	State() = default;
-	State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<Hfsm::State> &p_path, const Ref<Script> &p_script, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue);
+	State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<HFSM2::State> &p_path, const Ref<Script> &p_script, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue);
 
 	~State() override;
 
@@ -211,6 +211,6 @@ inline StringName State::get_animation_name_for_playing() const {
 
 #pragma endregion
 
-}; // namespace Hfsm
+}; // namespace HFSM2
 
-VARIANT_ENUM_CAST(Hfsm::State::StateType);
+VARIANT_ENUM_CAST(HFSM2::State::StateType);

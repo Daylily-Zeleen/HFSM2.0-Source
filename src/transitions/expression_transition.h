@@ -37,7 +37,7 @@
 
 #include "transition_base.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 // 表达式转换
 class ExpressionTransition : public TransitionBase {
 public:
@@ -45,7 +45,7 @@ public:
 
 	ExpressionTransition(HFSM *p_hfsm, const String &p_expression_text) :
 			hfsm(p_hfsm) {
-		invalid = expression.parse(p_expression_text, HfsmGlobal::get_singleton_names()) != OK;
+		invalid = expression.parse(p_expression_text, HFSMGlobal::get_singleton_names()) != OK;
 	}
 
 private:
@@ -55,4 +55,4 @@ private:
 	bool invalid = true;
 };
 
-} // namespace Hfsm
+} // namespace HFSM2

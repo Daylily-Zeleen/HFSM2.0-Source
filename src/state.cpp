@@ -58,7 +58,7 @@
 
 #endif // GDEXTENSION_BUILD
 
-namespace Hfsm {
+namespace HFSM2 {
 
 void State::_bind_methods() {
 	GDBIND_BEGIN(State);
@@ -126,7 +126,7 @@ void State::exit_state() {
 	GDVIRTUAL_CALL(_exit);
 }
 
-State::State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<Hfsm::State> &p_path, const Ref<Script> &p_script, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue) {
+State::State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<HFSM2::State> &p_path, const Ref<Script> &p_script, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue) {
 	if (p_script.is_valid()) {
 		call_deferred(SNAME("set_script"), p_script);
 	}
@@ -464,4 +464,4 @@ void State::_network_despawn() {}
 
 #pragma endregion
 
-}; // namespace Hfsm
+}; // namespace HFSM2

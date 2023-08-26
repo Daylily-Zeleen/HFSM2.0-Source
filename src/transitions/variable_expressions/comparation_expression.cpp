@@ -36,7 +36,7 @@
 #include <core/config/engine.h>
 #endif // GDEXTENSION_BUILD
 #endif // TOOLS_ENABLED
-namespace Hfsm {
+namespace HFSM2 {
 
 #define _type_convertable_check(m_variable, m_value_type) \
 	CRASH_COND(!Variant::can_convert(m_value_type, (m_variable)->get_variable_type()))
@@ -95,4 +95,4 @@ bool VariableComparationExpression::get_result(bool p_and_mode,
 	}
 }
 
-} // namespace Hfsm
+} // namespace HFSM2

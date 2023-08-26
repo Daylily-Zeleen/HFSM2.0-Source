@@ -55,7 +55,7 @@
 #include <editor/editor_paths.h>
 #endif //GDEXTENSION_BUILD
 
-namespace Hfsm {
+namespace HFSM2 {
 
 #define msg_built "built"
 #define msg_destory "destory"
@@ -81,7 +81,7 @@ uint32_t hash(const Variant &p_var) {
 
 // =======
 
-String HfsmDebuggerPlugin::get_cache_dir() {
+String HFSMDebuggerPlugin::get_cache_dir() {
 	if (ProjectSettings::get_singleton()->get_setting_with_override("application/config/use_hidden_project_data_directory")) {
 		return "res://.godot/editor/";
 	} else {
@@ -89,11 +89,11 @@ String HfsmDebuggerPlugin::get_cache_dir() {
 	}
 }
 
-bool HfsmDebuggerPlugin::can_debug() {
+bool HFSMDebuggerPlugin::can_debug() {
 	return !Engine::get_singleton()->is_editor_hint() && EngineDebugger::get_singleton() && EngineDebugger::get_singleton()->is_active();
 }
 
-void HfsmDebuggerPlugin::send_debug_built(HFSM *p_hfsm) {
+void HFSMDebuggerPlugin::send_debug_built(HFSM *p_hfsm) {
 	IF_DEBUG({
 		if (!can_debug()) {
 			return;
@@ -124,7 +124,7 @@ void HfsmDebuggerPlugin::send_debug_built(HFSM *p_hfsm) {
 	})
 }
 
-void HfsmDebuggerPlugin::send_debug_destroy(HFSM *p_hfsm) {
+void HFSMDebuggerPlugin::send_debug_destroy(HFSM *p_hfsm) {
 	IF_DEBUG({
 		if (!can_debug()) {
 			return;
@@ -133,7 +133,7 @@ void HfsmDebuggerPlugin::send_debug_destroy(HFSM *p_hfsm) {
 	})
 }
 
-void HfsmDebuggerPlugin::send_debug_update_active_path(HFSM *p_hfsm) {
+void HFSMDebuggerPlugin::send_debug_update_active_path(HFSM *p_hfsm) {
 	IF_DEBUG({
 		if (!can_debug()) {
 			return;
@@ -157,16 +157,16 @@ void HfsmDebuggerPlugin::send_debug_update_active_path(HFSM *p_hfsm) {
 	})
 }
 
-void HfsmDebuggerPlugin::_session_started(SessionID p_session_id) {
+void HFSMDebuggerPlugin::_session_started(SessionID p_session_id) {
 	ERR_FAIL_COND(debuggers.has(p_session_id));
 
 	auto session = get_session(p_session_id);
-	auto debugger = memnew(HfsmDebugger);
+	auto debugger = memnew(HFSMDebugger);
 	debuggers.insert(p_session_id, debugger);
 	session->add_session_tab(debugger);
 }
 
-void HfsmDebuggerPlugin::_session_stoped(SessionID p_session_id) {
+void HFSMDebuggerPlugin::_session_stoped(SessionID p_session_id) {
 	ERR_FAIL_COND(!debuggers.has(p_session_id));
 
 	auto debugger = debuggers[p_session_id];
@@ -177,14 +177,14 @@ void HfsmDebuggerPlugin::_session_stoped(SessionID p_session_id) {
 }
 
 // Without debug valid check.
-void HfsmDebuggerPlugin::send_debug_msg(HFSM *p_hfsm, const String &p_msg, Array p_data) {
+void HFSMDebuggerPlugin::send_debug_msg(HFSM *p_hfsm, const String &p_msg, Array p_data) {
 	if (p_hfsm->is_inside_tree()) {
 		p_data.push_back(p_hfsm->get_path());
 		EngineDebugger::get_singleton()->send_message("hfsm:" + p_msg, p_data);
 	}
 }
 
-void HfsmDebuggerPlugin::GD_(setup_session)(int p_idx) {
+void HFSMDebuggerPlugin::GD_(setup_session)(int p_idx) {
 	ERR_FAIL_COND(debuggers.has(p_idx));
 
 	Ref<EditorDebuggerSession> session = get_session(p_idx);
@@ -193,7 +193,7 @@ void HfsmDebuggerPlugin::GD_(setup_session)(int p_idx) {
 	session->connect(SNAME("stopped"), TCALLABLE_BIND(_session_stoped, p_idx));
 }
 
-bool HfsmDebuggerPlugin::GD_(capture)(const String &p_message, const Array &p_data, int p_session) {
+bool HFSMDebuggerPlugin::GD_(capture)(const String &p_message, const Array &p_data, int p_session) {
 	if (is_msg(p_message, msg_built)) {
 		ERR_FAIL_COND_V(!debuggers.has(p_session), true);
 
@@ -224,17 +224,17 @@ bool HfsmDebuggerPlugin::GD_(capture)(const String &p_message, const Array &p_da
 	return false;
 }
 
-bool HfsmDebuggerPlugin::GD_(has_capture)(const String &p_capture) const {
+bool HFSMDebuggerPlugin::GD_(has_capture)(const String &p_capture) const {
 	return p_capture == "hfsm";
 }
 
-void HfsmDebuggerPlugin::_bind_methods() {
-	GDBIND_BEGIN(HfsmDebuggerPlugin);
+void HFSMDebuggerPlugin::_bind_methods() {
+	GDBIND_BEGIN(HFSMDebuggerPlugin);
 	GDBIND_CALBACK(_session_stoped);
 	GDBIND_CALBACK(_session_started);
 }
 
-HfsmDebuggerPlugin::~HfsmDebuggerPlugin() {
+HFSMDebuggerPlugin::~HFSMDebuggerPlugin() {
 	const auto cache_dir = get_cache_dir();
 	if (!DirAccess::dir_exists_absolute(cache_dir)) {
 		return;
@@ -245,15 +245,15 @@ HfsmDebuggerPlugin::~HfsmDebuggerPlugin() {
 	}
 }
 
-// HfsmDebugger
-void HfsmDebugger::build(const NodePath &p_path, const Ref<class FSMConfig> &p_root_fsm_config, const String &p_cache_path) {
+// HFSMDebugger
+void HFSMDebugger::build(const NodePath &p_path, const Ref<class FSMConfig> &p_root_fsm_config, const String &p_cache_path) {
 	ERR_FAIL_COND(datas.has(p_path));
 	datas.insert(p_path, { p_root_fsm_config });
 
 	update_node_paths();
 }
 
-void HfsmDebugger::destory(const NodePath &p_path) {
+void HFSMDebugger::destory(const NodePath &p_path) {
 	ERR_FAIL_COND(!datas.has(p_path));
 
 	DirAccess::remove_absolute(datas[p_path].root_fsm_config->get_path());
@@ -268,7 +268,7 @@ void HfsmDebugger::destory(const NodePath &p_path) {
 	update_node_paths();
 }
 
-void HfsmDebugger::update_active_path(const NodePath &p_path, const PackedStringArray &p_new_active_path) {
+void HFSMDebugger::update_active_path(const NodePath &p_path, const PackedStringArray &p_new_active_path) {
 	ERR_FAIL_COND(!datas.has(p_path));
 	datas[p_path].current_active_path = p_new_active_path;
 
@@ -277,10 +277,10 @@ void HfsmDebugger::update_active_path(const NodePath &p_path, const PackedString
 	}
 }
 
-void HfsmDebugger::stop() {
+void HFSMDebugger::stop() {
 }
 
-void HfsmDebugger::update_node_paths() {
+void HFSMDebugger::update_node_paths() {
 	node_paths->clear();
 	for (const auto &E : datas) {
 		node_paths->add_item(E.key);
@@ -288,20 +288,20 @@ void HfsmDebugger::update_node_paths() {
 	}
 }
 
-void HfsmDebugger::_item_activated(int p_idx) {
+void HFSMDebugger::_item_activated(int p_idx) {
 	current_hfsm_path = node_paths->get_item_metadata(p_idx);
 	auto root_fsm_config = datas[current_hfsm_path].root_fsm_config;
 	hfsm_editor->edit_fsm_config_in_hfsm(root_fsm_config, root_fsm_config);
 	hfsm_editor->debug_highlight_activate_state(datas[current_hfsm_path].current_active_path);
 }
 
-void HfsmDebugger::_bind_methods() {
-	GDBIND_BEGIN(HfsmDebugger);
+void HFSMDebugger::_bind_methods() {
+	GDBIND_BEGIN(HFSMDebugger);
 
 	GDBIND_CALBACK(_item_activated);
 }
 
-HfsmDebugger::HfsmDebugger() {
+HFSMDebugger::HFSMDebugger() {
 	node_paths = memnew(ItemList);
 	node_paths->set_v_size_flags(SizeFlags::SIZE_EXPAND_FILL);
 	add_child(node_paths);
@@ -317,10 +317,10 @@ HfsmDebugger::HfsmDebugger() {
 	set_name("HFSM");
 }
 
-HfsmDebugger::~HfsmDebugger() {
+HFSMDebugger::~HFSMDebugger() {
 	for (const auto &E : datas) {
 		DirAccess::remove_absolute(E.value.root_fsm_config->get_path());
 	}
 }
 
-} //namespace Hfsm
+} //namespace HFSM2

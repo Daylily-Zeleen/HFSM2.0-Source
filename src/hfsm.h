@@ -47,7 +47,7 @@ using namespace godot;
 #include "fsm_config.h"
 #include "state.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 // class FSMConfig;
 class FSM;
@@ -204,6 +204,6 @@ inline void HFSM::_animation_finished(const StringName &p_anim_name) {
 }
 #pragma endregion
 
-}; // namespace Hfsm
+}; // namespace HFSM2
 
-VARIANT_ENUM_CAST(Hfsm::HFSM::HFSMUpdateType);
+VARIANT_ENUM_CAST(HFSM2::HFSM::HFSMUpdateType);

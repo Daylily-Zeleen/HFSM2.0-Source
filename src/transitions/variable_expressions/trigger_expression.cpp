@@ -37,7 +37,7 @@
 #endif // GDEXTENSION_BUILD
 #endif // TOOLS_ENABLED
 
-namespace Hfsm {
+namespace HFSM2 {
 
 #pragma region TriggerExpression
 TriggerExpression::TriggerExpression(const Ref<Variable> &variable) :
@@ -97,4 +97,4 @@ VariableExpression::ExpressionType UnionTriggerExpression::get_expression_type()
 }
 #pragma endregion
 
-} // namespace Hfsm
+} // namespace HFSM2

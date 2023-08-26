@@ -51,7 +51,7 @@
 #include "fsm_editor.h"
 #include "hfsm_editor_plugin.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 void HFSMEditor::initialize() {
 	set_custom_minimum_size(Vector2(0, 200));
@@ -68,7 +68,7 @@ void HFSMEditor::initialize() {
 	up_panel_container->add_child(up_margin_contianer);
 	path_button_container = memnew(HBoxContainer);
 	auto up_label = memnew(Label);
-	up_label->set_text(HfsmEditorPlugin::str_localize("Path: "));
+	up_label->set_text(HFSMEditorPlugin::str_localize("Path: "));
 	path_button_container->add_child(up_label);
 	up_panel_container->add_child(path_button_container);
 
@@ -97,7 +97,7 @@ void HFSMEditor::initialize() {
 	add_child(mask_panel);
 
 	not_hfsm_label = memnew(Label);
-	not_hfsm_label->set_text(HfsmEditorPlugin::str_localize("Plese select a 'HFSM' node to start edit."));
+	not_hfsm_label->set_text(HFSMEditorPlugin::str_localize("Plese select a 'HFSM' node to start edit."));
 	not_hfsm_label->set_vertical_alignment(VERTICAL_ALIGNMENT_CENTER);
 	not_hfsm_label->set_horizontal_alignment(HORIZONTAL_ALIGNMENT_CENTER);
 	not_hfsm_label->set_anchors_preset(LayoutPreset::PRESET_FULL_RECT);
@@ -200,7 +200,7 @@ void HFSMEditor::__do_history(const String &p_text) {
 }
 
 void HFSMEditor::__undo_history(const String &p_text) {
-	history_label->set_text((HfsmEditorPlugin::is_zh() ? "撤销: " : "Undo: ") + p_text);
+	history_label->set_text((HFSMEditorPlugin::is_zh() ? "撤销: " : "Undo: ") + p_text);
 }
 
 void HFSMEditor::_notification(int p_what) {
@@ -211,7 +211,7 @@ void HFSMEditor::_notification(int p_what) {
 
 #define SET_CONNECT_INSPECTOR_SIGNAL(m_signal, m_connected)                                          \
 	{                                                                                                \
-		auto inspector = HfsmEditorPlugin::get_singleton()->get_editor_interface()->get_inspector(); \
+		auto inspector = HFSMEditorPlugin::get_singleton()->get_editor_interface()->get_inspector(); \
 		auto cb = TCALLABLE(_inspector_##m_signal);                                                  \
 		if ((m_connected) && !inspector->is_connected(#m_signal, cb)) {                              \
 			inspector->connect(#m_signal, cb);                                                       \
@@ -302,7 +302,7 @@ void HFSMEditor::_change_hint() {
 		index = 0;
 	}
 	hint_label->set_self_modulate(Color(1, 1, 1));
-	hint_label->set_text("Tip: " + (HfsmEditorPlugin::is_zh() ? String::utf8(zh[index]) : en[index]));
+	hint_label->set_text("Tip: " + (HFSMEditorPlugin::is_zh() ? String::utf8(zh[index]) : en[index]));
 	hint_timer->start();
 }
 
@@ -338,4 +338,4 @@ HFSMEditor::HFSMEditor(bool p_debug_mode) :
 	add_child(hint_timer);
 }
 
-}; // namespace Hfsm
+}; // namespace HFSM2

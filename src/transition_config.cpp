@@ -55,7 +55,7 @@
 
 #endif //GDEXTENSION_BUILD
 
-namespace Hfsm {
+namespace HFSM2 {
 
 #pragma region TransitionConfig
 
@@ -390,4 +390,4 @@ TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm) {
 
 #pragma endregion
 
-}; // namespace Hfsm
+}; // namespace HFSM2

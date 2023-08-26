@@ -33,7 +33,7 @@
 #include "../variable_expressions_transition.h"
 #include <type_traits>
 
-namespace Hfsm {
+namespace HFSM2 {
 
 // VariableExpressionConfig
 Ref<VariableConfig> VariableExpressionConfig::get_variable_config() const { return variable_config; }
@@ -264,4 +264,4 @@ void VariableExpressionConfig::set_trigger_type(TriggerType p_trigger_type) {
 	emit_changed();
 }
 
-} // namespace Hfsm
+} // namespace HFSM2

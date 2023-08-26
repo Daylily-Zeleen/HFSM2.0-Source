@@ -109,9 +109,9 @@ using namespace godot;
 #define IF_NOT_GDE_COMPATIBLE(m_code) m_code
 #endif // defined (GDE_COMPATIBILITY_ENABLED) && defined (GDEXTENSION_BUILD)
 
-namespace Hfsm {
+namespace HFSM2 {
 
-class HfsmGlobal {
+class HFSMGlobal {
 private:
 	static PackedStringArray &_singleton_names() {
 		static PackedStringArray singleton_names;
@@ -144,4 +144,4 @@ public:
 #endif // GDE_COMPATIBILITY_ENABLED
 };
 
-}; // namespace Hfsm
+}; // namespace HFSM2

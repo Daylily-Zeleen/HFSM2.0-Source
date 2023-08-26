@@ -67,7 +67,7 @@
 #include "state_node.h"
 
 using namespace godot;
-namespace Hfsm {
+namespace HFSM2 {
 
 #define TRANSITION_SELECT_EXTENT 10.0f
 #define CONN_POS_OFFSET 50.0f
@@ -76,7 +76,7 @@ namespace Hfsm {
 #define set_editor_inspector_signal_connected(p_connected)                     \
 	{                                                                          \
 		const auto s_edited_object_changed = SNAME("edited_object_changed");   \
-		auto inspector = HfsmEditorPlugin::get_singleton()                     \
+		auto inspector = HFSMEditorPlugin::get_singleton()                     \
 								 ->get_editor_interface()                      \
 								 ->get_inspector();                            \
 		auto cb = TCALLABLE(_disconnect_inspecting_transition_config);         \
@@ -114,7 +114,7 @@ namespace Hfsm {
 #define s_edit_fsm_requested "_edit_fsm_requested"
 
 String FsmEditor::str_localize(const String &en_key) const {
-	return HfsmEditorPlugin::str_localize(en_key);
+	return HFSMEditorPlugin::str_localize(en_key);
 }
 
 void FsmEditor::_bind_methods() {
@@ -218,10 +218,10 @@ void FsmEditor::__set_selected_transition_config_list(const TypedArray<Transitio
 		inspecting_transition_config->connect(s_changed, TCALLABLE(_transition_config_updated));
 	}
 
-	ERR_FAIL_COND(!HfsmEditorPlugin::get_singleton()->get_editor_interface());
+	ERR_FAIL_COND(!HFSMEditorPlugin::get_singleton()->get_editor_interface());
 
 	if (selected_state_name_list.size() != 1) {
-		HfsmEditorPlugin::get_singleton()->get_editor_interface()->inspect_object(inspecting_transition_config.ptr());
+		HFSMEditorPlugin::get_singleton()->get_editor_interface()->inspect_object(inspecting_transition_config.ptr());
 		set_editor_inspector_signal_connected(true);
 	}
 }
@@ -899,7 +899,7 @@ void FsmEditor::_node_selected(Object *node) {
 	}
 
 	if (selected_state_name_list.size() == 1) {
-		HfsmEditorPlugin::get_singleton()->get_editor_interface()->inspect_object(sn->get_state_config().ptr());
+		HFSMEditorPlugin::get_singleton()->get_editor_interface()->inspect_object(sn->get_state_config().ptr());
 	}
 }
 
@@ -1269,7 +1269,7 @@ void FsmEditor::_draw_layer_draw() {
 
 void FsmEditor::initialize() {
 #ifdef GDE_COMPATIBILITY_ENABLED
-	if (!HfsmGlobal::is_4_point_2_or_later()) {
+	if (!HFSMGlobal::is_4_point_2_or_later()) {
 		incompatible_apis = {
 			"get_scroll_ofs",
 			"set_scroll_ofs",
@@ -1683,7 +1683,7 @@ List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 						anim = p_transition_config->get_from_state_config()->get_state_name();
 					}
 					ret.push_back(str_localize("Auto: ") + vformat(str_localize("After playing animation \"%s\" finish."), anim));
-					if (auto hfsm = HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
+					if (auto hfsm = HFSMEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
 						if (auto anim_player = hfsm->get_animation_player()) {
 							if (!anim_player->has_animation(anim)) {
 								r_valid = TRANSITION_CONFIG_VALID_LEVEL_ERROR;
@@ -1796,8 +1796,8 @@ void FsmEditor::_notification(int p_what) {
 		} break;
 		case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED:
 		case NOTIFICATION_THEME_CHANGED: {
-			font = HfsmEditorPlugin::get_singleton()->get_editor_interface()->get_base_control()->get_theme()->get_default_font();
-			activity_color = HfsmEditorPlugin::get_singleton()->get_editor_interface()->get_base_control()->get_theme_color("activity", "GraphEdit");
+			font = HFSMEditorPlugin::get_singleton()->get_editor_interface()->get_base_control()->get_theme()->get_default_font();
+			activity_color = HFSMEditorPlugin::get_singleton()->get_editor_interface()->get_base_control()->get_theme_color("activity", "GraphEdit");
 		}
 		default:
 			break;
@@ -1885,4 +1885,4 @@ void FsmEditor::queue_refresh() {
 	}
 }
 
-}; // namespace Hfsm
+}; // namespace HFSM2

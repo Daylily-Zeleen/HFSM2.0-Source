@@ -42,7 +42,7 @@ using namespace godot;
 
 #include "state.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 class HFSM;
 class FSM;
@@ -144,4 +144,4 @@ private:
 #endif
 };
 
-}; // namespace Hfsm
+}; // namespace HFSM2

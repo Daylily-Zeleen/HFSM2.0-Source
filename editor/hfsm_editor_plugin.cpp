@@ -57,7 +57,7 @@ using namespace godot;
 #include "hfsm_debugger_plugin.h"
 #endif // DEBUG_ENABLED
 
-namespace Hfsm {
+namespace HFSM2 {
 
 void EditorPropertyVariableConfig::VariableConfigSelector::GD_(set_create_options)(Object *p_menu_node) {
 	PopupMenu *m = Object::cast_to<PopupMenu>(p_menu_node);
@@ -222,14 +222,14 @@ void EditorPropertyVariableConfig::update_property_internal() {
 }
 
 //
-bool HfsmInspectorPlugin::can_handle_internal(Object *p_object) const {
+bool HFSMInspectorPlugin::can_handle_internal(Object *p_object) const {
 	return cast_to<VariableExpressionConfig>(p_object);
 }
 
-bool HfsmInspectorPlugin::parse_property_internal(Object *p_object, Variant::Type p_type, const String &p_name, PropertyHint p_hint_type,
+bool HFSMInspectorPlugin::parse_property_internal(Object *p_object, Variant::Type p_type, const String &p_name, PropertyHint p_hint_type,
 		const String &p_hint_string, BitField<PropertyUsageFlags> p_usage_flags, bool p_wide) {
 	if (auto vec = cast_to<VariableExpressionConfig>(p_object)) {
-		if (auto hfsm = HfsmEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
+		if (auto hfsm = HFSMEditorPlugin::get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
 			if ((p_name == "variable_config") ||
 					(p_name == "value" && vec->is_variable_as_value() && vec->get_variable_config().is_valid())) {
 				auto editor = memnew(EditorPropertyVariableConfig(hfsm, p_name == "value" ? vec->get_variable_config() : nullptr));
@@ -241,11 +241,11 @@ bool HfsmInspectorPlugin::parse_property_internal(Object *p_object, Variant::Typ
 	return false;
 }
 
-// HfsmEditorPlugin
-HfsmEditorPlugin *HfsmEditorPlugin::instance = nullptr;
-Ref<ImageTexture> HfsmEditorPlugin::empty_icon_for_state_node = nullptr;
+// HFSMEditorPlugin
+HFSMEditorPlugin *HFSMEditorPlugin::instance = nullptr;
+Ref<ImageTexture> HFSMEditorPlugin::empty_icon_for_state_node = nullptr;
 
-HfsmEditorPlugin::HfsmEditorPlugin() {
+HFSMEditorPlugin::HFSMEditorPlugin() {
 	CRASH_COND(instance);
 	instance = this;
 
@@ -324,7 +324,7 @@ void emit_button_toggled(Button *p_btn, bool p_toggled) {
 	p_btn->emit_signal(SNAME("toggled"), p_toggled);
 }
 
-void HfsmEditorPlugin::_referenced_script_saved(const Ref<Resource> &p_res) {
+void HFSMEditorPlugin::_referenced_script_saved(const Ref<Resource> &p_res) {
 	// TODO:: Can we find a way to avoid emiting this signal for all Scripts?
 	// We can't use meta to refer its TransitionConfig/StateConfig, it will be saved and cause cycle save.
 	// TODO:: Detect builtin scripts change.
@@ -336,7 +336,7 @@ void HfsmEditorPlugin::_referenced_script_saved(const Ref<Resource> &p_res) {
 	}
 }
 
-void HfsmEditorPlugin::_change_scene(Node *p_secne_root) {
+void HFSMEditorPlugin::_change_scene(Node *p_secne_root) {
 	auto hfsm = cast_to<HFSM>(hfsm_editor->get_editing_hfsm());
 	if (!hfsm || (hfsm->get_owner() != p_secne_root && hfsm != p_secne_root)) {
 		hfsm_editor->edit_hfsm(nullptr);
@@ -346,12 +346,12 @@ void HfsmEditorPlugin::_change_scene(Node *p_secne_root) {
 	}
 }
 
-void HfsmEditorPlugin::_filesystem_changed() {
+void HFSMEditorPlugin::_filesystem_changed() {
 	ERR_FAIL_COND(!hfsm_editor);
 	hfsm_editor->queue_refresh();
 }
 
-PackedStringArray HfsmEditorPlugin::get_animation_list_for_state_config() {
+PackedStringArray HFSMEditorPlugin::get_animation_list_for_state_config() {
 	ERR_FAIL_COND_V(!get_singleton(), {});
 	ERR_FAIL_COND_V(!get_singleton()->get_hfsm_editor(), {});
 	if (auto hfsm = get_singleton()->get_hfsm_editor()->get_editing_hfsm()) {
@@ -371,9 +371,9 @@ PackedStringArray HfsmEditorPlugin::get_animation_list_for_state_config() {
 	return {};
 }
 
-Ref<ImageTexture> HfsmEditorPlugin::get_empty_icon_for_state_node() { return empty_icon_for_state_node; }
+Ref<ImageTexture> HFSMEditorPlugin::get_empty_icon_for_state_node() { return empty_icon_for_state_node; }
 
-HfsmEditorPlugin::~HfsmEditorPlugin() {
+HFSMEditorPlugin::~HFSMEditorPlugin() {
 	StateConfig::get_animation_list = nullptr;
 	empty_icon_for_state_node.unref();
 	StateNode::get_empty_icon = nullptr;
@@ -386,7 +386,7 @@ HfsmEditorPlugin::~HfsmEditorPlugin() {
 	instance = nullptr;
 }
 
-bool HfsmEditorPlugin::handles_internal(Object *p_object) const {
+bool HFSMEditorPlugin::handles_internal(Object *p_object) const {
 	if (auto node = cast_to<Node>(p_object)) {
 		hfsm_editor->edit_hfsm(cast_to<HFSM>(node));
 		if (auto hfsm = cast_to<HFSM>(node)) {
@@ -419,14 +419,14 @@ bool HfsmEditorPlugin::handles_internal(Object *p_object) const {
 	return false;
 }
 
-void HfsmEditorPlugin::_bind_methods() {
-	GDBIND_BEGIN(HfsmEditorPlugin);
+void HFSMEditorPlugin::_bind_methods() {
+	GDBIND_BEGIN(HFSMEditorPlugin);
 	GDBIND_CALBACK(_referenced_script_saved);
 	GDBIND_CALBACK(_change_scene);
 	GDBIND_CALBACK(_filesystem_changed);
 }
 
-void HfsmEditorPlugin::_notification(int p_what) {
+void HFSMEditorPlugin::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_ENTER_TREE: {
 			if (!Engine::get_singleton()->is_editor_hint()) {
@@ -468,7 +468,7 @@ void HfsmEditorPlugin::_notification(int p_what) {
 	}
 }
 
-EditorUndoRedoManager *HfsmEditorPlugin::create_action(const String &p_action_name) {
+EditorUndoRedoManager *HFSMEditorPlugin::create_action(const String &p_action_name) {
 	auto undo_redo = get_singleton()->get_undo_redo();
 	undo_redo->create_action(str_localize(p_action_name), UndoRedo::MERGE_DISABLE, get_singleton()->get_hfsm_editor()->get_editing_hfsm());
 	IF_DEV(ERR_FAIL_COND_V(!get_singleton()->hfsm_editor, undo_redo);)
@@ -476,4 +476,4 @@ EditorUndoRedoManager *HfsmEditorPlugin::create_action(const String &p_action_na
 	return undo_redo;
 }
 
-} // namespace Hfsm
+} // namespace HFSM2

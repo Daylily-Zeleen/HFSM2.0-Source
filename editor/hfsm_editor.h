@@ -46,7 +46,7 @@ using namespace godot;
 
 #endif // GDEXTENSION_BUILD
 
-namespace Hfsm {
+namespace HFSM2 {
 class FsmEditor;
 class StateConfig;
 class FSMConfig;
@@ -108,4 +108,4 @@ private:
 	Ref<FSMConfig> editing_root_fsm_config;
 };
 
-}; // namespace Hfsm
+}; // namespace HFSM2

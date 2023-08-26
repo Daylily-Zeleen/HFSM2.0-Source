@@ -33,7 +33,7 @@
 
 using namespace godot;
 
-namespace Hfsm {
+namespace HFSM2 {
 
 class Transition : public RefCounted, public TransitionBase {
 	GDCLASS(Transition, RefCounted)
@@ -81,4 +81,4 @@ private:
 	HFSM *hfsm = nullptr;
 };
 
-}; // namespace Hfsm
+}; // namespace HFSM2

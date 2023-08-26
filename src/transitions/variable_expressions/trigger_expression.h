@@ -31,7 +31,7 @@
 
 #include "variable_expression.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 /**
  * @brief 普通触发器
@@ -68,4 +68,4 @@ public:
 	ExpressionType get_expression_type() override;
 };
 
-} // namespace Hfsm
+} // namespace HFSM2

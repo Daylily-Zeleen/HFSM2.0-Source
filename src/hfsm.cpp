@@ -48,7 +48,7 @@
 
 using namespace godot;
 
-namespace Hfsm {
+namespace HFSM2 {
 
 bool HFSM::_set(const StringName &p_name, const Variant &p_property) {
 	IF_TOOLS(
@@ -148,7 +148,7 @@ HFSM::HFSM() = default;
 HFSM::~HFSM() {
 	if (root_fsm) {
 		memdelete(root_fsm);
-		IF_DEBUG_TOOL(HfsmDebuggerPlugin::send_debug_destroy(this);)
+		IF_DEBUG_TOOL(HFSMDebuggerPlugin::send_debug_destroy(this);)
 	}
 }
 
@@ -253,7 +253,7 @@ bool HFSM::rebuild_hfsm() {
 
 	if (root_fsm) {
 		memdelete(root_fsm);
-		IF_DEBUG_TOOL(HfsmDebuggerPlugin::send_debug_destroy(this);)
+		IF_DEBUG_TOOL(HFSMDebuggerPlugin::send_debug_destroy(this);)
 	}
 
 	// Clear Variables
@@ -278,7 +278,7 @@ bool HFSM::rebuild_hfsm() {
 	// Build
 	root_fsm = root_fsm_config->create_fsm(this);
 
-	IF_DEBUG_TOOL(HfsmDebuggerPlugin::send_debug_built(this);)
+	IF_DEBUG_TOOL(HFSMDebuggerPlugin::send_debug_built(this);)
 	return true;
 }
 
@@ -327,12 +327,12 @@ void HFSM::_notification(int p_what) {
 #if defined(DEBUG_ENABLED) && defined(TOOLS_ENABLED)
 		case NOTIFICATION_ENTER_TREE: {
 			if (root_fsm) {
-				HfsmDebuggerPlugin::send_debug_built(this);
+				HFSMDebuggerPlugin::send_debug_built(this);
 			}
 		} break;
 		case NOTIFICATION_EXIT_TREE: {
 			if (root_fsm) {
-				HfsmDebuggerPlugin::send_debug_destroy(this);
+				HFSMDebuggerPlugin::send_debug_destroy(this);
 			}
 		} break;
 #endif // defined ( DEBUG_ENABLED) && defined (TOOLS_ENABLED)
@@ -422,7 +422,7 @@ void HFSM::emit_transited(const Ref<State> &p_from_state, const Ref<State> &p_to
 	previous_state = p_from_state;
 	current_state = p_to_state;
 	emit_signal(sn, p_from_state, p_to_state);
-	IF_DEBUG_TOOL(HfsmDebuggerPlugin::send_debug_update_active_path(this));
+	IF_DEBUG_TOOL(HFSMDebuggerPlugin::send_debug_update_active_path(this));
 }
 
 void HFSM::emit_entered(const Ref<State> &p_state) {
@@ -501,4 +501,4 @@ void HFSM::set_animation_player(AnimationPlayer *p_animtion_player) {
 		animation_player->connect(sn, cb);
 	}
 }
-}; // namespace Hfsm
+}; // namespace HFSM2

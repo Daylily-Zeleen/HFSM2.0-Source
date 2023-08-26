@@ -51,7 +51,7 @@ using namespace godot;
 
 #include "../src/fsm_config.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 // class FSMConfig;
 class StateConfig;
@@ -113,4 +113,4 @@ public:
 	StateNode(bool p_debug_mode = false);
 };
 
-} // namespace Hfsm
+} // namespace HFSM2

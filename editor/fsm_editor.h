@@ -44,7 +44,7 @@ using namespace godot;
 #include <scene/gui/graph_edit.h>
 #endif // GDEXTENSION_BUILD
 
-namespace Hfsm {
+namespace HFSM2 {
 class StateNode;
 class TransitionConfig;
 class FSMConfig;
@@ -294,4 +294,4 @@ public:
 	void debug_highlight_active_state(const StringName &p_state_name, bool p_deactive_all);
 };
 
-}; // namespace Hfsm
+}; // namespace HFSM2

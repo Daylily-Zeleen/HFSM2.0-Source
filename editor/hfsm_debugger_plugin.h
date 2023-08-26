@@ -45,16 +45,16 @@ using namespace godot;
 
 #endif // GDEXTENSION_BUILD
 
-namespace Hfsm {
-class HfsmDebugger;
+namespace HFSM2 {
+class HFSMDebugger;
 class FSMConfig;
 
-class HfsmDebuggerPlugin : public EditorDebuggerPlugin {
-	GDCLASS(HfsmDebuggerPlugin, EditorDebuggerPlugin)
+class HFSMDebuggerPlugin : public EditorDebuggerPlugin {
+	GDCLASS(HFSMDebuggerPlugin, EditorDebuggerPlugin)
 
 	using SessionID = int;
 
-	HashMap<SessionID, HfsmDebugger *> debuggers;
+	HashMap<SessionID, HFSMDebugger *> debuggers;
 
 	void _session_started(SessionID p_session_id);
 	void _session_stoped(SessionID p_session_id);
@@ -78,11 +78,11 @@ public:
 	static void send_debug_destroy(class HFSM *p_hfsm);
 	static void send_debug_update_active_path(class HFSM *p_hfsm);
 
-	~HfsmDebuggerPlugin() override;
+	~HFSMDebuggerPlugin() override;
 };
 
-class HfsmDebugger : public HSplitContainer {
-	GDCLASS(HfsmDebugger, HSplitContainer)
+class HFSMDebugger : public HSplitContainer {
+	GDCLASS(HFSMDebugger, HSplitContainer)
 	struct NodeData {
 		Ref<FSMConfig> root_fsm_config;
 		PackedStringArray current_active_path;
@@ -108,8 +108,8 @@ public:
 
 	void stop();
 
-	HfsmDebugger();
-	~HfsmDebugger() override;
+	HFSMDebugger();
+	~HFSMDebugger() override;
 };
 
-} //namespace Hfsm
+} //namespace HFSM2

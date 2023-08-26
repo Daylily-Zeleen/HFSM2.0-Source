@@ -38,7 +38,7 @@ using namespace godot;
 #include <core/io/resource.h>
 #endif // GDEXTENSION_BUILD
 
-namespace Hfsm {
+namespace HFSM2 {
 class Variable;
 class FSMConfig;
 
@@ -84,4 +84,4 @@ private:
 	String comment = "";
 };
 
-} // namespace Hfsm
+} // namespace HFSM2

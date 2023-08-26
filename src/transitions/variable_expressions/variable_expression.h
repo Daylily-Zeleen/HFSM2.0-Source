@@ -31,7 +31,7 @@
 
 #include "../../variable.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 class VariableExpression {
 protected:
@@ -66,4 +66,4 @@ protected:
 	Ref<Variable> variable;
 };
 
-} // namespace Hfsm
+} // namespace HFSM2

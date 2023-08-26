@@ -63,7 +63,7 @@
 
 #endif // GDEXTENSION_BUILD
 
-namespace Hfsm {
+namespace HFSM2 {
 
 #define GD_TEMPLATE                                             \
 	"extends State\n\n\n"                                       \
@@ -391,4 +391,4 @@ Ref<State> StateConfig::create_state(HFSM *p_hfsm, FSM *p_fsm) {
 }
 
 #pragma endregion
-}; // namespace Hfsm
+}; // namespace HFSM2

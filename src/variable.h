@@ -47,7 +47,7 @@ using namespace godot;
 
 #endif // GDEXTENSION_BUILD
 
-namespace Hfsm {
+namespace HFSM2 {
 
 // 变量类
 class Variable : public RefCounted {
@@ -109,4 +109,4 @@ inline Variant::Type Variable::get_variable_type() const { return type; }
 inline void Variable::flush_trigger() { value = false; }
 
 #pragma endregion
-}; // namespace Hfsm
+}; // namespace HFSM2

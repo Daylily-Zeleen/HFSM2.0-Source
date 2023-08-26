@@ -29,7 +29,7 @@
 
 #include "auto_transition.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 #pragma region AutoTransition
 
@@ -62,4 +62,4 @@ void AutoTransition::_load_state(const Variant &state) {
 #endif
 #pragma endregion
 
-} // namespace Hfsm
+} // namespace HFSM2

@@ -29,7 +29,7 @@
 
 #include "transition.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 void Transition::_bind_methods() {
 	GDBIND_BEGIN(Transition);
@@ -56,4 +56,4 @@ void Transition::_bind_methods() {
 #endif
 }
 
-}; // namespace Hfsm
+}; // namespace HFSM2

@@ -33,7 +33,7 @@
 
 #include "variable.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 #pragma region VariableConfig
 bool VariableConfig::_set(const StringName &p_name, const Variant &p_property) {
 	if (p_name == TNAMEOF(default_value)) {
@@ -201,4 +201,4 @@ Ref<FSMConfig> VariableConfig::get_fsm_config() const { return fsm_config; }
 
 #pragma endregion
 
-} // namespace Hfsm
+} // namespace HFSM2

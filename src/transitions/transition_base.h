@@ -42,7 +42,7 @@ using namespace godot;
 
 #endif // GDEXTENSION_BUILD
 
-namespace Hfsm {
+namespace HFSM2 {
 class HFSM;
 class State;
 
@@ -87,4 +87,4 @@ inline Ref<State> TransitionBase::get_to_state() { return to_state; }
 
 #pragma endregion
 
-}; // namespace Hfsm
+}; // namespace HFSM2

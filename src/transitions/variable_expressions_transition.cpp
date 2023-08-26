@@ -29,7 +29,7 @@
 
 #include "variable_expressions_transition.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 #pragma region VariableExpressionsTransition
 
@@ -75,4 +75,4 @@ bool VariableExpressionsTransition::can_transit() {
 
 #pragma endregion
 
-} // namespace Hfsm
+} // namespace HFSM2

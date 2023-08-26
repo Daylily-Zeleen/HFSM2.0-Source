@@ -33,7 +33,7 @@
 #include "variable_expressions/comparation_expression.h"
 #include "variable_expressions/trigger_expression.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 class SoloTriggerExpression;
 class UnionTriggerExpression;
@@ -55,4 +55,4 @@ private:
 	friend class TransitionConfig;
 };
 
-} // namespace Hfsm
+} // namespace HFSM2

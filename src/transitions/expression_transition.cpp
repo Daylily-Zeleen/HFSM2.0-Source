@@ -32,16 +32,16 @@
 #include "../../hfsm_global.h"
 #include "../state.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 #pragma region ExpressionTransition
 
 bool ExpressionTransition::can_transit() {
 	ERR_FAIL_COND_V(invalid, false);
-	auto result = expression.execute(HfsmGlobal::get_singletons(), hfsm, false);
+	auto result = expression.execute(HFSMGlobal::get_singletons(), hfsm, false);
 	if (expression.has_execute_failed()) {
 		IF_DEBUG({
-			WARN_PRINT_ONCE(String("Hfsm: The ExpressionTransition '") +
+			WARN_PRINT_ONCE(String("HFSM: The ExpressionTransition '") +
 					String(get_from_state()->get_name()) + String("'->'") +
 					String(get_to_state()->get_name()) + String("' of '") +
 					(hfsm->get_owner()
@@ -57,4 +57,4 @@ bool ExpressionTransition::can_transit() {
 }
 #pragma endregion
 
-} // namespace Hfsm
+} // namespace HFSM2

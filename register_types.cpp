@@ -65,7 +65,7 @@
 
 #endif // TOOLS_ENABLED
 
-using namespace Hfsm;
+using namespace HFSM2;
 
 void register_core_classes() {
 	GDREGISTER_CLASS(HFSM);
@@ -81,23 +81,23 @@ void register_core_classes() {
 
 void register_editor_classes() {
 	IF_TOOLS({
-		// GDREGISTER_INTERNAL_CLASS(HfsmEditorPlugin);
+		// GDREGISTER_INTERNAL_CLASS(HFSMEditorPlugin);
 		// GDREGISTER_INTERNAL_CLASS(EditorPropertyVariableConfig);
 		// GDREGISTER_INTERNAL_CLASS(EditorPropertyVariableConfig::VariableConfigSelector);
 		// GDREGISTER_INTERNAL_CLASS(StateNode);
 		// GDREGISTER_INTERNAL_CLASS(FsmEditor);
-		// GDREGISTER_INTERNAL_CLASS(HfsmInspectorPlugin);
+		// GDREGISTER_INTERNAL_CLASS(HFSMInspectorPlugin);
 		// GDREGISTER_INTERNAL_CLASS(HFSMEditor);
-		GDREGISTER_CLASS(HfsmEditorPlugin);
+		GDREGISTER_CLASS(HFSMEditorPlugin);
 		GDREGISTER_CLASS(EditorPropertyVariableConfig);
 		GDREGISTER_CLASS(EditorPropertyVariableConfig::VariableConfigSelector);
 		GDREGISTER_CLASS(StateNode);
 		GDREGISTER_CLASS(FsmEditor);
-		GDREGISTER_CLASS(HfsmInspectorPlugin);
+		GDREGISTER_CLASS(HFSMInspectorPlugin);
 		GDREGISTER_CLASS(HFSMEditor);
 		IF_GDE({
-			GDREGISTER_ABSTRACT_CLASS(HfsmDebuggerPlugin);
-			GDREGISTER_CLASS(HfsmDebugger);
+			GDREGISTER_ABSTRACT_CLASS(HFSMDebuggerPlugin);
+			GDREGISTER_CLASS(HFSMDebugger);
 		})
 	})
 }
@@ -106,7 +106,7 @@ void initialize_hfsm_module(ModuleInitializationLevel p_level) {
 	IF_TOOLS(if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
 		register_editor_classes();
 
-		EditorPlugins::add_by_type<HfsmEditorPlugin>();
+		EditorPlugins::add_by_type<HFSMEditorPlugin>();
 	})
 
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
@@ -114,19 +114,19 @@ void initialize_hfsm_module(ModuleInitializationLevel p_level) {
 	}
 	register_core_classes();
 
-	HfsmGlobal::init_static();
+	HFSMGlobal::init_static();
 }
 
 void uninitialize_hfsm_module(ModuleInitializationLevel p_level) {
 	IF_TOOLS(IF_GDE(if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
-		EditorPlugins::remove_by_type<HfsmEditorPlugin>();
+		EditorPlugins::remove_by_type<HFSMEditorPlugin>();
 	}))
 
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}
 
-	HfsmGlobal::deinit_static();
+	HFSMGlobal::deinit_static();
 }
 
 #ifdef GDEXTENSION_BUILD

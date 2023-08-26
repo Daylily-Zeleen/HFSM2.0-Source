@@ -29,7 +29,7 @@
 
 #include "variable.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 #pragma region Variable
 void Variable::_bind_methods() {
@@ -45,4 +45,4 @@ void Variable::_bind_methods() {
 
 #pragma endregion
 
-} // namespace Hfsm
+} // namespace HFSM2

@@ -32,7 +32,7 @@
 #include "state.h"
 #include "transitions/transition_base.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 #pragma region FSM
 
@@ -245,4 +245,4 @@ void FSM::_network_despawn() {
 
 #pragma endregion
 
-}; // namespace Hfsm
+}; // namespace HFSM2

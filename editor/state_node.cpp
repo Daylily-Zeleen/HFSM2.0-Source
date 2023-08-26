@@ -53,14 +53,14 @@
 #include "hfsm_editor.h"
 #include "hfsm_editor_plugin.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 #define s_edit_fsm_requested "_edit_fsm_requested"
 
 Ref<ImageTexture> (*StateNode::get_empty_icon)() = nullptr;
 
 String StateNode::str_localize(const String &p_en_key) const {
-	return HfsmEditorPlugin::str_localize(p_en_key);
+	return HFSMEditorPlugin::str_localize(p_en_key);
 }
 
 void StateNode::_bind_methods() {
@@ -268,7 +268,7 @@ void StateNode::_script_selected(const Ref<Script> &p_script, bool p_edit) {
 		return;
 	}
 
-	HfsmEditorPlugin::get_singleton()->get_editor_interface()->edit_resource(p_script);
+	HFSMEditorPlugin::get_singleton()->get_editor_interface()->edit_resource(p_script);
 }
 void StateNode::_script_changed(const Ref<Script> &p_script) {
 	if (debug_mode) {
@@ -387,4 +387,4 @@ bool StateNode::is_debug_actived() const {
 StateNode::StateNode(bool p_debug_mode) :
 		debug_mode(p_debug_mode) {}
 
-} // namespace Hfsm
+} // namespace HFSM2

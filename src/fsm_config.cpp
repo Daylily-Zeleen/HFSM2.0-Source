@@ -35,7 +35,7 @@
 #include "transitions/transition_base.h"
 #include "variable_config.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 #pragma region FSMConfig
 
@@ -288,4 +288,4 @@ void FSMConfig::set_transition_config_list(const Array &p_transition_config_list
 
 #pragma endregion
 
-} // namespace Hfsm
+} // namespace HFSM2

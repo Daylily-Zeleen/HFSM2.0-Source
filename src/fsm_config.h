@@ -38,7 +38,7 @@ using namespace godot;
 #else
 
 #endif // GDEXTENSION_BUILD
-namespace Hfsm {
+namespace HFSM2 {
 // class HFSM;
 // class FSM;
 class VariableConfig;
@@ -111,4 +111,4 @@ private:
 	TypedArray<TransitionConfig> transition_config_list;
 };
 
-}; // namespace Hfsm
+}; // namespace HFSM2

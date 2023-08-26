@@ -42,7 +42,7 @@ using namespace godot;
 
 #include "comparation_expression.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 class HFSM;
 class VariableExpression;
@@ -96,7 +96,7 @@ private:
 	bool variable_as_value = false;
 };
 
-} // namespace Hfsm
+} // namespace HFSM2
 
-VARIANT_ENUM_CAST(Hfsm::VariableExpressionConfig::TriggerType);
-VARIANT_ENUM_CAST(Hfsm::VariableExpressionConfig::Comparator);
+VARIANT_ENUM_CAST(HFSM2::VariableExpressionConfig::TriggerType);
+VARIANT_ENUM_CAST(HFSM2::VariableExpressionConfig::Comparator);

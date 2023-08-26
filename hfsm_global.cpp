@@ -41,13 +41,13 @@
 
 #include "src/state.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 #ifdef GDE_COMPATIBILITY_ENABLED
-HfsmGlobal::GodotVersion HfsmGlobal::godot_version;
+HFSMGlobal::GodotVersion HFSMGlobal::godot_version;
 #endif // GDE_COMPATIBILITY_ENABLED
 
-void HfsmGlobal::init_static() {
+void HFSMGlobal::init_static() {
 #ifdef GDE_COMPATIBILITY_ENABLED
 	Dictionary version_info = Engine::get_singleton()->get_version_info();
 	godot_version = { version_info["major"], version_info["minor"], version_info["patch"] };
@@ -98,13 +98,13 @@ void HfsmGlobal::init_static() {
 	})
 }
 
-void HfsmGlobal::deinit_static() {
+void HFSMGlobal::deinit_static() {
 	_singleton_names().clear();
 	_singletons().clear();
 }
 
 #ifdef GDE_COMPATIBILITY_ENABLED
-bool HfsmGlobal::is_4_point_2_or_later() {
+bool HFSMGlobal::is_4_point_2_or_later() {
 	if (godot_version.major > 4) {
 		return true;
 	}
@@ -115,4 +115,4 @@ bool HfsmGlobal::is_4_point_2_or_later() {
 }
 #endif // GDE_COMPATIBILITY_ENABLED
 
-} // namespace Hfsm
+} // namespace HFSM2

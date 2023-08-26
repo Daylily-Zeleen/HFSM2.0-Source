@@ -57,7 +57,7 @@ class ImageTexture;
 
 #include "../hfsm_global.h"
 
-namespace Hfsm {
+namespace HFSM2 {
 
 class EditorPropertyVariableConfig : public EditorProperty {
 	GDCLASS(EditorPropertyVariableConfig, EditorProperty)
@@ -112,8 +112,8 @@ public:
 	void GD_(update_property)() override { update_property_internal(); }
 };
 
-class HfsmInspectorPlugin : public EditorInspectorPlugin {
-	GDCLASS(HfsmInspectorPlugin, EditorInspectorPlugin)
+class HFSMInspectorPlugin : public EditorInspectorPlugin {
+	GDCLASS(HFSMInspectorPlugin, EditorInspectorPlugin)
 
 	bool can_handle_internal(Object *p_object) const;
 	bool parse_property_internal(Object *p_object, Variant::Type p_type, const String &p_name, PropertyHint p_hint_type, const String &p_hint_string, BitField<PropertyUsageFlags> p_usage_flags, bool p_wide);
@@ -135,13 +135,13 @@ public:
 #endif // GDEXTENSION_BUILD
 };
 
-class HfsmEditorPlugin : public EditorPlugin {
-	GDCLASS(HfsmEditorPlugin, EditorPlugin)
+class HFSMEditorPlugin : public EditorPlugin {
+	GDCLASS(HFSMEditorPlugin, EditorPlugin)
 private:
-	static HfsmEditorPlugin *instance;
+	static HFSMEditorPlugin *instance;
 
-	Ref<HfsmInspectorPlugin> inspector_plugin;
-	Ref<class HfsmDebuggerPlugin> debugger_plugin;
+	Ref<HFSMInspectorPlugin> inspector_plugin;
+	Ref<class HFSMDebuggerPlugin> debugger_plugin;
 	class HFSMEditor *hfsm_editor = nullptr;
 	class Button *hfsm_editor_btn = nullptr;
 
@@ -164,10 +164,10 @@ protected:
 	void _notification(int p_what);
 
 public:
-	static HfsmEditorPlugin *get_singleton() { return instance; }
+	static HFSMEditorPlugin *get_singleton() { return instance; }
 
-	HfsmEditorPlugin();
-	~HfsmEditorPlugin() override;
+	HFSMEditorPlugin();
+	~HFSMEditorPlugin() override;
 
 #ifdef GDEXTENSION_BUILD
 	bool _handles(Object *p_object) const override { return handles_internal(p_object); }
@@ -189,6 +189,6 @@ public:
 	static EditorUndoRedoManager *create_action(const String &p_action_name);
 };
 
-} //namespace Hfsm
+} //namespace HFSM2
 
-#define HFSM_EDITOR_CREATE_ACTION(m_action) auto undo_redo = HfsmEditorPlugin::create_action(m_action)
+#define HFSM_EDITOR_CREATE_ACTION(m_action) auto undo_redo = HFSMEditorPlugin::create_action(m_action)
