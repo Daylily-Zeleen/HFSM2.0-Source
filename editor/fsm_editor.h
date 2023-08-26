@@ -211,7 +211,7 @@ private:
 	void foreach_connection_by_nodes(TFuncAction p_action) {
 		const auto action = [this, p_action](const StringName &p_from, const StringName &p_to) -> bool {
 			auto from = _get_state_node({ p_from });
-			auto to = _get_state_node({ p_from });
+			auto to = _get_state_node({ p_to });
 			return p_action(from, to);
 		};
 		foreach_connection_by_names(action);

@@ -231,6 +231,7 @@ void FsmEditor::__set_copied_transition_list(const TypedArray<TransitionConfig> 
 		copied_transition_config_list = p_to_set;
 	}
 }
+
 void FsmEditor::__set_copied_state_config_list(const TypedArray<StateConfig> &p_to_set) {
 	if (copied_state_config_list != p_to_set) {
 		copied_state_config_list = p_to_set;
@@ -244,8 +245,9 @@ void FsmEditor::try_disconnect(const Vector2 &p_pos1, const Vector2 &p_pos2) {
 		return;
 	}
 
-	const Vector2 scaled_pos1 = p_pos1;
-	const Vector2 scaled_pos2 = p_pos2;
+	// const auto graph_zoom = static_cast<float>(get_zoom());
+	const Vector2 scaled_pos1 = p_pos1; // * graph_zoom;
+	const Vector2 scaled_pos2 = p_pos2; // * graph_zoom;
 
 	LocalVector<Pair<StateNode *, StateNode *>> to_delete;
 	foreach_connection_by_nodes([this, &to_delete, scaled_pos1, scaled_pos2](StateNode *p_from, StateNode *p_to) -> bool {
@@ -1099,8 +1101,13 @@ void FsmEditor::_debug_tween_activity(float p_activity, const StringName &p_from
 
 PackedVector2Array FsmEditor::get_connection_line_with_zoom(StateNode *p_from, StateNode *p_to) {
 	const float graph_zoom = get_zoom();
-	const auto from = (p_from->get_connection_output_position(0) + p_from->get_position_offset() * graph_zoom) / graph_zoom;
-	const auto to = (p_to->get_connection_input_position(0) + p_to->get_position_offset() * graph_zoom) / graph_zoom;
+
+	const auto get_port_position = [graph_zoom](StateNode *p_node, bool p_from) {
+		auto port_position = p_from ? p_node->get_connection_output_position(0) : p_node->get_connection_input_position(0);
+		return (port_position + p_node->get_position_offset() * graph_zoom) / graph_zoom;
+	};
+	const auto from = get_port_position(p_from, true);
+	const auto to = get_port_position(p_to, false);
 	const auto angle = from.angle_to_point(to);
 	return make_arr<PackedVector2Array>(
 			(from + get_offset(angle)) * graph_zoom,
@@ -1178,7 +1185,6 @@ void FsmEditor::_draw_layer_draw() {
 		auto center_pos = (scaled_line[0] + scaled_line[1]) * 0.5f;
 		auto angle = scaled_line[0].angle_to_point(scaled_line[1]);
 		auto clamped_scale = Vector2(1, 1) * float(CLAMP(get_zoom(), 0.5, 1));
-
 		// 三角形
 		Color triangle_color = unactivated_triangle_color;
 		if (debug_mode) {
