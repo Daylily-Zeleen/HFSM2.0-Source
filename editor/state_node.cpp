@@ -358,7 +358,7 @@ void StateNode::initialize() {
 		type_option_btn->connect("item_selected", TCALLABLE(_type_option_btn_item_selected));
 		// 子状态机
 		has_sub_fsm_check_box->connect("toggled", TCALLABLE(_set_has_sub_fsm_check_box));
-		sub_fsm_btn->connect("pressed", TCALLABLE(_request_edit_sub_fsm_config));
+		sub_fsm_btn->connect("pressed", TCALLABLE(_request_edit_sub_fsm_config), CONNECT_DEFERRED);
 		// 脚本拾取器
 		script_picker->connect("resource_selected", TCALLABLE(_script_selected));
 		script_picker->connect("resource_changed", TCALLABLE(_script_changed));

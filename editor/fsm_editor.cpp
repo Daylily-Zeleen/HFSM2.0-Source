@@ -120,6 +120,8 @@ String FsmEditor::str_localize(const String &en_key) const {
 void FsmEditor::_bind_methods() {
 	GDBIND_BEGIN(FsmEditor);
 
+	GDBIND_METHOD(edit_fsm_config, "fsm_config", "path_button_container", "root_fsm_config", "as_action");
+
 	GDBIND_METHOD(__queue_refresh);
 	GDBIND_METHOD(__queue_redraw_request);
 	GDBIND_METHOD(__queue_redraw);
@@ -1369,7 +1371,25 @@ Ref<FSMConfig> FsmEditor::get_nested_fsm_config(const Ref<StateConfig> &p_state_
 	return nullptr;
 }
 
-void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContainer *p_path_button_container, const Ref<FSMConfig> &p_root_fsm_config) {
+void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContainer *p_path_button_container, const Ref<FSMConfig> &p_root_fsm_config, bool p_as_action) {
+#define get_btn_callback(m_fsm_config) TCALLABLE_BIND(edit_fsm_config, m_fsm_config, p_path_button_container, p_root_fsm_config, p_as_action)
+
+	const auto remove_and_free_children = [](Node *p_node, bool (*p_filter)(Node * p_child)) {
+		List<Node *> to_remove;
+		for (auto i = 0; i < p_node->get_child_count(); ++i) {
+			auto child = p_node->get_child(i);
+			if (p_filter(child)) {
+				to_remove.push_back(child);
+			}
+		}
+		while (!to_remove.is_empty()) {
+			auto bck = to_remove.back()->get();
+			to_remove.pop_back();
+			p_node->remove_child(bck);
+			bck->queue_free();
+		}
+	};
+
 	if (debug_mode) {
 		__set_blocking_redraw(true);
 		// 处理画面显示
@@ -1380,25 +1400,14 @@ void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 		});
 
 		// 移除状态
-		for (auto i = 0; i < get_child_count(); i++) {
-			if (auto sn = Object::cast_to<StateNode>(get_child(i))) {
-				remove_child(sn);
-				memdelete(sn);
-			}
-		}
+		remove_and_free_children(this, [](Node *p_child) { return cast_to<StateNode>(p_child) != nullptr; });
 
 		// 构建目标的状态机
 		__set_current_fsm_config(p_fsm_config, p_root_fsm_config);
 
 		//  路径按钮处理
 		//  清除路径列表
-		auto children = p_path_button_container->get_children(true);
-		for (auto i = 0; i < children.size(); i++) {
-			if (auto btn = Object::cast_to<Button>(children[i])) {
-				p_path_button_container->remove_child(btn);
-				memdelete(btn);
-			}
-		}
+		remove_and_free_children(p_path_button_container, [](Node *p_child) { return cast_to<Button>(p_child) != nullptr; });
 
 		if (p_fsm_config.is_valid()) {
 			// 处理路径按钮
@@ -1408,7 +1417,7 @@ void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 			while (nsc.is_valid()) {
 				auto btn = memnew(Button);
 				btn->set_text(nsc->get_state_name());
-				btn->connect("pressed", TCALLABLE_BIND(edit_fsm_config, fc));
+				btn->connect("pressed", get_btn_callback(fc), CONNECT_DEFERRED);
 
 				path_btn_list.push_front(btn);
 
@@ -1417,7 +1426,7 @@ void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 			}
 			auto root_btn = memnew(Button);
 			root_btn->set_text("root");
-			root_btn->connect("pressed", TCALLABLE_BIND(edit_fsm_config, fc));
+			root_btn->connect("pressed", get_btn_callback(fc), CONNECT_DEFERRED);
 			path_btn_list.push_front(root_btn);
 			// 末尾按钮不可按
 			path_btn_list.back()->get()->set_disabled(true);
@@ -1432,7 +1441,6 @@ void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 			auto state_config_list = p_fsm_config->get_state_config_list();
 			for (auto i = 0; i < state_config_list.size(); i++) {
 				Ref<StateConfig> sc = state_config_list[i];
-				auto old_state_node = sc->get_state_node();
 				auto sn = create_state_node(sc);
 				sc->set_state_node(sn);
 				add_child(sn);
@@ -1451,6 +1459,81 @@ void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 
 		__set_blocking_redraw(false);
 		propagate_notification(NOTIFICATION_CHILD_ORDER_CHANGED);
+	} else if (!p_as_action) {
+		if (current_fsm_config.is_null() && p_fsm_config.is_null()) {
+			return;
+		}
+
+		__set_blocking_redraw(true);
+		// 处理画面显示
+		// 断连接
+		foreach_connection_by_names([this](const StringName &p_from, const StringName &p_to) {
+			disconnect_node(p_from, 0, p_to, 0);
+			return false;
+		});
+
+		// 移除状态
+		remove_and_free_children(this, [](Node *p_child) { return cast_to<StateNode>(p_child) != nullptr; });
+
+		// 构建目标的状态机
+		__set_current_fsm_config(p_fsm_config, p_root_fsm_config);
+
+		//  路径按钮处理
+		//  清除路径列表
+		remove_and_free_children(p_path_button_container, [](Node *p_child) { return cast_to<Button>(p_child) != nullptr; });
+
+		if (p_fsm_config.is_valid()) {
+			// 处理路径按钮
+			List<Button *> path_btn_list;
+			Ref<FSMConfig> fc = p_fsm_config;
+			Ref<StateConfig> nsc = p_fsm_config->get_nested_state_config();
+			while (nsc.is_valid()) {
+				auto btn = memnew(Button);
+				btn->set_text(nsc->get_state_name());
+				btn->connect("pressed", get_btn_callback(fc), CONNECT_DEFERRED);
+
+				path_btn_list.push_front(btn);
+
+				fc = get_nested_fsm_config(nsc, p_root_fsm_config);
+				nsc = fc->get_nested_state_config();
+			}
+			auto root_btn = memnew(Button);
+			root_btn->set_text("root");
+			root_btn->connect("pressed", get_btn_callback(fc), CONNECT_DEFERRED);
+			path_btn_list.push_front(root_btn);
+			// 末尾按钮不可按
+			path_btn_list.back()->get()->set_disabled(true);
+			// 按顺序添加
+			while (!path_btn_list.is_empty()) {
+				Button *front_btn = path_btn_list.front()->get();
+				path_btn_list.pop_front();
+
+				p_path_button_container->add_child(front_btn);
+			}
+			// 新建并添加节点
+			auto state_config_list = p_fsm_config->get_state_config_list();
+			for (auto i = 0; i < state_config_list.size(); i++) {
+				Ref<StateConfig> sc = state_config_list[i];
+				auto sn = create_state_node(sc, p_fsm_config);
+				sc->_set_state_node(sn);
+				add_child(sn);
+			}
+
+			// 连接
+			auto transition_config_list = p_fsm_config->get_transition_config_list();
+			for (auto i = 0; i < transition_config_list.size(); i++) {
+				Ref<TransitionConfig> tc = transition_config_list[i];
+				StringName from = tc->get_from_state_config()->get_state_node()->get_name();
+				StringName to = tc->get_to_state_config()->get_state_node()->get_name();
+
+				connect_node(from, 0, to, 0);
+			}
+		}
+
+		__set_blocking_redraw(false);
+
+		propagate_notification(NOTIFICATION_CHILD_ORDER_CHANGED);
+		queue_redraw();
 	} else {
 		if (current_fsm_config.is_null() && p_fsm_config.is_null()) {
 			return;
@@ -1499,7 +1582,7 @@ void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 			while (nsc.is_valid()) {
 				auto btn = memnew(Button);
 				btn->set_text(nsc->get_state_name());
-				btn->connect("pressed", TCALLABLE_BIND(edit_fsm_config, fc));
+				btn->connect("pressed", get_btn_callback(fc), CONNECT_DEFERRED);
 
 				path_btn_list.push_front(btn);
 
@@ -1508,7 +1591,7 @@ void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 			}
 			auto root_btn = memnew(Button);
 			root_btn->set_text("root");
-			root_btn->connect("pressed", TCALLABLE_BIND(edit_fsm_config, fc));
+			root_btn->connect("pressed", get_btn_callback(fc), CONNECT_DEFERRED);
 			path_btn_list.push_front(root_btn);
 			// 末尾按钮不可按
 			path_btn_list.back()->get()->set_disabled(true);

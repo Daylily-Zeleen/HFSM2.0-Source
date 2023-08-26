@@ -289,7 +289,8 @@ public:
 	bool is_in_output_hotzone(GraphNode *p_in_node, int p_in_port, const Vector2 &p_mouse_position, const Vector2i &p_port_size) override { return is_node_hotzone(p_in_node, p_in_port, p_mouse_position); }
 #endif // GDEXTENSION_BUILD
 
-	void edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContainer *p_path_button_container, const Ref<FSMConfig> &p_root_config);
+	// TODO:: p_as_action ?? currently change target Fsm is not action, to avoid mark scene as dirty and request save.
+	void edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContainer *p_path_button_container, const Ref<FSMConfig> &p_root_config, bool p_as_action = false);
 
 	void debug_highlight_active_state(const StringName &p_state_name, bool p_deactive_all);
 };
