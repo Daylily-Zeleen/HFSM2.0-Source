@@ -101,7 +101,7 @@ private:
 	void set_transition_config_list(const Array &p_transition_config_list);
 
 	// 所在的状态
-	Ref<StateConfig> nested_state_config;
+	Ref<WeakRef> nested_state_config;
 
 	// 自己的状态列表
 	TypedArray<StateConfig> state_config_list;

@@ -371,3 +371,31 @@ static Array make_arr(Args... args) {
 #define IF_DEV(m_code)
 #define IF_NOT_DEV(m_code) m_code
 #endif // DEV_ENABLED
+
+#ifdef GDEXTENSION_BUILD
+#include <godot_cpp/classes/weak_ref.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
+
+using namespace godot;
+#else // GDEXTENSION_BUILD
+#include <core/object/ref_counted.h>
+#include <core/variant/variant_utility.h>
+#endif // GDEXTENSION_BUILD
+template <typename T, std::enable_if<std::is_convertible_v<T, Object *> || std::is_convertible_v<T, Ref<RefCounted>>> *valve = nullptr>
+inline static Ref<WeakRef> weakref(T p_obj) {
+	IF_GDE(return UtilityFunctions::weakref(p_obj);)
+	IF_GDM({
+		Callable::CallError err;
+		return VariantUtilityFunctions::weakref(p_obj, err);
+	})
+}
+inline static Ref<WeakRef> weakref(Object *p_obj) { return weakref(p_obj); }
+inline static Ref<WeakRef> weakref(const Ref<RefCounted> &p_obj) { return weakref(p_obj); }
+template <typename T, std::enable_if<std::is_convertible_v<T, Object *> || std::is_convertible_v<T, Ref<RefCounted>>> *valve = nullptr>
+inline static T get_ref(const Ref<WeakRef> &p_weak_ref) {
+	if (p_weak_ref.is_valid()) {
+		return p_weak_ref->get_ref();
+	}
+	return {};
+}
+// inline static Variant get_ref(const Ref<WeakRef> &p_weak_ref) { return get_ref(p_weak_ref); }

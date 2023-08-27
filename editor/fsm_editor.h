@@ -277,6 +277,7 @@ public:
 	void queue_refresh();
 
 	FsmEditor(bool p_debug_mode = false);
+
 	static FsmEditor *create_fsm_editor(HBoxContainer *p_path_btn_container, bool p_debug_mode);
 
 #ifdef GDEXTENSION_BUILD

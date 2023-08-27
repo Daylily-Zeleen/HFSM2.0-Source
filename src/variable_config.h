@@ -78,7 +78,7 @@ public:
 
 private:
 	StringName variable_name = "variable";
-	Ref<FSMConfig> fsm_config;
+	Ref<WeakRef> fsm_config;
 	Variant::Type type = Variant::NIL;
 	Variant default_value;
 	String comment = "";

@@ -84,7 +84,7 @@ void VariableConfig::set_variable_name(const StringName &p_name) {
 		bool unique = true;
 		do {
 			unique = true;
-			auto vrl = fsm_config->get_variable_config_list();
+			auto vrl = get_fsm_config()->get_variable_config_list();
 			for (auto i = 0; i < vrl.size(); i++) {
 				Ref<VariableConfig> v = vrl[i];
 				if (v.is_valid() && v.ptr() != this && v->get_variable_name() == variable_name) {
@@ -193,11 +193,11 @@ String VariableConfig::get_type_text() const {
 }
 
 void VariableConfig::set_fsm_config(const Ref<FSMConfig> &p_fsm_config) {
-	fsm_config = p_fsm_config;
+	fsm_config = weakref(p_fsm_config);
 	set_variable_name(variable_name);
 }
 
-Ref<FSMConfig> VariableConfig::get_fsm_config() const { return fsm_config; }
+Ref<FSMConfig> VariableConfig::get_fsm_config() const { return get_ref<Ref<FSMConfig>>(fsm_config); }
 
 #pragma endregion
 

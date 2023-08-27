@@ -57,10 +57,10 @@ void FSMConfig::_bind_methods() {
 }
 
 void FSMConfig::set_nested_state_config(const Ref<StateConfig> &p_state_config) {
-	nested_state_config = p_state_config;
+	nested_state_config = weakref(p_state_config);
 	emit_changed();
 }
-Ref<StateConfig> FSMConfig::get_nested_state_config() const { return nested_state_config; }
+Ref<StateConfig> FSMConfig::get_nested_state_config() const { return get_ref<Ref<StateConfig>>(nested_state_config); }
 
 void FSMConfig::add_state_config(const Ref<StateConfig> &p_state_config) {
 	if (state_config_list.find(p_state_config) >= 0) {
