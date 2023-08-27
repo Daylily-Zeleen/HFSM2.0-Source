@@ -100,8 +100,8 @@ public:
 	bool is_script_valid() const;
 	void set_nested(bool p_nested);
 	bool is_nested() const;
-	void set_fsm_config(const Ref<FSMConfig> &p_fsm_config);
-	Ref<FSMConfig> get_fsm_config() const;
+	void set_sub_fsm_config(const Ref<FSMConfig> &p_fsm_config);
+	Ref<FSMConfig> get_sub_fsm_config() const;
 
 #ifdef TOOLS_ENABLED
 	void set_editor_offset(Vector2 p_offset);
@@ -126,8 +126,8 @@ private:
 	Ref<Script> state_script;
 	bool script_valid = true;
 
-	// 避免循环依赖
-	Ref<FSMConfig> fsm_config;
+	// 子状态机
+	Ref<FSMConfig> sub_fsm_config;
 #ifdef TOOLS_ENABLED
 	Vector2 editor_offset;
 #endif //TOOLS_ENABLED

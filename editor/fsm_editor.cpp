@@ -770,7 +770,7 @@ void FsmEditor::_popup_menu_id_pressed(int32_t p_id) {
 			// 对复制节点的操作（被相关状态节的撤回操作所依赖， 需要提前
 			ADD_UNDO_METHOD(this, remove_child, duplicated_state_node);
 			ADD_UNDO_METHOD(current_fsm_config.ptr(), remove_state_config, duplicated_state_config);
-			ADD_UNDO_METHOD(duplicated_state_config.ptr(), set_fsm_config, Ref<FSMConfig>());
+			ADD_UNDO_METHOD(duplicated_state_config.ptr(), set_sub_fsm_config, Ref<FSMConfig>());
 			ADD_UNDO_METHOD(duplicated_state_config.ptr(), set_nested, false);
 			ADD_UNDO_METHOD(hovering_state_config.ptr(), set_type, hovering_state_config->get_type());
 			ADD_UNDO_METHOD(hovering_state_config.ptr(), set_state_script, hovering_state_config->get_state_script());
@@ -791,7 +791,7 @@ void FsmEditor::_popup_menu_id_pressed(int32_t p_id) {
 			ADD_DO_METHOD(hovering_state_config.ptr(), set_state_script, Ref<Script>());
 			ADD_DO_METHOD(hovering_state_config.ptr(), set_type, State::STATE_TYPE_ENTRY);
 			ADD_DO_METHOD(duplicated_state_config.ptr(), set_nested, true);
-			ADD_DO_METHOD(duplicated_state_config.ptr(), set_fsm_config, new_fsm_config);
+			ADD_DO_METHOD(duplicated_state_config.ptr(), set_sub_fsm_config, new_fsm_config);
 			ADD_DO_METHOD(current_fsm_config.ptr(), add_state_config, duplicated_state_config);
 			ADD_DO_METHOD(this, add_child, duplicated_state_node);
 
@@ -1359,8 +1359,8 @@ Ref<FSMConfig> FsmEditor::get_nested_fsm_config(const Ref<StateConfig> &p_state_
 			if (sc == p_state_config) {
 				return p_fsm_config;
 			} else {
-				if (sc->get_fsm_config().is_valid()) {
-					auto fsm_config = get_nested_fsm_config(p_state_config, sc->get_fsm_config());
+				if (sc->get_sub_fsm_config().is_valid()) {
+					auto fsm_config = get_nested_fsm_config(p_state_config, sc->get_sub_fsm_config());
 					if (fsm_config.is_valid()) {
 						return fsm_config;
 					}
@@ -1526,7 +1526,7 @@ void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 				StringName from = tc->get_from_state_config()->get_state_node()->get_name();
 				StringName to = tc->get_to_state_config()->get_state_node()->get_name();
 
-				connect_node(from, 0, to, 0);
+				call_deferred(TNAMEOF(connect_node), from, 0, to, 0);
 			}
 		}
 

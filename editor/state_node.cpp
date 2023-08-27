@@ -141,7 +141,7 @@ void StateNode::_setup_state_config() {
 	}
 	type_option_btn->select(type_option_btn->get_item_index(state_config->get_type()));
 	// 子状态机
-	has_sub_fsm_check_box->set_pressed(state_config->get_fsm_config().is_valid());
+	has_sub_fsm_check_box->set_pressed(state_config->get_sub_fsm_config().is_valid());
 	sub_fsm_btn->set_disabled(!has_sub_fsm_check_box->is_pressed());
 	// 脚本
 	script_picker->set_edited_resource(state_config->get_state_script());
@@ -242,24 +242,24 @@ void StateNode::_set_has_sub_fsm_check_box(bool p_pressed) {
 		return;
 	}
 
-	if (state_config->get_fsm_config().is_null() && !p_pressed) {
+	if (state_config->get_sub_fsm_config().is_null() && !p_pressed) {
 		return;
 	}
-	if (state_config->get_fsm_config().is_valid() && p_pressed) {
+	if (state_config->get_sub_fsm_config().is_valid() && p_pressed) {
 		return;
 	}
 	HFSM_EDITOR_CREATE_ACTION("Set Sub-FSM");
 	Ref<FSMConfig> new_sub_fsm;
 	new_sub_fsm.instantiate();
 	new_sub_fsm->set_nested_state_config(state_config);
-	ADD_DO_METHOD(state_config.ptr(), set_fsm_config, p_pressed ? new_sub_fsm : nullptr);
-	ADD_UNDO_METHOD(state_config.ptr(), set_fsm_config, state_config->get_fsm_config());
+	ADD_DO_METHOD(state_config.ptr(), set_sub_fsm_config, p_pressed ? new_sub_fsm : nullptr);
+	ADD_UNDO_METHOD(state_config.ptr(), set_sub_fsm_config, state_config->get_sub_fsm_config());
 	COMMIT_ACTION();
 }
 
 void StateNode::_request_edit_sub_fsm_config() {
-	if (state_config->get_fsm_config().is_valid()) {
-		emit_signal(SNAME(s_edit_fsm_requested), state_config->get_fsm_config());
+	if (state_config->get_sub_fsm_config().is_valid()) {
+		emit_signal(SNAME(s_edit_fsm_requested), state_config->get_sub_fsm_config());
 	}
 }
 
@@ -270,6 +270,7 @@ void StateNode::_script_selected(const Ref<Script> &p_script, bool p_edit) {
 
 	HFSMEditorPlugin::get_singleton()->get_editor_interface()->edit_resource(p_script);
 }
+
 void StateNode::_script_changed(const Ref<Script> &p_script) {
 	if (debug_mode) {
 		return;

@@ -126,12 +126,12 @@ bool HFSMEditor::try_set_nested_state_config_for_fsm_config_recursively(const Re
 	auto sc_list = p_to_search_fsm_config->get_state_config_list();
 	for (size_t i = 0; i < sc_list.size(); i++) {
 		Ref<StateConfig> sc = sc_list[i];
-		if (sc->get_fsm_config().is_valid()) {
-			if (sc->get_fsm_config() == p_fsm_config) {
+		if (sc->get_sub_fsm_config().is_valid()) {
+			if (sc->get_sub_fsm_config() == p_fsm_config) {
 				p_fsm_config->set_nested_state_config(sc);
 				return true;
 			} else {
-				if (try_set_nested_state_config_for_fsm_config_recursively(p_fsm_config, sc->get_fsm_config())) {
+				if (try_set_nested_state_config_for_fsm_config_recursively(p_fsm_config, sc->get_sub_fsm_config())) {
 					return true;
 				}
 			}

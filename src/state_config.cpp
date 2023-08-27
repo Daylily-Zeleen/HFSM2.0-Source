@@ -271,7 +271,7 @@ void StateConfig::_bind_methods() {
 
 	// Not allow change state name in inspector.
 	GDADD_PROPERTY(STRING, state_name, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE);
-	GDADD_PROPERTY_RESOURCE(fsm_config, PROPERTY_USAGE_STORAGE);
+	GDADD_PROPERTY_RESOURCE(sub_fsm_config, PROPERTY_USAGE_STORAGE);
 	GDADD_PROPERTY(INT, type, PROPERTY_HINT_ENUM, "Normal,Entry,Exit", PROPERTY_USAGE_STORAGE);
 	GDADD_PROPERTY_BOOL(nested, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE);
 
@@ -338,11 +338,11 @@ void StateConfig::set_nested(bool p_nested) {
 }
 bool StateConfig::is_nested() const { return nested; }
 
-void StateConfig::set_fsm_config(const Ref<FSMConfig> &p_fsm_config) {
-	fsm_config = p_fsm_config;
+void StateConfig::set_sub_fsm_config(const Ref<FSMConfig> &p_fsm_config) {
+	sub_fsm_config = p_fsm_config;
 	emit_changed();
 }
-Ref<FSMConfig> StateConfig::get_fsm_config() const { return fsm_config; }
+Ref<FSMConfig> StateConfig::get_sub_fsm_config() const { return sub_fsm_config; }
 
 #ifdef TOOLS_ENABLED
 void StateConfig::set_editor_offset(Vector2 p_offset) {
@@ -368,8 +368,8 @@ void StateConfig::set_animation_reverse(bool p_reverse) { animation_reverse = p_
 Ref<State> StateConfig::create_state(HFSM *p_hfsm, FSM *p_fsm) {
 	// 内嵌状态机
 	FSM *sub_fsm = nullptr;
-	if (fsm_config.is_valid()) {
-		sub_fsm = get_fsm_config()->create_fsm(p_hfsm);
+	if (sub_fsm_config.is_valid()) {
+		sub_fsm = get_sub_fsm_config()->create_fsm(p_hfsm);
 	}
 
 	if (!script_valid) {
