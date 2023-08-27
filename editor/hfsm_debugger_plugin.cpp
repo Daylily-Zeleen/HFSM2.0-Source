@@ -83,9 +83,9 @@ uint32_t hash(const Variant &p_var) {
 
 String HFSMDebuggerPlugin::get_cache_dir() {
 	if (ProjectSettings::get_singleton()->get_setting_with_override("application/config/use_hidden_project_data_directory")) {
-		return "res://.godot/editor/";
+		return "res://.godot/editor/hfsm/";
 	} else {
-		return "res://godot/editor/";
+		return "res://godot/editor/hfsm/";
 	}
 }
 
