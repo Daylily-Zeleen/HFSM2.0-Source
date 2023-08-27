@@ -31,6 +31,8 @@
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/engine.hpp>
+
+#include "hfsm_global.gen.h"
 #else // GDEXTENSION_BUILD
 
 #endif // GDEXTENSION_BUILD
@@ -57,31 +59,33 @@ void HFSMGlobal::init_static() {
 	auto &singletons = _singletons();
 
 	IF_GDE({
-		auto singleton_list = Engine::get_singleton()->get_singleton_list();
+		singleton_names = get_singleton_name_list();
+		singletons = get_singleton_list();
+		// auto singleton_list = Engine::get_singleton()->get_singleton_list();
 
-		// Step1: collect unbound classes;
-		PackedStringArray unbound_classes;
-		for (auto klass : singleton_list) {
-			if (!ClassDB::has_instance_binding_callbacks(klass)) {
-				unbound_classes.append(klass);
-			}
-		}
+		// // Step1: collect unbound classes;
+		// PackedStringArray unbound_classes;
+		// for (auto klass : singleton_list) {
+		// 	if (!ClassDB::has_instance_binding_callbacks(klass)) {
+		// 		unbound_classes.push_back(klass);
+		// 	}
+		// }
 
-		// Step2: remove unbound classes;
-		for (auto klass : unbound_classes) {
-			auto idx = singleton_list.find(klass);
-			if (idx >= 0) {
-				singleton_list.remove_at(idx);
-			}
-		}
+		// // Step2: remove unbound classes;
+		// for (auto klass : unbound_classes) {
+		// 	auto idx = singleton_list.find(klass);
+		// 	if (idx >= 0) {
+		// 		singleton_list.remove_at(idx);
+		// 	}
+		// }
 
-		// Step3: Collect Signeltons.
-		singleton_names.resize(singleton_list.size());
-		singletons.resize(singleton_list.size());
-		for (auto i = 0; i < singleton_list.size(); ++i) {
-			singleton_names[i] = singleton_list[i];
-			singletons[i] = Engine::get_singleton()->get_singleton({ singleton_list[i] });
-		}
+		// // Step3: Collect Signeltons.
+		// singleton_names.resize(singleton_list.size());
+		// singletons.resize(singleton_list.size());
+		// for (auto i = 0; i < singleton_list.size(); ++i) {
+		// 	singleton_names[i] = singleton_list[i];
+		// 	singletons[i] = Engine::get_singleton()->get_singleton({ singleton_list[i] });
+		// }
 	})
 
 	IF_GDM({

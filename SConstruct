@@ -1,8 +1,13 @@
 #!/usr/bin/env python
 import os
 import sys
+from build import generate_singleton_helper
 
 env = SConscript("gdextension_dependencies/godot-cpp/SConstruct")
+
+# Generate Singleton helper;
+api_path = env.get("custom_api_file", "gdextension_dependencies/godot-cpp/gdextension/extension_api.json")
+generate_singleton_helper(api_path)
 
 # For the reference:
 # - CCFLAGS are compilation flags shared between C and C++

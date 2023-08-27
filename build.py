@@ -140,9 +140,24 @@ def save_as_utf8(dir: str = "."):
             wfile.close()
 
 
-def add_copyright(dir: str = "."):
+def add_copyright_to_file(file: str):
     from misc.scripts.copyright_headers import generate_header_text as gen_header_text
 
+    header_text = gen_header_text(file)
+
+    rf = open(file, "r", encoding="utf-8")
+    text = rf.read()
+    rf.close()
+
+    if text.startswith(header_text):
+        return
+
+    wf = open(file, "w", encoding="utf-8")
+    wf.write(header_text + text)
+    wf.close()
+
+
+def add_copyright(dir: str = "."):
     for f in os.listdir(dir):
         path = path_join(dir, f)
         if f == "gdextension_dependencies":
@@ -153,18 +168,77 @@ def add_copyright(dir: str = "."):
             if not f.endswith(".h") and not f.endswith(".cpp"):
                 continue
 
-            header_text = gen_header_text(f)
+            add_copyright_to_file(path)
 
-            rf = open(path, "r", encoding="utf-8")
-            text = rf.read()
-            rf.close()
 
-            if text.startswith(header_text):
-                continue
+def camel_to_snake(name: str):
+    import re
 
-            wf = open(path, "w", encoding="utf-8")
-            wf.write(header_text + text)
-            wf.close()
+    name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
+    name = re.sub("([a-z0-9])([A-Z])", r"\1_\2", name)
+    return name.replace("2_D", "2D").replace("3_D", "3D").lower()
+
+
+def generate_singleton_helper(extension_api_file: str):
+    import json
+
+    api = {}
+    with open(extension_api_file, encoding="utf-8") as api_file:
+        api = json.load(api_file)
+    singletons = api["singletons"]
+
+    valid_singletons = []
+    # Step1: Collect valid singletons.
+    for singleton in singletons:
+        singleton_type = singleton["type"]
+        if singleton["name"] in ["GDExtensionManager", "ResourceUID", "IP"]:
+            continue
+        if os.path.exists(
+            path_join(
+                "gdextension_dependencies/godot-cpp/gen/include/godot_cpp/classes",
+                camel_to_snake(singleton_type) + ".hpp",
+            )
+        ):
+            valid_singletons.append(singleton)
+
+    lines = []
+    lines.append("// This file is generated, any changes of this file may be lost.\n")
+    lines.append("\n")
+
+    for singleton in valid_singletons:
+        lines.append(f"#include <godot_cpp/classes/{camel_to_snake(singleton['type']) + '.hpp'}>\n")
+    lines.append("#include <godot_cpp/variant/utility_functions.hpp>\n")
+    lines.append("\n")
+
+    lines.append("using namespace godot;\n")
+    lines.append("\n")
+
+    lines.append("PackedStringArray get_singleton_name_list(){\n")
+    lines.append("\tPackedStringArray ret;\n")
+    for singleton in valid_singletons:
+        lines.append(f'\tif (Engine::get_singleton()->has_singleton("{singleton["name"]}")) ' + "{\n")
+        lines.append(f'\t\tret.push_back("{singleton["name"]}");\n')
+        lines.append("\t}\n")
+    lines.append("\treturn ret;\n")
+    lines.append("}\n")
+    lines.append("\n")
+
+    lines.append("Array get_singleton_list(){\n")
+    lines.append("\tArray ret;\n")
+    for singleton in valid_singletons:
+        lines.append(f'\tif (Engine::get_singleton()->has_singleton("{singleton["name"]}")) ' + "{\n")
+        lines.append(f'\t\tret.push_back({singleton["type"]}::get_singleton());\n')
+        lines.append("\t}\n")
+    lines.append("\treturn ret;\n")
+    lines.append("}\n")
+    lines.append("\n")
+
+    gen_file = "hfsm_global.gen.h"
+    f = open(gen_file, "w")
+    f.writelines(lines)
+    f.close()
+
+    add_copyright_to_file(gen_file)
 
 
 if __name__ == "__main__":
