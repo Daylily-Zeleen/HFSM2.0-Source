@@ -315,10 +315,14 @@ static Array make_arr(Args... args) {
 
 //============================================
 #ifdef GDEXTENSION_BUILD
-#define GDVIRTUAL0(m_method)
-#define GDVIRTUAL0R(r_type, m_method)
-#define GDVIRTUAL1(m_method, m_type1)
-#define GDVIRTUAL1R(r_type, m_method, m_type1)
+#define GDVIRTUAL0(m_method) \
+	virtual void m_method() {}
+#define GDVIRTUAL0R(r_type, m_method) \
+	virtual r_type m_method() { return {}; }
+#define GDVIRTUAL1(m_method, m_type1) \
+	virtual void m_method(m_type1) {}
+#define GDVIRTUAL1R(r_type, m_method, m_type1) \
+	virtual r_type m_method(m_type1) { return {}; }
 #define GDVIRTUAL_BIND(m_method, ...) BIND_VIRTUAL_METHOD(T_BIND, m_method) // TODO:: 等待GDE实现自定义的虚方法绑定
 #define GDVIRTUAL_CALL(m_method, ...) call(SNAME(#m_method), ##__VA_ARGS__)
 
