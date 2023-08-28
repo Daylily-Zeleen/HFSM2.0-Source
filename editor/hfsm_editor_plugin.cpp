@@ -336,11 +336,18 @@ void HFSMEditorPlugin::_referenced_script_saved(const Ref<Resource> &p_res) {
 	}
 }
 
-void HFSMEditorPlugin::_change_scene(Node *p_secne_root) {
+void HFSMEditorPlugin::disable_hfsm_editor() const {
 	hfsm_editor->edit_hfsm(nullptr);
 	hfsm_editor_btn->set_pressed(false);
 	emit_button_toggled(hfsm_editor_btn, false);
 	hfsm_editor_btn->hide();
+}
+
+void HFSMEditorPlugin::_change_scene(Node *p_secne_root) {
+	// handles_internal() is called before change_scne(), here is only disable if p_scene_root is nullptr.
+	if (!p_secne_root) {
+		disable_hfsm_editor();
+	}
 }
 
 void HFSMEditorPlugin::_filesystem_changed() {
@@ -409,10 +416,7 @@ bool HFSMEditorPlugin::handles_internal(Object *p_object) const {
 			IF_GDM(if (ClassDB::is_parent_class(type, E)) { return false; })
 		}
 	}
-	hfsm_editor->edit_hfsm(nullptr);
-	hfsm_editor_btn->set_pressed(false);
-	emit_button_toggled(hfsm_editor_btn, false);
-	hfsm_editor_btn->hide();
+	disable_hfsm_editor();
 	return false;
 }
 

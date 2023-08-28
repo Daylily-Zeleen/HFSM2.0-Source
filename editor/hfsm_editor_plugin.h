@@ -147,6 +147,7 @@ private:
 
 	HashMap<String, const char *> translation;
 
+	void disable_hfsm_editor() const;
 	bool handles_internal(Object *p_object) const;
 
 	void _referenced_script_saved(const Ref<Resource> &p_res);
