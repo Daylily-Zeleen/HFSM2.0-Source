@@ -79,11 +79,11 @@ void State::_bind_methods() {
 		GDADD_PROPERTY_BOOL(animation_reverse);
 	})
 
-	GDVIRTUAL_BIND(initialize_state);
-	GDVIRTUAL_BIND(entry_state);
-	GDVIRTUAL_BIND(update_state, "delta");
-	GDVIRTUAL_BIND(physics_update_state, "delta");
-	GDVIRTUAL_BIND(exit_state);
+	GDVIRTUAL_BIND(_initialize);
+	GDVIRTUAL_BIND(_entry);
+	GDVIRTUAL_BIND(_update, "delta");
+	GDVIRTUAL_BIND(_physics_update, "delta");
+	GDVIRTUAL_BIND(_exit);
 
 #ifdef ROLLBACK_NET_CODE
 	BIND_VIRTUAL_METHOD(State, _save_state);
@@ -107,35 +107,27 @@ void State::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("animation_finished"));
 }
 
-void State::initialize_state() {
+void State::initialize() {
 	GDVIRTUAL_CALL(_initialize);
 }
 
-void State::entry_state() {
+void State::entry() {
 	GDVIRTUAL_CALL(_entry);
 }
-void State::update_state(real_t p_delta) {
+void State::update(real_t p_delta) {
 	GDVIRTUAL_CALL(_update, p_delta);
 }
 
-void State::physics_update_state(real_t p_delta) {
+void State::physics_update(real_t p_delta) {
 	GDVIRTUAL_CALL(_physics_update, p_delta);
 }
 
-void State::exit_state() {
+void State::exit() {
 	GDVIRTUAL_CALL(_exit);
 }
 
-State::State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<HFSM2::State> &p_path, const Ref<Script> &p_script, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue) {
-	if (p_script.is_valid()) {
-		call_deferred(SNAME("set_script"), p_script);
-	}
-
-	hfsm = p_hfsm;
-	type = p_type;
-	path = p_path;
-	sub_fsm = p_sub_fsm;
-
+State::State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<HFSM2::State> &p_path, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue) :
+		hfsm(p_hfsm), type(p_type), path(p_path), sub_fsm(p_sub_fsm) {
 	set_name(p_name);
 
 	if (sub_fsm) {
@@ -181,20 +173,19 @@ HFSM *State::get_hfsm() { return hfsm; }
 bool State::is_exited() { return exited; }
 
 void State::manual_exit() {
-	if (!is_exited()) {
-		exited = true;
-		exit();
-	}
+	ERR_FAIL_COND(is_exited());
+	exited = true;
+	exit_state();
 }
 
-void State::entry() {
+void State::entry_state() {
 	exited = false;
 	for (auto &&transition : transition_list) {
 		transition->refresh();
 	}
 
 	// TODO:: Playing anim first or calling entry_state() first to allow developers setup animation property first?
-	entry_state();
+	entry();
 	try_play_anim();
 
 	if (sub_fsm) {
@@ -202,43 +193,45 @@ void State::entry() {
 	}
 	//  如果是退出状态，则在完成进入行为后立即退出
 	if (type == STATE_TYPE_EXIT) {
-		exit();
-	}
-}
-void State::update(real_t p_delta) {
-	if (!exited) {
-		update_state(p_delta);
-	}
-}
-
-void State::physics_update(real_t p_delta) {
-	if (!exited) {
-		physics_update_state(p_delta);
-	}
-}
-void State::exit(bool p_terminated_by_upper_level) {
-	if (!exited) {
-		exited = true;
-		if (!p_terminated_by_upper_level) {
-			auto queue = List<Ref<State>>();
-			queue.push_back(this);
-
-			while (queue.back()->get()->get_sub_fsm() && queue.back()->get()->get_sub_fsm()->is_running()) {
-				queue.push_back(queue.back()->get()->get_sub_fsm()->get_current_state());
-			}
-
-			while (!queue.is_empty()) {
-				queue.back()->get()->exit(true);
-				queue.pop_back();
-			}
-		} else if (sub_fsm && sub_fsm->is_running()) {
-			sub_fsm->exit_by_state();
-		}
-
-		animation_playing = false;
 		exit_state();
 	}
 }
+
+void State::update_state(real_t p_delta) {
+	ERR_FAIL_COND(is_exited());
+	update(p_delta);
+}
+
+void State::physics_update_state(real_t p_delta) {
+	ERR_FAIL_COND(is_exited());
+	physics_update(p_delta);
+}
+
+void State::exit_state(bool p_terminated_by_upper_level) {
+	ERR_FAIL_COND(is_exited());
+	exited = true;
+	if (!p_terminated_by_upper_level) {
+		auto queue = List<Ref<State>>();
+		queue.push_back(this);
+
+		while (queue.back()->get()->get_sub_fsm() && queue.back()->get()->get_sub_fsm()->is_running()) {
+			queue.push_back(queue.back()->get()->get_sub_fsm()->get_current_state());
+		}
+		// Remove self to avoid double exit.
+		queue.pop_front();
+
+		while (!queue.is_empty()) {
+			queue.back()->get()->exit_state(true);
+			queue.pop_back();
+		}
+	} else if (sub_fsm && sub_fsm->is_running()) {
+		sub_fsm->exit_by_state();
+	}
+
+	animation_playing = false;
+	exit();
+}
+
 // void State::reset() {}
 
 // 新特性 动画状态机

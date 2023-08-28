@@ -59,7 +59,7 @@ void FSM::entry() { //(const Ref<State> &p_entry_state) {
 	current_state = current_entry_state;
 	// }
 	if (current_state.is_valid()) {
-		current_state->entry();
+		current_state->entry_state();
 		running = true;
 		hfsm->emit_transited(Ref<State>(), current_state);
 		hfsm->emit_entered(current_state);
@@ -72,13 +72,13 @@ LocalVector<FSM *> *FSM::try_transit_and_get_update_queue() {
 	if (auto transition = current_state->try_transit()) {
 		// 退出当前状态
 		if (!current_state->is_exited()) {
-			current_state->exit(false);
+			current_state->exit_state(false);
 			hfsm->emit_exited(current_state);
 		}
 
 		auto to_state = transition->get_to_state();
 		// 进入新状态（新状态如果是退出状态，则立刻完成进入行为后立刻退出，已在State::entry()中处理
-		to_state->entry();
+		to_state->entry_state();
 		hfsm->emit_transited(current_state, to_state);
 		current_state = to_state;
 		hfsm->emit_entered(current_state);
@@ -102,12 +102,12 @@ LocalVector<FSM *> *FSM::try_transit_and_get_update_queue() {
 }
 
 void FSM::update(double p_delta) {
-	current_state->update(p_delta);
+	current_state->update_state(p_delta);
 	hfsm->emit_updated(current_state, p_delta);
 }
 
 void FSM::physics_update(double p_delta) {
-	current_state->physics_update(p_delta);
+	current_state->physics_update_state(p_delta);
 	hfsm->emit_physic_updated(current_state, p_delta);
 }
 void FSM::exit_by_state() {
@@ -118,11 +118,11 @@ void FSM::exit_by_state() {
 
 void FSM::set_nested_state(const Ref<State> &p_nested_state, const LocalVector<FSM *> &p_nested_fsm_update_queue) {
 	// FSM 不一定包含于 State
-	IF_DEV(ERR_FAIL_COND(p_nested_state.is_null());)
+	IF_DEV(ERR_FAIL_COND(p_nested_state.is_null() || !path.is_empty());)
 
-	nested_state = p_nested_state;
-	path.append_array(nested_state->get_path());
-	path.append(nested_state);
+	// nested_state = p_nested_state;
+	path.append_array(p_nested_state->get_path());
+	path.append(p_nested_state);
 
 	fsm_update_queue.reserve(p_nested_fsm_update_queue.size() + 1);
 	for (const auto &E : p_nested_fsm_update_queue) {

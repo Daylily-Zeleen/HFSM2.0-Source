@@ -62,8 +62,14 @@ class State : public RefCounted {
 
 protected:
 	static void _bind_methods();
-	_TO_STRING()
 
+	virtual void initialize(); // Will be caled after setup internal properties.
+	virtual void entry();
+	virtual void update(real_t p_delta);
+	virtual void physics_update(real_t p_delta);
+	virtual void exit();
+
+	_TO_STRING()
 public:
 	enum StateType {
 		STATE_TYPE_NORMAL,
@@ -84,12 +90,6 @@ public:
 	GDVIRTUAL1(_update, real_t);
 	GDVIRTUAL1(_physics_update, real_t);
 	GDVIRTUAL0(_exit);
-
-	virtual void initialize_state(); // Will be caled after setup internal properties.
-	virtual void entry_state();
-	virtual void update_state(real_t p_delta);
-	virtual void physics_update_state(real_t p_delta);
-	virtual void exit_state();
 
 	const TypedArray<State> &get_path_const_ref() const;
 	TypedArray<State> get_path() const;
@@ -140,7 +140,7 @@ public:
 #endif
 
 	State() = default;
-	State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<HFSM2::State> &p_path, const Ref<Script> &p_script, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue);
+	State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<HFSM2::State> &p_path, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue);
 
 	~State() override;
 
@@ -151,7 +151,6 @@ private:
 
 	StringName name = "";
 	HFSM *hfsm = nullptr;
-
 	TypedArray<State> path;
 	bool exited = false;
 
@@ -172,10 +171,13 @@ private:
 	void set_name(const StringName &p_name);
 
 public:
-	void entry();
-	void update(real_t p_delta);
-	void physics_update(real_t p_delta);
-	void exit(bool p_terminated_by_upper_level = false);
+	void initialize_state() {
+		initialize();
+	}
+	void entry_state();
+	void update_state(real_t p_delta);
+	void physics_update_state(real_t p_delta);
+	void exit_state(bool p_terminated_by_upper_level = false);
 
 	void notify_animation_finished(const StringName &p_anim);
 

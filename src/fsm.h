@@ -82,7 +82,7 @@ private:
 	bool running = false;
 	// bool reset_when_entry = false;
 
-	Ref<State> nested_state;
+	// Ref<State> nested_state;
 	// void set_nested_state(const Ref<State> &state);
 
 	Ref<State> current_state;
@@ -101,7 +101,7 @@ private:
 	// void set_unique_exit_state(String state_name);
 
 	void set_nested_state(const Ref<State> &p_nested_state, const LocalVector<FSM *> &p_nested_fsm_update_queue);
-	friend State::State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<HFSM2::State> &p_path, const Ref<Script> &p_script, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue);
+	friend State::State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<HFSM2::State> &p_path, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue);
 
 public:
 	LocalVector<FSM *> *try_transit_and_get_update_queue();

@@ -380,10 +380,13 @@ Ref<State> StateConfig::create_state(HFSM *p_hfsm, FSM *p_fsm) {
 		sub_fsm = get_sub_fsm_config()->create_fsm(p_hfsm);
 	}
 
+	auto ret = memnew(State(state_name, p_hfsm, type, p_fsm->get_path(), sub_fsm, p_fsm->get_fsm_update_queue()));
+
 	if (!script_valid) {
 		WARN_PRINT(vformat("\"%s\" is not a valid script for State, will create a State without script.", state_script->get_path()));
+	} else {
+		ret->set_script(state_script);
 	}
-	auto ret = memnew(State(state_name, p_hfsm, type, p_fsm->get_path(), script_valid ? state_script : Ref<Script>(), sub_fsm, p_fsm->get_fsm_update_queue()));
 
 	ret->set_animation_name(animation_name);
 	IF_FULL_VERSION({
