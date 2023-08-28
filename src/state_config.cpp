@@ -107,17 +107,22 @@ bool Utils::is_script_instacne_type_valid(const Ref<Script> &p_script, const Str
 		return false;
 	}
 
-	IF_MONO({ IF_TOOLS({
+	// (GDE) Check C# script on disk or not.
+	IF_GDE(IF_MONO(IF_TOOLS({
 		// (C# is not support builtin mode).
 		if (auto csharp_script = Object::cast_to<CSharpScript>(p_script.ptr())) {
-			bool (*file_existed)(const String &);
-			IF_GDE(file_existed = &FileAccess::file_exists);
-			IF_GDM(file_existed = &FileAccess::exists);
-			ERR_FAIL_COND_V_MSG(!file_existed(csharp_script->get_path()), false, vformat("HFSM: The CSharp script \"%s\" is not existed on disk.", csharp_script->get_path()));
+			ERR_FAIL_COND_V_MSG(!FileAccess::file_exists(csharp_script->get_path()), false, vformat("HFSM: The CSharp script \"%s\" is not support builtin mode and not present on disk.", csharp_script->get_path()));
 		}
-	}) })
+	})))
 
-	// Type is mathed, currently only avaliable in Godot module.
+	// (GDM) Check script which unsupport builtin mode.
+	IF_GDM({
+		if (!p_script->get_language()->supports_builtin_mode()) {
+			ERR_FAIL_COND_V_MSG(!FileAccess::exists(p_script->get_path()), false, vformat("HFSM: The script \"%s\" is not support builtin mode and not present on disk.", p_script->get_path()));
+		}
+	})
+
+	// Strictly type match.
 	if (p_script->get_instance_base_type() == State::get_class_static()) {
 		return true;
 	}
@@ -127,9 +132,9 @@ bool Utils::is_script_instacne_type_valid(const Ref<Script> &p_script, const Str
 		}
 	})
 
-	// GDScript require type correct.
-	bool gds_instance_base_type_invalid = Object::cast_to<GDScript>(p_script.ptr());
-	ERR_FAIL_COND_V(gds_instance_base_type_invalid, false);
+	// // GDScript require type correct.
+	// bool gds_instance_base_type_valid = Object::cast_to<GDScript>(p_script.ptr());
+	// ERR_FAIL_COND_V(!gds_instance_base_type_valid, false);
 
 	// Type not match, check virtual methods only.
 	// TODO:: Because of the limitation of GDExtension, here using a stupid way to check methods.
@@ -145,7 +150,10 @@ bool Utils::is_script_instacne_type_valid(const Ref<Script> &p_script, const Str
 		return Dictionary();
 	};
 
-	const String suffix = ", please fix it and rebuild project.";
+	String suffix = "";
+	IF_MONO(if (auto csharp_script = Object::cast_to<CSharpScript>(p_script.ptr())) {
+		String suffix = " please fix it and rebuild project.";
+	})
 	for (const StringName &method_name : p_get_require_methods()) {
 		if (!p_script->has_method(method_name)) {
 			continue;
@@ -157,12 +165,12 @@ bool Utils::is_script_instacne_type_valid(const Ref<Script> &p_script, const Str
 
 		TypedArray<Dictionary> args = m["args"];
 		// Check count.
-		ERR_FAIL_COND_V_MSG(args.size() != mi->get_argument_count(), false, vformat("The method \"%s\" of script \"%s\" argument count is require %d", method_name, p_script->get_path(), mi->get_argument_count()) + suffix);
+		ERR_FAIL_COND_V_MSG(args.size() != mi->get_argument_count(), false, vformat("The method \"%s\" of script \"%s\" argument count is require %d.", method_name, p_script->get_path(), mi->get_argument_count()) + suffix);
 		// Check types.
 		for (auto i = 0; i < mi->get_argument_count(); ++i) {
 			Dictionary arg = args[i];
 			const auto arg_info = mi->get_argument_info(i);
-			ERR_FAIL_COND_V_MSG(int(arg["type"]) != arg_info.type, false, vformat("The method \"%s\" argument %d of script \"%s\" is require %s", method_name, i + 1, p_script->get_path(), Variant::get_type_name(arg_info.type)) + suffix);
+			ERR_FAIL_COND_V_MSG(int(arg["type"]) != arg_info.type, false, vformat("The method \"%s\" argument %d of script \"%s\" is require %s.", method_name, i + 1, p_script->get_path(), Variant::get_type_name(arg_info.type)) + suffix);
 		}
 	}
 

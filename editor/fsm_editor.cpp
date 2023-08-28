@@ -1533,7 +1533,6 @@ void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 		__set_blocking_redraw(false);
 
 		propagate_notification(NOTIFICATION_CHILD_ORDER_CHANGED);
-		queue_redraw();
 	} else {
 		if (current_fsm_config.is_null() && p_fsm_config.is_null()) {
 			return;
