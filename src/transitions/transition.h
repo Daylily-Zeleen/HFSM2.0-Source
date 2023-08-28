@@ -68,12 +68,8 @@ public:
 
 	Transition() = default;
 
-	Transition(HFSM *p_hfsm, const Ref<Script> &p_script) {
-		hfsm = p_hfsm;
-		if (p_script.is_valid()) {
-			call_deferred(SNAME("set_script"), p_script);
-		}
-	}
+	Transition(HFSM *p_hfsm) :
+			hfsm(p_hfsm) {}
 
 	operator TransitionBase *() { return static_cast<TransitionBase *>(this); }
 
