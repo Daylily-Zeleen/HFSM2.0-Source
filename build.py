@@ -39,7 +39,7 @@ def main():
 
     # Use 4.1 stable mono apis as default.
     if not custom_api_file_defined:
-        args += " custom_api_file=gdextension_dependencies/extension_api.4.1.stable.mono.json"
+        args += " custom_api_file=gdextension_dependencies/extension_api.4.2.dev.mono.json"
 
     bin_dir = "bin"
     # Remove all last build files.

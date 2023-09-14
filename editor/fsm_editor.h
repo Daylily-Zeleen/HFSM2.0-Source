@@ -227,6 +227,9 @@ private:
 		StringName set_use_snap;
 		StringName is_using_snap;
 		StringName get_zoom_hbox;
+		// For StateNode
+		StringName state_node_get_input_port_position;
+		StringName state_node_get_output_port_position;
 	};
 
 	IncompatibleAPIs incompatible_apis;
@@ -272,6 +275,9 @@ private:
 		IF_NOT_GDE_COMPATIBLE(return get_menu_hbox();)
 		IF_GDE_COMPATIBLE(return Object::cast_to<HBoxContainer>(call(incompatible_apis.get_zoom_hbox));)
 	}
+
+	Vector2 _state_node_get_output_port_position(StateNode *p_state_node, int p_port_idx) const;
+	Vector2 _state_node_get_input_port_position(StateNode *p_state_node, int p_port_idx) const;
 
 public:
 	void queue_refresh();

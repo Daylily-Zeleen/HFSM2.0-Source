@@ -441,8 +441,8 @@ void HFSMEditorPlugin::_notification(int p_what) {
 			add_inspector_plugin(inspector_plugin);
 
 			EditorFileSystem *fs;
-			IF_GDM(fs = get_editor_interface()->get_resource_file_system();)
-			IF_GDE(fs = get_editor_interface()->get_resource_filesystem();)
+			IF_GDM(fs = EditorInterface::get_singleton()->get_resource_file_system();)
+			IF_GDE(fs = EditorInterface::get_singleton()->get_resource_filesystem();)
 			fs->connect("filesystem_changed", TCALLABLE(_filesystem_changed));
 
 #ifdef DEBUG_ENABLED

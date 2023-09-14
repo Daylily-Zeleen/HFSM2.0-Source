@@ -76,9 +76,7 @@ namespace HFSM2 {
 #define set_editor_inspector_signal_connected(p_connected)                     \
 	{                                                                          \
 		const auto s_edited_object_changed = SNAME("edited_object_changed");   \
-		auto inspector = HFSMEditorPlugin::get_singleton()                     \
-								 ->get_editor_interface()                      \
-								 ->get_inspector();                            \
+		auto inspector = EditorInterface::get_singleton()->get_inspector();    \
 		auto cb = TCALLABLE(_disconnect_inspecting_transition_config);         \
                                                                                \
 		bool connected = inspector->is_connected(s_edited_object_changed, cb); \
@@ -220,10 +218,10 @@ void FsmEditor::__set_selected_transition_config_list(const TypedArray<Transitio
 		inspecting_transition_config->connect(s_changed, TCALLABLE(_transition_config_updated));
 	}
 
-	ERR_FAIL_COND(!HFSMEditorPlugin::get_singleton()->get_editor_interface());
+	ERR_FAIL_COND(!EditorInterface::get_singleton());
 
 	if (selected_state_name_list.size() != 1) {
-		HFSMEditorPlugin::get_singleton()->get_editor_interface()->inspect_object(inspecting_transition_config.ptr());
+		EditorInterface::get_singleton()->inspect_object(inspecting_transition_config.ptr());
 		set_editor_inspector_signal_connected(true);
 	}
 }
@@ -901,7 +899,7 @@ void FsmEditor::_node_selected(Object *node) {
 	}
 
 	if (selected_state_name_list.size() == 1) {
-		HFSMEditorPlugin::get_singleton()->get_editor_interface()->inspect_object(sn->get_state_config().ptr());
+		EditorInterface::get_singleton()->inspect_object(sn->get_state_config().ptr());
 	}
 }
 
@@ -1101,13 +1099,40 @@ void FsmEditor::_debug_tween_activity(float p_activity, const StringName &p_from
 
 #define get_offset(p_angle) (Vector2(0, -1).rotated(p_angle) * CONN_POS_OFFSET * 0.5f)
 
+Vector2 FsmEditor::_state_node_get_output_port_position(StateNode *p_state_node, int p_port_idx) const {
+	IF_GDM(return p_state_node->get_output_port_position(p_port_idx);)
+	IF_NOT_GDE_COMPATIBLE(return p_state_node->get_output_port_position(p_port_idx);)
+	IF_GDE_COMPATIBLE({
+		Vector2 ret = p_state_node->call(incompatible_apis.state_node_get_output_port_position, p_port_idx);
+		if (likely(!HFSMGlobal::is_4_point_2_or_later())) {
+			ret /= get_zoom();
+		}
+		return ret;
+	})
+}
+
+Vector2 FsmEditor::_state_node_get_input_port_position(StateNode *p_state_node, int p_port_idx) const {
+	IF_GDM(return p_state_node->get_input_port_position(p_port_idx);)
+	IF_NOT_GDE_COMPATIBLE(return p_state_node->get_input_port_position(p_port_idx);)
+	IF_GDE_COMPATIBLE({
+		Vector2 ret = p_state_node->call(incompatible_apis.state_node_get_input_port_position, p_port_idx);
+		if (likely(!HFSMGlobal::is_4_point_2_or_later())) {
+			ret /= get_zoom();
+		}
+		return ret;
+	})
+}
+
 PackedVector2Array FsmEditor::get_connection_line_with_zoom(StateNode *p_from, StateNode *p_to) {
 	const float graph_zoom = get_zoom();
 
-	const auto get_port_position = [graph_zoom](StateNode *p_node, bool p_from) {
-		auto port_position = p_from ? p_node->get_connection_output_position(0) : p_node->get_connection_input_position(0);
-		return (port_position + p_node->get_position_offset() * graph_zoom) / graph_zoom;
+	const auto get_port_position = [this, graph_zoom](StateNode *p_node, bool p_from) {
+		IF_GDM(auto port_position = p_from ? p_node->get_output_port_position(0) : p_node->get_input_port_position(0);)
+		IF_NOT_GDE_COMPATIBLE(auto port_position = p_from ? p_node->get_output_port_position(0) : p_node->get_input_port_position(0);)
+		IF_GDE_COMPATIBLE(Vector2 port_position = p_from ? _state_node_get_output_port_position(p_node, 0) : _state_node_get_input_port_position(p_node, 0);)
+		return port_position + p_node->get_position_offset();
 	};
+
 	const auto from = get_port_position(p_from, true);
 	const auto to = get_port_position(p_to, false);
 	const auto angle = from.angle_to_point(to);
@@ -1178,8 +1203,6 @@ void FsmEditor::_draw_layer_draw() {
 			ERR_FAIL_COND_V_MSG(dealed_tc_list.find(tc) >= 0, false, "不同的链接指向同一个 TransitionConfig? 这不可能");
 			dealed_tc_list.push_back(tc);
 		});
-		// 获取反向
-		// auto revers_tc = get_transition_config(to, from);
 
 		auto selected = selected_transition_config_list.has(tc);
 
@@ -1280,6 +1303,10 @@ void FsmEditor::initialize() {
 			"set_use_snap",
 			"is_using_snap",
 			"get_zoom_hbox",
+
+			"get_connection_input_position",
+			"get_connection_output_position",
+
 		};
 	} else {
 		incompatible_apis = {
@@ -1290,6 +1317,9 @@ void FsmEditor::initialize() {
 			"set_snapping_enabled",
 			"is_snapping_enabled",
 			"get_menu_hbox",
+
+			"get_input_port_position",
+			"get_output_port_position",
 		};
 	}
 #endif //GDE_COMPATIBILITY_ENABLED
@@ -1297,7 +1327,9 @@ void FsmEditor::initialize() {
 	set_name("FsmEditor");
 	set_v_size_flags(SIZE_EXPAND_FILL);
 	add_valid_connection_type(StateNode::OUT_TYPE, StateNode::IN_TYPE);
-	connect("delete_nodes_request", TCALLABLE(_delete_nodes_request));
+	IF_GDM(connect("close_nodes_request", TCALLABLE(_delete_nodes_request));)
+	IF_NOT_GDE_COMPATIBLE(connect("close_nodes_request", TCALLABLE(_delete_nodes_request));)
+	IF_GDE_COMPATIBLE(connect(HFSMGlobal::is_4_point_2_or_later() ? "close_nodes_request" : "delete_nodes_request", TCALLABLE(_delete_nodes_request));)
 	connect("copy_nodes_request", TCALLABLE_BIND(_popup_menu_id_pressed, ITEM_COPY_STATES));
 	connect("paste_nodes_request", TCALLABLE_BIND(_popup_menu_id_pressed, ITEM_PASTE_STATES));
 	connect("duplicate_nodes_request", TCALLABLE_BIND(_popup_menu_id_pressed, ITEM_DUPLICATE_STATES));
@@ -1322,7 +1354,7 @@ void FsmEditor::initialize() {
 			}
 		}
 	}
-	CRASH_COND_MSG(!connection_layer, "Gets connection_layer of GraphEdit is faild on your Godot version. Please open a issue on \"https://github.com/Daylily-Zeleen/HFSM2/issues\"");
+	CRASH_COND_MSG(!connection_layer, "Gets connection_layer of GraphEdit is faild on your Godot version. Please open a issue on \"https://github.com/Daylily-Zeleen/HFSM2/issues\".");
 
 	connection_layer->set_mouse_filter(MOUSE_FILTER_PASS);
 
@@ -1878,8 +1910,9 @@ void FsmEditor::_notification(int p_what) {
 		} break;
 		case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED:
 		case NOTIFICATION_THEME_CHANGED: {
-			font = HFSMEditorPlugin::get_singleton()->get_editor_interface()->get_base_control()->get_theme()->get_default_font();
-			activity_color = HFSMEditorPlugin::get_singleton()->get_editor_interface()->get_base_control()->get_theme_color("activity", "GraphEdit");
+			auto base_control = cast_to<Control>(EditorInterface::get_singleton()->get_base_control());
+			font = base_control->get_theme_default_font();
+			activity_color = EditorInterface::get_singleton()->get_base_control()->get_theme_color("activity", "GraphEdit");
 		}
 		default:
 			break;

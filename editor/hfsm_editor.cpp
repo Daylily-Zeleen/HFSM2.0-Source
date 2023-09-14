@@ -211,7 +211,7 @@ void HFSMEditor::_notification(int p_what) {
 
 #define SET_CONNECT_INSPECTOR_SIGNAL(m_signal, m_connected)                                          \
 	{                                                                                                \
-		auto inspector = HFSMEditorPlugin::get_singleton()->get_editor_interface()->get_inspector(); \
+		auto inspector = EditorInterface::get_singleton()->get_inspector(); \
 		auto cb = TCALLABLE(_inspector_##m_signal);                                                  \
 		if ((m_connected) && !inspector->is_connected(#m_signal, cb)) {                              \
 			inspector->connect(#m_signal, cb);                                                       \

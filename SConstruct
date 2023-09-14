@@ -42,7 +42,7 @@ env.Append(CPPPATH=cpp_paths)
 env.Append(LIBS=[])
 env.Append(LIBPATH=[])
 
-env.Append(CPPDEFINES=["GDEXTENSION_BUILD", "GDE_COMPATIBILITY_ENABLED"])
+env.Append(CPPDEFINES=["GDEXTENSION_BUILD"])
 
 # # Require C++20
 # if env.get("is_msvc", False):

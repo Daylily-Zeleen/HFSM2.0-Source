@@ -268,7 +268,7 @@ void StateNode::_script_selected(const Ref<Script> &p_script, bool p_edit) {
 		return;
 	}
 
-	HFSMEditorPlugin::get_singleton()->get_editor_interface()->edit_resource(p_script);
+	EditorInterface::get_singleton()->edit_resource(p_script);
 }
 
 void StateNode::_script_changed(const Ref<Script> &p_script) {
@@ -373,7 +373,17 @@ void StateNode::_notification(int p_what) {
 		set_position_offset(state_config->get_editor_offset());
 
 	} else if (p_what == NOTIFICATION_RESIZED) {
-		add_theme_constant_override(SNAME("port_offset"), int(get_size().x / 2.0f));
+		static const StringName &port_h_offset = ([]() -> const StringName & {
+			static StringName sname = "port_h_offset";
+			IF_GDE_COMPATIBLE({
+				if (likely(!HFSMGlobal::is_4_point_2_or_later())) {
+					sname = "port_offset";
+				}
+			})
+			return sname;
+		})();
+
+		add_theme_constant_override(port_h_offset, int(get_size().x / 2.0f));
 	}
 }
 

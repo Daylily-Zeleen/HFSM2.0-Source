@@ -81,7 +81,6 @@ private:
 	bool __has_duplicate_name(const String &p_to_test_name);
 	// ==================
 	void _setup_state_config();
-	void __on_configize();
 	void _cancel_name_changed();
 	void _accept_name_changed(const String &p_new_name);
 	void _type_option_btn_item_selected(int32_t p_idx);

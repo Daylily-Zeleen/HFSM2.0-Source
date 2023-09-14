@@ -66,12 +66,14 @@ void HFSMGlobal::init_static() {
 		// Step1: collect unbound classes;
 		PackedStringArray unbound_classes;
 		for (auto klass : singleton_list) {
-			if (!ClassDB::has_instance_binding_callbacks(klass)) {
-				unbound_classes.push_back(klass);
-			}
+			unbound_classes.push_back(klass);
 		}
+
 		// Specially, these wrong singletons.
-		for (const String &klass : { "GDExtensionManager", "ResourceUID", "IP" }) {
+		// TODO::
+		// "GDExtensionManager", "ResourceUID", "IP", "ClassDB": https://github.com/godotengine/godot/issues/81030
+		// "ClassDB", "GDScriptLanguageProtocol": https://github.com/godotengine/godot-cpp/pull/1165
+		for (const String &klass : { "GDExtensionManager", "ResourceUID", "IP", "ClassDB", "GDScriptLanguageProtocol" }) {
 			if (!unbound_classes.has(klass)) {
 				unbound_classes.push_back(klass);
 			}
