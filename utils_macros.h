@@ -52,9 +52,8 @@
 #ifdef GDEXTENSION_BUILD
 #define _TO_STRING() \
 	String _to_string() { return vformat("[%s:%d]", get_class_static(), get_instance_id()); }
-
 #define SNAME(m_arg) ([]() -> const StringName & { static StringName sname = StringName(m_arg); return sname; })()
-#else
+#else // GDEXTENSION_BUILD
 #define _TO_STRING() // Godot module no need to override _to_string()
 #endif // GDEXTENSION_BUILD
 

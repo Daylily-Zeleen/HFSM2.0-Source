@@ -373,12 +373,13 @@ TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm) {
 		} break;
 #ifdef FULL_VERSION
 		case TRANSITION_TYPE_SCRIPT: {
-			ret = memnew(Transition(p_hfsm));
-			if (!script_valid) {
+			auto t = memnew(Transition(p_hfsm));
+			if (unlikely(!script_valid)) {
 				WARN_PRINT(vformat("\"%s\" is not a valid script for Transition, will create a Transition without script.", transition_script->get_path()));
 			} else {
-				static_cast<Transition *>(ret)->set_script(transition_script);
+				t->set_script(transition_script);
 			}
+			ret = t;
 		} break;
 #endif // FULL_VERSION
 		default: {

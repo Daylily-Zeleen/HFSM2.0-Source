@@ -3,4 +3,4 @@
 	url = https://github.com/Daylily-Zeleen/HFSM2.git
 [submodule "gdextension_dependencies/godot-cpp"]
 	path = gdextension_dependencies/godot-cpp
-	url = https://github.com/Daylily-Zeleen/godot-cpp.git
+	url = https://github.com/godot/godot-cpp.git

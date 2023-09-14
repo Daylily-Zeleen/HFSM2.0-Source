@@ -81,13 +81,6 @@ void register_core_classes() {
 
 void register_editor_classes() {
 	IF_TOOLS({
-		// GDREGISTER_INTERNAL_CLASS(HFSMEditorPlugin);
-		// GDREGISTER_INTERNAL_CLASS(EditorPropertyVariableConfig);
-		// GDREGISTER_INTERNAL_CLASS(EditorPropertyVariableConfig::VariableConfigSelector);
-		// GDREGISTER_INTERNAL_CLASS(StateNode);
-		// GDREGISTER_INTERNAL_CLASS(FsmEditor);
-		// GDREGISTER_INTERNAL_CLASS(HFSMInspectorPlugin);
-		// GDREGISTER_INTERNAL_CLASS(HFSMEditor);
 		GDREGISTER_CLASS(HFSMEditorPlugin);
 		GDREGISTER_CLASS(EditorPropertyVariableConfig);
 		GDREGISTER_CLASS(EditorPropertyVariableConfig::VariableConfigSelector);

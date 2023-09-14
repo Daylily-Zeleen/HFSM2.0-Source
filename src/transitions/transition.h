@@ -71,7 +71,7 @@ public:
 	Transition(HFSM *p_hfsm) :
 			hfsm(p_hfsm) {}
 
-	operator TransitionBase *() { return static_cast<TransitionBase *>(this); }
+	constexpr operator TransitionBase *() { return static_cast<TransitionBase *>(this); }
 
 private:
 	HFSM *hfsm = nullptr;
