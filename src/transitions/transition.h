@@ -69,7 +69,9 @@ public:
 	Transition() = default;
 
 	Transition(HFSM *p_hfsm) :
-			hfsm(p_hfsm) {}
+			hfsm(p_hfsm) {
+		reference(); // Increase ref count to avoid free by user.
+	}
 
 	operator TransitionBase *() { return static_cast<TransitionBase *>(this); }
 
