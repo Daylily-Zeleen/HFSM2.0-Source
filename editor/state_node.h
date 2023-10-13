@@ -53,11 +53,11 @@ using namespace godot;
 
 namespace HFSM2 {
 
-// class FSMConfig;
 class StateConfig;
 
 class StateNode : public GraphNode {
 	GDCLASS(StateNode, GraphNode)
+
 protected:
 	static void _bind_methods();
 
@@ -97,6 +97,8 @@ private:
 
 public:
 	static Ref<ImageTexture> (*get_empty_icon)();
+	static void (*edit_resource)(const Ref<Resource> &p_resource);
+
 	static Color IN_COLOR() { return Color::named("ORANGE"); }
 	static Color OUT_COLOR() { return Color::named("GREEN"); }
 
@@ -104,7 +106,7 @@ public:
 	static const int OUT_TYPE = 1;
 
 	Ref<class StateConfig> get_state_config() const;
-	static StateNode *create_state_node(const Ref<StateConfig> &p_target_state_config, const Ref<class FSMConfig> &p_nested_fsm_config, bool p_debug = false);
+	static StateNode *create_state_node(const Ref<StateConfig> &p_target_state_config, const Ref<FSMConfig> &p_nested_fsm_config, bool p_debug = false);
 
 	void set_debug_actived(bool p_actived);
 	bool is_debug_actived() const;

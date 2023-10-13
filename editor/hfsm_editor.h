@@ -46,8 +46,12 @@ using namespace godot;
 
 #endif // GDEXTENSION_BUILD
 
+namespace godot {
+class EditorInspector;
+}
+
 namespace HFSM2 {
-class FsmEditor;
+class FSMEditor;
 class StateConfig;
 class FSMConfig;
 class HFSM;
@@ -67,17 +71,17 @@ public:
 
 	void debug_highlight_activate_state(const PackedStringArray &p_active_path);
 
-	static HFSMEditor *create_hfsm_editor(bool p_debug_mode = false);
-
 	void queue_refresh();
 
 	void set_error_hint(const String &p_text);
 
 	void add_undo_redo_text(EditorUndoRedoManager *p_undo_redo, const String &p_action_name);
 
+	static HFSMEditor *create_hfsm_editor(bool p_debug_mode = false);
+
 private:
 	HBoxContainer *path_button_container = nullptr;
-	FsmEditor *fsm_editor = nullptr;
+	FSMEditor *fsm_editor = nullptr;
 	//  TODO::实际显示内容
 	Label *hint_label = nullptr;
 	Label *history_label = nullptr;

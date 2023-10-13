@@ -42,7 +42,8 @@
 using namespace godot;
 namespace godot {
 class ImageTexture;
-};
+class EditorInspector;
+}; //namespace godot
 
 #else // GDEXTENSION_BUILD
 #include <core/string/translation.h>

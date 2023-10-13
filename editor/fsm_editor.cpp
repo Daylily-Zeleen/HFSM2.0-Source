@@ -28,6 +28,7 @@
 /**************************************************************************/
 
 #include "fsm_editor.h"
+#include <cstddef>
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/editor_inspector.hpp>
@@ -76,7 +77,7 @@ namespace HFSM2 {
 #define set_editor_inspector_signal_connected(p_connected)                     \
 	{                                                                          \
 		const auto s_edited_object_changed = SNAME("edited_object_changed");   \
-		auto inspector = EditorInterface::get_singleton()->get_inspector();    \
+		auto inspector = GET_EDITOR_INSPECTOR();                               \
 		auto cb = TCALLABLE(_disconnect_inspecting_transition_config);         \
                                                                                \
 		bool connected = inspector->is_connected(s_edited_object_changed, cb); \
@@ -111,12 +112,12 @@ namespace HFSM2 {
 
 #define s_edit_fsm_requested "_edit_fsm_requested"
 
-String FsmEditor::str_localize(const String &en_key) const {
+String FSMEditor::str_localize(const String &en_key) const {
 	return HFSMEditorPlugin::str_localize(en_key);
 }
 
-void FsmEditor::_bind_methods() {
-	GDBIND_BEGIN(FsmEditor);
+void FSMEditor::_bind_methods() {
+	GDBIND_BEGIN(FSMEditor);
 
 	GDBIND_METHOD(edit_fsm_config, "fsm_config", "path_button_container", "root_fsm_config", "as_action");
 
@@ -153,7 +154,7 @@ void FsmEditor::_bind_methods() {
 }
 
 // ========== SetGet =========
-void FsmEditor::__set_current_fsm_config(const Ref<FSMConfig> &to_set, const Ref<FSMConfig> &p_root) {
+void FSMEditor::__set_current_fsm_config(const Ref<FSMConfig> &to_set, const Ref<FSMConfig> &p_root) {
 	auto cb = TCALLABLE(__queue_redraw_request);
 	if (current_fsm_config.is_valid() && current_fsm_config->is_connected(s_changed, cb)) {
 		current_fsm_config->disconnect(s_changed, cb);
@@ -166,7 +167,7 @@ void FsmEditor::__set_current_fsm_config(const Ref<FSMConfig> &to_set, const Ref
 	mask_panel->set_visible(current_fsm_config.is_null());
 }
 
-void FsmEditor::__set_selected_state_name_list(const TypedArray<StringName> &p_to_set) {
+void FSMEditor::__set_selected_state_name_list(const TypedArray<StringName> &p_to_set) {
 	if (selected_state_name_list != p_to_set) {
 		selected_state_name_list = p_to_set;
 	}
@@ -192,7 +193,7 @@ void FsmEditor::__set_selected_state_name_list(const TypedArray<StringName> &p_t
 	__set_selected_transition_config_list(selected_transition_config_list);
 }
 
-TypedArray<StateNode> FsmEditor::get_selected_state_nodes() {
+TypedArray<StateNode> FSMEditor::get_selected_state_nodes() {
 	TypedArray<StateNode> ret;
 	for (auto i = 0; i < get_child_count(); i++) {
 		if (auto node = cast_to<StateNode>(get_child(i))) {
@@ -206,7 +207,7 @@ TypedArray<StateNode> FsmEditor::get_selected_state_nodes() {
 	return ret;
 }
 
-void FsmEditor::__set_selected_transition_config_list(const TypedArray<TransitionConfig> &p_to_set) {
+void FSMEditor::__set_selected_transition_config_list(const TypedArray<TransitionConfig> &p_to_set) {
 	_disconnect_inspecting_transition_config();
 	set_editor_inspector_signal_connected(false);
 
@@ -218,21 +219,19 @@ void FsmEditor::__set_selected_transition_config_list(const TypedArray<Transitio
 		inspecting_transition_config->connect(s_changed, TCALLABLE(_transition_config_updated));
 	}
 
-	ERR_FAIL_COND(!EditorInterface::get_singleton());
-
 	if (selected_state_name_list.size() != 1) {
-		EditorInterface::get_singleton()->inspect_object(inspecting_transition_config.ptr());
+		INSPECT_OBJECT(inspecting_transition_config.ptr());
 		set_editor_inspector_signal_connected(true);
 	}
 }
 
-void FsmEditor::__set_copied_transition_list(const TypedArray<TransitionConfig> &p_to_set) {
+void FSMEditor::__set_copied_transition_list(const TypedArray<TransitionConfig> &p_to_set) {
 	if (copied_transition_config_list != p_to_set) {
 		copied_transition_config_list = p_to_set;
 	}
 }
 
-void FsmEditor::__set_copied_state_config_list(const TypedArray<StateConfig> &p_to_set) {
+void FSMEditor::__set_copied_state_config_list(const TypedArray<StateConfig> &p_to_set) {
 	if (copied_state_config_list != p_to_set) {
 		copied_state_config_list = p_to_set;
 	}
@@ -240,7 +239,7 @@ void FsmEditor::__set_copied_state_config_list(const TypedArray<StateConfig> &p_
 
 // ========功能=========
 
-void FsmEditor::try_disconnect(const Vector2 &p_pos1, const Vector2 &p_pos2) {
+void FSMEditor::try_disconnect(const Vector2 &p_pos1, const Vector2 &p_pos2) {
 	if (debug_mode) {
 		return;
 	}
@@ -274,7 +273,7 @@ void FsmEditor::try_disconnect(const Vector2 &p_pos1, const Vector2 &p_pos2) {
 	}
 }
 
-bool FsmEditor::is_judge(const Vector2 &p_apos1, const Vector2 &p_apos2, const Vector2 &p_bpos1, const Vector2 &p_bpos2) {
+bool FSMEditor::is_judge(const Vector2 &p_apos1, const Vector2 &p_apos2, const Vector2 &p_bpos1, const Vector2 &p_bpos2) {
 	// x 投影重叠
 	if ((MAX(p_apos1.x, p_apos2.x) >= MIN(p_bpos1.x, p_bpos2.x)) && (MIN(p_apos1.x, p_apos2.x) <= MAX(p_bpos1.x, p_bpos2.x))) {
 		// y 投影重叠
@@ -291,7 +290,7 @@ bool FsmEditor::is_judge(const Vector2 &p_apos1, const Vector2 &p_apos2, const V
 	return false;
 }
 
-TypedArray<TransitionConfig> FsmEditor::try_select_transitions_at_pos(const Vector2 &p_pos) {
+TypedArray<TransitionConfig> FSMEditor::try_select_transitions_at_pos(const Vector2 &p_pos) {
 	TypedArray<TransitionConfig> ret;
 	float graph_zoom = get_zoom();
 
@@ -318,7 +317,7 @@ TypedArray<TransitionConfig> FsmEditor::try_select_transitions_at_pos(const Vect
 	return ret;
 }
 
-Ref<TransitionConfig> FsmEditor::get_transition_config(StateNode *p_from, StateNode *p_to) {
+Ref<TransitionConfig> FSMEditor::get_transition_config(StateNode *p_from, StateNode *p_to) {
 	auto tc_list = current_fsm_config->get_transition_config_list();
 	for (auto i = 0; i < tc_list.size(); i++) {
 		Ref<TransitionConfig> tc = tc_list[i];
@@ -329,7 +328,7 @@ Ref<TransitionConfig> FsmEditor::get_transition_config(StateNode *p_from, StateN
 	return nullptr;
 }
 
-bool FsmEditor::is_node_hotzone(Object *p_in_node, int64_t p_in_port, const Vector2 &p_mouse_position) {
+bool FSMEditor::is_node_hotzone(Object *p_in_node, int64_t p_in_port, const Vector2 &p_mouse_position) {
 	if (debug_mode) {
 		return false;
 	}
@@ -353,7 +352,7 @@ bool FsmEditor::is_node_hotzone(Object *p_in_node, int64_t p_in_port, const Vect
 	return rect.has_point(zoomed_pos) && !dragger_rect.has_point(zoomed_pos);
 }
 
-void FsmEditor::__select_state_nodes(const TypedArray<StringName> &p_to_select_State_name_list) {
+void FSMEditor::__select_state_nodes(const TypedArray<StringName> &p_to_select_State_name_list) {
 	__set_selected_state_name_list(p_to_select_State_name_list);
 	for (auto i = 0; i < get_child_count(); i++) {
 		if (auto node = cast_to<StateNode>(get_child(i))) {
@@ -362,14 +361,14 @@ void FsmEditor::__select_state_nodes(const TypedArray<StringName> &p_to_select_S
 	}
 }
 
-StateNode *FsmEditor::create_state_node(const Ref<StateConfig> &p_state_config, const Ref<FSMConfig> &p_fsm_config) {
+StateNode *FSMEditor::create_state_node(const Ref<StateConfig> &p_state_config, const Ref<FSMConfig> &p_fsm_config) {
 	auto ret = StateNode::create_state_node(p_state_config, p_fsm_config.is_null() ? current_fsm_config : p_fsm_config, debug_mode);
 	ret->connect(SNAME(s_edit_fsm_requested), TCALLABLE(_edit_sub_fsm_requested));
 	ret->connect(SNAME("_reconnected_requested"), TCALLABLE(_state_node_reconnected_requested));
 	return ret;
 }
 
-StateNode *FsmEditor::get_top_state_node_which_hovering() {
+StateNode *FSMEditor::get_top_state_node_which_hovering() {
 	if (debug_mode) {
 		return nullptr;
 	}
@@ -387,7 +386,7 @@ StateNode *FsmEditor::get_top_state_node_which_hovering() {
 	return nullptr;
 }
 
-TypedArray<StateConfig> FsmEditor::get_selected_state_config_list() {
+TypedArray<StateConfig> FSMEditor::get_selected_state_config_list() {
 	TypedArray<StateConfig> ret;
 	auto seleted_state_nodes = get_selected_state_nodes();
 	for (auto i = 0; i < seleted_state_nodes.size(); i++) {
@@ -398,7 +397,7 @@ TypedArray<StateConfig> FsmEditor::get_selected_state_config_list() {
 	return ret;
 }
 
-void FsmEditor::__select_mamually(const TypedArray<StateNode> &p_target_nodes) {
+void FSMEditor::__select_mamually(const TypedArray<StateNode> &p_target_nodes) {
 	TypedArray<StringName> to_select_state_name_list;
 	for (auto i = 0; i < get_child_count(); i++) {
 		if (auto sn = cast_to<StateNode>(get_child(i))) {
@@ -415,11 +414,11 @@ void FsmEditor::__select_mamually(const TypedArray<StateNode> &p_target_nodes) {
 
 // ==================
 
-void FsmEditor::_edit_sub_fsm_requested(const Ref<FSMConfig> &p_sub_fsm_config) {
+void FSMEditor::_edit_sub_fsm_requested(const Ref<FSMConfig> &p_sub_fsm_config) {
 	emit_signal(SNAME(s_edit_fsm_requested), p_sub_fsm_config);
 }
 
-void FsmEditor::_state_node_reconnected_requested(const StringName &p_old_name, const StringName &p_new_name) {
+void FSMEditor::_state_node_reconnected_requested(const StringName &p_old_name, const StringName &p_new_name) {
 	if (!get_node_or_null({ p_new_name })) {
 		return;
 	}
@@ -436,7 +435,7 @@ void FsmEditor::_state_node_reconnected_requested(const StringName &p_old_name, 
 	});
 }
 
-void FsmEditor::_popup_menu_id_pressed(int32_t p_id) {
+void FSMEditor::_popup_menu_id_pressed(int32_t p_id) {
 	if (debug_mode) {
 		return;
 	}
@@ -806,9 +805,9 @@ void FsmEditor::_popup_menu_id_pressed(int32_t p_id) {
 	}
 }
 
-void FsmEditor::_delete_nodes_request(const Array &p_nodes) { _popup_menu_id_pressed(ITEM_DELETE); }
+void FSMEditor::_delete_nodes_request(const Array &p_nodes) { _popup_menu_id_pressed(ITEM_DELETE); }
 
-void FsmEditor::_connection_request(const StringName &p_from, int p_from_slot, const StringName &p_to, int p_to_slot) {
+void FSMEditor::_connection_request(const StringName &p_from, int p_from_slot, const StringName &p_to, int p_to_slot) {
 	if (debug_mode) {
 		return;
 	}
@@ -842,7 +841,7 @@ void FsmEditor::_connection_request(const StringName &p_from, int p_from_slot, c
 	COMMIT_ACTION();
 }
 
-void FsmEditor::_popup_request(const Vector2 &p_position) {
+void FSMEditor::_popup_request(const Vector2 &p_position) {
 	if (debug_mode) {
 		return;
 	}
@@ -882,9 +881,9 @@ void FsmEditor::_popup_request(const Vector2 &p_position) {
 	menu->popup();
 }
 
-void FsmEditor::_transition_config_updated() { connection_layer->queue_redraw(); }
+void FSMEditor::_transition_config_updated() { connection_layer->queue_redraw(); }
 
-void FsmEditor::_node_selected(Object *node) {
+void FSMEditor::_node_selected(Object *node) {
 	auto sn = cast_to<StateNode>(node);
 	if (!sn) {
 		return;
@@ -899,11 +898,11 @@ void FsmEditor::_node_selected(Object *node) {
 	}
 
 	if (selected_state_name_list.size() == 1) {
-		EditorInterface::get_singleton()->inspect_object(sn->get_state_config().ptr());
+		INSPECT_OBJECT(sn->get_state_config().ptr());
 	}
 }
 
-void FsmEditor::_node_deselected(Object *p_node) {
+void FSMEditor::_node_deselected(Object *p_node) {
 	auto sn = cast_to<StateNode>(p_node);
 	if (!sn) {
 		return;
@@ -918,14 +917,14 @@ void FsmEditor::_node_deselected(Object *p_node) {
 	}
 }
 
-void FsmEditor::_disconnect_inspecting_transition_config() {
+void FSMEditor::_disconnect_inspecting_transition_config() {
 	if (inspecting_transition_config.is_valid()) {
 		inspecting_transition_config->TDISCONNECT(s_changed, _transition_config_updated);
 		inspecting_transition_config.unref();
 	}
 }
 
-void FsmEditor::_end_node_move() {
+void FSMEditor::_end_node_move() {
 	if (debug_mode) {
 		return;
 	}
@@ -956,7 +955,7 @@ void FsmEditor::_end_node_move() {
 	COMMIT_ACTION();
 }
 
-void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
+void FSMEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 	if (debug_mode) {
 		return;
 	}
@@ -1086,7 +1085,7 @@ void FsmEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 	}
 }
 
-void FsmEditor::_debug_tween_activity(float p_activity, const StringName &p_from, const StringName &p_to) {
+void FSMEditor::_debug_tween_activity(float p_activity, const StringName &p_from, const StringName &p_to) {
 	if (!is_node_connected(p_from, 0, p_to, 0)) {
 		debug_activity_from = "";
 		debug_activity_to = "";
@@ -1099,7 +1098,7 @@ void FsmEditor::_debug_tween_activity(float p_activity, const StringName &p_from
 
 #define get_offset(p_angle) (Vector2(0, -1).rotated(p_angle) * CONN_POS_OFFSET * 0.5f)
 
-Vector2 FsmEditor::_state_node_get_output_port_position(StateNode *p_state_node, int p_port_idx) const {
+Vector2 FSMEditor::_state_node_get_output_port_position(StateNode *p_state_node, int p_port_idx) const {
 	IF_GDM(return p_state_node->get_output_port_position(p_port_idx);)
 	IF_NOT_GDE_COMPATIBLE(return p_state_node->get_output_port_position(p_port_idx);)
 	IF_GDE_COMPATIBLE({
@@ -1111,7 +1110,7 @@ Vector2 FsmEditor::_state_node_get_output_port_position(StateNode *p_state_node,
 	})
 }
 
-Vector2 FsmEditor::_state_node_get_input_port_position(StateNode *p_state_node, int p_port_idx) const {
+Vector2 FSMEditor::_state_node_get_input_port_position(StateNode *p_state_node, int p_port_idx) const {
 	IF_GDM(return p_state_node->get_input_port_position(p_port_idx);)
 	IF_NOT_GDE_COMPATIBLE(return p_state_node->get_input_port_position(p_port_idx);)
 	IF_GDE_COMPATIBLE({
@@ -1123,7 +1122,7 @@ Vector2 FsmEditor::_state_node_get_input_port_position(StateNode *p_state_node, 
 	})
 }
 
-PackedVector2Array FsmEditor::get_connection_line_with_zoom(StateNode *p_from, StateNode *p_to) {
+PackedVector2Array FSMEditor::get_connection_line_with_zoom(StateNode *p_from, StateNode *p_to) {
 	const float graph_zoom = get_zoom();
 
 	const auto get_port_position = [this, graph_zoom](StateNode *p_node, bool p_from) {
@@ -1141,14 +1140,14 @@ PackedVector2Array FsmEditor::get_connection_line_with_zoom(StateNode *p_from, S
 			(to + get_offset(angle)) * graph_zoom);
 }
 
-PackedVector2Array FsmEditor::get_connection_line_internal(const Vector2 &p_from, const Vector2 &p_to) const {
+PackedVector2Array FSMEditor::get_connection_line_internal(const Vector2 &p_from, const Vector2 &p_to) const {
 	const auto angle = p_from.angle_to_point(p_to);
 	return make_arr<PackedVector2Array>(
 			p_from + get_offset(angle),
 			p_to + get_offset(angle));
 }
 
-void FsmEditor::_draw_layer_draw() {
+void FSMEditor::_draw_layer_draw() {
 	if (is_blocking_redraw()) {
 		return;
 	}
@@ -1292,7 +1291,7 @@ void FsmEditor::_draw_layer_draw() {
 	}
 }
 
-void FsmEditor::initialize() {
+void FSMEditor::initialize() {
 #ifdef GDE_COMPATIBILITY_ENABLED
 	if (!HFSMGlobal::is_4_point_2_or_later()) {
 		incompatible_apis = {
@@ -1324,12 +1323,11 @@ void FsmEditor::initialize() {
 	}
 #endif //GDE_COMPATIBILITY_ENABLED
 
-	set_name("FsmEditor");
+	set_name("FSMEditor");
 	set_v_size_flags(SIZE_EXPAND_FILL);
 	add_valid_connection_type(StateNode::OUT_TYPE, StateNode::IN_TYPE);
-	IF_GDM(connect("close_nodes_request", TCALLABLE(_delete_nodes_request));)
-	IF_NOT_GDE_COMPATIBLE(connect("close_nodes_request", TCALLABLE(_delete_nodes_request));)
-	IF_GDE_COMPATIBLE(connect(HFSMGlobal::is_4_point_2_or_later() ? "close_nodes_request" : "delete_nodes_request", TCALLABLE(_delete_nodes_request));)
+	// wish Yuri Sizov don't change signal name again.
+	connect("delete_nodes_request", TCALLABLE(_delete_nodes_request));
 	connect("copy_nodes_request", TCALLABLE_BIND(_popup_menu_id_pressed, ITEM_COPY_STATES));
 	connect("paste_nodes_request", TCALLABLE_BIND(_popup_menu_id_pressed, ITEM_PASTE_STATES));
 	connect("duplicate_nodes_request", TCALLABLE_BIND(_popup_menu_id_pressed, ITEM_DUPLICATE_STATES));
@@ -1377,13 +1375,13 @@ void FsmEditor::initialize() {
 	mask_panel->add_child(mask_hint);
 }
 
-FsmEditor *FsmEditor::create_fsm_editor(HBoxContainer *p_path_btn_container, bool p_debug_mode) {
-	auto ret = memnew(FsmEditor(p_debug_mode));
+FSMEditor *FSMEditor::create_fsm_editor(HBoxContainer *p_path_btn_container, bool p_debug_mode) {
+	auto ret = memnew(FSMEditor(p_debug_mode));
 	ret->initialize();
 	return ret;
 }
 
-Ref<FSMConfig> FsmEditor::get_nested_fsm_config(const Ref<StateConfig> &p_state_config, const Ref<FSMConfig> &p_fsm_config) {
+Ref<FSMConfig> FSMEditor::get_nested_fsm_config(const Ref<StateConfig> &p_state_config, const Ref<FSMConfig> &p_fsm_config) {
 	if (p_fsm_config.is_valid()) {
 		auto state_config_list = p_fsm_config->get_state_config_list();
 		for (size_t i = 0; i < state_config_list.size(); i++) {
@@ -1403,7 +1401,7 @@ Ref<FSMConfig> FsmEditor::get_nested_fsm_config(const Ref<StateConfig> &p_state_
 	return nullptr;
 }
 
-void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContainer *p_path_button_container, const Ref<FSMConfig> &p_root_fsm_config, bool p_as_action) {
+void FSMEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContainer *p_path_button_container, const Ref<FSMConfig> &p_root_fsm_config, bool p_as_action) {
 #define get_btn_callback(m_fsm_config) TCALLABLE_BIND(edit_fsm_config, m_fsm_config, p_path_button_container, p_root_fsm_config, p_as_action)
 
 	const auto remove_and_free_children = [](Node *p_node, bool (*p_filter)(Node * p_child)) {
@@ -1674,7 +1672,7 @@ void FsmEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 	}
 }
 
-String FsmEditor::get_variable_expression_config_valid_and_text(const Ref<VariableExpressionConfig> &p_ver, TransitionConfigValidLevel &r_valid) const {
+String FSMEditor::get_variable_expression_config_valid_and_text(const Ref<VariableExpressionConfig> &p_ver, TransitionConfigValidLevel &r_valid) const {
 	r_valid = TRANSITION_CONFIG_VALID_LEVEL_ERROR;
 	auto vc = p_ver->get_variable_config();
 	if (vc.is_valid()) {
@@ -1768,7 +1766,7 @@ String FsmEditor::get_variable_expression_config_valid_and_text(const Ref<Variab
 	}
 }
 
-List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<TransitionConfig> &p_transition_config, TransitionConfigValidLevel &r_valid) const {
+List<String> FSMEditor::get_transition_config_valid_and_texts(const Ref<TransitionConfig> &p_transition_config, TransitionConfigValidLevel &r_valid) const {
 	List<String> ret;
 	r_valid = TRANSITION_CONFIG_VALID_LEVEL_ERROR;
 
@@ -1880,7 +1878,7 @@ List<String> FsmEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 	return ret;
 }
 
-void FsmEditor::_notification(int p_what) {
+void FSMEditor::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_CHILD_ORDER_CHANGED: {
 			IF_GDE(if (!is_node_ready()) {
@@ -1910,20 +1908,20 @@ void FsmEditor::_notification(int p_what) {
 		} break;
 		case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED:
 		case NOTIFICATION_THEME_CHANGED: {
-			auto base_control = cast_to<Control>(EditorInterface::get_singleton()->get_base_control());
-			font = base_control->get_theme_default_font();
-			activity_color = EditorInterface::get_singleton()->get_base_control()->get_theme_color("activity", "GraphEdit");
+			auto editor_theme = GET_EDITOR_THEME();
+			font = editor_theme->get_default_font();
+			activity_color = editor_theme->get_color("activity", "GraphEdit");
 		}
 		default:
 			break;
 	}
 }
 
-FsmEditor::FsmEditor(bool p_debug_mode) :
+FSMEditor::FSMEditor(bool p_debug_mode) :
 		debug_mode(p_debug_mode),
 		TRIANGLE_POINTS(make_arr<PackedVector2Array>(Vector2(20, 0), Vector2(-15, 10), Vector2(-15, -10))){};
 
-void FsmEditor::debug_highlight_active_state(const StringName &p_state_name, bool p_deactive_all) {
+void FSMEditor::debug_highlight_active_state(const StringName &p_state_name, bool p_deactive_all) {
 	StateNode *prev_activated = nullptr;
 	StateNode *next_activated = nullptr;
 	for (auto i = 0; i < get_child_count(); ++i) {
@@ -1966,12 +1964,12 @@ void FsmEditor::debug_highlight_active_state(const StringName &p_state_name, boo
 	}
 }
 
-StateNode *FsmEditor::_get_state_node(const NodePath &p_path) {
+StateNode *FSMEditor::_get_state_node(const NodePath &p_path) {
 	IF_GDE(return cast_to<StateNode>(call(SNAME("get_node"), p_path));)
 	IF_GDM(return cast_to<StateNode>(get_node(p_path));)
 }
 
-void FsmEditor::__queue_refresh() {
+void FSMEditor::__queue_refresh() {
 	for (auto i = 0; i < get_child_count(); ++i) {
 		if (auto sn = cast_to<StateNode>(get_child(i))) {
 			sn->get_state_config()->emit_signal(SNAME("changed"));
@@ -1981,19 +1979,19 @@ void FsmEditor::__queue_refresh() {
 	queuing_refresh = false;
 }
 
-void FsmEditor::__queue_redraw_request() {
+void FSMEditor::__queue_redraw_request() {
 	if (!queuing_redraw) {
 		call_deferred(TNAMEOF(__queue_redraw));
 		queuing_redraw = true;
 	}
 }
 
-void FsmEditor::__queue_redraw() {
+void FSMEditor::__queue_redraw() {
 	queue_redraw();
 	queuing_redraw = false;
 }
 
-void FsmEditor::queue_refresh() {
+void FSMEditor::queue_refresh() {
 	if (!queuing_refresh) {
 		call_deferred(TNAMEOF(__queue_refresh));
 		queuing_refresh = true;

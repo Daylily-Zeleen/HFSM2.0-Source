@@ -73,7 +73,7 @@ void HFSMEditor::initialize() {
 	up_panel_container->add_child(path_button_container);
 
 	//
-	fsm_editor = FsmEditor::create_fsm_editor(path_button_container, debug_mode);
+	fsm_editor = FSMEditor::create_fsm_editor(path_button_container, debug_mode);
 	fsm_editor->connect("_edit_fsm_requested", TCALLABLE(_edit_fsm_requested));
 	vbox->add_child(fsm_editor);
 
@@ -209,15 +209,15 @@ void HFSMEditor::_notification(int p_what) {
 	}
 }
 
-#define SET_CONNECT_INSPECTOR_SIGNAL(m_signal, m_connected)                                          \
-	{                                                                                                \
-		auto inspector = EditorInterface::get_singleton()->get_inspector(); \
-		auto cb = TCALLABLE(_inspector_##m_signal);                                                  \
-		if ((m_connected) && !inspector->is_connected(#m_signal, cb)) {                              \
-			inspector->connect(#m_signal, cb);                                                       \
-		} else if (!(m_connected) && inspector->is_connected(#m_signal, cb)) {                       \
-			inspector->disconnect(#m_signal, cb);                                                    \
-		}                                                                                            \
+#define SET_CONNECT_INSPECTOR_SIGNAL(m_signal, m_connected)                    \
+	{                                                                          \
+		auto inspector = GET_EDITOR_INSPECTOR();                               \
+		auto cb = TCALLABLE(_inspector_##m_signal);                            \
+		if ((m_connected) && !inspector->is_connected(#m_signal, cb)) {        \
+			inspector->connect(#m_signal, cb);                                 \
+		} else if (!(m_connected) && inspector->is_connected(#m_signal, cb)) { \
+			inspector->disconnect(#m_signal, cb);                              \
+		}                                                                      \
 	}
 
 void HFSMEditor::edit_hfsm(HFSM *p_hfsm) {

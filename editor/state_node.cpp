@@ -32,7 +32,6 @@
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/time.hpp>
 
-#include <godot_cpp/classes/editor_interface.hpp>
 #include <godot_cpp/classes/h_box_container.hpp>
 #include <godot_cpp/classes/input.hpp>
 #include <godot_cpp/classes/spin_box.hpp>
@@ -44,7 +43,6 @@
 
 #else
 #include <core/os/time.h>
-#include <editor/editor_interface.h>
 
 #endif // GDEXTENSION_BUILD
 
@@ -58,6 +56,7 @@ namespace HFSM2 {
 #define s_edit_fsm_requested "_edit_fsm_requested"
 
 Ref<ImageTexture> (*StateNode::get_empty_icon)() = nullptr;
+void (*StateNode::edit_resource)(const Ref<Resource> &p_resource) = nullptr;
 
 String StateNode::str_localize(const String &p_en_key) const {
 	return HFSMEditorPlugin::str_localize(p_en_key);
@@ -268,7 +267,9 @@ void StateNode::_script_selected(const Ref<Script> &p_script, bool p_edit) {
 		return;
 	}
 
-	EditorInterface::get_singleton()->edit_resource(p_script);
+	if (edit_resource) {
+		edit_resource(p_script);
+	}
 }
 
 void StateNode::_script_changed(const Ref<Script> &p_script) {

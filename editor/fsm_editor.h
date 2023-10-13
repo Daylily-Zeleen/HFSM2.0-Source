@@ -44,14 +44,18 @@ using namespace godot;
 #include <scene/gui/graph_edit.h>
 #endif // GDEXTENSION_BUILD
 
+namespace godot {
+class EditorInspector;
+} //namespace godot
+
 namespace HFSM2 {
 class StateNode;
 class TransitionConfig;
 class FSMConfig;
 class StateConfig;
 
-class FsmEditor : public GraphEdit {
-	GDCLASS(FsmEditor, GraphEdit)
+class FSMEditor : public GraphEdit {
+	GDCLASS(FSMEditor, GraphEdit)
 protected:
 	static void _bind_methods();
 	void _notification(int p_what);
@@ -282,9 +286,7 @@ private:
 public:
 	void queue_refresh();
 
-	FsmEditor(bool p_debug_mode = false);
-
-	static FsmEditor *create_fsm_editor(HBoxContainer *p_path_btn_container, bool p_debug_mode);
+	FSMEditor(bool p_debug_mode = false);
 
 #ifdef GDEXTENSION_BUILD
 	PackedVector2Array GD_(get_connection_line)(const Vector2 &p_from, const Vector2 &p_to) const override { return get_connection_line_internal(p_from, p_to); }
@@ -300,6 +302,12 @@ public:
 	void edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContainer *p_path_button_container, const Ref<FSMConfig> &p_root_config, bool p_as_action = false);
 
 	void debug_highlight_active_state(const StringName &p_state_name, bool p_deactive_all);
+
+	static FSMEditor *create_fsm_editor(HBoxContainer *p_path_btn_container, bool p_debug_mode);
 };
+
+#define GET_EDITOR_INSPECTOR() EditorInterface::get_singleton()->get_inspector()
+#define INSPECT_OBJECT(p_object) EditorInterface::get_singleton()->inspect_object(p_object)
+#define GET_EDITOR_THEME() EditorInterface::get_singleton()->get_editor_theme()
 
 }; // namespace HFSM2

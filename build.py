@@ -37,7 +37,7 @@ def main():
         if arg.startswith("target"):
             debug_and_relaese = False
 
-    # Use 4.1 stable mono apis as default.
+    # Use 4.2 dev mono apis as default.
     if not custom_api_file_defined:
         args += " custom_api_file=gdextension_dependencies/extension_api.4.2.dev.mono.json"
 

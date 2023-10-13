@@ -33,6 +33,7 @@
 	GDEXTENSION_BUILD
 	GODOT_MODULE_BUILD
 	IDE_TYPE_SAFE
+	GDE_COMPATIBILITY_ENABLED
 */
 
 #ifdef GODOT_MODULE_BUILD
@@ -49,12 +50,13 @@
 
 #define s_changed StringName("changed")
 
+// ==== String ====
 #ifdef GDEXTENSION_BUILD
 #define _TO_STRING() \
 	String _to_string() const { return vformat("[%s:%d]", get_class_static(), get_instance_id()); }
 
 #define SNAME(m_arg) ([]() -> const StringName & { static StringName sname = StringName(m_arg); return sname; })()
-#else
+#else // GDEXTENSION_BUILD
 #define _TO_STRING() // Godot module no need to override _to_string()
 #endif // GDEXTENSION_BUILD
 
@@ -66,17 +68,6 @@
 
 #define DECLTYPE_METHOD_RETURN_TYPE(m_obj_ptr, m_method, ...) \
 	{ using t_prefix##m_method##_r = decltype(m_obj_ptr->m_method(__VA_ARGS__)); }
-
-// Waiting for https://github.com/godotengine/godot-cpp/pull/1155
-#ifdef GDEXTENSION_BUILD
-#define CALLABLE(m_obj_ptr, m_method)                      \
-	[m_obj_ptr]() {                                        \
-		_DECLTYPE_PTR_MEMBER(MT_, m_obj_ptr, m_method);    \
-		return Callable(m_obj_ptr, StringName(#m_method)); \
-	}()
-#else // GDEXTENSION_BUILD
-#define CALLABLE(m_obj_ptr, m_method) callable_mp(m_obj_ptr, &std::remove_pointer_t<decltype(m_obj_ptr)>::m_method)
-#endif // GDEXTENSION_BUILD
 
 #define NAMEOF(m_obj_ptr, m_property)                     \
 	[m_obj_ptr]() {                                       \
@@ -91,15 +82,6 @@
 #define GDBIND_METHOD(m_method, ...)                       \
 	{ using TM_##m_method = decltype(&T_BIND::m_method); } \
 	ClassDB::bind_method(D_METHOD(#m_method, ##__VA_ARGS__), &T_BIND::m_method)
-
-// Waiting for https://github.com/godotengine/godot-cpp/pull/1155
-#ifdef GDEXTENSION_BUILD
-#define GDBIND_CALBACK(m_method, ...) GDBIND_METHOD(m_method, ##__VA_ARGS__)
-#else // GDEXTENSION_BUILD
-#define GDBIND_CALBACK(m_method, ...) \
-	{ using TM_##m_method = decltype(&T_BIND::m_method); }
-
-#endif // GDEXTENSION_BUILD
 
 #define GDBIND_SETGET_BOOL(m_property)                   \
 	using T_##m_property = decltype(T_BIND::m_property); \
@@ -121,13 +103,6 @@
 
 #else // IDE_TYPE_SAFE
 
-// Waiting for https://github.com/godotengine/godot-cpp/pull/1155
-#ifdef GDEXTENSION_BUILD
-#define CALLABLE(m_obj_ptr, m_method) Callable(m_obj_ptr, StringName(#m_method))
-#else // GDEXTENSION_BUILD
-#define CALLABLE(m_obj_ptr, m_method) callable_mp(m_obj_ptr, &std::remove_pointer_t<decltype(m_obj_ptr)>::m_method)
-#endif // GDEXTENSION_BUILD
-
 #define NAMEOF(m_obj_ptr, m_property) StringName(#m_property)
 
 #define GDBIND_BEGIN(m_class) using T_BIND = m_class
@@ -135,13 +110,6 @@
 #define GDBIND_METHOD_DIFF(m_method_name, m_method, ...) \
 	ClassDB::bind_method(D_METHOD(m_method_name, ##__VA_ARGS__), &T_BIND::m_method)
 #define GDBIND_METHOD(m_method, ...) ClassDB::bind_method(D_METHOD(#m_method, ##__VA_ARGS__), &T_BIND::m_method)
-
-// Waiting for https://github.com/godotengine/godot-cpp/pull/1155
-#ifdef GDEXTENSION_BUILD
-#define GDBIND_CALBACK(m_method, ...) GDBIND_METHOD(m_method, ##__VA_ARGS__)
-#else // GDEXTENSION_BUILD
-#define GDBIND_CALBACK(m_method, ...)
-#endif // GDEXTENSION_BUILD
 
 #define GDBIND_SETGET_BOOL(m_property) \
 	GDBIND_METHOD(is_##m_property);    \
@@ -157,13 +125,47 @@
 
 #endif // IDE_TYPE_SAFE
 
-//
+// For before 4.2
+#if GDE_COMPATIBILITY_ENABLED
+#ifdef IDE_TYPE_SAFE
+
+#ifdef GDEXTENSION_BUILD
+#define CALLABLE(m_obj_ptr, m_method)                      \
+	[m_obj_ptr]() {                                        \
+		_DECLTYPE_PTR_MEMBER(MT_, m_obj_ptr, m_method);    \
+		return Callable(m_obj_ptr, StringName(#m_method)); \
+	}()
+#define GDBIND_CALBACK(m_method, ...) GDBIND_METHOD(m_method, ##__VA_ARGS__)
+#else // GDEXTENSION_BUILD
+#define CALLABLE(m_obj_ptr, m_method) callable_mp(m_obj_ptr, &std::remove_pointer_t<decltype(m_obj_ptr)>::m_method)
+#define GDBIND_CALBACK(m_method, ...) \
+	{ using TM_##m_method = decltype(&T_BIND::m_method); }
+#endif // GDEXTENSION_BUILD
+
+#else //  IDE_TYPE_SAFE
+
+#ifdef GDEXTENSION_BUILD
+#define GDBIND_CALBACK(m_method, ...) GDBIND_METHOD(m_method, ##__VA_ARGS__)
+#define CALLABLE(m_obj_ptr, m_method) Callable(m_obj_ptr, StringName(#m_method))
+#else // GDEXTENSION_BUILD
+#define GDBIND_CALBACK(m_method, ...)
+#define CALLABLE(m_obj_ptr, m_method) callable_mp(m_obj_ptr, &std::remove_pointer_t<decltype(m_obj_ptr)>::m_method)
+#endif // GDEXTENSION_BUILD
+
+#endif //  IDE_TYPE_SAFE
+
+#define CALLABLE_BIND(m_obj_ptr, m_method, ...) CALLABLE(m_obj_ptr, m_method).bindv(make_arr<Array>(__VA_ARGS__))
+#define TCALLABLE_BIND(m_method, ...) TCALLABLE(m_method).bindv(make_arr<Array>(__VA_ARGS__))
+#else // GDE_COMPATIBILITY_ENABLED
+
+#define GDBIND_CALBACK(m_method, ...)
+#define CALLABLE(m_obj_ptr, m_method) callable_mp(m_obj_ptr, &std::remove_pointer_t<decltype(m_obj_ptr)>::m_method)
+#define CALLABLE_BIND(m_obj_ptr, m_method, ...) CALLABLE(m_obj_ptr, m_method).bind(__VA_ARGS__)
+#define TCALLABLE_BIND(m_method, ...) TCALLABLE(m_method).bind(__VA_ARGS__)
+#endif // GDE_COMPATIBILITY_ENABLED
 
 #define TNAMEOF(m_property) NAMEOF(this, m_property)
 #define TCALLABLE(m_method) CALLABLE(this, m_method)
-
-#define CALLABLE_BIND(m_obj_ptr, m_method, ...) CALLABLE(m_obj_ptr, m_method).bind(__VA_ARGS__)
-#define TCALLABLE_BIND(m_method, ...) TCALLABLE(m_method).bind(__VA_ARGS__)
 
 #define IS_CONNECTED(m_signal, m_obj_ptr, m_method) is_connected(m_signal, CALLABLE(m_obj_ptr, m_method))
 #define DISCONNECT(m_signal, m_obj_ptr, m_method) disconnect(m_signal, CALLABLE(m_obj_ptr, m_method))

@@ -35,6 +35,8 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/image_texture.hpp>
 #include <godot_cpp/classes/popup_menu.hpp>
+#include <godot_cpp/classes/theme.hpp>
+
 #include <godot_cpp/templates/local_vector.hpp>
 
 using namespace godot;
@@ -44,9 +46,13 @@ using namespace godot;
 #include <editor/editor_interface.h>
 #include <scene/gui/button.h>
 #include <scene/resources/texture.h>
+#include <scene/resources/theme.h>
+
+#include <editor/editor_interface.h>
 
 #endif // GDEXTENSION_BUILD
 
+#include "fsm_editor.h"
 #include "hfsm_editor.h"
 #include "state_node.h"
 
@@ -251,6 +257,7 @@ HFSMEditorPlugin::HFSMEditorPlugin() {
 
 	StateConfig::get_animation_list = &get_animation_list_for_state_config;
 	StateNode::get_empty_icon = &get_empty_icon_for_state_node;
+
 	empty_icon_for_state_node.instantiate();
 
 	connect("resource_saved", TCALLABLE(_referenced_script_saved));
