@@ -37,12 +37,15 @@
 #include <godot_cpp/classes/spin_box.hpp>
 #include <godot_cpp/classes/v_box_container.hpp>
 
+#include <godot_cpp/classes/editor_interface.hpp>
 #include <godot_cpp/classes/image_texture.hpp>
 #include <godot_cpp/classes/script.hpp>
 #include <godot_cpp/classes/spin_box.hpp>
 
 #else
 #include <core/os/time.h>
+
+#include <editor/editor_interface.hpp>
 
 #endif // GDEXTENSION_BUILD
 
@@ -56,7 +59,8 @@ namespace HFSM2 {
 #define s_edit_fsm_requested "_edit_fsm_requested"
 
 Ref<ImageTexture> (*StateNode::get_empty_icon)() = nullptr;
-void (*StateNode::edit_resource)(const Ref<Resource> &p_resource) = nullptr;
+
+#define EDIT_RESOURCE(p_resource) EditorInterface::get_singleton()->edit_resource(p_resource)
 
 String StateNode::str_localize(const String &p_en_key) const {
 	return HFSMEditorPlugin::str_localize(p_en_key);
@@ -267,9 +271,7 @@ void StateNode::_script_selected(const Ref<Script> &p_script, bool p_edit) {
 		return;
 	}
 
-	if (edit_resource) {
-		edit_resource(p_script);
-	}
+	EDIT_RESOURCE(p_script);
 }
 
 void StateNode::_script_changed(const Ref<Script> &p_script) {

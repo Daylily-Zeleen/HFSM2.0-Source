@@ -97,7 +97,6 @@ private:
 
 public:
 	static Ref<ImageTexture> (*get_empty_icon)();
-	static void (*edit_resource)(const Ref<Resource> &p_resource);
 
 	static Color IN_COLOR() { return Color::named("ORANGE"); }
 	static Color OUT_COLOR() { return Color::named("GREEN"); }
