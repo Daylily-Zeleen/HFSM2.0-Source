@@ -181,13 +181,14 @@ FSM *FSMConfig::create_fsm(HFSM *p_hfsm) {
 	ret->fsm_update_queue.push_back(ret);
 
 	// 构造状态列表
-	auto state_config2state = VMap<Ref<StateConfig>, Ref<State>>();
+	VMap<Ref<StateConfig>, Ref<State>> state_config2state;
 	for (size_t i = 0; i < state_config_list.size(); i++) {
 		Ref<StateConfig> state_config = state_config_list[i];
 
 		auto state = state_config->create_state(p_hfsm, ret);
-		state_config2state.insert(state_config, state);
+		CRASH_COND(state.is_null());
 
+		state_config2state.insert(state_config, state);
 		ret->state_list.push_back(state);
 	}
 
@@ -200,6 +201,8 @@ FSM *FSMConfig::create_fsm(HFSM *p_hfsm) {
 		TransitionBase *transition = transition_config->create_transition(p_hfsm);
 		//  添加到起始状态的转换列表中
 		auto from_state = state_config2state[from_config];
+		CRASH_COND(from_state.is_null());
+
 		from_state->_add_transition(transition);
 		// 设置转换的起始与目标状态
 		transition->from_state = from_state;

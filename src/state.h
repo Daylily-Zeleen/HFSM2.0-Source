@@ -139,9 +139,7 @@ public:
 	virtual void _network_despawn();
 #endif
 
-	State() = default;
-	State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<HFSM2::State> &p_path, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue);
-
+	// State() = default;
 	~State() override;
 
 private:
@@ -171,9 +169,8 @@ private:
 	void set_name(const StringName &p_name);
 
 public:
-	void initialize_state() {
-		initialize();
-	}
+	void initialize_state(const StringName &p_name, const StringName &p_anim_name, HFSM *p_hfsm, StateType p_type, const TypedArray<HFSM2::State> &p_path, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue);
+
 	void entry_state();
 	void update_state(real_t p_delta);
 	void physics_update_state(real_t p_delta);

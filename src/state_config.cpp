@@ -380,7 +380,8 @@ Ref<State> StateConfig::create_state(HFSM *p_hfsm, FSM *p_fsm) {
 		sub_fsm = get_sub_fsm_config()->create_fsm(p_hfsm);
 	}
 
-	auto ret = memnew(State(state_name, p_hfsm, type, p_fsm->get_path(), sub_fsm, p_fsm->get_fsm_update_queue()));
+	Ref<State> ret;
+	ret.instantiate();
 
 	if (!script_valid) {
 		WARN_PRINT(vformat("\"%s\" is not a valid script for State, will create a State without script.", state_script->get_path()));
@@ -388,7 +389,6 @@ Ref<State> StateConfig::create_state(HFSM *p_hfsm, FSM *p_fsm) {
 		ret->set_script(state_script);
 	}
 
-	ret->set_animation_name(animation_name);
 	IF_FULL_VERSION({
 		ret->set_animation_speed(animation_speed);
 		ret->set_animation_blend_time(animation_blend_time);
@@ -396,7 +396,7 @@ Ref<State> StateConfig::create_state(HFSM *p_hfsm, FSM *p_fsm) {
 	})
 
 	// Call initialized (finally allow to access HFSM).
-	ret->initialize_state();
+	ret->initialize_state(state_name, animation_name, p_hfsm, type, p_fsm->get_path(), sub_fsm, p_fsm->get_fsm_update_queue());
 
 	return ret;
 }
