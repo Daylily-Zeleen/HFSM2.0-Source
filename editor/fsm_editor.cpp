@@ -674,7 +674,7 @@ void FSMEditor::_popup_menu_id_pressed(int32_t p_id) {
 				// 移除状态
 				for (auto i = 0; i < selected_state_config_list.size(); ++i) {
 					Ref<StateConfig> sc = selected_state_config_list[i];
-					ADD_DO_REFERENCE(sc->get_state_node());
+					ADD_UNDO_REFERENCE(sc->get_state_node());
 					ADD_DO_METHOD(this, remove_child, sc->get_state_node());
 					ADD_DO_METHOD(current_fsm_config.ptr(), remove_state_config, sc);
 					ADD_UNDO_METHOD(current_fsm_config.ptr(), add_state_config, sc);
@@ -775,6 +775,7 @@ void FSMEditor::_popup_menu_id_pressed(int32_t p_id) {
 			auto selected_state_nodes = get_selected_state_nodes();
 			for (auto i = 0; i < selected_state_nodes.size(); i++) {
 				auto sn = cast_to<StateNode>(selected_state_nodes[i]);
+				ADD_UNDO_REFERENCE(sn);
 				ADD_DO_METHOD(this, remove_child, sn);
 				ADD_DO_METHOD(current_fsm_config.ptr(), remove_state_config, sn->get_state_config());
 				ADD_DO_METHOD(new_fsm_config.ptr(), add_state_config, sn->get_state_config());
@@ -782,7 +783,6 @@ void FSMEditor::_popup_menu_id_pressed(int32_t p_id) {
 				ADD_UNDO_METHOD(new_fsm_config.ptr(), remove_state_config, sn->get_state_config());
 				ADD_UNDO_METHOD(current_fsm_config.ptr(), add_state_config, sn->get_state_config());
 				ADD_UNDO_METHOD(this, add_child, sn);
-				ADD_UNDO_REFERENCE(sn);
 			}
 			//
 			ADD_DO_METHOD(hovering_state_config.ptr(), set_state_script, Ref<Script>());
@@ -1582,9 +1582,9 @@ void FSMEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 		// 移除状态
 		for (auto i = 0; i < get_child_count(); i++) {
 			if (auto sn = Object::cast_to<StateNode>(get_child(i))) {
+				ADD_UNDO_REFERENCE(sn);
 				ADD_DO_METHOD(this, remove_child, sn);
 				ADD_UNDO_METHOD(this, add_child, sn);
-				ADD_UNDO_REFERENCE(sn);
 			}
 		}
 
@@ -1597,9 +1597,9 @@ void FSMEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 		auto children = p_path_button_container->get_children(true);
 		for (auto i = 0; i < children.size(); i++) {
 			if (auto btn = Object::cast_to<Button>(children[i])) {
+				ADD_UNDO_REFERENCE(btn);
 				ADD_DO_METHOD(p_path_button_container, remove_child, btn);
 				ADD_UNDO_METHOD(p_path_button_container, add_child, btn);
-				ADD_UNDO_REFERENCE(btn);
 			}
 		}
 
@@ -1629,9 +1629,9 @@ void FSMEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 				Button *front_btn = path_btn_list.front()->get();
 				path_btn_list.pop_front();
 
+				ADD_DO_REFERENCE(front_btn);
 				ADD_DO_METHOD(p_path_button_container, add_child, front_btn);
 				ADD_UNDO_METHOD(p_path_button_container, remove_child, front_btn);
-				ADD_DO_REFERENCE(front_btn);
 			}
 			// 新建并添加节点
 			auto state_config_list = p_fsm_config->get_state_config_list();
@@ -1639,10 +1639,10 @@ void FSMEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContaine
 				Ref<StateConfig> sc = state_config_list[i];
 				auto old_state_node = sc->get_state_node();
 				auto sn = create_state_node(sc, p_fsm_config);
-				ADD_DO_REFERENCE(sn);
 
 				ADD_DO_METHOD(sc.ptr(), _set_state_node, sn);
 				ADD_UNDO_METHOD(sc.ptr(), _set_state_node, old_state_node);
+				ADD_DO_REFERENCE(sn);
 				ADD_DO_METHOD(this, add_child, sn);
 				ADD_UNDO_METHOD(this, remove_child, sn);
 			}
@@ -1897,7 +1897,7 @@ void FSMEditor::_notification(int p_what) {
 			set_process(false);
 			connection_layer->connect("draw", TCALLABLE(_draw_layer_draw));
 
-			connect("gui_input", TCALLABLE(_gui_input_internal));
+			TCALLABLE_BIND(connect).call_deferred("gui_input", TCALLABLE(_gui_input_internal));
 			connect("end_node_move", TCALLABLE(_end_node_move));
 			set_editor_inspector_signal_connected(true);
 

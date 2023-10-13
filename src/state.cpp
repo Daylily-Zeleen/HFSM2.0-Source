@@ -126,15 +126,6 @@ void State::exit() {
 	GDVIRTUAL_CALL(_exit);
 }
 
-State::State(const StringName &p_name, HFSM *p_hfsm, StateType p_type, const TypedArray<HFSM2::State> &p_path, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue) :
-		hfsm(p_hfsm), type(p_type), path(p_path), sub_fsm(p_sub_fsm) {
-	set_name(p_name);
-
-	if (sub_fsm) {
-		sub_fsm->set_nested_state(this, p_nested_fsm_update_queue);
-	}
-}
-
 State::~State() {
 	for (auto &&transition : transition_list) {
 		if (transition) {
@@ -176,6 +167,23 @@ void State::manual_exit() {
 	ERR_FAIL_COND(is_exited());
 	exited = true;
 	exit_state();
+}
+
+void State::initialize_state(const StringName &p_name, const StringName &p_anim_name, HFSM *p_hfsm, StateType p_type, const TypedArray<HFSM2::State> &p_path, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue) {
+	hfsm = p_hfsm;
+	type = p_type;
+	path = p_path;
+	sub_fsm = p_sub_fsm;
+
+	set_name(p_name);
+
+	if (sub_fsm) {
+		sub_fsm->set_nested_state(this, p_nested_fsm_update_queue);
+	}
+
+	set_animation_name(p_anim_name);
+
+	initialize();
 }
 
 void State::entry_state() {
