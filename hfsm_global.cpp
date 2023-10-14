@@ -59,35 +59,23 @@ void HFSMGlobal::init_static() {
 	auto &singletons = _singletons();
 
 	IF_GDE({
-		// singleton_names = get_singleton_name_list();
-		// singletons = get_singleton_list();
 		auto singleton_list = Engine::get_singleton()->get_singleton_list();
-
-		// Step1: collect unbound classes;
-		PackedStringArray unbound_classes;
-		for (auto klass : singleton_list) {
-			unbound_classes.push_back(klass);
-		}
 
 		// Specially, these wrong singletons.
 		// TODO::
 		// "GDExtensionManager", "ResourceUID", "IP", "ClassDB": https://github.com/godotengine/godot/issues/81030
-		// "ClassDB", "GDScriptLanguageProtocol": https://github.com/godotengine/godot-cpp/pull/1165
-		for (const String &klass : { "GDExtensionManager", "ResourceUID", "IP", "ClassDB", "GDScriptLanguageProtocol" }) {
-			if (!unbound_classes.has(klass)) {
-				unbound_classes.push_back(klass);
-			}
-		}
-
-		// Step2: remove unbound classes;
-		for (auto klass : unbound_classes) {
+		// // Crash at exit editor.
+		for (const String &klass : {
+					 "GDExtensionManager",
+					 "ResourceUID",
+					 "IP",
+			 }) {
 			auto idx = singleton_list.find(klass);
 			if (idx >= 0) {
 				singleton_list.remove_at(idx);
 			}
 		}
 
-		// Step3: Collect Signeltons.
 		singleton_names.resize(singleton_list.size());
 		singletons.resize(singleton_list.size());
 		for (auto i = 0; i < singleton_list.size(); ++i) {
