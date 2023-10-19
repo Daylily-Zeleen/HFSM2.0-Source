@@ -8,8 +8,9 @@ from os.path import join as path_join
 def main():
     # add_copyright()
     # save_as_utf8()
-    if os.path.exists("dist"):
-        shutil.rmtree("dist")
+    if os.path.exists("./dist"):
+        shutil.rmtree("./dist")
+
     args = "scons"
     debug_and_relaese = True
     custom_api_file_defined = False
@@ -41,7 +42,7 @@ def main():
     if not custom_api_file_defined:
         args += " custom_api_file=gdextension_dependencies/extension_api.4.2.dev.mono.json"
 
-    bin_dir = "bin"
+    bin_dir = "./bin"
     # Remove all last build files.
     if os.path.exists(bin_dir):
         for f in os.listdir(bin_dir):
@@ -70,11 +71,11 @@ def main():
     # Copy dynamic library.
     dst_dir = path_join(plugin_dir, "bin")
     if platform != "macos":
-        for f in os.listdir("bin"):
+        for f in os.listdir(bin_dir):
             for suffix in dynamic_lib_suffixs:
                 if not f.endswith(suffix):
                     continue
-                shutil.copyfile(path_join("bin", f), path_join(dst_dir, f.replace(".dev.", ".")))
+                shutil.copyfile(path_join(bin_dir, f), path_join(dst_dir, f.replace(".dev.", ".")))
 
     # Copy readme and license.
     if os.path.exists("README.md"):

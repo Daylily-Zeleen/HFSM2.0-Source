@@ -1,66 +1,56 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ ! -e "version.py" ]; then
-  echo "This script should be ran from the root folder of the Godot repository."
+if [ ! -e "./misc/scripts/make_tarball.sh" ]; then
+  echo "This script should be ran from the root folder."
   exit 1
 fi
 
-while getopts "h?sv:g:" opt; do
+archive_prefix="../hfsm2"
+
+while getopts "h?p:" opt; do
   case "$opt" in
   h|\?)
     echo "Usage: $0 [OPTIONS...]"
     echo
-    echo "  -s script friendly file name (godot.tar.gz)"
-    echo "  -v godot version for file name (e.g. 4.0-stable)"
-    echo "  -g git treeish to archive (e.g. master)"
+    echo "  -p archive_prefix, default \"../hfsm2\", it means that create acrhive at work folder's parent folder with name \"hfsm2.tar\"."
     echo
     exit 1
     ;;
-  s)
-    script_friendly_name=1
-    ;;
-  v)
-    godot_version=$OPTARG
-    ;;
-  g)
-    git_treeish=$OPTARG
+  p)
+    archive_prefix=$OPTARG
     ;;
   esac
 done
 
-if [ ! -z "$git_treeish" ]; then
-  HEAD=$(git rev-parse $git_treeish)
-else
-  HEAD=$(git rev-parse HEAD)
+archive_tmp_dir=".tmp"
+archive_name="${archive_prefix}.tar"
+
+if [ -d ${archive_tmp_dir} ]; then
+  rm -rf ${archive_tmp_dir}
 fi
 
-if [ ! -z "$script_friendly_name" ]; then
-  NAME=godot
-else
-  if [ ! -z "$godot_version" ]; then
-    NAME=godot-$godot_version
-  else
-    NAME=godot-$HEAD
-  fi
+mkdir ${archive_tmp_dir}
+pwd=$(pwd)
+
+git archive --format=tar HEAD | tar xf - --directory ${archive_tmp_dir} # (cd ${archive_tmp_dir} && tar xf -) #归档父项目后解压到指定目录
+git submodule foreach | while read desc subdir; do
+  echo Handling submodule $subdir
+  subdir=${subdir#*\'} #去除最左边的单引号
+  subdir=${subdir%*\'} #去除最右边的单引号
+  [ "${subdir}" = "" ] && continue
+  # 加一步判断，subdir为""则continue
+
+  pushd ${subdir}
+  git archive --format=tar HEAD | tar xf - --directory ${pwd}/${archive_tmp_dir}/${subdir} #归档submodule后解压到父目录
+  popd
+done
+
+if [ -e ${archive_name} ]; then
+  rm -f ${archive_name}
 fi
 
-CURDIR=$(pwd)
-TMPDIR=$(mktemp -d -t godot-XXXXXX)
+tar -uf ${archive_name} --directory ${archive_tmp_dir} `ls -A ${archive_tmp_dir}`
 
-echo "Generating tarball for revision $HEAD with folder name '$NAME'."
-echo
-echo "The tarball will be written to the parent folder:"
-echo "    $(dirname $CURDIR)/$NAME.tar.gz"
+echo "Make tarball done! Archive file: \"${archive_name}\""
 
-git archive $HEAD --prefix=$NAME/ -o $TMPDIR/$NAME.tar
-
-# Adding custom .git/HEAD to tarball so that we can generate VERSION_HASH.
-cd $TMPDIR
-mkdir -p $NAME/.git
-echo $HEAD > $NAME/.git/HEAD
-tar -uf $NAME.tar $NAME
-
-cd $CURDIR
-gzip -c $TMPDIR/$NAME.tar > ../$NAME.tar.gz
-
-rm -rf $TMPDIR
+rm -rf ${archive_tmp_dir}

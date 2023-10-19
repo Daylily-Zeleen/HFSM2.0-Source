@@ -3,7 +3,6 @@ import os
 import sys
 
 # from build import generate_singleton_helper
-
 env = SConscript("gdextension_dependencies/godot-cpp/SConstruct")
 
 # Generate Singleton helper
@@ -44,11 +43,17 @@ env.Append(LIBPATH=[])
 
 env.Append(CPPDEFINES=["GDEXTENSION_BUILD", "GDE_COMPATIBILITY_ENABLED"])
 
+if env["platform"] == "ios":
+    if env["IOS_TOOLCHAIN_PATH"] != "":
+        env.Append(LIBPATH=[env["IOS_TOOLCHAIN_PATH"]+"/lib"])
+        env.Append(LIBS=["tapi"])
+
 # # Require C++20
 # if env.get("is_msvc", False):
 #     env["CXXFLAGS"]=["/std:c++20"]
 # else:
 #     env["CXXFLAGS"]=["-std:c++20"]
+
 
 # 以 dev_build 确定是否为完整版本
 if env["dev_build"]:
