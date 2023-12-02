@@ -45,7 +45,7 @@ env.Append(CPPDEFINES=["GDEXTENSION_BUILD", "GDE_COMPATIBILITY_ENABLED"])
 
 if env["platform"] == "ios":
     if env["IOS_TOOLCHAIN_PATH"] != "":
-        env.Append(LIBPATH=[env["IOS_TOOLCHAIN_PATH"]+"/lib"])
+        env.Append(LIBPATH=[env["IOS_TOOLCHAIN_PATH"] + "/lib"])
         env.Append(LIBS=["tapi"])
 
 # # Require C++20
