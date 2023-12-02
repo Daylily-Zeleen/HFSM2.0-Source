@@ -3,9 +3,9 @@
 		"version_major": 4,
 		"version_minor": 2,
 		"version_patch": 0,
-		"version_status": "beta",
-		"version_build": "custom_build",
-		"version_full_name": "Godot Engine v4.2.beta.mono.custom_build"
+		"version_status": "stable",
+		"version_build": "official",
+		"version_full_name": "Godot Engine v4.2.stable.mono.official"
 	},
 	"builtin_class_sizes": [
 		{
@@ -67199,6 +67199,14 @@
 					"value": 42
 				},
 				{
+					"name": "NOTIFICATION_MOUSE_ENTER_SELF",
+					"value": 60
+				},
+				{
+					"name": "NOTIFICATION_MOUSE_EXIT_SELF",
+					"value": 61
+				},
+				{
 					"name": "NOTIFICATION_FOCUS_ENTER",
 					"value": 43
 				},
@@ -72971,28 +72979,28 @@
 					"getter": "get_size"
 				},
 				{
-					"type": "Texture",
+					"type": "Texture2D",
 					"name": "texture_albedo",
 					"setter": "set_texture",
 					"getter": "get_texture",
 					"index": 0
 				},
 				{
-					"type": "Texture",
+					"type": "Texture2D",
 					"name": "texture_normal",
 					"setter": "set_texture",
 					"getter": "get_texture",
 					"index": 1
 				},
 				{
-					"type": "Texture",
+					"type": "Texture2D",
 					"name": "texture_orm",
 					"setter": "set_texture",
 					"getter": "get_texture",
 					"index": 2
 				},
 				{
-					"type": "Texture",
+					"type": "Texture2D",
 					"name": "texture_emission",
 					"setter": "set_texture",
 					"getter": "get_texture",
@@ -73588,6 +73596,23 @@
 					"return_value": {
 						"type": "bool"
 					}
+				},
+				{
+					"name": "is_case_sensitive",
+					"is_const": true,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 3927539163,
+					"return_value": {
+						"type": "bool"
+					},
+					"arguments": [
+						{
+							"name": "path",
+							"type": "String"
+						}
+					]
 				}
 			],
 			"properties": [
@@ -95135,6 +95160,31 @@
 					}
 				},
 				{
+					"name": "set_fixed_size_scale_mode",
+					"is_const": false,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 1660989956,
+					"arguments": [
+						{
+							"name": "fixed_size_scale_mode",
+							"type": "enum::TextServer.FixedSizeScaleMode"
+						}
+					]
+				},
+				{
+					"name": "get_fixed_size_scale_mode",
+					"is_const": true,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 753873478,
+					"return_value": {
+						"type": "enum::TextServer.FixedSizeScaleMode"
+					}
+				},
+				{
 					"name": "set_allow_system_fallback",
 					"is_const": false,
 					"is_vararg": false,
@@ -96783,6 +96833,12 @@
 					"name": "fixed_size",
 					"setter": "set_fixed_size",
 					"getter": "get_fixed_size"
+				},
+				{
+					"type": "int",
+					"name": "fixed_size_scale_mode",
+					"setter": "set_fixed_size_scale_mode",
+					"getter": "get_fixed_size_scale_mode"
 				},
 				{
 					"type": "Dictionary",
@@ -124898,6 +124954,33 @@
 					}
 				},
 				{
+					"name": "set_bounce_indirect_energy",
+					"is_const": false,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 373806689,
+					"arguments": [
+						{
+							"name": "bounce_indirect_energy",
+							"type": "float",
+							"meta": "float"
+						}
+					]
+				},
+				{
+					"name": "get_bounce_indirect_energy",
+					"is_const": true,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 1740695150,
+					"return_value": {
+						"type": "float",
+						"meta": "float"
+					}
+				},
+				{
 					"name": "set_generate_probes",
 					"is_const": false,
 					"is_vararg": false,
@@ -125181,6 +125264,31 @@
 					}
 				},
 				{
+					"name": "set_use_texture_for_bounces",
+					"is_const": false,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 2586408642,
+					"arguments": [
+						{
+							"name": "use_texture_for_bounces",
+							"type": "bool"
+						}
+					]
+				},
+				{
+					"name": "is_using_texture_for_bounces",
+					"is_const": true,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 36873697,
+					"return_value": {
+						"type": "bool"
+					}
+				},
+				{
 					"name": "set_camera_attributes",
 					"is_const": false,
 					"is_vararg": false,
@@ -125220,10 +125328,22 @@
 					"getter": "get_bounces"
 				},
 				{
+					"type": "float",
+					"name": "bounce_indirect_energy",
+					"setter": "set_bounce_indirect_energy",
+					"getter": "get_bounce_indirect_energy"
+				},
+				{
 					"type": "bool",
 					"name": "directional",
 					"setter": "set_directional",
 					"getter": "is_directional"
+				},
+				{
+					"type": "bool",
+					"name": "use_texture_for_bounces",
+					"setter": "set_use_texture_for_bounces",
+					"getter": "is_using_texture_for_bounces"
 				},
 				{
 					"type": "bool",
@@ -125307,28 +125427,28 @@
 			"api_type": "core",
 			"methods": [
 				{
-					"name": "set_light_texture",
+					"name": "set_lightmap_textures",
 					"is_const": false,
 					"is_vararg": false,
 					"is_static": false,
 					"is_virtual": false,
-					"hash": 1278366092,
+					"hash": 381264803,
 					"arguments": [
 						{
-							"name": "light_texture",
-							"type": "TextureLayered"
+							"name": "light_textures",
+							"type": "typedarray::TextureLayered"
 						}
 					]
 				},
 				{
-					"name": "get_light_texture",
+					"name": "get_lightmap_textures",
 					"is_const": true,
 					"is_vararg": false,
 					"is_static": false,
 					"is_virtual": false,
-					"hash": 3984243839,
+					"hash": 3995934104,
 					"return_value": {
-						"type": "TextureLayered"
+						"type": "typedarray::TextureLayered"
 					}
 				},
 				{
@@ -125421,20 +125541,39 @@
 					"is_static": false,
 					"is_virtual": false,
 					"hash": 3218959716
+				},
+				{
+					"name": "set_light_texture",
+					"is_const": false,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 1278366092,
+					"arguments": [
+						{
+							"name": "light_texture",
+							"type": "TextureLayered"
+						}
+					]
+				},
+				{
+					"name": "get_light_texture",
+					"is_const": true,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 3984243839,
+					"return_value": {
+						"type": "TextureLayered"
+					}
 				}
 			],
 			"properties": [
 				{
-					"type": "TextureLayered",
-					"name": "light_texture",
-					"setter": "set_light_texture",
-					"getter": "get_light_texture"
-				},
-				{
-					"type": "Array",
-					"name": "light_textures",
-					"setter": "_set_light_textures_data",
-					"getter": "_get_light_textures_data"
+					"type": "typedarray::TextureLayered",
+					"name": "lightmap_textures",
+					"setter": "set_lightmap_textures",
+					"getter": "get_lightmap_textures"
 				},
 				{
 					"type": "bool",
@@ -125453,6 +125592,18 @@
 					"name": "probe_data",
 					"setter": "_set_probe_data",
 					"getter": "_get_probe_data"
+				},
+				{
+					"type": "TextureLayered",
+					"name": "light_texture",
+					"setter": "set_light_texture",
+					"getter": "get_light_texture"
+				},
+				{
+					"type": "Array",
+					"name": "light_textures",
+					"setter": "_set_light_textures_data",
+					"getter": "_get_light_textures_data"
 				}
 			]
 		},
@@ -127317,7 +127468,7 @@
 					"getter": "is_drag_and_drop_selection_enabled"
 				},
 				{
-					"type": "Texture",
+					"type": "Texture2D",
 					"name": "right_icon",
 					"setter": "set_right_icon",
 					"getter": "get_right_icon"
@@ -128889,6 +129040,10 @@
 						{
 							"name": "ARRAY_FLAG_USES_EMPTY_VERTEX_ARRAY",
 							"value": 268435456
+						},
+						{
+							"name": "ARRAY_FLAG_COMPRESS_ATTRIBUTES",
+							"value": 536870912
 						}
 					]
 				},
@@ -135305,6 +135460,31 @@
 					}
 				},
 				{
+					"name": "set_keep_y_velocity",
+					"is_const": false,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 2586408642,
+					"arguments": [
+						{
+							"name": "enabled",
+							"type": "bool"
+						}
+					]
+				},
+				{
+					"name": "get_keep_y_velocity",
+					"is_const": true,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 36873697,
+					"return_value": {
+						"type": "bool"
+					}
+				},
+				{
 					"name": "set_neighbor_distance",
 					"is_const": false,
 					"is_vararg": false,
@@ -136205,6 +136385,12 @@
 					"name": "use_3d_avoidance",
 					"setter": "set_use_3d_avoidance",
 					"getter": "get_use_3d_avoidance"
+				},
+				{
+					"type": "bool",
+					"name": "keep_y_velocity",
+					"setter": "set_keep_y_velocity",
+					"getter": "get_keep_y_velocity"
 				},
 				{
 					"type": "int",
@@ -145184,10 +145370,6 @@
 				{
 					"name": "NOTIFICATION_ENABLED",
 					"value": 29
-				},
-				{
-					"name": "NOTIFICATION_NODE_RECACHE_REQUESTED",
-					"value": 30
 				},
 				{
 					"name": "NOTIFICATION_EDITOR_PRE_SAVE",
@@ -225825,7 +226007,7 @@
 			],
 			"properties": [
 				{
-					"type": "Texture",
+					"type": "Texture2D",
 					"name": "texture",
 					"setter": "set_texture",
 					"getter": "get_texture"
@@ -232014,6 +232196,12 @@
 			"properties": [
 				{
 					"type": "int",
+					"name": "tab_count",
+					"setter": "set_tab_count",
+					"getter": "get_tab_count"
+				},
+				{
+					"type": "int",
 					"name": "current_tab",
 					"setter": "set_current_tab",
 					"getter": "get_current_tab"
@@ -232071,12 +232259,6 @@
 					"name": "select_with_rmb",
 					"setter": "set_select_with_rmb",
 					"getter": "get_select_with_rmb"
-				},
-				{
-					"type": "int",
-					"name": "tab_count",
-					"setter": "set_tab_count",
-					"getter": "get_tab_count"
 				}
 			]
 		},
@@ -239449,6 +239631,24 @@
 							"value": 6
 						}
 					]
+				},
+				{
+					"name": "FixedSizeScaleMode",
+					"is_bitfield": false,
+					"values": [
+						{
+							"name": "FIXED_SIZE_SCALE_DISABLE",
+							"value": 0
+						},
+						{
+							"name": "FIXED_SIZE_SCALE_INTEGER_ONLY",
+							"value": 1
+						},
+						{
+							"name": "FIXED_SIZE_SCALE_ENABLED",
+							"value": 2
+						}
+					]
 				}
 			],
 			"methods": [
@@ -240137,6 +240337,41 @@
 					"return_value": {
 						"type": "int",
 						"meta": "int64"
+					},
+					"arguments": [
+						{
+							"name": "font_rid",
+							"type": "RID"
+						}
+					]
+				},
+				{
+					"name": "font_set_fixed_size_scale_mode",
+					"is_const": false,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 1029390307,
+					"arguments": [
+						{
+							"name": "font_rid",
+							"type": "RID"
+						},
+						{
+							"name": "fixed_size_scale_mode",
+							"type": "enum::TextServer.FixedSizeScaleMode"
+						}
+					]
+				},
+				{
+					"name": "font_get_fixed_size_scale_mode",
+					"is_const": true,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 4113120379,
+					"return_value": {
+						"type": "enum::TextServer.FixedSizeScaleMode"
 					},
 					"arguments": [
 						{
@@ -244436,6 +244671,39 @@
 					"return_value": {
 						"type": "int",
 						"meta": "int64"
+					},
+					"arguments": [
+						{
+							"name": "font_rid",
+							"type": "RID"
+						}
+					]
+				},
+				{
+					"name": "_font_set_fixed_size_scale_mode",
+					"is_const": false,
+					"is_static": false,
+					"is_vararg": false,
+					"is_virtual": true,
+					"arguments": [
+						{
+							"name": "font_rid",
+							"type": "RID"
+						},
+						{
+							"name": "fixed_size_scale_mode",
+							"type": "enum::TextServer.FixedSizeScaleMode"
+						}
+					]
+				},
+				{
+					"name": "_font_get_fixed_size_scale_mode",
+					"is_const": true,
+					"is_static": false,
+					"is_vararg": false,
+					"is_virtual": true,
+					"return_value": {
+						"type": "enum::TextServer.FixedSizeScaleMode"
 					},
 					"arguments": [
 						{
@@ -252774,6 +253042,43 @@
 					"return_value": {
 						"type": "int",
 						"meta": "int32"
+					},
+					"arguments": [
+						{
+							"name": "layer",
+							"type": "int",
+							"meta": "int32"
+						}
+					]
+				},
+				{
+					"name": "set_layer_navigation_enabled",
+					"is_const": false,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 300928843,
+					"arguments": [
+						{
+							"name": "layer",
+							"type": "int",
+							"meta": "int32"
+						},
+						{
+							"name": "enabled",
+							"type": "bool"
+						}
+					]
+				},
+				{
+					"name": "is_layer_navigation_enabled",
+					"is_const": true,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 1116898809,
+					"return_value": {
+						"type": "bool"
 					},
 					"arguments": [
 						{
@@ -266482,31 +266787,6 @@
 					}
 				},
 				{
-					"name": "set_disable_2d",
-					"is_const": false,
-					"is_vararg": false,
-					"is_static": false,
-					"is_virtual": false,
-					"hash": 2586408642,
-					"arguments": [
-						{
-							"name": "disable",
-							"type": "bool"
-						}
-					]
-				},
-				{
-					"name": "is_2d_disabled",
-					"is_const": true,
-					"is_vararg": false,
-					"is_static": false,
-					"is_virtual": false,
-					"hash": 36873697,
-					"return_value": {
-						"type": "bool"
-					}
-				},
-				{
 					"name": "set_disable_3d",
 					"is_const": false,
 					"is_vararg": false,
@@ -266728,12 +267008,6 @@
 				}
 			],
 			"properties": [
-				{
-					"type": "bool",
-					"name": "disable_2d",
-					"setter": "set_disable_2d",
-					"getter": "is_2d_disabled"
-				},
 				{
 					"type": "bool",
 					"name": "disable_3d",
