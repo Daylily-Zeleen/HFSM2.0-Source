@@ -77,7 +77,6 @@ public:
 		Vector<Ref<VariableConfig>> variable_config_list;
 
 		void _resource_selected(const Ref<Resource> &p_res, bool p_inspect);
-		void _menu_popup();
 
 	protected:
 		static void _bind_methods();

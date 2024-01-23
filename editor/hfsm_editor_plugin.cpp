@@ -76,8 +76,56 @@ void EditorPropertyVariableConfig::VariableConfigSelector::GD_(set_create_option
 		edit_menu->connect("about_to_popup", TCALLABLE(_menu_popup));
 	}
 
-	Array variable_list = hfsm->get("variable_list");
+#if 0
+	// Hack
+	enum MenuOption {
+		OBJ_MENU_LOAD,
+		OBJ_MENU_QUICKLOAD,
+		OBJ_MENU_INSPECT,
+		OBJ_MENU_CLEAR,
+		OBJ_MENU_MAKE_UNIQUE,
+		OBJ_MENU_MAKE_UNIQUE_RECURSIVE,
+		OBJ_MENU_SAVE,
+		OBJ_MENU_SAVE_AS,
+		OBJ_MENU_COPY,
+		OBJ_MENU_PASTE,
+		OBJ_MENU_SHOW_IN_FILE_SYSTEM,
 
+		TYPE_BASE_ID = 100,
+		CONVERT_BASE_ID = 1000,
+	};
+
+	ERR_FAIL_COND(!edit_menu);
+
+	constexpr int to_remove_ids[] = {
+		OBJ_MENU_LOAD,
+		OBJ_MENU_QUICKLOAD,
+		OBJ_MENU_INSPECT,
+		OBJ_MENU_MAKE_UNIQUE,
+		OBJ_MENU_MAKE_UNIQUE_RECURSIVE,
+		OBJ_MENU_SAVE,
+		OBJ_MENU_SHOW_IN_FILE_SYSTEM,
+	};
+
+	// for (const auto id : to_remove_ids) {
+	// 	auto idx = edit_menu->get_item_index(id);
+	// 	if (idx >= 0) {
+	// 		edit_menu->remove_item(idx);
+	// 	}
+	// }
+
+	edit_menu->reset_size();
+#endif
+
+	// 检出最大id作为id偏移
+	op_ofs = 10;
+	for (int32_t i = 0; i < edit_menu->get_item_count(); ++i) {
+		auto id = edit_menu->get_item_id(i);
+		op_ofs = id > op_ofs ? id : op_ofs;
+	}
+	++op_ofs;
+
+	Array variable_list = hfsm->get("variable_list");
 	variable_config_list.clear();
 	auto idx = 0;
 	for (size_t i = 0; i < variable_list.size(); i++) {
@@ -118,51 +166,10 @@ void EditorPropertyVariableConfig::VariableConfigSelector::_resource_selected(co
 	}
 }
 
-void EditorPropertyVariableConfig::VariableConfigSelector::_menu_popup() {
-	// Hack
-	enum MenuOption {
-		OBJ_MENU_LOAD,
-		OBJ_MENU_QUICKLOAD,
-		OBJ_MENU_INSPECT,
-		OBJ_MENU_CLEAR,
-		OBJ_MENU_MAKE_UNIQUE,
-		OBJ_MENU_MAKE_UNIQUE_RECURSIVE,
-		OBJ_MENU_SAVE,
-		OBJ_MENU_COPY,
-		OBJ_MENU_PASTE,
-		OBJ_MENU_SHOW_IN_FILE_SYSTEM,
-
-		TYPE_BASE_ID = 100,
-		CONVERT_BASE_ID = 1000,
-	};
-
-	ERR_FAIL_COND(!edit_menu);
-
-	constexpr int to_remove_ids[] = {
-		OBJ_MENU_LOAD,
-		OBJ_MENU_QUICKLOAD,
-		OBJ_MENU_INSPECT,
-		OBJ_MENU_MAKE_UNIQUE,
-		OBJ_MENU_MAKE_UNIQUE_RECURSIVE,
-		OBJ_MENU_SAVE,
-		OBJ_MENU_SHOW_IN_FILE_SYSTEM,
-	};
-
-	for (const auto id : to_remove_ids) {
-		auto idx = edit_menu->get_item_index(id);
-		if (idx >= 0) {
-			edit_menu->remove_item(idx);
-		}
-	}
-
-	edit_menu->reset_size();
-}
-
 void EditorPropertyVariableConfig::VariableConfigSelector::_bind_methods() {
 	GDBIND_BEGIN(VariableConfigSelector);
 
 	GDBIND_CALBACK(_resource_selected);
-	GDBIND_CALBACK(_menu_popup);
 }
 
 EditorPropertyVariableConfig::VariableConfigSelector::VariableConfigSelector(HFSM *p_hfsm, const Ref<VariableConfig> &p_to_compare) {
