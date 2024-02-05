@@ -1853,10 +1853,9 @@ List<String> FSMEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 				auto base = transition_script->get_instance_base_type();
 				if (base == StringName(Transition::get_class_static())) {
 					r_valid = TRANSITION_CONFIG_VALID_LEVEL_NONE;
-				}
-				IF_GDM(else {
+				} else {
 					r_valid = ClassDB::is_parent_class(base, Transition::get_class_static()) ? TRANSITION_CONFIG_VALID_LEVEL_NONE : TRANSITION_CONFIG_VALID_LEVEL_ERROR;
-				})
+				}
 
 				if (r_valid == TRANSITION_CONFIG_VALID_LEVEL_NONE) {
 					bool existing = false;
