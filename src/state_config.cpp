@@ -123,14 +123,12 @@ bool Utils::is_script_instacne_type_valid(const Ref<Script> &p_script, const Str
 	})
 
 	// Strictly type match.
-	if (p_script->get_instance_base_type() == State::get_class_static()) {
+	auto instance_base_type = p_script->get_instance_base_type();
+	if (instance_base_type == State::get_class_static() ||
+			ClassDB::is_parent_class(instance_base_type,
+					State::get_class_static())) {
 		return true;
 	}
-	IF_GDM(else {
-		if (ClassDB::is_parent_class(script_base_type, State::get_class_static())) {
-			return true;
-		}
-	})
 
 	// // GDScript require type correct.
 	// bool gds_instance_base_type_valid = Object::cast_to<GDScript>(p_script.ptr());

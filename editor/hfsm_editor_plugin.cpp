@@ -413,8 +413,7 @@ bool HFSMEditorPlugin::handles_internal(Object *p_object) const {
 		}
 		return true;
 	} else {
-		StringName type = p_object->get_class();
-		const LocalVector<StringName> hfsm_types = {
+		static const LocalVector<StringName> hfsm_types = {
 			FSMConfig::get_class_static(),
 			StateConfig::get_class_static(),
 			TransitionConfig::get_class_static(),
@@ -424,10 +423,9 @@ bool HFSMEditorPlugin::handles_internal(Object *p_object) const {
 		};
 
 		for (const auto &E : hfsm_types) {
-			if (E == type) {
+			if (p_object->is_class(E)) {
 				return false;
 			}
-			IF_GDM(if (ClassDB::is_parent_class(type, E)) { return false; })
 		}
 	}
 	disable_hfsm_editor();
