@@ -78,8 +78,8 @@ public:
 		UPDATE_TYPE_MANUAL,
 	};
 
-	void manual_update(double p_delta = -1.0, bool p_try_transit = true);
-	void manual_physics_update(double p_delta = -1.0, bool p_try_transit = true);
+	void manual_update(bool p_try_transit = true, double p_delta = -1.0);
+	void manual_physics_update(bool p_try_transit = true, double p_delta = -1.0);
 	void restart();
 
 	Ref<Variable> get_var(const StringName &p_variable_name);

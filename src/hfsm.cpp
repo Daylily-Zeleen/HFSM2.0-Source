@@ -97,8 +97,8 @@ void HFSM::_bind_methods() {
 	GDBIND_METHOD(set_float, "float_name", "value");
 	GDBIND_METHOD(set_string, "string_name", "value");
 
-	ClassDB::bind_method(D_METHOD("manual_update", "delta", "try_advance"), &HFSM::manual_update, DEFVAL(true), DEFVAL(-1.0));
-	ClassDB::bind_method(D_METHOD("manual_physics_update", "delta", "try_advance"), &HFSM::manual_physics_update, DEFVAL(true), DEFVAL(-1.0));
+	ClassDB::bind_method(D_METHOD("manual_update", "try_advance", "delta"), &HFSM::manual_update, DEFVAL(true), DEFVAL(-1.0));
+	ClassDB::bind_method(D_METHOD("manual_physics_update", "try_advance", "delta"), &HFSM::manual_physics_update, DEFVAL(true), DEFVAL(-1.0));
 
 	GDBIND_METHOD(rebuild_hfsm);
 
@@ -161,12 +161,12 @@ Ref<FSMConfig> HFSM::get_root_fsm_config() const {
 	return root_fsm_config;
 }
 
-void HFSM::manual_update(double p_delta, bool p_try_transit) {
+void HFSM::manual_update(bool p_try_transit, double p_delta) {
 	ERR_FAIL_COND(update_type != UPDATE_TYPE_MANUAL);
 	process_internal(p_delta < 0.0 ? get_process_delta_time() : p_delta, p_try_transit);
 }
 
-void HFSM::manual_physics_update(double p_delta, bool p_try_transit) {
+void HFSM::manual_physics_update(bool p_try_transit, double p_delta) {
 	ERR_FAIL_COND(update_type != UPDATE_TYPE_MANUAL);
 	physics_process_internal(p_delta < 0.0 ? get_physics_process_delta_time() : p_delta, p_try_transit);
 }
