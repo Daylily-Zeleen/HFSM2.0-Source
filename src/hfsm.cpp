@@ -97,8 +97,8 @@ void HFSM::_bind_methods() {
 	GDBIND_METHOD(set_float, "float_name", "value");
 	GDBIND_METHOD(set_string, "string_name", "value");
 
-	ClassDB::bind_method(D_METHOD("manual_update", "try_advance", "delta"), &HFSM::manual_update, DEFVAL(true), DEFVAL(-1.0));
-	ClassDB::bind_method(D_METHOD("manual_physics_update", "try_advance", "delta"), &HFSM::manual_physics_update, DEFVAL(true), DEFVAL(-1.0));
+	ClassDB::bind_method(D_METHOD("manual_update", "delta", "try_advance"), &HFSM::manual_update, DEFVAL(true), DEFVAL(-1.0));
+	ClassDB::bind_method(D_METHOD("manual_physics_update", "delta", "try_advance"), &HFSM::manual_physics_update, DEFVAL(true), DEFVAL(-1.0));
 
 	GDBIND_METHOD(rebuild_hfsm);
 
@@ -161,14 +161,14 @@ Ref<FSMConfig> HFSM::get_root_fsm_config() const {
 	return root_fsm_config;
 }
 
-void HFSM::manual_update(bool p_try_advance, double p_delta) {
+void HFSM::manual_update(double p_delta, bool p_try_transit) {
 	ERR_FAIL_COND(update_type != UPDATE_TYPE_MANUAL);
-	process_internal(p_delta < 0.0 ? get_process_delta_time() : p_delta, p_try_advance);
+	process_internal(p_delta < 0.0 ? get_process_delta_time() : p_delta, p_try_transit);
 }
 
-void HFSM::manual_physics_update(bool p_try_advance, double p_delta) {
+void HFSM::manual_physics_update(double p_delta, bool p_try_transit) {
 	ERR_FAIL_COND(update_type != UPDATE_TYPE_MANUAL);
-	physics_process_internal(p_delta < 0.0 ? get_physics_process_delta_time() : p_delta, p_try_advance);
+	physics_process_internal(p_delta < 0.0 ? get_physics_process_delta_time() : p_delta, p_try_transit);
 }
 
 void HFSM::restart() {
@@ -290,8 +290,8 @@ void HFSM::_notification(int p_what) {
 #ifndef DEBUG_IN_EDITOR
 			IF_TOOLS(
 					if (Engine::get_singleton()->is_editor_hint()) {
-						set_process(false);
-						set_physics_process(false);
+						set_process_internal(false);
+						set_process_internal(false);
 						return;
 					})
 #endif // DEBUG_IN_EDITOR
@@ -314,7 +314,7 @@ void HFSM::_notification(int p_what) {
 			})
 
 		} break;
-		case NOTIFICATION_PROCESS: {
+		case NOTIFICATION_INTERNAL_PROCESS: {
 			if (!is_active()) {
 				return;
 			}
@@ -322,7 +322,7 @@ void HFSM::_notification(int p_what) {
 			process_internal(get_process_delta_time(),
 					update_type == UPDATE_TYPE_IDLE);
 		} break;
-		case NOTIFICATION_PHYSICS_PROCESS: {
+		case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
 			if (!is_active()) {
 				return;
 			}
@@ -349,8 +349,8 @@ void HFSM::_notification(int p_what) {
 	}
 }
 
-void HFSM::process_internal(double p_delta, bool p_try_advance) {
-	if (p_try_advance) {
+void HFSM::process_internal(double p_delta, bool p_try_transit) {
+	if (p_try_transit) {
 		if (root_fsm->is_running()) {
 			active_fsm_list = root_fsm->try_transit_and_get_update_queue();
 		}
@@ -366,8 +366,8 @@ void HFSM::process_internal(double p_delta, bool p_try_advance) {
 	}
 }
 
-void HFSM::physics_process_internal(double p_delta, bool p_try_advance) {
-	if (p_try_advance) {
+void HFSM::physics_process_internal(double p_delta, bool p_try_transit) {
+	if (p_try_transit) {
 		if (root_fsm->is_running()) {
 			active_fsm_list = root_fsm->try_transit_and_get_update_queue();
 		}

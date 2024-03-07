@@ -78,8 +78,8 @@ public:
 		UPDATE_TYPE_MANUAL,
 	};
 
-	void manual_update(bool p_try_advance = true, double p_delta = -1.0);
-	void manual_physics_update(bool p_try_advance = true, double p_delta = -1.0);
+	void manual_update(double p_delta = -1.0, bool p_try_transit = true);
+	void manual_physics_update(double p_delta = -1.0, bool p_try_transit = true);
 	void restart();
 
 	Ref<Variable> get_var(const StringName &p_variable_name);
@@ -125,10 +125,6 @@ public:
 
 	void set_animation_player(AnimationPlayer *p_animtion_player);
 	AnimationPlayer *get_animation_player() const { return animation_player; }
-
-	// 重写以实现逻辑
-	void process_internal(double p_delta, bool p_try_advance = false);
-	void physics_process_internal(double p_delta, bool p_try_advance = false);
 
 #ifdef ROLLBACK_NET_CODE
 	virtual Array _save_state();
@@ -178,6 +174,10 @@ private:
 	void emit_transited(const Ref<State> &p_from_state, const Ref<State> &p_to_state);
 	void emit_entered(const Ref<State> &p_state);
 	void emit_exited(const Ref<State> &p_state);
+
+	//
+	void process_internal(double p_delta, bool p_try_transit = false);
+	void physics_process_internal(double p_delta, bool p_try_transit = false);
 
 	// 新特性：动画状态机
 	void _animation_finished(const StringName &p_anim_name);
