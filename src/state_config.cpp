@@ -255,7 +255,7 @@ void StateConfig::_get_property_list(List<PropertyInfo> *p_list) const {
 	IF_TOOLS(
 			if (get_animation_list) {
 				PackedStringArray anim_list = get_animation_list();
-				for (auto &&anim : anim_list) {
+				for (const auto &anim : anim_list) {
 					if (!animations.is_empty()) {
 						animations += ",";
 					}

@@ -125,7 +125,7 @@ void FSM::set_nested_state(const Ref<State> &p_nested_state, const LocalVector<F
 	path.append(p_nested_state);
 
 	fsm_update_queue.reserve(p_nested_fsm_update_queue.size() + 1);
-	for (const auto &E : p_nested_fsm_update_queue) {
+	for (FSM *E : p_nested_fsm_update_queue) {
 		fsm_update_queue.push_back(E);
 	}
 	fsm_update_queue.push_back(this);
@@ -173,7 +173,7 @@ Array FSM::_save_state() {
 	Array ret;
 	ret.push_back(_current_state);
 	ret.push_back(_running);
-	for (auto &&state : _state_list) {
+	for (auto &state : _state_list) {
 		ret.push_back(state->save_state());
 	}
 	return ret;
