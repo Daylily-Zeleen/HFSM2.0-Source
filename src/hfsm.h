@@ -71,15 +71,15 @@ public:
 	HFSM();
 	~HFSM() override;
 
-	enum HFSMUpdateType {
-		HFSM_UPDATE_TYPE_IDLE_AND_PHYSICS,
-		HFSM_UPDATE_TYPE_IDLE,
-		HFSM_UPDATE_TYPE_PHYSICS,
-		HFSM_UPDATE_TYPE_MANUAL,
+	enum UpdateType {
+		UPDATE_TYPE_IDLE_AND_PHYSICS,
+		UPDATE_TYPE_IDLE,
+		UPDATE_TYPE_PHYSICS,
+		UPDATE_TYPE_MANUAL,
 	};
 
-	void manual_update();
-	void manual_physics_update();
+	void manual_update(bool p_try_advance = true, double p_delta = -1.0);
+	void manual_physics_update(bool p_try_advance = true, double p_delta = -1.0);
 	void restart();
 
 	Ref<Variable> get_var(const StringName &p_variable_name);
@@ -114,8 +114,8 @@ public:
 	void set_active(bool p_v);
 	bool is_active();
 
-	void set_update_type(HFSMUpdateType p_t);
-	HFSMUpdateType get_update_type();
+	void set_update_type(UpdateType p_t);
+	UpdateType get_update_type();
 
 	Ref<State> get_current_state();
 	Ref<State> get_previous_state();
@@ -127,8 +127,8 @@ public:
 	AnimationPlayer *get_animation_player() const { return animation_player; }
 
 	// 重写以实现逻辑
-	void process_internal(double p_delta);
-	void physics_process_internal(double p_delta);
+	void process_internal(double p_delta, bool p_try_advance = false);
+	void physics_process_internal(double p_delta, bool p_try_advance = false);
 
 #ifdef ROLLBACK_NET_CODE
 	virtual Array _save_state();
@@ -150,7 +150,7 @@ private:
 	bool active = true;
 
 	// Dictionary agents;
-	HFSMUpdateType update_type = HFSMUpdateType::HFSM_UPDATE_TYPE_IDLE_AND_PHYSICS;
+	UpdateType update_type = UpdateType::UPDATE_TYPE_IDLE_AND_PHYSICS;
 
 	// 高级选项
 	bool disable_rename_to_snake_case = false;
@@ -192,7 +192,7 @@ inline void HFSM::set_active(bool p_v) {
 }
 inline bool HFSM::is_active() { return active; }
 
-inline HFSM::HFSMUpdateType HFSM::get_update_type() { return update_type; }
+inline HFSM::UpdateType HFSM::get_update_type() { return update_type; }
 
 inline Ref<State> HFSM::get_current_state() { return current_state; }
 inline Ref<State> HFSM::get_previous_state() { return previous_state; }
@@ -206,4 +206,4 @@ inline void HFSM::_animation_finished(const StringName &p_anim_name) {
 
 }; // namespace HFSM2
 
-VARIANT_ENUM_CAST(HFSM2::HFSM::HFSMUpdateType);
+VARIANT_ENUM_CAST(HFSM2::HFSM::UpdateType);

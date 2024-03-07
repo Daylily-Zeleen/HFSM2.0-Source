@@ -97,12 +97,12 @@ void HFSM::_bind_methods() {
 	GDBIND_METHOD(set_float, "float_name", "value");
 	GDBIND_METHOD(set_string, "string_name", "value");
 
-	GDBIND_METHOD(manual_update);
-	GDBIND_METHOD(manual_physics_update);
+	ClassDB::bind_method(D_METHOD("manual_update", "try_advance", "delta"), &HFSM::manual_update, DEFVAL(true), DEFVAL(-1.0));
+	ClassDB::bind_method(D_METHOD("manual_physics_update", "try_advance", "delta"), &HFSM::manual_physics_update, DEFVAL(true), DEFVAL(-1.0));
 
 	GDBIND_METHOD(rebuild_hfsm);
 
-	GDADD_PROPERTY(INT, update_type, PROPERTY_HINT_ENUM, "Idle And Physics,Idle,Physics,Manual", PROPERTY_USAGE_DEFAULT, "HFSMUpdateType");
+	GDADD_PROPERTY(INT, update_type, PROPERTY_HINT_ENUM, "Idle And Physics,Idle,Physics,Manual", PROPERTY_USAGE_DEFAULT, "UpdateType");
 
 	GDADD_PROPERTY_BOOL(active, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE);
 
@@ -126,10 +126,10 @@ void HFSM::_bind_methods() {
 	BIND_VIRTUAL_METHOD(HFSM, _network_despawn);
 #endif
 	// 常量
-	BIND_ENUM_CONSTANT(HFSM_UPDATE_TYPE_IDLE_AND_PHYSICS);
-	BIND_ENUM_CONSTANT(HFSM_UPDATE_TYPE_IDLE);
-	BIND_ENUM_CONSTANT(HFSM_UPDATE_TYPE_PHYSICS);
-	BIND_ENUM_CONSTANT(HFSM_UPDATE_TYPE_MANUAL);
+	BIND_ENUM_CONSTANT(UPDATE_TYPE_IDLE_AND_PHYSICS);
+	BIND_ENUM_CONSTANT(UPDATE_TYPE_IDLE);
+	BIND_ENUM_CONSTANT(UPDATE_TYPE_PHYSICS);
+	BIND_ENUM_CONSTANT(UPDATE_TYPE_MANUAL);
 
 	//  信号
 	const auto PropertyInfoState = [](const String &p_name = "state") {
@@ -161,14 +161,14 @@ Ref<FSMConfig> HFSM::get_root_fsm_config() const {
 	return root_fsm_config;
 }
 
-void HFSM::manual_update() {
-	ERR_FAIL_COND(update_type != HFSM_UPDATE_TYPE_MANUAL);
-	process_internal(get_process_delta_time());
+void HFSM::manual_update(bool p_try_advance, double p_delta) {
+	ERR_FAIL_COND(update_type != UPDATE_TYPE_MANUAL);
+	process_internal(p_delta < 0.0 ? get_process_delta_time() : p_delta, p_try_advance);
 }
 
-void HFSM::manual_physics_update() {
-	ERR_FAIL_COND(update_type != HFSM_UPDATE_TYPE_MANUAL);
-	physics_process_internal(get_process_delta_time());
+void HFSM::manual_physics_update(bool p_try_advance, double p_delta) {
+	ERR_FAIL_COND(update_type != UPDATE_TYPE_MANUAL);
+	physics_process_internal(p_delta < 0.0 ? get_physics_process_delta_time() : p_delta, p_try_advance);
 }
 
 void HFSM::restart() {
@@ -179,6 +179,8 @@ void HFSM::restart() {
 	set_active(true);
 	set_update_type(update_type);
 	root_fsm->entry();
+	// 初始化活跃的fsm列表
+	active_fsm_list = root_fsm->try_transit_and_get_update_queue();
 }
 
 Ref<Variable> HFSM::get_var(const StringName &p_variable_name) {
@@ -217,8 +219,8 @@ void HFSM::set_integer(const StringName &p_interger_name, int64_t p_value) { var
 void HFSM::set_float(const StringName &p_float_name, double p_value) { variable_blackboard[p_float_name]->set_value(p_value); }
 void HFSM::set_string(const StringName &p_string_name, const String &p_value) { variable_blackboard[p_string_name]->set_value(p_value); }
 
-void HFSM::set_update_type(HFSMUpdateType p_update_type) {
-	update_type = HFSMUpdateType(p_update_type);
+void HFSM::set_update_type(UpdateType p_update_type) {
+	update_type = UpdateType(p_update_type);
 #ifndef DEBUG_IN_EDITOR
 	IF_TOOLS(
 			if (Engine::get_singleton()->is_editor_hint()) {
@@ -226,19 +228,19 @@ void HFSM::set_update_type(HFSMUpdateType p_update_type) {
 			})
 #endif // DEBUG_IN_EDITOR
 	switch (update_type) {
-		case HFSM_UPDATE_TYPE_IDLE: {
+		case UPDATE_TYPE_IDLE: {
 			set_physics_process(false);
 			set_process(true);
 		} break;
-		case HFSM_UPDATE_TYPE_PHYSICS: {
+		case UPDATE_TYPE_PHYSICS: {
 			set_physics_process(true);
 			set_process(false);
 		} break;
-		case HFSM_UPDATE_TYPE_IDLE_AND_PHYSICS: {
+		case UPDATE_TYPE_IDLE_AND_PHYSICS: {
 			set_physics_process(true);
 			set_process(true);
 		} break;
-		case HFSM_UPDATE_TYPE_MANUAL: {
+		case UPDATE_TYPE_MANUAL: {
 			set_physics_process(false);
 			set_process(false);
 		} break;
@@ -316,13 +318,18 @@ void HFSM::_notification(int p_what) {
 			if (!is_active()) {
 				return;
 			}
-			process_internal(get_process_delta_time());
+
+			process_internal(get_process_delta_time(),
+					update_type == UPDATE_TYPE_IDLE);
 		} break;
 		case NOTIFICATION_PHYSICS_PROCESS: {
 			if (!is_active()) {
 				return;
 			}
-			physics_process_internal(get_physics_process_delta_time());
+
+			physics_process_internal(get_physics_process_delta_time(),
+					update_type == UPDATE_TYPE_PHYSICS ||
+							update_type == UPDATE_TYPE_IDLE_AND_PHYSICS);
 		} break;
 #if defined(DEBUG_ENABLED) && defined(TOOLS_ENABLED)
 		case NOTIFICATION_ENTER_TREE: {
@@ -342,52 +349,42 @@ void HFSM::_notification(int p_what) {
 	}
 }
 
-void HFSM::process_internal(double p_delta) {
-	switch (update_type) {
-		case HFSM_UPDATE_TYPE_PHYSICS:
-		case HFSM_UPDATE_TYPE_IDLE_AND_PHYSICS: {
-			if (root_fsm->is_running()) {
-				active_fsm_list = root_fsm->try_transit_and_get_update_queue();
-			}
-			flush_trigger();
-		} break;
-		default:
-			break;
+void HFSM::process_internal(double p_delta, bool p_try_advance) {
+	if (p_try_advance) {
+		if (root_fsm->is_running()) {
+			active_fsm_list = root_fsm->try_transit_and_get_update_queue();
+		}
+		flush_trigger();
 	}
 
 	if (!active_fsm_list) {
 		return;
 	}
 
-	for (auto &&fsm : *active_fsm_list) {
+	for (auto fsm : *active_fsm_list) {
 		fsm->update(p_delta);
-		if (update_type == HFSM_UPDATE_TYPE_IDLE) {
-			fsm->physics_update(p_delta);
-		}
 	}
 }
 
-void HFSM::physics_process_internal(double p_delta) {
-	if (root_fsm->is_running()) {
-		active_fsm_list = root_fsm->try_transit_and_get_update_queue();
+void HFSM::physics_process_internal(double p_delta, bool p_try_advance) {
+	if (p_try_advance) {
+		if (root_fsm->is_running()) {
+			active_fsm_list = root_fsm->try_transit_and_get_update_queue();
+		}
+		flush_trigger();
 	}
-
-	flush_trigger();
 
 	if (!active_fsm_list) {
 		return;
 	}
 
-	for (auto &&fsm : *active_fsm_list) {
+	for (auto fsm : *active_fsm_list) {
 		fsm->physics_update(p_delta);
-		if (update_type == HFSM_UPDATE_TYPE_IDLE) {
-			fsm->update(p_delta);
-		}
 	}
 }
 
 void HFSM::flush_trigger() {
-	for (auto &&t : trigger_list) {
+	for (const auto &t : trigger_list) {
 		t->flush_trigger();
 	}
 }
@@ -396,8 +393,8 @@ void HFSM::flush_trigger() {
 void HFSM::emit_updated(const Ref<State> &p_state, double p_delta) {
 	static const StringName sn = "updated";
 	switch (update_type) {
-		case HFSM_UPDATE_TYPE_IDLE_AND_PHYSICS:
-		case HFSM_UPDATE_TYPE_IDLE:
+		case UPDATE_TYPE_IDLE_AND_PHYSICS:
+		case UPDATE_TYPE_IDLE:
 			emit_signal(sn, p_state, p_delta);
 			break;
 		default:
@@ -408,8 +405,8 @@ void HFSM::emit_updated(const Ref<State> &p_state, double p_delta) {
 void HFSM::emit_physic_updated(const Ref<State> &p_state, double p_delta) {
 	static const StringName sn = "physic_updated";
 	switch (update_type) {
-		case HFSM_UPDATE_TYPE_IDLE_AND_PHYSICS:
-		case HFSM_UPDATE_TYPE_PHYSICS:
+		case UPDATE_TYPE_IDLE_AND_PHYSICS:
+		case UPDATE_TYPE_PHYSICS:
 			emit_signal(sn, p_state, p_delta);
 			break;
 		default:
