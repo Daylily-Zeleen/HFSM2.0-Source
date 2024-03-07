@@ -127,7 +127,7 @@ void State::exit() {
 }
 
 State::~State() {
-	for (auto &&transition : transition_list) {
+	for (auto transition : transition_list) {
 		if (transition) {
 			memdelete(transition);
 		}
@@ -188,7 +188,7 @@ void State::initialize_state(const StringName &p_name, const StringName &p_anim_
 
 void State::entry_state() {
 	exited = false;
-	for (auto &&transition : transition_list) {
+	for (auto transition : transition_list) {
 		transition->refresh();
 	}
 
@@ -290,7 +290,7 @@ void State::set_animation_reverse(bool p_reverse) { animation_reverse = p_revers
 #endif
 
 TransitionBase *State::try_transit() {
-	for (auto &&transition : transition_list) {
+	for (auto transition : transition_list) {
 		if (transition->can_transit()) {
 			return transition;
 		}
