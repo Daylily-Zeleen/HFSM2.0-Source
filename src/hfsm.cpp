@@ -229,20 +229,20 @@ void HFSM::set_update_type(UpdateType p_update_type) {
 #endif // DEBUG_IN_EDITOR
 	switch (update_type) {
 		case UPDATE_TYPE_IDLE: {
-			set_physics_process(false);
-			set_process(true);
+			set_physics_process_internal(false);
+			set_process_internal(true);
 		} break;
 		case UPDATE_TYPE_PHYSICS: {
-			set_physics_process(true);
-			set_process(false);
+			set_physics_process_internal(true);
+			set_process_internal(false);
 		} break;
 		case UPDATE_TYPE_IDLE_AND_PHYSICS: {
-			set_physics_process(true);
-			set_process(true);
+			set_physics_process_internal(true);
+			set_process_internal(true);
 		} break;
 		case UPDATE_TYPE_MANUAL: {
-			set_physics_process(false);
-			set_process(false);
+			set_physics_process_internal(false);
+			set_process_internal(false);
 		} break;
 		default:
 			break;
@@ -287,11 +287,13 @@ bool HFSM::rebuild_hfsm() {
 void HFSM::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
+			// 无论如何禁用内部处理，后续有需要时再使能
+			set_process_internal(false);
+			set_physics_process_internal(false);
+
 #ifndef DEBUG_IN_EDITOR
 			IF_TOOLS(
 					if (Engine::get_singleton()->is_editor_hint()) {
-						set_process_internal(false);
-						set_process_internal(false);
 						return;
 					})
 #endif // DEBUG_IN_EDITOR
