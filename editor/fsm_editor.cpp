@@ -812,6 +812,9 @@ void FSMEditor::_connection_request(const StringName &p_from, int p_from_slot, c
 		return;
 	}
 
+	if (p_from == p_to) {
+		return; // 防止自己连接自己
+	}
 	auto from_node = cast_to<StateNode>(find_child(p_from, false, false));
 	auto to_node = cast_to<StateNode>(find_child(p_to, false, false));
 	auto tc = get_transition_config(from_node, to_node);
@@ -1404,7 +1407,7 @@ Ref<FSMConfig> FSMEditor::get_nested_fsm_config(const Ref<StateConfig> &p_state_
 void FSMEditor::edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContainer *p_path_button_container, const Ref<FSMConfig> &p_root_fsm_config, bool p_as_action) {
 #define get_btn_callback(m_fsm_config) TCALLABLE_BIND(edit_fsm_config, m_fsm_config, p_path_button_container, p_root_fsm_config, p_as_action)
 
-	const auto remove_and_free_children = [](Node *p_node, bool (*p_filter)(Node * p_child)) {
+	const auto remove_and_free_children = [](Node *p_node, bool (*p_filter)(Node *p_child)) {
 		List<Node *> to_remove;
 		for (auto i = 0; i < p_node->get_child_count(); ++i) {
 			auto child = p_node->get_child(i);
