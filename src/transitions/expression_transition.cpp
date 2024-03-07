@@ -38,7 +38,7 @@ namespace HFSM2 {
 
 bool ExpressionTransition::can_transit() {
 	ERR_FAIL_COND_V(invalid, false);
-	auto result = expression.execute(HFSMGlobal::get_singletons(), hfsm, false);
+	auto result = expression.execute(HFSMGlobal::get_singletons(), hfsm, true);
 	if (expression.has_execute_failed()) {
 		IF_DEBUG({
 			WARN_PRINT_ONCE(String("HFSM: The ExpressionTransition '") +
