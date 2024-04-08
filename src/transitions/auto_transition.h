@@ -35,8 +35,8 @@
 #include "transition_base.h"
 
 #ifdef GDEXTENSION_BUILD
+#include <chrono>
 #include <godot_cpp/classes/engine.hpp>
-#include <godot_cpp/classes/time.hpp>
 
 #else
 #include <core/config/engine.h>
@@ -48,6 +48,15 @@ namespace HFSM2 {
 
 // 自动转换
 class AutoTransition : public TransitionBase {
+	inline static uint64_t get_ticks_msec() {
+#ifdef GDEXTENSION_BUILD
+		using namespace std::chrono;
+		return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+#else
+		return Time::get_singleton()->get_ticks_msec();
+#endif // GDEXTENSION_BUILD
+	}
+
 public:
 	void refresh() override;
 	bool can_transit() override;
@@ -74,7 +83,7 @@ private:
 inline void AutoTransition::refresh() {
 	switch (mode) {
 		case TransitionConfig::AUTO_TRANSIT_MODE_DELAY_TIMER: {
-			next_delay_transit_tick = Time::get_singleton()->get_ticks_msec() + delay_msec;
+			next_delay_transit_tick = get_ticks_msec() + delay_msec;
 		} break;
 		case TransitionConfig::AUTO_TRANSIT_MODE_UPDATE_TIMES:
 		case TransitionConfig::AUTO_TRANSIT_MODE_PHYSICS_UPDATE_TIMES: {
@@ -90,7 +99,7 @@ inline bool AutoTransition::can_transit() {
 			return !get_from_state()->is_animation_playing();
 		} break;
 		case TransitionConfig::AUTO_TRANSIT_MODE_DELAY_TIMER: {
-			return Time::get_singleton()->get_ticks_msec() > next_delay_transit_tick;
+			return get_ticks_msec() > next_delay_transit_tick;
 		} break;
 		case TransitionConfig::AUTO_TRANSIT_MODE_FSM_EXIT: {
 			auto fsm = get_from_state()->get_sub_fsm();

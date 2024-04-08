@@ -37,7 +37,7 @@ namespace HFSM2 {
 #pragma region ExpressionTransition
 
 bool ExpressionTransition::can_transit() {
-	ERR_FAIL_COND_V(invalid, false);
+	ERR_FAIL_COND_V_MSG(invalid, false, godot::vformat("Expression Transition \"%s\"->\"%s\" invalid: %s", get_from_state()->get_name(), get_to_state()->get_name(), expression.get_error_text()));
 	auto result = expression.execute(HFSMGlobal::get_singletons(), hfsm, true);
 	if (expression.has_execute_failed()) {
 		IF_DEBUG({

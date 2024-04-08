@@ -69,6 +69,7 @@ void HFSMGlobal::init_static() {
 					 "GDExtensionManager",
 					 "ResourceUID",
 					 "IP",
+					 "Time",
 			 }) {
 			auto idx = singleton_list.find(klass);
 			if (idx >= 0) {
