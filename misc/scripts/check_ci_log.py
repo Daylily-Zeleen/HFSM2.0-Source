@@ -21,11 +21,7 @@ if file_contents.find("ERROR: AddressSanitizer:") != -1:
 
 # There is also possible, that program crashed with or without backtrace.
 
-if (
-    file_contents.find("Program crashed with signal") != -1
-    or file_contents.find("Dumping the backtrace") != -1
-    or file_contents.find("Segmentation fault (core dumped)") != -1
-):
+if file_contents.find("Program crashed with signal") != -1 or file_contents.find("Dumping the backtrace") != -1 or file_contents.find("Segmentation fault (core dumped)") != -1:
     print("FATAL ERROR: Godot has been crashed.")
     sys.exit(52)
 

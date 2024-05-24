@@ -67,6 +67,8 @@ bin_file = get_bin_file(env)
 library = env.SharedLibrary(bin_file, source=sources)
 
 extension_file = "demo/addons/com.daylily_zeleen.hfsm2/hfsm2.gdextension"
+
+
 def on_complete(target, source, env):
     # 更新版本号
     f = open(extension_file, "r", encoding="utf8")
