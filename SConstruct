@@ -88,4 +88,4 @@ def on_complete(target, source, env):
 
 complete_command = Command("complete", library, on_complete)
 Depends(complete_command, library)
-Default(library)
+Default(complete_command)
