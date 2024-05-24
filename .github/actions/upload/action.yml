@@ -35,7 +35,7 @@ runs:
       if: ${{ inputs.platform == 'windows' }}
       shell: sh
       run: |
-        python build_version.py >> $env:GITHUB_ENV
+        python build_version.py >> $GITHUB_ENV
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
