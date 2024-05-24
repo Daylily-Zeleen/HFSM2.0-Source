@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import sys
+import build_version
 
 # from build import generate_singleton_helper
 env = SConscript("gdextension_dependencies/godot-cpp/SConstruct")

@@ -1,4 +1,4 @@
-# HFSM2 - Alpha - Godot 4.2 stable
+# HFSM2 - Alpha - Godot 4.3 stable
 
 [中文文档](README_zh_cn.md)
 
