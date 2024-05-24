@@ -63,8 +63,8 @@ void HFSMGlobal::init_static() {
 
 		// Specially, these wrong singletons.
 		// TODO::
-		// "GDExtensionManager", "ResourceUID", "IP", "ClassDB": https://github.com/godotengine/godot/issues/81030
-		// // Crash at exit editor.
+		// "GDExtensionManager", "ResourceUID", "IP", "Time": https://github.com/godotengine/godot/issues/81030
+		// Crash at exit editor.
 		for (const String &klass : {
 					 "GDExtensionManager",
 					 "ResourceUID",
