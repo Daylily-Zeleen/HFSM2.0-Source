@@ -53,7 +53,7 @@
 // ==== String ====
 #ifdef GDEXTENSION_BUILD
 #define _TO_STRING() \
-	String _to_string() const { return vformat("[%s:%d]", get_class_static(), get_instance_id()); }
+	::godot::String _to_string() const { return vformat("<%s#%d>", get_class_static(), get_instance_id()); }
 
 #define SNAME(m_arg) ([]() -> const StringName & { static StringName sname = StringName(m_arg); return sname; })()
 #else // GDEXTENSION_BUILD
@@ -315,19 +315,53 @@ static Array make_arr(Args... args) {
 }
 
 //============================================
-#ifdef GDEXTENSION_BUILD
-#define GDVIRTUAL0(m_method) \
-	virtual void m_method() {}
-#define GDVIRTUAL0R(r_type, m_method) \
-	virtual r_type m_method() { return {}; }
-#define GDVIRTUAL1(m_method, m_type1) \
-	virtual void m_method(m_type1) {}
-#define GDVIRTUAL1R(r_type, m_method, m_type1) \
-	virtual r_type m_method(m_type1) { return {}; }
-#define GDVIRTUAL_BIND(m_method, ...) BIND_VIRTUAL_METHOD(T_BIND, m_method) // TODO:: 等待GDE实现自定义的虚方法绑定
-#define GDVIRTUAL_CALL(m_method, ...) call(SNAME(#m_method), ##__VA_ARGS__)
+#if defined(GDEXTENSION_BUILD)
+#include <godot_cpp/core/version.hpp>
+#if (GODOT_VERSION_MAJOR >= 4 && GODOT_VERSION_MINOR >= 3)
+#include <godot_cpp/core/gdvirtual.gen.inc>
 
-#endif //GDEXTENSION_BUILD
+#else // (GODOT_VERSION_MAJOR >= 4 && GODOT_VERSION_MINOR >= 3)
+#define GDVIRTUAL0(m_method)                    \
+	bool m_method(r_type &p_ret) {              \
+		static const StringName mn = #m_method; \
+		if (has_method(mn)) {                   \
+			call(mn);                           \
+			return true;                        \
+		};                                      \
+		return false;                           \
+	}
+#define GDVIRTUAL0R(r_type, m_method)           \
+	bool m_method(r_type &p_ret) {              \
+		static const StringName mn = #m_method; \
+		if (has_method(mn)) {                   \
+			p_ret = call(mn);                   \
+			return true;                        \
+		};                                      \
+		return false;                           \
+	}
+#define GDVIRTUAL1(m_method, m_type1)           \
+	void m_method(m_type1 &arg1) {              \
+		static const StringName mn = #m_method; \
+		if (has_method(mn)) {                   \
+			call(mn, arg1);                     \
+			return true;                        \
+		};                                      \
+		return false;                           \
+	}
+#define GDVIRTUAL1R(r_type, m_method, m_type1)    \
+	void m_method(m_type1 &arg1, r_type &p_ret) { \
+		static const StringName mn = #m_method;   \
+		if (has_method(mn)) {                     \
+			p_ret = call(mn, arg1);               \
+			return true;                          \
+		};                                        \
+		return false;                             \
+	}
+#define GDVIRTUAL_BIND(m_method, ...)
+#define GDVIRTUAL_CALL(m_method, ...) m_method(##__VA_ARGS__)
+
+#endif // (GODOT_VERSION_MAJOR >= 4 && GODOT_VERSION_MINOR >= 3)
+#endif // defined(GDEXTENSION_BUILD)
 
 #ifdef GDEXTENSION_BUILD
 #define GD_(m_method_name) _##m_method_name

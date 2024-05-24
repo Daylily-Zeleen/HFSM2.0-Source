@@ -51,14 +51,11 @@ public:
 	}
 
 	bool can_transit() override {
-		IF_GDE(return bool(GDVIRTUAL_CALL(_can_transit));)
-		IF_GDM({
-			bool ret;
-			if (GDVIRTUAL_CALL(_can_transit, ret)) {
-				return ret;
-			}
-			return false;
-		})
+		bool ret;
+		if (GDVIRTUAL_CALL(_can_transit, ret)) {
+			return ret;
+		}
+		return false;
 	}
 
 	Ref<State> get_from_state() override { return TransitionBase::get_from_state(); }
