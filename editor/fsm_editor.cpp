@@ -28,7 +28,6 @@
 /**************************************************************************/
 
 #include "fsm_editor.h"
-#include <cstddef>
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/editor_inspector.hpp>
@@ -251,7 +250,7 @@ void FSMEditor::try_disconnect(const Vector2 &p_pos1, const Vector2 &p_pos2) {
 	LocalVector<Pair<StateNode *, StateNode *>> to_delete;
 	foreach_connection_by_nodes([this, &to_delete, scaled_pos1, scaled_pos2](StateNode *p_from, StateNode *p_to) -> bool {
 		if (p_from && p_to) {
-			auto scaled_line = get_connection_line_with_zoom(p_from, p_to);
+			auto scaled_line = get_connection_line_with_zoom_for_display(p_from, p_to);
 			if (is_judge(scaled_pos1, scaled_pos2, scaled_line[0], scaled_line[1])) {
 				to_delete.push_back({ p_from, p_to });
 			}
@@ -295,7 +294,7 @@ TypedArray<TransitionConfig> FSMEditor::try_select_transitions_at_pos(const Vect
 	float graph_zoom = get_zoom();
 
 	foreach_connection_by_nodes([this, graph_zoom, p_pos, &ret](StateNode *from, StateNode *to) {
-		auto scaled_line = get_connection_line_with_zoom(from, to);
+		auto scaled_line = get_connection_line_with_zoom_for_display(from, to);
 		Vector2 scaled_from_pos = scaled_line[0];
 		Vector2 scaled_to_pos = scaled_line[1];
 		// 取 转换线 的垂直方向, 以 鼠标
@@ -684,8 +683,8 @@ void FSMEditor::_popup_menu_id_pressed(int32_t p_id) {
 				ADD_DO_METHOD(this, __set_blocking_redraw, false);
 				ADD_UNDO_METHOD(this, __set_blocking_redraw, false);
 				ADD_UNDO_METHOD(this, __select_mamually, get_selected_state_nodes());
-				ADD_DO_METHOD(connection_layer, queue_redraw);
-				ADD_UNDO_METHOD(connection_layer, queue_redraw);
+				ADD_DO_METHOD(draw_layer, queue_redraw);
+				ADD_UNDO_METHOD(draw_layer, queue_redraw);
 				COMMIT_ACTION();
 			} else if (selected_transition_config_list.size() >= 0) {
 				HFSM_EDITOR_CREATE_ACTION("Delete State Transitions");
@@ -797,8 +796,8 @@ void FSMEditor::_popup_menu_id_pressed(int32_t p_id) {
 
 			ADD_DO_METHOD(this, __set_blocking_redraw, false);
 			ADD_UNDO_METHOD(this, __set_blocking_redraw, false);
-			ADD_DO_METHOD(connection_layer, queue_redraw);
-			ADD_UNDO_METHOD(connection_layer, queue_redraw);
+			ADD_DO_METHOD(draw_layer, queue_redraw);
+			ADD_UNDO_METHOD(draw_layer, queue_redraw);
 			COMMIT_ACTION();
 
 		} break;
@@ -839,8 +838,8 @@ void FSMEditor::_connection_request(const StringName &p_from, int p_from_slot, c
 	ADD_DO_DEFERRED_CALL_METHOD(this, __set_selected_transition_config_list, new_transiion_config_list);
 	ADD_UNDO_DEFERRED_CALL_METHOD(this, __set_selected_transition_config_list, selected_transition_config_list);
 
-	ADD_DO_METHOD(connection_layer, queue_redraw);
-	ADD_UNDO_METHOD(connection_layer, queue_redraw);
+	ADD_DO_METHOD(draw_layer, queue_redraw);
+	ADD_UNDO_METHOD(draw_layer, queue_redraw);
 	COMMIT_ACTION();
 }
 
@@ -884,7 +883,7 @@ void FSMEditor::_popup_request(const Vector2 &p_position) {
 	menu->popup();
 }
 
-void FSMEditor::_transition_config_updated() { connection_layer->queue_redraw(); }
+void FSMEditor::_transition_config_updated() { draw_layer->queue_redraw(); }
 
 void FSMEditor::_node_selected(Object *node) {
 	auto sn = cast_to<StateNode>(node);
@@ -967,7 +966,7 @@ void FSMEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 	const auto set_input_as_handled = [this]() { this->get_tree()->get_root()->set_input_as_handled(); };
 
 	if (auto mouse_btn_event = Object::cast_to<InputEventMouseButton>(p_event.ptr())) {
-		auto mouse_pos = connection_layer->get_local_mouse_position(); // mouse_btn_event->get_position(); //- connection_layer->get_position();
+		auto mouse_pos = draw_layer->get_local_mouse_position() - _get_scroll_offset(); // mouse_btn_event->get_position(); //- connection_layer->get_position();
 		switch (mouse_btn_event->get_button_index()) {
 			case MOUSE_BUTTON(WHEEL_UP):
 			case MOUSE_BUTTON(WHEEL_DOWN): {
@@ -994,7 +993,7 @@ void FSMEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 					to_disconnect = false;
 					try_disconnect(mouse_pos, disconnect_line[0]);
 					disconnect_line.resize(0);
-					connection_layer->queue_redraw();
+					draw_layer->queue_redraw();
 					set_input_as_handled();
 				}
 			} break;
@@ -1010,10 +1009,10 @@ void FSMEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 						HFSM_EDITOR_CREATE_ACTION("Select State Transitions");
 						ADD_DO_METHOD(this, __set_selected_state_name_list, TypedArray<StringName>());
 						ADD_DO_METHOD(this, __set_selected_transition_config_list, p_selected_tc_list);
-						ADD_DO_METHOD(connection_layer, queue_redraw);
+						ADD_DO_METHOD(draw_layer, queue_redraw);
 						ADD_UNDO_METHOD(this, __set_selected_transition_config_list, this->selected_transition_config_list);
 						ADD_UNDO_METHOD(this, __set_selected_state_name_list, selected_state_name_list);
-						ADD_UNDO_METHOD(connection_layer, queue_redraw);
+						ADD_UNDO_METHOD(draw_layer, queue_redraw);
 						COMMIT_ACTION();
 					};
 
@@ -1062,10 +1061,10 @@ void FSMEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 								HFSM_EDITOR_CREATE_ACTION("Deselect");
 								ADD_DO_METHOD(this, __set_selected_transition_config_list, selected_tc_list);
 								ADD_DO_METHOD(this, __set_selected_state_name_list, TypedArray<StringName>());
-								ADD_DO_METHOD(connection_layer, queue_redraw);
+								ADD_DO_METHOD(draw_layer, queue_redraw);
 								ADD_UNDO_METHOD(this, __set_selected_state_name_list, selected_state_name_list);
 								ADD_UNDO_METHOD(this, __set_selected_transition_config_list, selected_transition_config_list);
-								ADD_UNDO_METHOD(connection_layer, queue_redraw);
+								ADD_UNDO_METHOD(draw_layer, queue_redraw);
 								COMMIT_ACTION();
 							}
 						}
@@ -1081,8 +1080,8 @@ void FSMEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 	} else if (auto mouse_motion_event = Object::cast_to<InputEventMouseMotion>(p_event.ptr())) {
 		if (to_disconnect) {
 			// 删除
-			disconnect_line.set(1, connection_layer->get_local_mouse_position());
-			connection_layer->queue_redraw();
+			disconnect_line.set(1, draw_layer->get_local_mouse_position() - _get_scroll_offset());
+			draw_layer->queue_redraw();
 			set_input_as_handled();
 		}
 	}
@@ -1125,29 +1124,35 @@ Vector2 FSMEditor::_state_node_get_input_port_position(StateNode *p_state_node, 
 	})
 }
 
-PackedVector2Array FSMEditor::get_connection_line_with_zoom(StateNode *p_from, StateNode *p_to) {
+PackedVector2Array FSMEditor::get_connection_line_with_zoom_for_display(StateNode *p_from, StateNode *p_to) {
 	const float graph_zoom = get_zoom();
 
 	const auto get_port_position = [this, graph_zoom](StateNode *p_node, bool p_from) {
 		IF_GDM(auto port_position = p_from ? p_node->get_output_port_position(0) : p_node->get_input_port_position(0);)
 		IF_NOT_GDE_COMPATIBLE(auto port_position = p_from ? p_node->get_output_port_position(0) : p_node->get_input_port_position(0);)
 		IF_GDE_COMPATIBLE(Vector2 port_position = p_from ? _state_node_get_output_port_position(p_node, 0) : _state_node_get_input_port_position(p_node, 0);)
-		return port_position + p_node->get_position_offset();
+		auto ret = port_position + p_node->get_position_offset();
+		return ret - _get_scroll_offset() / graph_zoom;
 	};
 
-	const auto from = get_port_position(p_from, true);
-	const auto to = get_port_position(p_to, false);
+	const auto from = get_port_position(p_from, true) * graph_zoom;
+	const auto to = get_port_position(p_to, false) * graph_zoom;
 	const auto angle = from.angle_to_point(to);
-	return make_arr<PackedVector2Array>(
-			(from + get_offset(angle)) * graph_zoom,
-			(to + get_offset(angle)) * graph_zoom);
+	auto ofs = get_offset(angle) * graph_zoom;
+	return make_arr<PackedVector2Array>(from + ofs, to + ofs);
 }
 
 PackedVector2Array FSMEditor::get_connection_line_internal(const Vector2 &p_from, const Vector2 &p_to) const {
 	const auto angle = p_from.angle_to_point(p_to);
-	return make_arr<PackedVector2Array>(
-			p_from + get_offset(angle),
-			p_to + get_offset(angle));
+	auto ofs = get_offset(angle);
+#ifdef GDE_COMPATIBILITY_ENABLED
+	if (HFSMGlobal::is_4_point_3_or_later()) {
+		ofs *= get_zoom();
+	}
+#else //  GDE_COMPATIBILITY_ENABLED
+	ofs *= get_zoom();
+#endif //  GDE_COMPATIBILITY_ENABLED
+	return make_arr<PackedVector2Array>(p_from + ofs, p_to + ofs);
 }
 
 void FSMEditor::_draw_layer_draw() {
@@ -1189,7 +1194,7 @@ void FSMEditor::_draw_layer_draw() {
 			dealed_tc_list.reserve(conn_list.size()));
 	const auto action = [this, unactivated_triangle_color, &dealed_tc_list](const StringName &from_name, const StringName &to_name)
 #else // DEV_ENABLED
-	const auto action = [this, unactivated_triangle_color](const StringName &from_name, const StringName &to_name)
+	const auto action = [this, &unactivated_triangle_color](const StringName &from_name, const StringName &to_name)
 #endif // DEV_ENABLED
 	{
 		auto from = _get_state_node({ from_name });
@@ -1208,7 +1213,7 @@ void FSMEditor::_draw_layer_draw() {
 
 		auto selected = selected_transition_config_list.has(tc);
 
-		auto scaled_line = get_connection_line_with_zoom(from, to);
+		auto scaled_line = get_connection_line_with_zoom_for_display(from, to);
 		auto center_pos = (scaled_line[0] + scaled_line[1]) * 0.5f;
 		auto angle = scaled_line[0].angle_to_point(scaled_line[1]);
 		auto clamped_scale = Vector2(1, 1) * float(CLAMP(get_zoom(), 0.5, 1));
@@ -1225,8 +1230,8 @@ void FSMEditor::_draw_layer_draw() {
 			triangle_color = selected ? activity_color : triangle_color;
 			set_connection_activity(from_name, 0, to_name, 0, selected ? 1.0 : 0.0);
 		}
-		connection_layer->draw_set_transform(center_pos, angle, clamped_scale);
-		connection_layer->draw_colored_polygon(TRIANGLE_POINTS, triangle_color);
+		draw_layer->draw_set_transform(center_pos, angle, clamped_scale);
+		draw_layer->draw_colored_polygon(TRIANGLE_POINTS, triangle_color);
 
 		TransitionConfigValidLevel valid = TRANSITION_CONFIG_VALID_LEVEL_ERROR;
 		auto texts = get_transition_config_valid_and_texts(tc, valid);
@@ -1262,17 +1267,17 @@ void FSMEditor::_draw_layer_draw() {
 		if (angle <= Math_PI * 0.5f && angle > -Math_PI * 0.5f) {
 			// 上方正向显示
 			top = (line_count * char_high) * Vector2(0, -1);
-			connection_layer->draw_set_transform(center_pos, angle, clamped_scale);
+			draw_layer->draw_set_transform(center_pos, angle, clamped_scale);
 		} else {
 			// 上方反向显示
 			top = (CLAMP(line_count - 1, 1.2, line_count) * char_high) * Vector2(0, 1);
-			connection_layer->draw_set_transform(center_pos, angle + Math_PI, clamped_scale);
+			draw_layer->draw_set_transform(center_pos, angle + Math_PI, clamped_scale);
 		}
 
 		for (auto i = 0; i < line_count; i++) {
 			String text = texts[i];
 			auto string_size = font->get_string_size(text);
-			connection_layer->draw_string(font, top + Vector2(-string_size.x / 2.0f, i * string_size.y), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, text_color);
+			draw_layer->draw_string(font, top + Vector2(-string_size.x / 2.0f, i * string_size.y), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, text_color);
 		}
 
 		return false;
@@ -1281,13 +1286,13 @@ void FSMEditor::_draw_layer_draw() {
 	foreach_connection_by_names(action);
 
 	if (disconnect_line.size() == 2) {
-		connection_layer->draw_set_transform(Vector2(0, 0), 0.0, Vector2(1, 1));
-		connection_layer->draw_line(disconnect_line[0], disconnect_line[1], Color::named("royal_blue"), 5, true);
+		draw_layer->draw_set_transform(Vector2(0, 0), 0.0, Vector2(1, 1));
+		draw_layer->draw_line(disconnect_line[0], disconnect_line[1], Color::named("royal_blue"), 5, true);
 	}
 
 	static bool dirty = false;
 	if (!dirty) {
-		connection_layer->call_deferred(TNAMEOF(queue_redraw));
+		draw_layer->call_deferred(TNAMEOF(queue_redraw));
 		dirty = true;
 	} else {
 		dirty = false;
@@ -1340,24 +1345,34 @@ void FSMEditor::initialize() {
 	connect("node_deselected", TCALLABLE(_node_deselected));
 
 	// Hack
-	for (auto i = 0; i < get_child_count(true); ++i) {
-		if (auto ctrl = cast_to<Control>(get_child(i, true))) {
-			if (ctrl->get_class() == decltype(ctrl->get_class())(Control::get_class_static())) {
-				TypedArray<Dictionary> signal_conn_list = ctrl->call(TNAMEOF(get_signal_connection_list), "draw");
-				if (signal_conn_list.size() != 1) {
-					continue;
-				}
-				if (ctrl->get_mouse_filter() != MOUSE_FILTER_IGNORE) {
-					continue;
-				}
-				connection_layer = ctrl;
-				break;
-			}
-		}
-	}
-	CRASH_COND_MSG(!connection_layer, "Gets connection_layer of GraphEdit is faild on your Godot version. Please open a issue on \"https://github.com/Daylily-Zeleen/HFSM2/issues\".");
-
-	connection_layer->set_mouse_filter(MOUSE_FILTER_PASS);
+	// 	for (auto i = 0; i < get_child_count(true); ++i) {
+	// 		if (auto ctrl = cast_to<Control>(get_child(i, true))) {
+	// #ifdef GDE_COMPATIBILITY_ENABLED
+	// 			if (!HFSMGlobal::is_4_point_3_or_later()) {
+	// 				if (ctrl->get_class() == decltype(ctrl->get_class())(Control::get_class_static())) {
+	// 					TypedArray<Dictionary> signal_conn_list = ctrl->call(TNAMEOF(get_signal_connection_list), "draw");
+	// 					if (signal_conn_list.size() != 1) {
+	// 						continue;
+	// 					}
+	// 					if (ctrl->get_mouse_filter() != MOUSE_FILTER_IGNORE) {
+	// 						continue;
+	// 					}
+	// 					draw_layer = ctrl;
+	// 					draw_layer->set_mouse_filter(MOUSE_FILTER_PASS);
+	// 					break;
+	// 				}
+	// 			} else {
+	// #endif // GDE_COMPATIBILITY_ENABLED
+	// 				if (ctrl->get_class() == String("GraphEditFilter")) {
+	// 					draw_layer = ctrl;
+	// 					break;
+	// 				}
+	// #ifdef GDE_COMPATIBILITY_ENABLED
+	// 			}
+	// #endif // GDE_COMPATIBILITY_ENABLED
+	// 		}
+	// 	}
+	// 	CRASH_COND_MSG(!connection_layer, "Gets connection_layer of GraphEdit is faild on your Godot version. Please open a issue on \"https://github.com/Daylily-Zeleen/HFSM2/issues\".");
 
 	menu = memnew(PopupMenu);
 	menu->connect("id_pressed", TCALLABLE(_popup_menu_id_pressed));
@@ -1882,6 +1897,8 @@ List<String> FSMEditor::get_transition_config_valid_and_texts(const Ref<Transiti
 
 void FSMEditor::_notification(int p_what) {
 	switch (p_what) {
+		case NOTIFICATION_POSTINITIALIZE: {
+		} break;
 		case NOTIFICATION_CHILD_ORDER_CHANGED: {
 			IF_GDE(if (!is_node_ready()) {
 				return;
@@ -1893,11 +1910,11 @@ void FSMEditor::_notification(int p_what) {
 				return;
 			}
 			connection_dirty = true;
-			connection_layer->queue_redraw();
+			draw_layer->queue_redraw();
 		} break;
 		case NOTIFICATION_READY: {
 			set_process(false);
-			connection_layer->connect("draw", TCALLABLE(_draw_layer_draw));
+			draw_layer->connect("draw", TCALLABLE(_draw_layer_draw));
 
 			TCALLABLE_BIND(connect).call_deferred("gui_input", TCALLABLE(_gui_input_internal));
 			connect("end_node_move", TCALLABLE(_end_node_move));
@@ -1906,7 +1923,7 @@ void FSMEditor::_notification(int p_what) {
 			propagate_notification(NOTIFICATION_THEME_CHANGED);
 		} break;
 		case NOTIFICATION_DRAW: {
-			connection_layer->queue_redraw();
+			draw_layer->queue_redraw();
 		} break;
 		case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED:
 		case NOTIFICATION_THEME_CHANGED: {
@@ -1921,7 +1938,12 @@ void FSMEditor::_notification(int p_what) {
 
 FSMEditor::FSMEditor(bool p_debug_mode) :
 		debug_mode(p_debug_mode),
-		TRIANGLE_POINTS(make_arr<PackedVector2Array>(Vector2(20, 0), Vector2(-15, 10), Vector2(-15, -10))){};
+		TRIANGLE_POINTS(make_arr<PackedVector2Array>(Vector2(20, 0), Vector2(-15, 10), Vector2(-15, -10))) {
+	draw_layer = memnew(Control);
+	draw_layer->set_mouse_filter(Control::MouseFilter::MOUSE_FILTER_PASS);
+	draw_layer->set_anchors_preset(Control::LayoutPreset::PRESET_FULL_RECT);
+	add_child(draw_layer);
+};
 
 void FSMEditor::debug_highlight_active_state(const StringName &p_state_name, bool p_deactive_all) {
 	StateNode *prev_activated = nullptr;

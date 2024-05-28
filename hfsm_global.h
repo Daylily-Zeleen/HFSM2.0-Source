@@ -141,6 +141,7 @@ public:
 
 #ifdef GDE_COMPATIBILITY_ENABLED
 	static bool is_4_point_2_or_later();
+	static bool is_4_point_3_or_later();
 #endif // GDE_COMPATIBILITY_ENABLED
 };
 

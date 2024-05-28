@@ -114,6 +114,16 @@ bool HFSMGlobal::is_4_point_2_or_later() {
 	}
 	return false;
 }
+
+bool HFSMGlobal::is_4_point_3_or_later() {
+	if (godot_version.major > 4) {
+		return true;
+	}
+	if (godot_version.minor >= 3) {
+		return true;
+	}
+	return false;
+}
 #endif // GDE_COMPATIBILITY_ENABLED
 
 } // namespace HFSM2

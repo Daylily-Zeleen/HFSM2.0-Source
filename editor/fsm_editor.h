@@ -94,7 +94,8 @@ private:
 	Panel *mask_panel = nullptr;
 	Label *mask_hint = nullptr;
 	StateNode *__hovering_state_node = nullptr;
-	Control *connection_layer = nullptr;
+
+	Control *draw_layer = nullptr;
 	// ==============
 	Ref<FSMConfig> current_root_fsm_config;
 	Ref<FSMConfig> current_fsm_config;
@@ -127,7 +128,7 @@ private:
 	bool is_judge(const Vector2 &p_apos1, const Vector2 &p_apos2, const Vector2 &p_bpos1, const Vector2 &p_bpos2);
 	TypedArray<TransitionConfig> try_select_transitions_at_pos(const Vector2 &pos);
 
-	PackedVector2Array get_connection_line_with_zoom(StateNode *p_from, StateNode *to);
+	PackedVector2Array get_connection_line_with_zoom_for_display(StateNode *p_from, StateNode *to);
 	Ref<TransitionConfig> get_transition_config(StateNode *p_from, StateNode *p_to);
 	bool is_node_hotzone(Object *p_in_node, int64_t p_in_port, const Vector2 &p_mouse_position);
 	StateNode *create_state_node(const Ref<StateConfig> &p_state_config, const Ref<FSMConfig> &p_fsm_config = nullptr);

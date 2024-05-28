@@ -39,6 +39,9 @@ env.Append(LIBPATH=[])
 
 env.Append(CPPDEFINES=["GDEXTENSION_BUILD", "GDE_COMPATIBILITY_ENABLED"])
 
+if "debug" in env["target"]:
+    env.Append(CPPDEFINES=["TOOLS_ENABLED"])
+
 if env["platform"] == "ios":
     if env["IOS_TOOLCHAIN_PATH"] != "":
         env.Append(LIBPATH=[env["IOS_TOOLCHAIN_PATH"] + "/lib"])
