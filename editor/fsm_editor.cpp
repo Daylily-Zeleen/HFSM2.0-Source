@@ -964,9 +964,10 @@ void FSMEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 
 	static bool to_disconnect = false;
 	const auto set_input_as_handled = [this]() { this->get_tree()->get_root()->set_input_as_handled(); };
+	const auto get_mouse_pos = [this]() { return get_local_mouse_position(); };
 
 	if (auto mouse_btn_event = Object::cast_to<InputEventMouseButton>(p_event.ptr())) {
-		auto mouse_pos = draw_layer->get_local_mouse_position() - _get_scroll_offset(); // mouse_btn_event->get_position(); //- connection_layer->get_position();
+		auto mouse_pos = get_mouse_pos();
 		switch (mouse_btn_event->get_button_index()) {
 			case MOUSE_BUTTON(WHEEL_UP):
 			case MOUSE_BUTTON(WHEEL_DOWN): {
@@ -977,6 +978,12 @@ void FSMEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 			} break;
 			case MOUSE_BUTTON(MIDDLE): {
 				if (!mouse_btn_event->is_alt_pressed()) {
+					if (!mouse_btn_event->is_pressed()) {
+						// 均松开时
+						to_disconnect = false;
+						disconnect_line.resize(0);
+						draw_layer->queue_redraw();
+					}
 					break;
 				}
 
@@ -1080,7 +1087,7 @@ void FSMEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 	} else if (auto mouse_motion_event = Object::cast_to<InputEventMouseMotion>(p_event.ptr())) {
 		if (to_disconnect) {
 			// 删除
-			disconnect_line.set(1, draw_layer->get_local_mouse_position() - _get_scroll_offset());
+			disconnect_line.set(1, get_mouse_pos());
 			draw_layer->queue_redraw();
 			set_input_as_handled();
 		}
