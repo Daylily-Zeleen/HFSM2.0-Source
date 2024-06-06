@@ -99,7 +99,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	void build(const NodePath &p_path, const Ref<FSMConfig> &p_root_fsm_config);//, const String &p_cache_path);
+	void build(const NodePath &p_path, const Ref<FSMConfig> &p_root_fsm_config);
 	void destory(const NodePath &p_path);
 	void update_active_path(const NodePath &p_path, const PackedStringArray &p_new_active_path);
 
