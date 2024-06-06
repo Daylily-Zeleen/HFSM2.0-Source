@@ -42,6 +42,7 @@
 #endif // MODULE_MONO_ENABLED
 
 #ifdef TOOLS_ENABLED
+#include "godot_cpp/classes/resource_loader.hpp"
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/file_access.hpp>
 #endif // TOOLS_ENABLED
@@ -400,4 +401,68 @@ Ref<State> StateConfig::create_state(HFSM *p_hfsm, FSM *p_fsm) {
 }
 
 #pragma endregion
+
+#ifdef TOOLS_ENABLED
+Array StateConfig::debug_serialize() const {
+	// Script
+	Dictionary script_info;
+	if (state_script.is_valid()) {
+		bool real_file;
+		IF_GDM(real_file = FileAccess::exists(state_script->get_path());)
+		IF_GDE(real_file = FileAccess::file_exists(state_script->get_path());)
+		script_info["path"] = real_file ? state_script->get_path() : "";
+		script_info["type"] = state_script->get_class();
+		script_info["source_code"] = real_file ? "" : state_script->get_source_code();
+	}
+
+	return make_arr<Array>(
+			script_info, script_valid,
+			sub_fsm_config.is_valid() ? sub_fsm_config->debug_serialize() : Array(), editor_offset,
+			state_name, type, nested,
+			animation_name
+#ifdef FULL_VERSION
+			,
+			animation_blend_time, animation_speed, animation_reverse
+#endif // FULL_VERSION
+	);
+}
+Ref<StateConfig> StateConfig::debug_deserialize(const Array &p_data) {
+	Ref<StateConfig> ret;
+	ret.instantiate();
+
+	Dictionary script_info = p_data[0];
+	if (!script_info.is_empty()) {
+		String path = script_info["path"];
+		Ref<Script> script;
+		if (path.is_empty()) {
+			script = ClassDB::instantiate(script_info["type"]);
+			script->set_source_code(script_info["source_code"]);
+		} else {
+			IF_GDE(script = ResourceLoader::get_singleton()->load(path);)
+			IF_GDM(script = ResourceLoader::load(path);)
+		}
+
+		if (script.is_valid()) {
+			ret->state_script = script;
+		}
+	}
+
+	ret->script_valid = p_data[1];
+	ret->sub_fsm_config = FSMConfig::debug_deserialize(p_data[2]);
+	ret->editor_offset = p_data[3];
+	ret->state_name = p_data[4];
+	ret->type = State::StateType(p_data[5].operator int());
+	ret->nested = p_data[6];
+
+	ret->animation_name = p_data[7];
+#ifdef FULL_VERSION
+	ret->animation_blend_time = p_data[8];
+	ret->animation_speed = p_data[9];
+	ret->animation_reverse = p_data[10];
+#endif
+
+	return ret;
+}
+#endif // TOOLS_ENABLED
+
 }; // namespace HFSM2

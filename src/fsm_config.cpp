@@ -114,6 +114,8 @@ void FSMConfig::add_variable_config(const Ref<VariableConfig> &p_variable_config
 	if (variable_config_list.find(p_variable_config) >= 0) {
 		return;
 	}
+
+	p_variable_config->set_fsm_config(this);
 	variable_config_list.push_back(p_variable_config);
 
 	if (p_variable_config.is_valid() && !p_variable_config->is_connected(s_changed, cb_resource_emit_changed(this))) {
@@ -139,6 +141,7 @@ void FSMConfig::remove_variable_config(const Ref<VariableConfig> &p_variable_con
 
 	if (p_variable_config.is_valid() && p_variable_config->is_connected(s_changed, cb_resource_emit_changed(this))) {
 		p_variable_config->disconnect(s_changed, cb_resource_emit_changed(this));
+		p_variable_config->set_fsm_config(nullptr);
 	}
 
 	emit_changed();
@@ -290,5 +293,74 @@ void FSMConfig::set_transition_config_list(const Array &p_transition_config_list
 }
 
 #pragma endregion
+
+#if TOOLS_ENABLED
+static bool _is_valid(const Ref<RefCounted> &p_ref) {
+	return p_ref.is_valid();
+}
+Array FSMConfig::debug_serialize(const Ref<FSMConfig> &p_root) const {
+	auto filter = callable_mp_static(&_is_valid);
+	const_cast<FSMConfig *>(this)->variable_config_list = variable_config_list.filter(filter);
+	const_cast<FSMConfig *>(this)->state_config_list = state_config_list.filter(filter);
+	const_cast<FSMConfig *>(this)->transition_config_list = transition_config_list.filter(filter);
+
+	Ref<FSMConfig> root = p_root.is_valid() ? p_root : Ref<FSMConfig>(this);
+
+	Array variable_configs;
+	for (int64_t i = 0; i < variable_config_list.size(); ++i) {
+		Ref<VariableConfig> vc = variable_config_list[i];
+		variable_configs.push_back(vc->debug_serialize());
+	}
+
+	Array state_configs;
+	for (int64_t i = 0; i < state_config_list.size(); ++i) {
+		Ref<StateConfig> sc = state_config_list[i];
+		state_configs.push_back(sc->debug_serialize());
+	}
+
+	Array transition_configs;
+	for (int64_t i = 0; i < transition_config_list.size(); ++i) {
+		Ref<TransitionConfig> tc = transition_config_list[i];
+		transition_configs.push_back(tc->debug_serialize({ this }, p_root));
+	}
+
+	return make_arr<Array>(variable_configs, state_configs, transition_configs);
+}
+
+Ref<FSMConfig> FSMConfig::debug_deserialize(const Array &p_data, const Ref<FSMConfig> &p_root) {
+	Ref<FSMConfig> ret;
+	if (p_data.is_empty()) {
+		return ret;
+	}
+
+	ret.instantiate();
+
+	auto root = p_root.is_valid() ? p_root : ret;
+
+	Array raw_variable_configs = p_data[0];
+	Array variable_configs;
+	for (int64_t i = 0; i < raw_variable_configs.size(); ++i) {
+		variable_configs.push_back(VariableConfig::debug_deserialize(raw_variable_configs[i]));
+	}
+	ret->set_variable_config_list(variable_configs);
+
+	Array raw_state_configs = p_data[1];
+	Array state_configs;
+	for (int64_t i = 0; i < raw_state_configs.size(); ++i) {
+		state_configs.push_back(StateConfig::debug_deserialize(raw_state_configs[i]));
+	}
+	ret->set_state_config_list(state_configs);
+
+	// 必须在最后
+	Array raw_transition_configs = p_data[2];
+	Array transition_configs;
+	for (int64_t i = 0; i < raw_transition_configs.size(); ++i) {
+		transition_configs.push_back(TransitionConfig::debug_deserialize(raw_transition_configs[i], ret, root));
+	}
+	ret->set_transition_config_list(transition_configs);
+
+	return ret;
+}
+#endif // TOOLS_ENABLED
 
 } // namespace HFSM2

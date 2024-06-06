@@ -78,6 +78,11 @@ void VariableConfig::_bind_methods() {
 }
 
 void VariableConfig::set_variable_name(const StringName &p_name) {
+	auto fsm_config = get_fsm_config();
+	if (fsm_config.is_null()) {
+		return;
+	}
+
 	// Only check if FSMConfig valid.
 	variable_name = StringName(p_name);
 	if (fsm_config.is_valid()) {
@@ -193,12 +198,34 @@ String VariableConfig::get_type_text() const {
 }
 
 void VariableConfig::set_fsm_config(const Ref<FSMConfig> &p_fsm_config) {
-	fsm_config = weakref(p_fsm_config);
-	set_variable_name(variable_name);
+	if (p_fsm_config.is_valid()) {
+		fsm_config = weakref(p_fsm_config);
+		set_variable_name(variable_name);
+	} else {
+		fsm_config.unref();
+	}
 }
 
 Ref<FSMConfig> VariableConfig::get_fsm_config() const { return get_ref<Ref<FSMConfig>>(fsm_config); }
 
 #pragma endregion
+
+#if TOOLS_ENABLED
+Array VariableConfig::debug_serialize() const {
+	// fsm_config 不需要，将在反序列化时被设置
+	return make_arr<Array>(variable_name, type, default_value, comment);
+}
+
+Ref<VariableConfig> VariableConfig::debug_deserialize(const Array &p_data) {
+	Ref<VariableConfig> ret;
+	ret.instantiate();
+	ret->variable_name = p_data[0];
+	ret->type = Variant::Type(p_data[1].operator int());
+	ret->default_value = p_data[2];
+	ret->comment = p_data[3];
+	return ret;
+}
+
+#endif // TOOLS_ENABLED
 
 } // namespace HFSM2

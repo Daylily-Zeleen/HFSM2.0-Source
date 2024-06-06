@@ -85,6 +85,11 @@ public:
 
 	VariableExpression *create_variable_expression(HFSM *p_hfsm);
 
+#if TOOLS_ENABLED
+	Array debug_serialize(const Ref<FSMConfig> &p_root_config) const;
+	static Ref<VariableExpressionConfig> debug_deserialize(const Array &p_data, const Ref<FSMConfig> &p_root_config);
+#endif // TOOLS_ENABLED
+
 private:
 	Ref<VariableConfig> variable_config;
 	Variant value;

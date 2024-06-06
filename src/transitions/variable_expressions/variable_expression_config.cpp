@@ -31,7 +31,6 @@
 
 #include "../../hfsm.h"
 #include "../variable_expressions_transition.h"
-#include <type_traits>
 
 namespace HFSM2 {
 
@@ -264,4 +263,31 @@ void VariableExpressionConfig::set_trigger_type(TriggerType p_trigger_type) {
 	emit_changed();
 }
 
+#if TOOLS_ENABLED
+Array VariableExpressionConfig::debug_serialize(const Ref<FSMConfig> &p_root_config) const {
+	return make_arr<Array>(
+			p_root_config->get_variable_config_list().find(variable_config),
+			value,
+			comparator,
+			trigger_type,
+			variable_as_value);
+}
+
+Ref<VariableExpressionConfig> VariableExpressionConfig::debug_deserialize(const Array &p_data, const Ref<FSMConfig> &p_root_config) {
+	Ref<VariableExpressionConfig> ret;
+	ret.instantiate();
+
+	int idx = p_data[0];
+	if (idx >= 0) {
+		ret->variable_config = p_root_config->get_variable_config_list()[idx];
+	}
+
+	ret->value = p_data[1];
+	ret->comparator = Comparator(p_data[2].operator int());
+	ret->trigger_type = TriggerType(p_data[3].operator int());
+	ret->variable_as_value = p_data[4];
+
+	return ret;
+}
+#endif // TOOLS_ENABLED
 } // namespace HFSM2

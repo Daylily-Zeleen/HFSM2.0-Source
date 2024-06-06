@@ -32,7 +32,6 @@
 #include "../src/fsm_config.h"
 #include "../src/hfsm.h"
 #include "hfsm_editor.h"
-#include "hfsm_editor_plugin.h"
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/dir_access.hpp>
@@ -80,15 +79,6 @@ uint32_t hash(const Variant &p_var) {
 }
 
 // =======
-
-String HFSMDebuggerPlugin::get_cache_dir() {
-	if (ProjectSettings::get_singleton()->get_setting_with_override("application/config/use_hidden_project_data_directory")) {
-		return "res://.godot/editor/hfsm/";
-	} else {
-		return "res://godot/editor/hfsm/";
-	}
-}
-
 bool HFSMDebuggerPlugin::can_debug() {
 	return !Engine::get_singleton()->is_editor_hint() && EngineDebugger::get_singleton() && EngineDebugger::get_singleton()->is_active();
 }
@@ -99,28 +89,8 @@ void HFSMDebuggerPlugin::send_debug_built(HFSM *p_hfsm) {
 			return;
 		}
 
-		const String cache_dir = get_cache_dir();
-
-		if (!DirAccess::dir_exists_absolute(cache_dir)) {
-			DirAccess::make_dir_absolute(cache_dir);
-		}
-		const auto fsm_config = p_hfsm->get_root_fsm_config();
-		auto cache_path = cache_dir.path_join(itos(hash(fsm_config)).md5_text() + ".tres");
-
-		Error err = OK;
-
-		bool existing = false;
-		IF_GDM(existing = FileAccess::exists(cache_path);)
-		IF_GDE(existing = FileAccess::file_exists(cache_path);)
-
-		if (!existing) {
-			IF_GDE(err = ResourceSaver::get_singleton()->save(fsm_config, cache_path);)
-			IF_GDM(err = ResourceSaver::save(fsm_config, cache_path);)
-		}
-
-		if (err == OK) {
-			send_debug_msg(p_hfsm, msg_built, make_arr<Array>(cache_path));
-		}
+		auto root_fsm_config = p_hfsm->get_root_fsm_config();
+		send_debug_msg(p_hfsm, msg_built, make_arr<Array>(root_fsm_config->debug_serialize()));
 	})
 }
 
@@ -198,12 +168,9 @@ bool HFSMDebuggerPlugin::GD_(capture)(const String &p_message, const Array &p_da
 		ERR_FAIL_COND_V(!debuggers.has(p_session), true);
 
 		auto hfsm_node_path = get_node_path(p_data);
-		const String fsm_config_path = p_data[0];
-		Ref<FSMConfig> root_fsm_config;
-		IF_GDE(root_fsm_config = ResourceLoader::get_singleton()->load(fsm_config_path);)
-		IF_GDM(root_fsm_config = ResourceLoader::load(fsm_config_path);)
+		Ref<FSMConfig> root_fsm_config = FSMConfig::debug_deserialize(p_data[0]);
 		if (root_fsm_config.is_valid()) {
-			debuggers[p_session]->build(hfsm_node_path, root_fsm_config, fsm_config_path);
+			debuggers[p_session]->build(hfsm_node_path, root_fsm_config);
 		}
 		return true;
 	} else if (is_msg(p_message, msg_destory)) {
@@ -234,19 +201,10 @@ void HFSMDebuggerPlugin::_bind_methods() {
 	GDBIND_CALBACK(_session_started);
 }
 
-HFSMDebuggerPlugin::~HFSMDebuggerPlugin() {
-	const auto cache_dir = get_cache_dir();
-	if (!DirAccess::dir_exists_absolute(cache_dir)) {
-		return;
-	}
-
-	for (const auto &f : DirAccess::get_files_at(cache_dir)) {
-		DirAccess::remove_absolute(cache_dir.path_join(f));
-	}
-}
+HFSMDebuggerPlugin::~HFSMDebuggerPlugin() {}
 
 // HFSMDebugger
-void HFSMDebugger::build(const NodePath &p_path, const Ref<class FSMConfig> &p_root_fsm_config, const String &p_cache_path) {
+void HFSMDebugger::build(const NodePath &p_path, const Ref<class FSMConfig> &p_root_fsm_config) { //}, const String &p_cache_path) {
 	ERR_FAIL_COND(datas.has(p_path));
 	datas.insert(p_path, { p_root_fsm_config });
 

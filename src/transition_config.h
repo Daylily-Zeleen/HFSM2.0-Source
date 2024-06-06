@@ -125,6 +125,11 @@ public:
 	bool is_script_valid() const;
 #endif // FULL_VERSION
 
+#if TOOLS_ENABLED
+	Array debug_serialize(const Ref<FSMConfig> &p_fsm_config, const Ref<FSMConfig> &p_root_config) const;
+	static Ref<TransitionConfig> debug_deserialize(const Array &p_data, const Ref<FSMConfig> &p_fsm_config, const Ref<FSMConfig> &p_root_config);
+#endif // TOOLS_ENABLED
+
 private:
 	// 共有属性
 	Ref<StateConfig> from_state_config;
@@ -140,15 +145,15 @@ private:
 	String expression_text = "";
 	String expression_comment = "";
 
+	// 变量表达式
+	bool and_mode = true;
+	TypedArray<VariableExpressionConfig> variable_expression_config_list; // VariableExpressionConfig
+
 #ifdef FULL_VERSION
 	// 脚本
 	Ref<Script> transition_script;
 	bool script_valid = true;
 #endif
-
-	// 变量表达式
-	bool and_mode = true;
-	TypedArray<VariableExpressionConfig> variable_expression_config_list; // VariableExpressionConfig
 };
 
 }; // namespace HFSM2

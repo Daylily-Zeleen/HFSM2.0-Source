@@ -76,6 +76,11 @@ public:
 
 	String get_type_text() const;
 
+#if TOOLS_ENABLED
+	Array debug_serialize() const;
+	static Ref<VariableConfig> debug_deserialize(const Array &p_data);
+#endif // TOOLS_ENABLED
+
 private:
 	StringName variable_name = "variable";
 	Ref<WeakRef> fsm_config;

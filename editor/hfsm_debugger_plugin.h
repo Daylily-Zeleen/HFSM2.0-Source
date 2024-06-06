@@ -60,9 +60,6 @@ class HFSMDebuggerPlugin : public EditorDebuggerPlugin {
 	void _session_stoped(SessionID p_session_id);
 
 	static void send_debug_msg(class HFSM *p_hfsm, const String &p_msg, Array p_data);
-
-	static String get_cache_dir();
-
 	static bool can_debug();
 
 protected:
@@ -102,7 +99,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	void build(const NodePath &p_path, const Ref<FSMConfig> &p_root_fsm_config, const String &p_cache_path);
+	void build(const NodePath &p_path, const Ref<FSMConfig> &p_root_fsm_config);//, const String &p_cache_path);
 	void destory(const NodePath &p_path);
 	void update_active_path(const NodePath &p_path, const PackedStringArray &p_new_active_path);
 

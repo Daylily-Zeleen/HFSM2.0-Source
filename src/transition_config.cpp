@@ -392,4 +392,94 @@ TransitionBase *TransitionConfig::create_transition(HFSM *p_hfsm) {
 
 #pragma endregion
 
+#if TOOLS_ENABLED
+Array TransitionConfig::debug_serialize(const Ref<FSMConfig> &p_fsm_config, const Ref<FSMConfig> &p_root_config) const {
+	int from_idx = p_fsm_config->get_state_config_list().find(from_state_config);
+	int to_idx = p_fsm_config->get_state_config_list().find(to_state_config);
+
+	Array variable_expression_configs;
+	for (int64_t i = 0; i < variable_expression_config_list.size(); ++i) {
+		Ref<VariableExpressionConfig> vec = variable_expression_config_list[i];
+		variable_expression_configs.push_back(vec->debug_serialize(p_root_config));
+	}
+
+#ifdef FULL_VERSION
+	// Script
+	Dictionary script_info;
+	if (transition_script.is_valid()) {
+		bool real_file;
+		IF_GDM(real_file = FileAccess::exists(transition_script->get_path());)
+		IF_GDE(real_file = FileAccess::file_exists(transition_script->get_path());)
+		script_info["path"] = real_file ? transition_script->get_path() : "";
+		script_info["type"] = transition_script->get_class();
+		script_info["source_code"] = real_file ? "" : transition_script->get_source_code();
+	}
+#endif // FULL_VERSION
+
+	return make_arr<Array>(
+			from_idx, to_idx, type,
+			auto_mode, auto_delay_msec, auto_times,
+			expression_text, expression_comment,
+			and_mode, variable_expression_configs
+#ifdef FULL_VERSION
+			,
+			script_info, script_valid,
+#endif // FULL_VERSION
+	);
+}
+
+Ref<TransitionConfig> TransitionConfig::debug_deserialize(const Array &p_data, const Ref<FSMConfig> &p_fsm_config, const Ref<FSMConfig> &p_root_config) {
+	Ref<TransitionConfig> ret;
+	ret.instantiate();
+
+	int from_idx = p_data[0];
+	int to_idx = p_data[1];
+	if (from_idx >= 0) {
+		ret->from_state_config = p_fsm_config->get_state_config_list()[from_idx];
+	}
+	if (to_idx >= 0) {
+		ret->to_state_config = p_fsm_config->get_state_config_list()[to_idx];
+	}
+
+	ret->type = TransitionType(p_data[2].operator int());
+	ret->auto_mode = AuotoTtransitMode(p_data[3].operator int());
+	ret->auto_delay_msec = p_data[4];
+	ret->auto_times = p_data[5];
+
+	ret->expression_text = p_data[6];
+	ret->expression_comment = p_data[7];
+
+	ret->and_mode = p_data[8];
+
+	Array raw_variable_expression_configs = p_data[9];
+	Array variable_expression_configs;
+	for (int64_t i = 0; i < raw_variable_expression_configs.size(); ++i) {
+		auto vec = VariableExpressionConfig::debug_deserialize(raw_variable_expression_configs[i], p_root_config);
+		variable_expression_configs.push_back(vec);
+	}
+	ret->set_variable_expression_config_list(variable_expression_configs);
+
+#ifdef FULL_VERSION
+	Dictionary script_info = p_data[10];
+	if (!script_info.is_empty()) {
+		String path = script_info["path"];
+		Ref<Script> script;
+		if (path.is_empty()) {
+			script = ClassDB::instantiate(script_info["type"]);
+			script->set_source_code(script_info["source_code"]);
+		} else {
+			IF_GDE(script = ResourceLoader::get_singleton()->load(path);)
+			IF_GDM(script = ResourceLoader::load(path);)
+		}
+
+		if (script.is_valid()) {
+			ret->transition_script = script;
+		}
+	}
+	ret->script_valid = p_data[11];
+#endif // FULL_VERSION
+
+	return ret;
+}
+#endif // TOOLS_ENABLED
 }; // namespace HFSM2

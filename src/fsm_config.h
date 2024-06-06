@@ -95,6 +95,11 @@ public:
 
 	void set_variable_config_list(const Array &p_variable_config_list);
 
+#if TOOLS_ENABLED
+	Array debug_serialize(const Ref<FSMConfig> &p_root = {}) const;
+	static Ref<FSMConfig> debug_deserialize(const Array &p_data, const Ref<FSMConfig> &p_root = {});
+#endif // TOOLS_ENABLED
+
 private:
 	// 自己的状态列表
 	void set_state_config_list(const Array &p_state_config_list);

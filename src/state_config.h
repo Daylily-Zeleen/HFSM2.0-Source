@@ -75,9 +75,13 @@ public:
 	void set_state_node(Node *p_state_nde) { state_node = p_state_nde; }
 	Node *get_state_node() const { return state_node; }
 
+	Array debug_serialize() const;
+	static Ref<StateConfig> debug_deserialize(const Array &p_data);
+
 private:
 	Node *state_node = nullptr;
-#endif //TOOLS_ENABLED
+
+#endif // TOOLS_ENABLED
 
 protected:
 	static void _bind_methods();
