@@ -321,7 +321,7 @@ Array FSMConfig::debug_serialize(const Ref<FSMConfig> &p_root) const {
 	Array transition_configs;
 	for (int64_t i = 0; i < transition_config_list.size(); ++i) {
 		Ref<TransitionConfig> tc = transition_config_list[i];
-		transition_configs.push_back(tc->debug_serialize({ this }, p_root));
+		transition_configs.push_back(tc->debug_serialize({ this }, root));
 	}
 
 	return make_arr<Array>(variable_configs, state_configs, transition_configs);
