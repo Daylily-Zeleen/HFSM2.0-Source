@@ -183,6 +183,11 @@ void Utils::set_template_if_source_code_is_empty(const Ref<Script> &p_script, co
 void Utils::set_template_if_source_code_is_empty(const Ref<Script> &p_script, const char *p_gds_template)
 #endif // MODULE_MONO_ENABLED
 {
+	if (!Engine::get_singleton()->is_editor_hint()) {
+		// 只能在编辑器中使用
+		return;
+	}
+
 	if (!p_script->get_source_code().is_empty()) {
 		return;
 	}
