@@ -52,15 +52,21 @@ def main():
     if debug_and_relaese:
         command = args + " target=template_debug"
         print("Building debug version: ", command)
-        os.system(command)
+        code = os.system(command)
+        if code != 0:
+            raise RuntimeError("Build faild, exit code: " + str(code))
         print("")
 
         command = args + " target=template_release"
         print("Building release version: ", command)
-        os.system(command)
+        code = os.system(command)
+        if code != 0:
+            raise RuntimeError("Build faild, exit code: " + str(code))
     else:
         print("Building...")
-        os.system(args)
+        code = os.system(args)
+        if code != 0:
+            raise RuntimeError("Build faild, exit code: " + str(code))
 
     print("Build finished, post processiong...")
 
