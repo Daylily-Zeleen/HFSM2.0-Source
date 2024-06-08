@@ -25,7 +25,7 @@ jobs:
           submodules: true
 
       - name: Set up Emscripten latest
-        uses: mymindstorm/setup-emsdk@v13
+        uses: mymindstorm/setup-emsdk@v14
         with:
           version: ${{env.EM_VERSION}}
           actions-cache-folder: ${{env.EM_CACHE_FOLDER}}
@@ -39,12 +39,12 @@ jobs:
         with:
           sconsflags: ${{ env.SCONSFLAGS }}
           arch: ${{ matrix.arch }}
-          platform: javascript
+          platform: web
           target: ${{ matrix.target }}
 
       - name: Upload ${{ matrix.target }} ${{ matrix.arch }}
         uses: ./.github/actions/upload
         with:
-          platform: javascript
-          artifact_file_suffix: javascript.${{ matrix.target }}.${{ matrix.arch }}.${{ matrix.shlibsuffix }}
+          platform: web
+          artifact_file_suffix: web.${{ matrix.target }}.${{ matrix.arch }}.${{ matrix.shlibsuffix }}
 
