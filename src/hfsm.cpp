@@ -50,33 +50,34 @@ using namespace godot;
 
 namespace HFSM2 {
 
+#ifdef TOOLS_ENABLED
 bool HFSM::_set(const StringName &p_name, const Variant &p_property) {
-	IF_TOOLS(
-			if (p_name == StringName("variable_list")) {
-				root_fsm_config->set_variable_config_list(p_property);
-				return true;
-			})
+	if (p_name == StringName("variable_list")) {
+		if (root_fsm_config.is_valid()) {
+			root_fsm_config->set_variable_config_list(p_property);
+		}
+		return true;
+	}
 	return false;
 }
 
 bool HFSM::_get(const StringName &p_name, Variant &r_property) const {
-	IF_TOOLS(
-			if (p_name == StringName("variable_list")) {
-				if (root_fsm_config.is_valid()) {
-					r_property = root_fsm_config->get_variable_config_list();
-				}
-				return true;
-			})
+	if (p_name == StringName("variable_list")) {
+		if (root_fsm_config.is_valid()) {
+			r_property = root_fsm_config->get_variable_config_list();
+		}
+		return true;
+	}
 	return false;
 }
 
 void HFSM::_get_property_list(List<PropertyInfo> *p_list) const {
-	IF_TOOLS(
-			if (Engine::get_singleton()->is_editor_hint() && root_fsm_config.is_valid()) {
-				auto typed_VariableRes_array_hint_string = vformat("%d/%d:%s", Variant::OBJECT, PROPERTY_HINT_RESOURCE_TYPE, VariableConfig::get_class_static());
-				p_list->push_back(PropertyInfo(Variant::ARRAY, "variable_list", PROPERTY_HINT_TYPE_STRING, typed_VariableRes_array_hint_string, PROPERTY_USAGE_EDITOR));
-			})
+	if (Engine::get_singleton()->is_editor_hint() && root_fsm_config.is_valid()) {
+		auto typed_VariableRes_array_hint_string = vformat("%d/%d:%s", Variant::OBJECT, PROPERTY_HINT_RESOURCE_TYPE, VariableConfig::get_class_static());
+		p_list->push_back(PropertyInfo(Variant::ARRAY, "variable_list", PROPERTY_HINT_TYPE_STRING, typed_VariableRes_array_hint_string, PROPERTY_USAGE_EDITOR));
+	}
 }
+#endif // TOOLS_ENABLED
 
 void HFSM::_bind_methods() {
 	GDBIND_BEGIN(HFSM);
@@ -208,16 +209,19 @@ Dictionary HFSM::get_vars_value() {
 	return ret;
 }
 
+#define _SET_VAR(p_name, p_value)                    \
+	ERR_FAIL_COND(!variable_blackboard.has(p_name)); \
+	variable_blackboard[p_name]->set_value(p_value);
+
 void HFSM::set_var(const StringName &p_variable_name, const Variant &p_value) {
-	ERR_FAIL_COND(!variable_blackboard.has(p_variable_name));
-	variable_blackboard[p_variable_name]->set_value(p_value);
+	_SET_VAR(p_variable_name, p_value);
 }
 
-void HFSM::set_trigger(const StringName &p_trigger_name) { variable_blackboard[p_trigger_name]->set_value(true); }
-void HFSM::set_boolean(const StringName &p_boolean_name, bool p_value) { variable_blackboard[p_boolean_name]->set_value(p_value); }
-void HFSM::set_integer(const StringName &p_interger_name, int64_t p_value) { variable_blackboard[p_interger_name]->set_value(p_value); }
-void HFSM::set_float(const StringName &p_float_name, double p_value) { variable_blackboard[p_float_name]->set_value(p_value); }
-void HFSM::set_string(const StringName &p_string_name, const String &p_value) { variable_blackboard[p_string_name]->set_value(p_value); }
+void HFSM::set_trigger(const StringName &p_trigger_name) { _SET_VAR(p_trigger_name, true); }
+void HFSM::set_boolean(const StringName &p_boolean_name, bool p_value) { _SET_VAR(p_boolean_name, p_value); }
+void HFSM::set_integer(const StringName &p_interger_name, int64_t p_value) { _SET_VAR(p_interger_name, p_value); }
+void HFSM::set_float(const StringName &p_float_name, double p_value) { _SET_VAR(p_float_name, p_value); }
+void HFSM::set_string(const StringName &p_string_name, const String &p_value) { _SET_VAR(p_string_name, p_value); }
 
 void HFSM::set_update_type(UpdateType p_update_type) {
 	update_type = UpdateType(p_update_type);

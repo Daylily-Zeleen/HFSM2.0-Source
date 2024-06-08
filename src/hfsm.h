@@ -59,9 +59,11 @@ class HFSM : public Node {
 	GDCLASS(HFSM, Node)
 
 protected:
+#ifdef TOOLS_ENABLED
 	bool _set(const StringName &p_name, const Variant &p_property);
 	bool _get(const StringName &p_name, Variant &r_property) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
+#endif // TOOLS_ENABLED
 
 	static void _bind_methods();
 	void _notification(int p_what);
