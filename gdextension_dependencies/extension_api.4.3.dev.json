@@ -3,9 +3,9 @@
 		"version_major": 4,
 		"version_minor": 3,
 		"version_patch": 0,
-		"version_status": "beta",
-		"version_build": "custom_build",
-		"version_full_name": "Godot Engine v4.3.beta.custom_build"
+		"version_status": "beta1",
+		"version_build": "official",
+		"version_full_name": "Godot Engine v4.3.beta1.mono.official"
 	},
 	"builtin_class_sizes": [
 		{
@@ -85918,7 +85918,10 @@
 					"is_vararg": false,
 					"is_static": false,
 					"is_virtual": false,
-					"hash": 3406284123,
+					"hash": 2042698479,
+					"hash_compatibility": [
+						3406284123
+					],
 					"arguments": [
 						{
 							"name": "property",
@@ -85932,6 +85935,11 @@
 							"name": "add_to_end",
 							"type": "bool",
 							"default_value": "false"
+						},
+						{
+							"name": "label",
+							"type": "String",
+							"default_value": "\"\""
 						}
 					]
 				},
@@ -102826,6 +102834,33 @@
 					]
 				},
 				{
+					"name": "get_accessor_type",
+					"is_const": false,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 2455072627,
+					"return_value": {
+						"type": "int",
+						"meta": "int32"
+					}
+				},
+				{
+					"name": "set_accessor_type",
+					"is_const": false,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 1286410249,
+					"arguments": [
+						{
+							"name": "accessor_type",
+							"type": "int",
+							"meta": "int32"
+						}
+					]
+				},
+				{
 					"name": "get_type",
 					"is_const": false,
 					"is_vararg": false,
@@ -103095,6 +103130,12 @@
 					"name": "count",
 					"setter": "set_count",
 					"getter": "get_count"
+				},
+				{
+					"type": "int",
+					"name": "accessor_type",
+					"setter": "set_accessor_type",
+					"getter": "get_accessor_type"
 				},
 				{
 					"type": "int",
@@ -123076,6 +123117,33 @@
 						"type": "float",
 						"meta": "float"
 					}
+				},
+				{
+					"name": "set_event_index",
+					"is_const": false,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 1286410249,
+					"arguments": [
+						{
+							"name": "index",
+							"type": "int",
+							"meta": "int32"
+						}
+					]
+				},
+				{
+					"name": "get_event_index",
+					"is_const": true,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 3905245786,
+					"return_value": {
+						"type": "int",
+						"meta": "int32"
+					}
 				}
 			],
 			"properties": [
@@ -123096,6 +123164,12 @@
 					"name": "strength",
 					"setter": "set_strength",
 					"getter": "get_strength"
+				},
+				{
+					"type": "int",
+					"name": "event_index",
+					"setter": "set_event_index",
+					"getter": "get_event_index"
 				}
 			]
 		},
@@ -183555,6 +183629,25 @@
 					]
 				},
 				{
+					"name": "shape_set_margin",
+					"is_const": false,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 1794382983,
+					"arguments": [
+						{
+							"name": "shape",
+							"type": "RID"
+						},
+						{
+							"name": "margin",
+							"type": "float",
+							"meta": "float"
+						}
+					]
+				},
+				{
 					"name": "shape_get_type",
 					"is_const": true,
 					"is_vararg": false,
@@ -183580,6 +183673,24 @@
 					"hash": 4171304767,
 					"return_value": {
 						"type": "Variant"
+					},
+					"arguments": [
+						{
+							"name": "shape",
+							"type": "RID"
+						}
+					]
+				},
+				{
+					"name": "shape_get_margin",
+					"is_const": true,
+					"is_vararg": false,
+					"is_static": false,
+					"is_virtual": false,
+					"hash": 866169185,
+					"return_value": {
+						"type": "float",
+						"meta": "float"
 					},
 					"arguments": [
 						{
@@ -208897,6 +209008,10 @@
 				{
 					"name": "MAX_2D_DIRECTIONAL_LIGHTS",
 					"value": 8
+				},
+				{
+					"name": "MAX_MESH_SURFACES",
+					"value": 256
 				},
 				{
 					"name": "MATERIAL_RENDER_PRIORITY_MIN",
@@ -302558,6 +302673,9 @@
 				}
 			],
 			"signals": [
+				{
+					"name": "reference_frame_changed"
+				},
 				{
 					"name": "interface_added",
 					"arguments": [

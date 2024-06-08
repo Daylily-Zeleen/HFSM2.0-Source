@@ -3,8 +3,11 @@ import os
 import sys
 import build_version
 
+
 # from build import generate_singleton_helper
 env = SConscript("gdextension_dependencies/godot-cpp/SConstruct")
+
+lib_name = "libhfsm2"
 
 # Generate Singleton helper
 # api_path = env.get("custom_api_file", "gdextension_dependencies/godot-cpp/gdextension/extension_api.json")
@@ -17,6 +20,7 @@ env = SConscript("gdextension_dependencies/godot-cpp/SConstruct")
 # - CPPFLAGS are for pre-processor flags
 # - CPPDEFINES are for pre-processor defines
 # - LINKFLAGS are for linking flags
+
 
 cpp_paths = [
     "./",
@@ -42,10 +46,6 @@ env.Append(CPPDEFINES=["GDEXTENSION_BUILD", "GDE_COMPATIBILITY_ENABLED"])
 if "debug" in env["target"]:
     env.Append(CPPDEFINES=["TOOLS_ENABLED"])
 
-if env["platform"] == "ios":
-    if env["IOS_TOOLCHAIN_PATH"] != "":
-        env.Append(LIBPATH=[env["IOS_TOOLCHAIN_PATH"] + "/lib"])
-        env.Append(LIBS=["tapi"])
 
 # # Require C++20
 # if env.get("is_msvc", False):
@@ -60,10 +60,17 @@ if env["dev_build"]:
 
 
 def get_bin_file(env):
+    output_bin_folder = "bin"
     if env["platform"] == "macos":
-        return "demo/addons/com.daylily_zeleen.hfsm2/bin/libhfsm2.{}.{}.framework/libhfsm2.{}.{}".format(env["platform"], env["target"], env["platform"], env["target"])
+        output_bin_folder = "demo/addons/com.daylily_zeleen.hfsm2/bin"
+        return f'{output_bin_folder}/{lib_name}.{env["platform"]}.{env["target"]}.framework/{lib_name}.{env["platform"]}.{env["target"]}'
+    elif env["platform"] == "ios":
+        if env["ios_simulator"]:
+            return f'{output_bin_folder}/{lib_name}.{env["platform"]}.{env["target"]}.simulator.a'
+        else:
+            return f'{output_bin_folder}/{lib_name}.{env["platform"]}.{env["target"]}.a'
     else:
-        return "bin/libhfsm2{}{}".format(env["suffix"], env["SHLIBSUFFIX"])
+        return f'{output_bin_folder}/{lib_name}{env["suffix"]}{env["SHLIBSUFFIX"]}'
 
 
 bin_file = get_bin_file(env)

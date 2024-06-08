@@ -15,7 +15,6 @@ jobs:
       fail-fast: false
       matrix:
         target: [template_debug, template_release]
-        arch: [arm64, universal]
         shlibsuffix: [dylib]
 
     steps:
@@ -23,21 +22,19 @@ jobs:
         with:
           submodules: true
 
-      - name: Build ${{ matrix.target }} ${{ matrix.arch }}
+      - name: Build ${{ matrix.target }} arm64
         uses: ./.github/actions/build
-        if: ${{ matrix.arch == 'arm64' }}
         with:
           sconsflags: ${{ env.SCONSFLAGS_ARM64 }}
-          arch: ${{ matrix.arch }}
+          arch: arm64
           platform: ios
           target: ${{ matrix.target }}
 
-      - name: Build ${{ matrix.target }} ${{ matrix.arch }}
+      - name: Build ${{ matrix.target }} universal
         uses: ./.github/actions/build
-        if: ${{ matrix.arch == 'universal' }}
         with:
           sconsflags: ${{ env.SCONSFLAGS_UNIVERSAL }}
-          arch: ${{ matrix.arch }}
+          arch: universal
           platform: ios
           target: ${{ matrix.target }}
 
@@ -48,7 +45,7 @@ jobs:
           SCONS_CACHE_LIMIT: 7168
         run: |
           xcodebuild -create-xcframework -library ./dist/addons/com.daylily_zeleen.hfsm2/bin/libhfsm2.ios.'${{ matrix.target }}'.a -library ./dist/addons/com.daylily_zeleen.hfsm2/bin/libhfsm2.ios.'${{ matrix.target }}'.simulator.a -output ./dist/addons/com.daylily_zeleen.hfsm2/bin/libhfsm2.ios.'${{ matrix.target }}'.xcframework
-          xcodebuild -create-xcframework -library ./godot-cpp/bin/libgodot-cpp.ios.'${{ matrix.target }}'.arm64.a -library ./godot-cpp/bin/libgodot-cpp.ios.'${{ matrix.target }}'.universal.simulator.a  -output ./dist/addons/com.daylily_zeleen.hfsm2/bin/libgodot-cpp.ios.'${{ matrix.target }}'.xcframework
+          xcodebuild -create-xcframework -library ./gdextension_dependencies/godot-cpp/bin/libgodot-cpp.ios.'${{ matrix.target }}'.arm64.a -library ./gdextension_dependencies/godot-cpp/bin/libgodot-cpp.ios.'${{ matrix.target }}'.universal.simulator.a  -output ./dist/addons/com.daylily_zeleen.hfsm2/bin/libgodot-cpp.ios.'${{ matrix.target }}'.xcframework
 
       - name: Upload ${{ matrix.target }} ${{ matrix.arch }}
         uses: ./.github/actions/upload

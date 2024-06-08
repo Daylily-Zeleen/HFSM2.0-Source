@@ -11,7 +11,7 @@ def main():
     if os.path.exists("./dist"):
         shutil.rmtree("./dist")
 
-    args = "scons"
+    args = ""
     debug_and_relaese = True
     custom_api_file_defined = False
     platform = ""
@@ -50,21 +50,21 @@ def main():
 
     # Buiild.
     if debug_and_relaese:
-        command = args + " target=template_debug"
+        command = "scons " + args + " target=template_debug"
         print("Building debug version: ", command)
         code = os.system(command)
         if code != 0:
             raise RuntimeError("Build faild, exit code: " + str(code))
         print("")
 
-        command = args + " target=template_release"
+        command = "scons " + args + " target=template_release"
         print("Building release version: ", command)
         code = os.system(command)
         if code != 0:
             raise RuntimeError("Build faild, exit code: " + str(code))
     else:
         print("Building...")
-        code = os.system(args)
+        code = os.system("scons " + args)
         if code != 0:
             raise RuntimeError("Build faild, exit code: " + str(code))
 
@@ -72,7 +72,7 @@ def main():
 
     # Post process
     plugin_dir = "demo/addons/com.daylily_zeleen.hfsm2"
-    dynamic_lib_suffixs = [".so", ".dylib", ".wasm", ".dll"]
+    dynamic_lib_suffixs = [".so", ".dylib", ".wasm", ".dll", ".a"]
 
     # Copy dynamic library.
     dst_dir = path_join(plugin_dir, "bin")
