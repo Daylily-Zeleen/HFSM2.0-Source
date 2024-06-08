@@ -89,11 +89,11 @@ inline void Variable::set_value(const Variant &p_value) {
 		return;
 	}
 
-#ifdef TOOLS_ENABLED
+#ifdef DEBUG_ENABLED
 	if (!Engine::get_singleton()->is_editor_hint()) {
 		CRASH_COND(!Variant::can_convert(p_value.get_type(), type));
 	}
-#endif // TOOLS_ENABLED
+#endif // DEBUG_ENABLED
 	value = p_value;
 }
 

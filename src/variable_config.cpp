@@ -68,7 +68,7 @@ void VariableConfig::_get_property_list(List<PropertyInfo> *p_list) const {
 
 void VariableConfig::_bind_methods() {
 	GDBIND_BEGIN(VariableConfig);
-	GDADD_PROPERTY(STRING, variable_name);
+	GDADD_PROPERTY(STRING_NAME, variable_name);
 	GDADD_PROPERTY(INT, type, PROPERTY_HINT_ENUM, "Trigger,Bool,Int,Float,String");
 
 	GDBIND_SETGET(comment);
@@ -78,34 +78,40 @@ void VariableConfig::_bind_methods() {
 }
 
 void VariableConfig::set_variable_name(const StringName &p_name) {
-	auto fsm_config = get_fsm_config();
-	if (fsm_config.is_null()) {
-		return;
-	}
-
-	// Only check if FSMConfig valid.
 	variable_name = StringName(p_name);
+
+	auto fsm_config = get_fsm_config();
+	// Only check if FSMConfig valid.
 	if (fsm_config.is_valid()) {
-		bool unique = true;
-		do {
+		bool unique = false;
+		while (!unique) {
 			unique = true;
-			auto vrl = get_fsm_config()->get_variable_config_list();
+			auto vrl = fsm_config->get_variable_config_list();
 			for (auto i = 0; i < vrl.size(); i++) {
 				Ref<VariableConfig> v = vrl[i];
-				if (v.is_valid() && v.ptr() != this && v->get_variable_name() == variable_name) {
-					variable_name = StringName(String("@") + String(variable_name));
-					unique = false;
-					break;
+
+				if (!v.is_valid() || v.ptr() == this) {
+					continue;
 				}
+
+				if (v->get_variable_name() == variable_name) {
+					continue;
+				}
+
+				variable_name = StringName(String("@") + String(variable_name));
+				unique = false;
+				break;
 			}
-		} while (!unique);
+		}
 	}
 
 	set_name(String(variable_name) + ": " + get_type_text());
 	emit_changed();
 }
 
-StringName VariableConfig::get_variable_name() { return variable_name; }
+StringName VariableConfig::get_variable_name() const {
+	return variable_name;
+}
 
 void VariableConfig::set_type(Variant::Type p_t) {
 	switch (p_t) {

@@ -56,7 +56,7 @@ public:
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 
 	void set_variable_name(const StringName &p_name);
-	StringName get_variable_name();
+	StringName get_variable_name() const;
 
 	void set_type(Variant::Type p_t);
 	Variant::Type get_type() const;
@@ -65,7 +65,7 @@ public:
 	String get_comment() const;
 
 	void set_default_value(const Variant &p_default_val);
-	Variant get_default_value() const; //  { return _default_val; }
+	Variant get_default_value() const;
 
 	Ref<Variable> create_variable();
 
