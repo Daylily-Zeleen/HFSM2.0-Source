@@ -40,6 +40,7 @@ namespace HFSM2 {
 class TriggerExpression : public VariableExpression {
 public:
 	TriggerExpression(const Ref<Variable> &p_variable);
+	virtual ~TriggerExpression() = default;
 
 	bool get_result(bool p_and_mode, bool &r_result) override;
 };

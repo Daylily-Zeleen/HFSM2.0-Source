@@ -61,6 +61,8 @@ public:
 	 */
 	virtual ExpressionType get_expression_type() { return ExpressionType::EXPRESSION_TYPE_NORMAL; }
 
+	virtual ~VariableExpression() = default;
+
 protected:
 	// 变量
 	Ref<Variable> variable;

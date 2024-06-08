@@ -52,6 +52,8 @@ protected:
 	Comparator comparator = COMPARATOR_EQUAL;
 
 	ComparationExpression(const Ref<Variable> &p_variable, Comparator p_op);
+	virtual ~ComparationExpression() = default;
+
 	bool compare_with(const Ref<Variable> &p_a, Comparator p_cmp, const Variant &p_b);
 	bool compare_with(const Ref<Variable> &p_a, Comparator p_cmp, const Variable *p_b);
 };
