@@ -245,4 +245,20 @@ void FSM::_network_despawn() {
 
 #pragma endregion
 
+FSM::~FSM() {
+	hfsm = nullptr;
+	path.clear();
+	fsm_update_queue.clear();
+	current_state.unref();
+	current_entry_state.unref();
+	current_exit_state_list.clear();
+
+	for (const auto &state : state_list) {
+		if (state.is_valid()) {
+			state->clean();
+		}
+	}
+	state_list.clear();
+}
+
 }; // namespace HFSM2

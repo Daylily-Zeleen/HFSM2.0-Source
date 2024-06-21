@@ -127,14 +127,7 @@ void State::exit() {
 }
 
 State::~State() {
-	for (auto transition : transition_list) {
-		if (transition) {
-			memdelete(transition);
-		}
-	}
-	if (sub_fsm) {
-		memdelete(sub_fsm);
-	}
+	clean();
 }
 
 // setget
@@ -464,5 +457,24 @@ void State::_network_despawn() {}
 #endif
 
 #pragma endregion
+
+void State::clean() {
+	for (auto *tr : transition_list) {
+		if (tr) {
+			tr->from_state.unref();
+			tr->to_state.unref();
+			memdelete(tr);
+		}
+	}
+	transition_list.clear();
+
+	if (sub_fsm) {
+		memdelete(sub_fsm);
+		sub_fsm = nullptr;
+	}
+
+	path = TypedArray<State>{}; // 该数组仅引用。源在 FSM
+	hfsm = nullptr;
+}
 
 }; // namespace HFSM2

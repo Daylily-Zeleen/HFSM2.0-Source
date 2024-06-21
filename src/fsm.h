@@ -73,6 +73,9 @@ public:
 	void _network_despawn();
 #endif
 
+public:
+	~FSM();
+
 private:
 	HFSM *hfsm = nullptr;
 	// PackedStringArray path = PackedsStringArray();

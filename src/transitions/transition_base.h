@@ -79,6 +79,7 @@ private:
 	Ref<State> to_state;
 
 	friend class FSMConfig;
+	friend class State;
 };
 
 #pragma region 内联实现

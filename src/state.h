@@ -139,6 +139,8 @@ public:
 	virtual void _network_despawn();
 #endif
 
+	void clean();
+
 	// State() = default;
 	~State() override;
 
