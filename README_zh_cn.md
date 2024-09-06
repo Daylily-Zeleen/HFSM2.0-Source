@@ -55,3 +55,7 @@
 2. 所有的Api都有可能在将来被改变。
 3. 暂时不能在转换流表达式中使用 `GDExtensionManager`, `ResourceUID`, `IP`, `Time` 单例。
 4. 欢迎使用并在issue中向我反馈任何bug。
+
+## 其他
+
+如果这个插件能帮到你还请考虑为我[充电](https://afdian.com/a/Daylily-Zeleen)以支持我的开源活动。

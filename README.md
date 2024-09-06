@@ -55,3 +55,7 @@ I have not time to write a prefect document and create some demos, I can only re
 2. All apis have possibility to be changed in future.
 3. Currently, you can't use `GDExtensionManager`, `ResourceUID`, `IP`, `Time` singletonS in expression of Transition.
 4. Welcome to use and give me feedback by opening issues.
+
+## Others
+
+If this plugin can help you, please consider to [buy me a coffee](https://afdian.com/a/Daylily-Zeleen).
