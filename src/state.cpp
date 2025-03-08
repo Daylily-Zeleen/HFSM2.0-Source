@@ -158,7 +158,6 @@ bool State::is_exited() { return exited; }
 
 void State::manual_exit() {
 	ERR_FAIL_COND(is_exited());
-	exited = true;
 	exit_state();
 }
 
@@ -199,17 +198,23 @@ void State::entry_state() {
 }
 
 void State::update_state(real_t p_delta) {
-	ERR_FAIL_COND(is_exited());
+	if (is_exited()) {
+		return;
+	}
 	update(p_delta);
 }
 
 void State::physics_update_state(real_t p_delta) {
-	ERR_FAIL_COND(is_exited());
+	if (is_exited()) {
+		return;
+	}
 	physics_update(p_delta);
 }
 
 void State::exit_state(bool p_terminated_by_upper_level) {
-	ERR_FAIL_COND(is_exited());
+	if (is_exited()) {
+		return;
+	}
 	exited = true;
 	if (!p_terminated_by_upper_level) {
 		auto queue = List<Ref<State>>();

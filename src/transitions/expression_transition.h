@@ -45,11 +45,12 @@ public:
 
 	ExpressionTransition(HFSM *p_hfsm, const String &p_expression_text) :
 			hfsm(p_hfsm) {
-		invalid = expression.parse(p_expression_text, HFSMGlobal::get_singleton_names()) != OK;
+		expression.instantiate();
+		invalid = expression->parse(p_expression_text, HFSMGlobal::get_singleton_names()) != OK;
 	}
 
 private:
-	Expression expression;
+	Ref<Expression> expression;
 	HFSM *hfsm = nullptr;
 
 	bool invalid = true;
