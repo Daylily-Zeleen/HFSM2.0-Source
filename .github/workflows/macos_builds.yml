@@ -47,4 +47,4 @@ jobs:
         uses: ./.github/actions/upload
         with:
           platform: macos
-          artifact_file_suffix: macos.${{ matrix.target }}.${{ matrix.arch }}.${{ matrix.shlibsuffix }}/
+          artifact_file_suffix: macos.${{ matrix.target }}.${{ matrix.arch }}.${{ matrix.shlibsuffix }}

@@ -31,3 +31,45 @@ jobs:
   web-build:
     name: 🌐 Web Builds
     uses: ./.github/workflows/web_builds.yml
+
+  merge_artifacts:
+    runs-on: ubuntu-latest
+    needs: [android-build, ios-build, linux-build, macos-build, windows-build, web-build]
+    steps:
+      # Use python 3.x release (works cross platform)
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v4
+        with:
+          # Semantic version range syntax or exact version of a Python version
+          python-version: ${{ inputs.python-version }}
+          # Optional - x64 or x86 architecture, defaults to x64
+          architecture: ${{ inputs.python-arch }}
+
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+            submodules: false
+
+      - name: Setup version
+        if: ${{ inputs.platform != 'windows' }}
+        shell: sh
+        run: |
+          python build_version.py >> $GITHUB_ENV
+
+      - name: Setup version (Windows)
+        if: ${{ inputs.platform == 'windows' }}
+        shell: sh
+        run: |
+          python build_version.py >> $GITHUB_ENV
+
+      - name: Setup version
+        run: |
+          echo BUILD_VERSION=$(head -n 1 ./version) >> $GITHUB_ENV
+
+      - name: Merge Artifacts to all in one
+        uses: actions/upload-artifact/merge@v4
+        with:
+            name: HFSM2-${{ env.BUILD_VERSION }}
+            pattern: HFSM2-*
+            delete-merged: true
+            retention-days: 90

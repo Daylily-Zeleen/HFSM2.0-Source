@@ -25,22 +25,10 @@ runs:
     #     cp README_zh_cn.md dist/addons/com.daylily_zeleen.hfsm2/README_zh_cn.md
     #     cp LICENSE dist/addons/com.daylily_zeleen.hfsm2/LICENSE
 
-    - name: Setup version
-      if: ${{ inputs.platform != 'windows' }}
-      shell: sh
-      run: |
-        python build_version.py >> $GITHUB_ENV
-
-    - name: Setup version (Windows)
-      if: ${{ inputs.platform == 'windows' }}
-      shell: sh
-      run: |
-        python build_version.py >> $GITHUB_ENV
-
     - name: Upload Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: HFSM2-${{ env.BUILD_VERSION }}-${{ github.sha }}
+        name: HFSM2-${{ inputs.platform }}-${{ inputs.artifact_file_suffix }}
         path: |
           ${{ github.workspace }}/dist/**
         retention-days: 1
