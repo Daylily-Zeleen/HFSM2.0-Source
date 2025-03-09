@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os
 import sys
-import build_version
 
 
 # from build import generate_singleton_helper
@@ -86,9 +85,11 @@ def on_complete(target, source, env):
     lines = f.readlines()
     f.close()
 
+    version :str = open("version", "r").readline().strip()
+
     for i in range(len(lines)):
         if lines[i].startswith('version = "') and lines[i].endswith('"\n'):
-            lines[i] = f'version = "{build_version.version}"\n'
+            lines[i] = f'version = "{version}"\n'
             break
 
     f = open(extension_file, "w", encoding="utf8")
