@@ -56,7 +56,7 @@ class EditorInspector;
 class ImageTexture;
 #endif // GDEXTENSION_BUILD
 
-#include "../hfsm_global.h"
+#include "utils_macros.h"
 
 namespace HFSM2 {
 

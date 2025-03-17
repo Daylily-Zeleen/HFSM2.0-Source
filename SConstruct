@@ -40,11 +40,13 @@ env.Append(CPPPATH=cpp_paths)
 env.Append(LIBS=[])
 env.Append(LIBPATH=[])
 
-env.Append(CPPDEFINES=[
-    "GDEXTENSION_BUILD",
-    "GDE_COMPATIBILITY_ENABLED",
-    "MODULE_MONO_ENABLED",
-])
+env.Append(
+    CPPDEFINES=[
+        "GDEXTENSION_BUILD",
+        "GDE_COMPATIBILITY_ENABLED",
+        "MODULE_MONO_ENABLED",
+    ]
+)
 
 if "debug" in env["target"]:
     env.Append(CPPDEFINES=["TOOLS_ENABLED"])
@@ -89,7 +91,7 @@ def on_complete(target, source, env):
     lines = f.readlines()
     f.close()
 
-    version :str = open("version", "r").readline().strip()
+    version: str = open("version", "r").readline().strip()
 
     for i in range(len(lines)):
         if lines[i].startswith('version = "') and lines[i].endswith('"\n'):

@@ -58,8 +58,9 @@
 #endif // GDEXTENSION_BUILD
 
 #include "../src/fsm_config.h"
-#include "../src/transition_config.h"
 #include "../src/hfsm.h"
+#include "../src/transition_config.h"
+
 
 #include "../hfsm_global.h"
 #include "hfsm_editor.h"

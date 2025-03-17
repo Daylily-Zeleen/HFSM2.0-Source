@@ -33,7 +33,6 @@
 #include "../hfsm.h"
 #include "../state.h"
 
-
 namespace HFSM2 {
 
 #pragma region ExpressionTransition

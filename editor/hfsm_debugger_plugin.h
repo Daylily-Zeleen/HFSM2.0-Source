@@ -29,7 +29,7 @@
 
 #pragma once
 
-#include "../hfsm_global.h"
+#include "../utils_macros.h"
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/editor_debugger_plugin.hpp>
