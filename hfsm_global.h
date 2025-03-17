@@ -59,15 +59,12 @@
 #include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/string_name.hpp>
 
-#define MODULE_MONO_ENABLED
-
 #include "utils_macros.h"
 
 using namespace godot;
 #else
 #include <core/templates/hash_map.h>
 
-#include "../utils_macros.h"
 #endif // GDEXTENSION_BUILD
 
 #ifdef GDEXTENSION_BUILD
@@ -92,14 +89,6 @@ using namespace godot;
 #endif // FULL_VERSION
 
 #define cb_resource_emit_changed(m_res_ptr) Callable(m_res_ptr, SNAME("emit_changed"))
-
-#ifdef MODULE_MONO_ENABLED
-#define IF_MONO(m_code) m_code
-#define IF_NOT_MONO(m_code)
-#else // MODULE_MONO_ENABLED
-#define IF_MONO(m_code)
-#define IF_NOT_MONO(m_code) m_code
-#endif // MODULE_MONO_ENABLED
 
 #if defined(GDE_COMPATIBILITY_ENABLED) && defined(GDEXTENSION_BUILD)
 #define IF_GDE_COMPATIBLE(m_code) m_code

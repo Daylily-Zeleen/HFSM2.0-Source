@@ -29,8 +29,6 @@
 
 #pragma once
 
-#include "../hfsm_global.h"
-
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/animation_player.hpp>
 #include <godot_cpp/templates/local_vector.hpp>

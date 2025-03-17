@@ -37,12 +37,6 @@
 
 #endif // GDEXTENSION_BUILD
 
-#ifdef TOOLS_ENABLED
-#include "editor/state_node.h"
-#endif // TOOLS_ENABLED
-
-#include "src/state.h"
-
 namespace HFSM2 {
 
 #ifdef GDE_COMPATIBILITY_ENABLED

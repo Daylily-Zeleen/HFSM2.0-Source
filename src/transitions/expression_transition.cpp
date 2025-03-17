@@ -30,7 +30,9 @@
 #include "expression_transition.h"
 
 #include "../../hfsm_global.h"
+#include "../hfsm.h"
 #include "../state.h"
+
 
 namespace HFSM2 {
 

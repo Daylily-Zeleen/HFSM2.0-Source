@@ -29,6 +29,7 @@
 
 #pragma once
 
+#include "../utils_macros.h"
 #include "transition_base.h"
 
 using namespace godot;

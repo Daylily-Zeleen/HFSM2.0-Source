@@ -34,6 +34,8 @@
 #include "transitions/variable_expressions/variable_expression.h"
 #include "transitions/variable_expressions_transition.h"
 
+#include "fsm_config.h"
+
 #ifdef GDEXTENSION_BUILD
 
 #include <godot_cpp/classes/gd_script.hpp>
@@ -61,7 +63,7 @@ namespace HFSM2 {
 #define GD_TEMPLATE                                                                              \
 	"extends Transition\n\n\n"                                                                   \
 	"# Will be called every time when the HFSM update( or physics update)\n"                     \
-	"# Your must to overried this method to determine whether transit to the to state or not.\n" \
+	"# Your must to override this method to determine whether transit to the to state or not.\n" \
 	"# <returns> Can transit or not.</returns>\n"                                                \
 	"func _can_transit() -> bool:\n"                                                             \
 	"	# Your check logic.\n"                                                                     \

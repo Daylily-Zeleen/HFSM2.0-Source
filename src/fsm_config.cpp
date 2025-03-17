@@ -34,6 +34,9 @@
 #include "transition_config.h"
 #include "transitions/transition_base.h"
 #include "variable_config.h"
+#include <godot_cpp/templates/vmap.hpp>
+
+#include "hfsm_global.h"
 
 namespace HFSM2 {
 

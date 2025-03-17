@@ -40,7 +40,11 @@ env.Append(CPPPATH=cpp_paths)
 env.Append(LIBS=[])
 env.Append(LIBPATH=[])
 
-env.Append(CPPDEFINES=["GDEXTENSION_BUILD", "GDE_COMPATIBILITY_ENABLED"])
+env.Append(CPPDEFINES=[
+    "GDEXTENSION_BUILD",
+    "GDE_COMPATIBILITY_ENABLED",
+    "MODULE_MONO_ENABLED",
+])
 
 if "debug" in env["target"]:
     env.Append(CPPDEFINES=["TOOLS_ENABLED"])

@@ -27,7 +27,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
+#ifdef ROLLBACK_NET_CODE
 #include "auto_transition.h"
+#endif // ROLLBACK_NET_CODE
 
 namespace HFSM2 {
 

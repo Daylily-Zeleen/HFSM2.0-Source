@@ -51,6 +51,7 @@
 
 #endif // GDEXTENSION_BUILD
 
+#include "hfsm_global.h"
 namespace HFSM2 {
 
 void State::_bind_methods() {

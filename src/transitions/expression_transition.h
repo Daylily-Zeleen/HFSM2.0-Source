@@ -29,6 +29,8 @@
 
 #pragma once
 
+#include "../hfsm_global.h"
+
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/expression.hpp>
 #else

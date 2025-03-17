@@ -439,3 +439,11 @@ inline static T get_ref(const Ref<WeakRef> &p_weak_ref) {
 	return {};
 }
 // inline static Variant get_ref(const Ref<WeakRef> &p_weak_ref) { return get_ref(p_weak_ref); }
+
+#ifdef MODULE_MONO_ENABLED
+#define IF_MONO(m_code) m_code
+#define IF_NOT_MONO(m_code)
+#else // MODULE_MONO_ENABLED
+#define IF_MONO(m_code)
+#define IF_NOT_MONO(m_code) m_code
+#endif // MODULE_MONO_ENABLED

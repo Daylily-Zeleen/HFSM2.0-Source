@@ -29,6 +29,8 @@
 
 #include "transition.h"
 
+#include "hfsm.h"
+
 namespace HFSM2 {
 
 void Transition::_bind_methods() {

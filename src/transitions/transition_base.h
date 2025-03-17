@@ -29,9 +29,7 @@
 
 #pragma once
 
-#include "../../hfsm_global.h"
-#include "../hfsm.h"
-#include "../variable.h"
+#include "state.h"
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/ref_counted.hpp>
