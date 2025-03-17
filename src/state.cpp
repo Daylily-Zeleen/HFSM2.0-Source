@@ -80,7 +80,7 @@ void State::_bind_methods() {
 	})
 
 	GDVIRTUAL_BIND(_initialize);
-	GDVIRTUAL_BIND(_entry);
+	GDVIRTUAL_BIND(_enter);
 	GDVIRTUAL_BIND(_update, "delta");
 	GDVIRTUAL_BIND(_physics_update, "delta");
 	GDVIRTUAL_BIND(_exit);
@@ -111,9 +111,17 @@ void State::initialize() {
 	GDVIRTUAL_CALL(_initialize);
 }
 
-void State::entry() {
-	GDVIRTUAL_CALL(_entry);
+void State::enter() {
+	if (GDVIRTUAL_IS_OVERRIDDEN(_enter)) {
+		GDVIRTUAL_CALL(_enter);
+	}
+
+	if (has_method(SNAME("_entry"))) {
+		WARN_PRINT_ONCE("HFSM: '_entry()' is deprecated, please override '_entry()' instead.");
+		call(SNAME("_entry"));
+	}
 }
+
 void State::update(real_t p_delta) {
 	GDVIRTUAL_CALL(_update, p_delta);
 }
@@ -178,18 +186,18 @@ void State::initialize_state(const StringName &p_name, const StringName &p_anim_
 	initialize();
 }
 
-void State::entry_state() {
+void State::enter_state() {
 	exited = false;
 	for (auto transition : transition_list) {
 		transition->refresh();
 	}
 
-	// TODO:: Playing anim first or calling entry_state() first to allow developers setup animation property first?
-	entry();
+	// TODO:: Playing anim first or calling enter_state() first to allow developers setup animation property first?
+	enter();
 	try_play_anim();
 
 	if (sub_fsm) {
-		sub_fsm->entry();
+		sub_fsm->enter();
 	}
 	//  如果是退出状态，则在完成进入行为后立即退出
 	if (type == STATE_TYPE_EXIT) {

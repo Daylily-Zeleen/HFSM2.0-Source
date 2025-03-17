@@ -64,7 +64,7 @@ protected:
 	static void _bind_methods();
 
 	virtual void initialize(); // Will be caled after setup internal properties.
-	virtual void entry();
+	virtual void enter();
 	virtual void update(real_t p_delta);
 	virtual void physics_update(real_t p_delta);
 	virtual void exit();
@@ -86,7 +86,7 @@ public:
 	void manual_exit();
 
 	GDVIRTUAL0(_initialize);
-	GDVIRTUAL0(_entry);
+	GDVIRTUAL0(_enter);
 	GDVIRTUAL1(_update, real_t);
 	GDVIRTUAL1(_physics_update, real_t);
 	GDVIRTUAL0(_exit);
@@ -173,7 +173,7 @@ private:
 public:
 	void initialize_state(const StringName &p_name, const StringName &p_anim_name, HFSM *p_hfsm, StateType p_type, const TypedArray<HFSM2::State> &p_path, FSM *p_sub_fsm, const LocalVector<FSM *> &p_nested_fsm_update_queue);
 
-	void entry_state();
+	void enter_state();
 	void update_state(real_t p_delta);
 	void physics_update_state(real_t p_delta);
 	void exit_state(bool p_terminated_by_upper_level = false);

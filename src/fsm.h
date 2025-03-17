@@ -112,7 +112,7 @@ public:
 	// void reset();
 	void update(double p_delta);
 	void physics_update(double p_delta);
-	void entry(); //(const Ref<State> &p_entry_state = Ref<State>());
+	void enter(); //(const Ref<State> &p_entry_state = Ref<State>());
 	void exit_by_state();
 };
 

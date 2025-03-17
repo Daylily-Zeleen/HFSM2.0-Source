@@ -53,7 +53,7 @@ class Utils {
 	Utils() = default;
 
 public:
-	static bool is_script_instacne_type_valid(const Ref<Script> &p_script, const StringName &p_class_name, LocalVector<StringName> (*p_get_require_methods)());
+	static bool is_script_instance_type_valid(const Ref<Script> &p_script, const StringName &p_class_name, LocalVector<StringName> (*p_get_require_methods)());
 
 #ifdef TOOLS_ENABLED
 #ifdef MODULE_MONO_ENABLED

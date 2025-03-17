@@ -179,7 +179,7 @@ void HFSM::restart() {
 	// root_fsm->reset();
 	set_active(true);
 	set_update_type(update_type);
-	root_fsm->entry();
+	root_fsm->enter();
 	// 初始化活跃的fsm列表
 	active_fsm_list = root_fsm->try_transit_and_get_update_queue();
 }

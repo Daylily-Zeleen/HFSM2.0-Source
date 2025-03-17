@@ -67,7 +67,7 @@ namespace HFSM2 {
 	"func _can_transit() -> bool:\n"                                                             \
 	"	# Your check logic.\n"                                                                     \
 	"	return false;\n\n\n"                                                                       \
-	"# Will be called every time when the HFSM entry the from state.\n"                          \
+	"# Will be called every time when the HFSM enter the from state.\n"                          \
 	"func _refresh() -> void:\n"                                                                 \
 	"	pass\n"
 
@@ -86,7 +86,7 @@ namespace HFSM2 {
 	"		return false;\n"                                                                                \
 	"	}\n\n"                                                                                           \
 	"	// <summary>\n"                                                                                  \
-	"	// Will be called every time when the HFSM entry the from state.\n"                              \
+	"	// Will be called every time when the HFSM enter the from state.\n"                              \
 	"	// </summary>\n"                                                                                 \
 	"	private void _refresh()\n"                                                                       \
 	"	{\n"                                                                                             \
@@ -190,7 +190,7 @@ void TransitionConfig::_bind_methods() {
 	// 通用
 	GDADD_PROPERTY_RESOURCE(from_state_config, PROPERTY_USAGE_STORAGE);
 	GDADD_PROPERTY_RESOURCE(to_state_config, PROPERTY_USAGE_STORAGE);
-	String type_hint_string = "Auto,Expression,Variable Comparation Expressions";
+	String type_hint_string = "Auto,Expression,Variable Compare Expressions";
 	IF_FULL_VERSION(type_hint_string += String(",Script"));
 	GDADD_PROPERTY(INT, type, PROPERTY_HINT_ENUM, type_hint_string);
 
@@ -325,7 +325,7 @@ void TransitionConfig::set_transition_script(const Ref<Script> &p_transition_scr
 			IF_NOT_MONO(Utils::set_template_if_source_code_is_empty(state_script, GD_TEMPLATE);)
 		})
 
-		script_valid = Utils::is_script_instacne_type_valid(transition_script, Transition::get_class_static(), [] {static const LocalVector<StringName> methods =  { "_refresh", "can_transit" };return methods; });
+		script_valid = Utils::is_script_instance_type_valid(transition_script, Transition::get_class_static(), [] {static const LocalVector<StringName> methods =  { "_refresh", "can_transit" };return methods; });
 
 		if (!script_valid) {
 			ED_MSG("HFSM: The Script \"%s\" set to Transition is invalid (not extended from \"%s\" (GDScript) or have illegal methods).", transition_script->get_path(), Transition::get_class_static());

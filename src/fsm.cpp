@@ -46,7 +46,7 @@ namespace HFSM2 {
 // 	}
 // }
 
-void FSM::entry() { //(const Ref<State> &p_entry_state) {
+void FSM::enter() { //(const Ref<State> &p_entry_state) {
 	// if (reset_when_entry) {
 	// 	for (auto &&state : state_list) {
 	// 		state->reset();
@@ -59,7 +59,7 @@ void FSM::entry() { //(const Ref<State> &p_entry_state) {
 	current_state = current_entry_state;
 	// }
 	if (current_state.is_valid()) {
-		current_state->entry_state();
+		current_state->enter_state();
 		running = true;
 		hfsm->emit_transited(Ref<State>(), current_state);
 		hfsm->emit_entered(current_state);
@@ -78,7 +78,7 @@ LocalVector<FSM *> *FSM::try_transit_and_get_update_queue() {
 
 		auto to_state = transition->get_to_state();
 		// 进入新状态（新状态如果是退出状态，则立刻完成进入行为后立刻退出，已在State::entry()中处理
-		to_state->entry_state();
+		to_state->enter_state();
 		hfsm->emit_transited(current_state, to_state);
 		current_state = to_state;
 		hfsm->emit_entered(current_state);
@@ -147,7 +147,7 @@ void FSM::set_nested_state(const Ref<State> &p_nested_state, const LocalVector<F
 // 	}
 // 	hfsm->emit_transited(current_state, p_target_state);
 // 	current_state = p_target_state;
-// 	current_state->entry();
+// 	current_state->enter();
 // 	hfsm->emit_entered(current_state);
 // 	return true;
 // }

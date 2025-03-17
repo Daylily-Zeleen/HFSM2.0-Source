@@ -69,7 +69,7 @@ namespace HFSM2 {
 #define GD_TEMPLATE                                             \
 	"extends State\n\n\n"                                       \
 	"func _initialize() -> void:\n\tpass\n\n\n"                 \
-	"func _entry() -> void:\n\tpass\n\n\n"                      \
+	"func _enter() -> void:\n\tpass\n\n\n"                      \
 	"func _update(delta: float) -> void:\n\tpass\n\n\n"         \
 	"func _physics_update(delta: float) -> void:\n\tpass\n\n\n" \
 	"func _exit() -> void:\n\tpass\n"
@@ -83,7 +83,7 @@ namespace HFSM2 {
 	"	{\n"                                                                                             \
 	"		// Called after setup internal.\n"                                                              \
 	"	}\n\n"                                                                                           \
-	"	private void _entry()\n"                                                                         \
+	"	private void _enter()\n"                                                                         \
 	"	{\n"                                                                                             \
 	"		// Called when entered this state.\n"                                                           \
 	"	}\n\n"                                                                                           \
@@ -103,7 +103,7 @@ namespace HFSM2 {
 #endif // MODULE_MONO_ENABLED
 
 // Script verify
-bool Utils::is_script_instacne_type_valid(const Ref<Script> &p_script, const StringName &p_class_name, LocalVector<StringName> (*p_get_require_methods)()) {
+bool Utils::is_script_instance_type_valid(const Ref<Script> &p_script, const StringName &p_class_name, LocalVector<StringName> (*p_get_require_methods)()) {
 	if (p_script.is_null()) {
 		return false;
 	}
@@ -330,7 +330,8 @@ void StateConfig::set_state_script(const Ref<Script> &p_script) {
 			IF_NOT_MONO(Utils::set_template_if_source_code_is_empty(state_script, GD_TEMPLATE);)
 		})
 
-		script_valid = Utils::is_script_instacne_type_valid(state_script, State::get_class_static(), [] {static const LocalVector<StringName> methods =  { "_initialize", "_entry", "_update", "_physics_update", "_exit" };return methods; });
+		script_valid = Utils::is_script_instance_type_valid(state_script, State::get_class_static(),
+				[] {static const LocalVector<StringName> methods =  { "_initialize", "_enter", "_update", "_physics_update", "_exit" };return methods; });
 
 		if (!script_valid) {
 			ED_MSG("HFSM: The Script \"%s\" set to State is invalid (not extended from \"%s\" (GDScript) or have illegal methods).", state_script->get_path(), State::get_class_static());

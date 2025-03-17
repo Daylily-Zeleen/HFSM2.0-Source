@@ -359,6 +359,7 @@ static Array make_arr(Args... args) {
 	}
 #define GDVIRTUAL_BIND(m_method, ...)
 #define GDVIRTUAL_CALL(m_method, ...) m_method(##__VA_ARGS__)
+#define GDVIRTUAL_IS_OVERRIDDEN(m_method) has_method(m_method)
 
 #endif // (GODOT_VERSION_MAJOR >= 4 && GODOT_VERSION_MINOR >= 3)
 #endif // defined(GDEXTENSION_BUILD)
