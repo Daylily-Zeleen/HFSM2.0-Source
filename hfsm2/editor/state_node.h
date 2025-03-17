@@ -49,7 +49,7 @@ using namespace godot;
 
 #endif // GDEXTENSION_BUILD
 
-#include "../src/fsm_config.h"
+#include <src/fsm_config.h>
 
 namespace HFSM2 {
 

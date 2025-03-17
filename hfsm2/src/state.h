@@ -29,7 +29,7 @@
 
 #pragma once
 
-#include "utils_macros.h"
+#include <utils_macros.h>
 
 #ifdef GDEXTENSION_BUILD
 #include <godot_cpp/classes/ref_counted.hpp>

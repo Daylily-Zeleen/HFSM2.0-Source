@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  transition.h                                                          */
+/*  variable_config.h                                                     */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                   Hierarchical Finite State Machine                    */
@@ -29,52 +29,64 @@
 
 #pragma once
 
-#include "../utils_macros.h"
-#include "transition_base.h"
+#include <utils_macros.h>
 
+#ifdef GDEXTENSION_BUILD
+#include <godot_cpp/classes/resource.hpp>
 using namespace godot;
+#else
+#include <core/io/resource.h>
+#endif // GDEXTENSION_BUILD
 
 namespace HFSM2 {
+class Variable;
+class FSMConfig;
 
-class Transition : public RefCounted, public TransitionBase {
-	GDCLASS(Transition, RefCounted)
+class VariableConfig : public Resource {
+	GDCLASS(VariableConfig, Resource)
+
 protected:
 	static void _bind_methods();
 
 	_TO_STRING()
 
 public:
-	GDVIRTUAL0(_refresh);
-	GDVIRTUAL0R(bool, _can_transit);
+	bool _set(const StringName &p_name, const Variant &p_property);
+	bool _get(const StringName &p_name, Variant &r_property) const;
+	void _get_property_list(List<PropertyInfo> *p_list) const;
 
-	void refresh() override {
-		GDVIRTUAL_CALL(_refresh);
-	}
+	void set_variable_name(const StringName &p_name);
+	StringName get_variable_name() const;
 
-	bool can_transit() override {
-		bool ret;
-		if (GDVIRTUAL_CALL(_can_transit, ret)) {
-			return ret;
-		}
-		return false;
-	}
+	void set_type(Variant::Type p_t);
+	Variant::Type get_type() const;
 
-	Ref<State> get_from_state() override { return TransitionBase::get_from_state(); }
-	Ref<State> get_to_state() override { return TransitionBase::get_to_state(); }
+	void set_comment(const String &p_comment);
+	String get_comment() const;
 
-	HFSM *get_hfsm() { return hfsm; }
+	void set_default_value(const Variant &p_default_val);
+	Variant get_default_value() const;
 
-	Transition() = default;
+	Ref<Variable> create_variable();
 
-	Transition(HFSM *p_hfsm) :
-			hfsm(p_hfsm) {
-		// reference(); // Increase ref count to avoid free by user.
-	}
+	void set_fsm_config(const Ref<FSMConfig> &p_fsm_config);
+	Ref<FSMConfig> get_fsm_config() const;
 
-	operator TransitionBase *() { return static_cast<TransitionBase *>(this); }
+	static Ref<VariableConfig> create_new(const Ref<FSMConfig> &p_fsm_config);
+
+	String get_type_text() const;
+
+#if TOOLS_ENABLED
+	Array debug_serialize() const;
+	static Ref<VariableConfig> debug_deserialize(const Array &p_data);
+#endif // TOOLS_ENABLED
 
 private:
-	HFSM *hfsm = nullptr;
+	StringName variable_name = "variable";
+	Ref<WeakRef> fsm_config;
+	Variant::Type type = Variant::NIL;
+	Variant default_value;
+	String comment = "";
 };
 
-}; // namespace HFSM2
+} // namespace HFSM2

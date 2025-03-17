@@ -22,17 +22,17 @@ lib_name = "libhfsm2"
 
 
 cpp_paths = [
-    "./",
-    "src/",
-    "src/transitions/",
-    "src/transitions/variable_expressions/",
+    "hfsm2/",
+    "hfsm2/src/",
+    "hfsm2/src/transitions/",
+    "hfsm2/src/transitions/variable_expressions/",
 ]
-sources = Glob("*.cpp") + Glob("src/*.cpp") + Glob("src/transitions/*.cpp") + Glob("src/transitions/variable_expressions/*.cpp")
+sources = Glob("hfsm2/*.cpp") + Glob("hfsm2/src/*.cpp") + Glob("hfsm2/src/transitions/*.cpp") + Glob("hfsm2/src/transitions/variable_expressions/*.cpp")
 
 if env["target"] == "editor" or env["target"] == "template_debug":
-    cpp_paths.append("editor/")
+    cpp_paths.append("hfsm2/editor/")
 
-    sources = sources + Glob("editor/*.cpp")
+    sources = sources + Glob("hfsm2/editor/*.cpp")
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=cpp_paths)

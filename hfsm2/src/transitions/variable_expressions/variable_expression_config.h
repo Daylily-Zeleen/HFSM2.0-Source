@@ -38,7 +38,7 @@ using namespace godot;
 
 #endif // GDEXTENSION_BUILD
 
-#include "../../variable_config.h"
+#include <src/variable_config.h>
 
 #include "compare_expression.h"
 

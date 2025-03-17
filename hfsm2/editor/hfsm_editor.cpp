@@ -44,9 +44,9 @@
 
 #endif // GDEXTENSION_BUILD
 
-#include "../src/fsm_config.h"
-#include "../src/hfsm.h"
-#include "../src/state_config.h"
+#include <src/fsm_config.h>
+#include <src/hfsm.h>
+#include <src/state_config.h>
 
 #include "fsm_editor.h"
 #include "hfsm_editor_plugin.h"

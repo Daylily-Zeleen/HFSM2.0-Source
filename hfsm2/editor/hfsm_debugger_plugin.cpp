@@ -29,8 +29,9 @@
 
 #include "hfsm_debugger_plugin.h"
 
-#include "../src/fsm_config.h"
-#include "../src/hfsm.h"
+#include "src/fsm_config.h"
+#include "src/hfsm.h"
+
 #include "hfsm_editor.h"
 
 #ifdef GDEXTENSION_BUILD

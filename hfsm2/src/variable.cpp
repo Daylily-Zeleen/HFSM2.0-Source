@@ -29,7 +29,7 @@
 
 #include "variable.h"
 
-#include "../hfsm_global.h"
+#include <hfsm_global.h>
 
 namespace HFSM2 {
 

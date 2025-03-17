@@ -56,8 +56,8 @@ using namespace godot;
 #include "hfsm_editor.h"
 #include "state_node.h"
 
-#include "../src/hfsm.h"
-#include "../src/transitions/variable_expressions/variable_expression_config.h"
+#include <src/hfsm.h>
+#include <src/transitions/variable_expressions/variable_expression_config.h>
 
 #ifdef DEBUG_ENABLED
 #include "hfsm_debugger_plugin.h"
