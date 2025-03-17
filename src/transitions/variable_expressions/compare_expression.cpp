@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  compare_expression.cpp                                            */
+/*  compare_expression.cpp                                                */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                   Hierarchical Finite State Machine                    */

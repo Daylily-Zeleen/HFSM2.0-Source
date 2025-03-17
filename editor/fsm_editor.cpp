@@ -61,7 +61,6 @@
 #include "../src/hfsm.h"
 #include "../src/transition_config.h"
 
-
 #include "../hfsm_global.h"
 #include "hfsm_editor.h"
 #include "hfsm_editor_plugin.h"
