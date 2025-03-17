@@ -130,24 +130,24 @@ void FSMEditor::_bind_methods() {
 	GDBIND_METHOD(__set_copied_transition_list);
 	GDBIND_METHOD(__set_selected_state_name_list);
 	GDBIND_METHOD(__select_state_nodes);
-	GDBIND_METHOD(__select_mamually, "val");
+	GDBIND_METHOD(__select_manually, "val");
 	GDBIND_METHOD(__set_blocking_redraw);
 	// CALLBACKS
-	GDBIND_CALBACK(_disconnect_inspecting_transition_config);
-	GDBIND_CALBACK(_transition_config_updated);
-	GDBIND_CALBACK(_popup_menu_id_pressed, "id");
-	GDBIND_CALBACK(_delete_nodes_request, "nodes");
-	GDBIND_CALBACK(_connection_request, "from", "from_slot", "to", "to_slot");
-	GDBIND_CALBACK(_popup_request, "position");
-	GDBIND_CALBACK(_node_selected, "node");
-	GDBIND_CALBACK(_node_deselected, "node");
-	GDBIND_CALBACK(_gui_input_internal, "input");
-	GDBIND_CALBACK(_end_node_move);
-	GDBIND_CALBACK(_draw_layer_draw);
-	GDBIND_CALBACK(_edit_sub_fsm_requested);
-	GDBIND_CALBACK(_state_node_reconnected_requested);
+	GDBIND_CALLBACK(_disconnect_inspecting_transition_config);
+	GDBIND_CALLBACK(_transition_config_updated);
+	GDBIND_CALLBACK(_popup_menu_id_pressed, "id");
+	GDBIND_CALLBACK(_delete_nodes_request, "nodes");
+	GDBIND_CALLBACK(_connection_request, "from", "from_slot", "to", "to_slot");
+	GDBIND_CALLBACK(_popup_request, "position");
+	GDBIND_CALLBACK(_node_selected, "node");
+	GDBIND_CALLBACK(_node_deselected, "node");
+	GDBIND_CALLBACK(_gui_input_internal, "input");
+	GDBIND_CALLBACK(_end_node_move);
+	GDBIND_CALLBACK(_draw_layer_draw);
+	GDBIND_CALLBACK(_edit_sub_fsm_requested);
+	GDBIND_CALLBACK(_state_node_reconnected_requested);
 
-	GDBIND_CALBACK(_debug_tween_activity);
+	GDBIND_CALLBACK(_debug_tween_activity);
 
 	ADD_SIGNAL(MethodInfo(s_edit_fsm_requested, PropertyInfo(Variant::OBJECT, "sub_fsm_config", PROPERTY_HINT_RESOURCE_TYPE, FSMConfig::get_class_static())));
 }
@@ -299,9 +299,9 @@ TypedArray<TransitionConfig> FSMEditor::try_select_transitions_at_pos(const Vect
 		Vector2 scaled_to_pos = scaled_line[1];
 		// 取 转换线 的垂直方向, 以 鼠标
 		// 双击点为基准，向两边延申，取得测试线段的两端点
-		auto verti_ab_extent = scaled_from_pos.direction_to(scaled_to_pos).rotated(Math_PI * 0.5f) * TRANSITION_SELECT_EXTENT;
-		auto test_segment_p1 = (p_pos / graph_zoom + verti_ab_extent) * graph_zoom;
-		auto test_segment_p2 = (p_pos / graph_zoom - verti_ab_extent) * graph_zoom;
+		auto vertical_ab_extent = scaled_from_pos.direction_to(scaled_to_pos).rotated(Math_PI * 0.5f) * TRANSITION_SELECT_EXTENT;
+		auto test_segment_p1 = (p_pos / graph_zoom + vertical_ab_extent) * graph_zoom;
+		auto test_segment_p2 = (p_pos / graph_zoom - vertical_ab_extent) * graph_zoom;
 		// 测试线段于转换线是否相交
 		if (is_judge(test_segment_p1, test_segment_p2, scaled_from_pos, scaled_to_pos)) {
 			// 相交， 在识别范围内
@@ -387,16 +387,16 @@ StateNode *FSMEditor::get_top_state_node_which_hovering() {
 
 TypedArray<StateConfig> FSMEditor::get_selected_state_config_list() {
 	TypedArray<StateConfig> ret;
-	auto seleted_state_nodes = get_selected_state_nodes();
-	for (auto i = 0; i < seleted_state_nodes.size(); i++) {
-		if (auto sn = cast_to<StateNode>(seleted_state_nodes[i])) {
+	auto selected_state_nodes = get_selected_state_nodes();
+	for (auto i = 0; i < selected_state_nodes.size(); i++) {
+		if (auto sn = cast_to<StateNode>(selected_state_nodes[i])) {
 			ret.push_back(sn->get_state_config());
 		}
 	}
 	return ret;
 }
 
-void FSMEditor::__select_mamually(const TypedArray<StateNode> &p_target_nodes) {
+void FSMEditor::__select_manually(const TypedArray<StateNode> &p_target_nodes) {
 	TypedArray<StringName> to_select_state_name_list;
 	for (auto i = 0; i < get_child_count(); i++) {
 		if (auto sn = cast_to<StateNode>(get_child(i))) {
@@ -407,7 +407,7 @@ void FSMEditor::__select_mamually(const TypedArray<StateNode> &p_target_nodes) {
 		}
 	}
 	__set_selected_state_name_list(to_select_state_name_list.duplicate());
-	bakcup_selected_state_name_list = to_select_state_name_list;
+	backup_selected_state_name_list = to_select_state_name_list;
 	selection_dirty = false;
 }
 
@@ -456,8 +456,8 @@ void FSMEditor::_popup_menu_id_pressed(int32_t p_id) {
 			ADD_DO_REFERENCE(new_sn);
 			ADD_DO_METHOD(this, add_child, new_sn);
 			ADD_DO_METHOD(current_fsm_config.ptr(), add_state_config, new_sc);
-			ADD_DO_METHOD(this, __select_mamually, make_arr<TypedArray<StateNode>>(new_sn));
-			ADD_UNDO_METHOD(this, __select_mamually, TypedArray<StateNode>());
+			ADD_DO_METHOD(this, __select_manually, make_arr<TypedArray<StateNode>>(new_sn));
+			ADD_UNDO_METHOD(this, __select_manually, TypedArray<StateNode>());
 			ADD_UNDO_METHOD(current_fsm_config.ptr(), remove_state_config, new_sc);
 			ADD_UNDO_METHOD(this, remove_child, new_sn);
 			COMMIT_ACTION();
@@ -499,7 +499,7 @@ void FSMEditor::_popup_menu_id_pressed(int32_t p_id) {
 
 			ADD_DO_METHOD(this, __set_copied_transition_list, selected_transition_config_list.duplicate());
 			ADD_UNDO_METHOD(this, __set_copied_transition_list, copied_transition_config_list);
-			ADD_UNDO_METHOD(this, __select_mamually, selected_state_nodes);
+			ADD_UNDO_METHOD(this, __select_manually, selected_state_nodes);
 			ADD_DO_METHOD(this, __set_copied_state_config_list, to_copied_state_config);
 			ADD_UNDO_METHOD(this, __set_copied_state_config_list, copied_state_config_list);
 
@@ -564,10 +564,10 @@ void FSMEditor::_popup_menu_id_pressed(int32_t p_id) {
 				osc2csc.insert(sc, csc);
 			}
 			// 添加
-			TypedArray<StateNode> copied_state_ndoes;
+			TypedArray<StateNode> copied_state_nodes;
 			for (const auto &kv : osc2csc) {
 				auto csn = cast_to<StateNode>(kv.value->get_state_node());
-				copied_state_ndoes.push_back(csn);
+				copied_state_nodes.push_back(csn);
 
 				ADD_DO_REFERENCE(csn);
 				ADD_DO_METHOD(this, add_child, csn);
@@ -595,8 +595,8 @@ void FSMEditor::_popup_menu_id_pressed(int32_t p_id) {
 			// 选中
 			ADD_DO_METHOD(this, __set_blocking_redraw, false);
 			ADD_UNDO_METHOD(this, __set_blocking_redraw, false);
-			ADD_DO_METHOD(this, __select_mamually, copied_state_ndoes);
-			ADD_UNDO_METHOD(this, __select_mamually, get_selected_state_nodes());
+			ADD_DO_METHOD(this, __select_manually, copied_state_nodes);
+			ADD_UNDO_METHOD(this, __select_manually, get_selected_state_nodes());
 			COMMIT_ACTION();
 		} break;
 		case ITEM_DUPLICATE_STATES: {
@@ -645,8 +645,8 @@ void FSMEditor::_popup_menu_id_pressed(int32_t p_id) {
 			ADD_DO_METHOD(this, __set_blocking_redraw, false);
 			ADD_UNDO_METHOD(this, __set_blocking_redraw, false);
 
-			ADD_DO_METHOD(this, __select_mamually, csn_list);
-			ADD_UNDO_METHOD(this, __select_mamually, get_selected_state_nodes());
+			ADD_DO_METHOD(this, __select_manually, csn_list);
+			ADD_UNDO_METHOD(this, __select_manually, get_selected_state_nodes());
 			COMMIT_ACTION();
 		} break;
 		case ITEM_DELETE: {
@@ -682,7 +682,7 @@ void FSMEditor::_popup_menu_id_pressed(int32_t p_id) {
 
 				ADD_DO_METHOD(this, __set_blocking_redraw, false);
 				ADD_UNDO_METHOD(this, __set_blocking_redraw, false);
-				ADD_UNDO_METHOD(this, __select_mamually, get_selected_state_nodes());
+				ADD_UNDO_METHOD(this, __select_manually, get_selected_state_nodes());
 				ADD_DO_METHOD(draw_layer, queue_redraw);
 				ADD_UNDO_METHOD(draw_layer, queue_redraw);
 				COMMIT_ACTION();
@@ -791,8 +791,8 @@ void FSMEditor::_popup_menu_id_pressed(int32_t p_id) {
 			ADD_DO_METHOD(current_fsm_config.ptr(), add_state_config, duplicated_state_config);
 			ADD_DO_METHOD(this, add_child, duplicated_state_node);
 
-			ADD_DO_METHOD(this, __select_mamually, make_arr<TypedArray<StateNode>>(duplicated_state_node));
-			ADD_UNDO_METHOD(this, __select_mamually, selected_state_nodes);
+			ADD_DO_METHOD(this, __select_manually, make_arr<TypedArray<StateNode>>(duplicated_state_node));
+			ADD_UNDO_METHOD(this, __select_manually, selected_state_nodes);
 
 			ADD_DO_METHOD(this, __set_blocking_redraw, false);
 			ADD_UNDO_METHOD(this, __set_blocking_redraw, false);
@@ -824,18 +824,18 @@ void FSMEditor::_connection_request(const StringName &p_from, int p_from_slot, c
 	new_tr.instantiate();
 	new_tr->set_from_state_config(from_node->get_state_config());
 	new_tr->set_to_state_config(to_node->get_state_config());
-	// undoredo
+	// Undo Redo
 	HFSM_EDITOR_CREATE_ACTION("Create State Transition");
 	ADD_DO_METHOD(this, connect_node, p_from, p_from_slot, p_to, p_to_slot);
 	ADD_UNDO_METHOD(this, disconnect_node, p_from, p_from_slot, p_to, p_to_slot);
 	ADD_DO_METHOD(current_fsm_config.ptr(), add_transition_config, new_tr);
 	ADD_UNDO_METHOD(current_fsm_config.ptr(), remove_transition_config, new_tr);
 
-	auto new_transiion_config_list = make_arr<TypedArray<TransitionConfig>>(new_tr);
+	auto new_transition_config_list = make_arr<TypedArray<TransitionConfig>>(new_tr);
 	ADD_DO_METHOD(this, __set_selected_state_name_list, TypedArray<StringName>());
 	ADD_UNDO_METHOD(this, __set_selected_state_name_list, selected_state_name_list);
 
-	ADD_DO_DEFERRED_CALL_METHOD(this, __set_selected_transition_config_list, new_transiion_config_list);
+	ADD_DO_DEFERRED_CALL_METHOD(this, __set_selected_transition_config_list, new_transition_config_list);
 	ADD_UNDO_DEFERRED_CALL_METHOD(this, __set_selected_transition_config_list, selected_transition_config_list);
 
 	ADD_DO_METHOD(draw_layer, queue_redraw);
@@ -1041,18 +1041,18 @@ void FSMEditor::_gui_input_internal(const Ref<InputEvent> &p_event) {
 							HFSM_EDITOR_CREATE_ACTION(selected_state_name_list.size() == 0 ? "Deselect" : "Select States");
 							ADD_DO_METHOD(this, __set_selected_transition_config_list, TypedArray<TransitionConfig>());
 							ADD_DO_METHOD(this, __select_state_nodes, this->selected_state_name_list);
-							ADD_UNDO_METHOD(this, __select_state_nodes, this->bakcup_selected_state_name_list.duplicate());
+							ADD_UNDO_METHOD(this, __select_state_nodes, this->backup_selected_state_name_list.duplicate());
 							ADD_UNDO_METHOD(this, __set_selected_transition_config_list, this->selected_transition_config_list.duplicate());
 							COMMIT_ACTION();
-							this->bakcup_selected_state_name_list = this->selected_state_name_list.duplicate();
+							this->backup_selected_state_name_list = this->selected_state_name_list.duplicate();
 						};
 
-						if (selected_state_name_list.size() != bakcup_selected_state_name_list.size()) {
+						if (selected_state_name_list.size() != backup_selected_state_name_list.size()) {
 							undo_redo_select_nodes();
 						} else {
 							for (auto i = 0; i < selected_state_name_list.size(); i++) {
 								StringName state_name = selected_state_name_list[i];
-								if (!bakcup_selected_state_name_list.has(state_name)) {
+								if (!backup_selected_state_name_list.has(state_name)) {
 									undo_redo_select_nodes();
 									break;
 								}
@@ -1191,17 +1191,17 @@ void FSMEditor::_draw_layer_draw() {
 		}
 	}
 
-	const Color unactivated_triangle_color = StateNode::OUT_COLOR().lerp(StateNode::IN_COLOR(), 0.5f);
+	const Color unactivate_triangle_color = StateNode::OUT_COLOR().lerp(StateNode::IN_COLOR(), 0.5f);
 
 #ifdef DEV_ENABLED
-	LocalVector<Ref<TransitionConfig>> dealed_tc_list;
-	IF_GDE(dealed_tc_list.reserve(get_connection_list().size()));
+	LocalVector<Ref<TransitionConfig>> handled_tc_list;
+	IF_GDE(handled_tc_list.reserve(get_connection_list().size()));
 	IF_GDM(List<Connection> conn_list;
 			get_connection_list(&conn_list);
-			dealed_tc_list.reserve(conn_list.size()));
-	const auto action = [this, unactivated_triangle_color, &dealed_tc_list](const StringName &from_name, const StringName &to_name)
+			handled_tc_list.reserve(conn_list.size()));
+	const auto action = [this, unactivate_triangle_color, &handled_tc_list](const StringName &from_name, const StringName &to_name)
 #else // DEV_ENABLED
-	const auto action = [this, &unactivated_triangle_color](const StringName &from_name, const StringName &to_name)
+	const auto action = [this, &unactivate_triangle_color](const StringName &from_name, const StringName &to_name)
 #endif // DEV_ENABLED
 	{
 		auto from = _get_state_node({ from_name });
@@ -1214,8 +1214,8 @@ void FSMEditor::_draw_layer_draw() {
 		// 异常
 		ERR_FAIL_COND_V_MSG(tc.is_null(), false, "HFSM:: 异常 ，存在连接当不存在对应的转换流。");
 		IF_DEV({
-			ERR_FAIL_COND_V_MSG(dealed_tc_list.find(tc) >= 0, false, "不同的链接指向同一个 TransitionConfig? 这不可能");
-			dealed_tc_list.push_back(tc);
+			ERR_FAIL_COND_V_MSG(handled_tc_list.find(tc) >= 0, false, "不同的链接指向同一个 TransitionConfig? 这不可能");
+			handled_tc_list.push_back(tc);
 		});
 
 		auto selected = selected_transition_config_list.has(tc);
@@ -1225,7 +1225,7 @@ void FSMEditor::_draw_layer_draw() {
 		auto angle = scaled_line[0].angle_to_point(scaled_line[1]);
 		auto clamped_scale = Vector2(1, 1) * float(CLAMP(get_zoom(), 0.5, 1));
 		// 三角形
-		Color triangle_color = unactivated_triangle_color;
+		Color triangle_color = unactivate_triangle_color;
 		if (debug_mode) {
 			if (debug_activity_from == from->get_name() && debug_activity_to == to->get_name()) {
 				triangle_color = triangle_color.lerp(activity_color, debug_activity);
@@ -1379,7 +1379,7 @@ void FSMEditor::initialize() {
 	// #endif // GDE_COMPATIBILITY_ENABLED
 	// 		}
 	// 	}
-	// 	CRASH_COND_MSG(!connection_layer, "Gets connection_layer of GraphEdit is faild on your Godot version. Please open a issue on \"https://github.com/Daylily-Zeleen/HFSM2/issues\".");
+	// 	CRASH_COND_MSG(!connection_layer, "Gets connection_layer of GraphEdit is failed on your Godot version. Please open a issue on \"https://github.com/Daylily-Zeleen/HFSM2/issues\".");
 
 	menu = memnew(PopupMenu);
 	menu->connect("id_pressed", TCALLABLE(_popup_menu_id_pressed));
@@ -1952,21 +1952,21 @@ FSMEditor::FSMEditor(bool p_debug_mode) :
 	add_child(draw_layer);
 };
 
-void FSMEditor::debug_highlight_active_state(const StringName &p_state_name, bool p_deactive_all) {
+void FSMEditor::debug_highlight_active_state(const StringName &p_state_name, bool p_deactivate_all) {
 	StateNode *prev_activated = nullptr;
 	StateNode *next_activated = nullptr;
 	for (auto i = 0; i < get_child_count(); ++i) {
 		if (auto sn = cast_to<StateNode>(get_child(i))) {
-			if (sn->is_debug_actived()) {
+			if (sn->is_debug_activated()) {
 				prev_activated = sn;
 			}
 
-			if (!p_deactive_all && sn->get_state_config()->get_state_name() == p_state_name) {
-				sn->set_debug_actived(true);
+			if (!p_deactivate_all && sn->get_state_config()->get_state_name() == p_state_name) {
+				sn->set_debug_activated(true);
 				sn->set_self_modulate(Color::named("GREEN"));
 				next_activated = sn;
 			} else {
-				sn->set_debug_actived(false);
+				sn->set_debug_activated(false);
 				sn->set_self_modulate(Color::named("WHITE"));
 			}
 		}

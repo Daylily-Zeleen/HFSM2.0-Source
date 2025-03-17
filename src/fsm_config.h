@@ -70,7 +70,7 @@ public:
 
 	void add_variable_config(const Ref<class VariableConfig> &p_variable_config);
 
-	// 未删除相关的 TransitionConfig, 需要在编辑器里处理 undoredo
+	// 未删除相关的 TransitionConfig, 需要在编辑器里处理 Undo Redo
 	void remove_state_config(const Ref<StateConfig> &p_state_config);
 
 	void remove_transition_config(const Ref<TransitionConfig> &p_transition_config);

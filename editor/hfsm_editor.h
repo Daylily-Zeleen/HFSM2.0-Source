@@ -98,7 +98,7 @@ private:
 	bool try_set_nested_state_config_for_fsm_config_recursively(const Ref<FSMConfig> &p_fsm_config, Ref<FSMConfig> p_to_search_fsm_config = nullptr);
 	void initialize();
 
-	void _inspector_property_edited(const String &p_properrty);
+	void _inspector_property_edited(const String &p_property);
 	void _inspector_edited_object_changed();
 	void _edit_fsm_requested(const Ref<FSMConfig> &p_fsm_config);
 	void _change_hint();

@@ -71,15 +71,15 @@ void StateNode::_bind_methods() {
 
 	// GDBIND_METHOD(_adjust_size);
 
-	GDBIND_CALBACK(_cancel_name_changed);
-	GDBIND_CALBACK(_accept_name_changed);
-	GDBIND_CALBACK(_type_option_btn_item_selected, "idx");
-	GDBIND_CALBACK(_set_has_sub_fsm_check_box, "pressed");
-	GDBIND_CALBACK(_request_edit_sub_fsm_config);
+	GDBIND_CALLBACK(_cancel_name_changed);
+	GDBIND_CALLBACK(_accept_name_changed);
+	GDBIND_CALLBACK(_type_option_btn_item_selected, "idx");
+	GDBIND_CALLBACK(_set_has_sub_fsm_check_box, "pressed");
+	GDBIND_CALLBACK(_request_edit_sub_fsm_config);
 
-	GDBIND_CALBACK(_script_selected, "script", "edit");
-	GDBIND_CALBACK(_script_changed, "script");
-	GDBIND_CALBACK(_setup_state_config);
+	GDBIND_CALLBACK(_script_selected, "script", "edit");
+	GDBIND_CALLBACK(_script_changed, "script");
+	GDBIND_CALLBACK(_setup_state_config);
 
 	ADD_SIGNAL(MethodInfo(s_edit_fsm_requested, PropertyInfo(Variant::OBJECT, "sub_fsm_config", PROPERTY_HINT_RESOURCE_TYPE, FSMConfig::get_class_static())));
 	ADD_SIGNAL(MethodInfo("_reconnected_requested", PropertyInfo(Variant::STRING_NAME, "old_node_name"), PropertyInfo(Variant::STRING_NAME, "new_node_name")));
@@ -182,7 +182,7 @@ void StateNode::_accept_name_changed(const String &new_name) {
 		name_line_edit->set_text(state_config->get_state_name());
 		ERR_FAIL_MSG(str_localize("HFSM: has duplicated State name: ") + name_line_edit->get_text());
 	}
-	// undoredo
+	// Undo Redo
 	HFSM_EDITOR_CREATE_ACTION("Change state name");
 	ADD_DO_METHOD(state_config.ptr(), set_state_name, name_line_edit->get_text());
 	ADD_DO_METHOD(this, set_title, name_line_edit->get_text());
@@ -390,12 +390,12 @@ void StateNode::_notification(int p_what) {
 	}
 }
 
-void StateNode::set_debug_actived(bool p_actived) {
-	debug_actived = p_actived;
+void StateNode::set_debug_activated(bool p_activated) {
+	debug_activated = p_activated;
 }
 
-bool StateNode::is_debug_actived() const {
-	return debug_actived;
+bool StateNode::is_debug_activated() const {
+	return debug_activated;
 }
 
 StateNode::StateNode(bool p_debug_mode) :

@@ -66,11 +66,11 @@ public:
 
 	void _load_state(const Variant &p_state) override;
 #endif
-	AutoTransition(TransitionConfig::AuotoTtransitMode p_mode, uint64_t p_delay_msec, uint64_t p_times) :
+	AutoTransition(TransitionConfig::AutoTransitMode p_mode, uint64_t p_delay_msec, uint64_t p_times) :
 			mode(p_mode), delay_msec(p_delay_msec), times(p_times) {}
 
 private:
-	TransitionConfig::AuotoTtransitMode mode = TransitionConfig::AUTO_TRANSIT_MODE_ANIMATION_FINISH;
+	TransitionConfig::AutoTransitMode mode = TransitionConfig::AUTO_TRANSIT_MODE_ANIMATION_FINISH;
 	uint64_t delay_msec = 1000;
 	uint64_t times = 5;
 

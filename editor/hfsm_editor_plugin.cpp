@@ -169,7 +169,7 @@ void EditorPropertyVariableConfig::VariableConfigSelector::_resource_selected(co
 void EditorPropertyVariableConfig::VariableConfigSelector::_bind_methods() {
 	GDBIND_BEGIN(VariableConfigSelector);
 
-	GDBIND_CALBACK(_resource_selected);
+	GDBIND_CALLBACK(_resource_selected);
 }
 
 EditorPropertyVariableConfig::VariableConfigSelector::VariableConfigSelector(HFSM *p_hfsm, const Ref<VariableConfig> &p_to_compare) {
@@ -194,7 +194,7 @@ EditorPropertyVariableConfig::VariableConfigSelector::VariableConfigSelector(HFS
 //
 void EditorPropertyVariableConfig::_bind_methods() {
 	GDBIND_BEGIN(EditorPropertyVariableConfig);
-	GDBIND_CALBACK(_variable_selected);
+	GDBIND_CALLBACK(_variable_selected);
 }
 
 void EditorPropertyVariableConfig::_variable_selected(const Ref<Resource> &p_res) {
@@ -275,7 +275,7 @@ HFSMEditorPlugin::HFSMEditorPlugin() {
 	translation.insert("Animation Blend Time:", "动画混合时间:");
 	translation.insert("Animation Speed:", "动画播放速度:");
 	translation.insert("Animation Reverse:", "动画反向播放:");
-	translation.insert("Plese select a 'HFSM' node to start edit.", "请选中一个 HFSM 节点开始编辑");
+	translation.insert("Please select a 'HFSM' node to start edit.", "请选中一个 HFSM 节点开始编辑");
 	translation.insert("HFSM: has duplicated State name: ", "HFSM: 存在重复的状态名称: ");
 	translation.insert("Change state name", "改变状态名称");
 	translation.insert(": this state is Entry State, can't set to other type.", ": 该状态当前为入口状态，不能设置为其他类型。");
@@ -339,7 +339,7 @@ void emit_button_toggled(Button *p_btn, bool p_toggled) {
 }
 
 void HFSMEditorPlugin::_referenced_script_saved(const Ref<Resource> &p_res) {
-	// TODO:: Can we find a way to avoid emiting this signal for all Scripts?
+	// TODO:: Can we find a way to avoid emitting this signal for all Scripts?
 	// We can't use meta to refer its TransitionConfig/StateConfig, it will be saved and cause cycle save.
 	// TODO:: Detect builtin scripts change.
 	// Hint: builtin scripts in inspector are not change automatically when it first time be saved, too.
@@ -357,9 +357,9 @@ void HFSMEditorPlugin::disable_hfsm_editor() const {
 	hfsm_editor_btn->hide();
 }
 
-void HFSMEditorPlugin::_change_scene(Node *p_secne_root) {
+void HFSMEditorPlugin::_change_scene(Node *p_scene_root) {
 	// handles_internal() is called before change_scne(), here is only disable if p_scene_root is nullptr.
-	if (!p_secne_root) {
+	if (!p_scene_root) {
 		disable_hfsm_editor();
 	}
 }
@@ -434,9 +434,9 @@ bool HFSMEditorPlugin::handles_internal(Object *p_object) const {
 
 void HFSMEditorPlugin::_bind_methods() {
 	GDBIND_BEGIN(HFSMEditorPlugin);
-	GDBIND_CALBACK(_referenced_script_saved);
-	GDBIND_CALBACK(_change_scene);
-	GDBIND_CALBACK(_filesystem_changed);
+	GDBIND_CALLBACK(_referenced_script_saved);
+	GDBIND_CALLBACK(_change_scene);
+	GDBIND_CALLBACK(_filesystem_changed);
 }
 
 void HFSMEditorPlugin::_notification(int p_what) {

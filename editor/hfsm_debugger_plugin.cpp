@@ -57,7 +57,7 @@
 namespace HFSM2 {
 
 #define msg_built "built"
-#define msg_destory "destory"
+#define msg_destroy "destroy"
 #define msg_update_active_path "update_active_path"
 
 #define is_msg(m_msg, m_to_cmp) ((m_msg) == "hfsm:" m_to_cmp)
@@ -99,7 +99,7 @@ void HFSMDebuggerPlugin::send_debug_destroy(HFSM *p_hfsm) {
 		if (!can_debug()) {
 			return;
 		}
-		send_debug_msg(p_hfsm, msg_destory, Array());
+		send_debug_msg(p_hfsm, msg_destroy, Array());
 	})
 }
 
@@ -173,11 +173,11 @@ bool HFSMDebuggerPlugin::GD_(capture)(const String &p_message, const Array &p_da
 			debuggers[p_session]->build(hfsm_node_path, root_fsm_config);
 		}
 		return true;
-	} else if (is_msg(p_message, msg_destory)) {
+	} else if (is_msg(p_message, msg_destroy)) {
 		ERR_FAIL_COND_V(!debuggers.has(p_session), true);
 
 		auto hfsm_node_path = get_node_path(p_data);
-		debuggers[p_session]->destory(hfsm_node_path);
+		debuggers[p_session]->destroy(hfsm_node_path);
 
 		return true;
 	} else if (is_msg(p_message, msg_update_active_path)) {
@@ -197,8 +197,8 @@ bool HFSMDebuggerPlugin::GD_(has_capture)(const String &p_capture) const {
 
 void HFSMDebuggerPlugin::_bind_methods() {
 	GDBIND_BEGIN(HFSMDebuggerPlugin);
-	GDBIND_CALBACK(_session_stoped);
-	GDBIND_CALBACK(_session_started);
+	GDBIND_CALLBACK(_session_stoped);
+	GDBIND_CALLBACK(_session_started);
 }
 
 HFSMDebuggerPlugin::~HFSMDebuggerPlugin() {}
@@ -211,7 +211,7 @@ void HFSMDebugger::build(const NodePath &p_path, const Ref<class FSMConfig> &p_r
 	update_node_paths();
 }
 
-void HFSMDebugger::destory(const NodePath &p_path) {
+void HFSMDebugger::destroy(const NodePath &p_path) {
 	ERR_FAIL_COND(!datas.has(p_path));
 
 	DirAccess::remove_absolute(datas[p_path].root_fsm_config->get_path());
@@ -256,7 +256,7 @@ void HFSMDebugger::_item_activated(int p_idx) {
 void HFSMDebugger::_bind_methods() {
 	GDBIND_BEGIN(HFSMDebugger);
 
-	GDBIND_CALBACK(_item_activated);
+	GDBIND_CALLBACK(_item_activated);
 }
 
 HFSMDebugger::HFSMDebugger() {

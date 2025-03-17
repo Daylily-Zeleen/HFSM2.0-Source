@@ -199,7 +199,7 @@ String VariableConfig::get_type_text() const {
 		case Variant::STRING:
 			return "String";
 		default:
-			ERR_FAIL_V_MSG("Unknowm", "Invald type: " + itos(get_type()));
+			ERR_FAIL_V_MSG("Unknown", "Invalid type: " + itos(get_type()));
 	}
 }
 

@@ -103,7 +103,7 @@ private:
 	TypedArray<StringName> selected_state_name_list; // = TypedArray<StringName>();
 	TypedArray<TransitionConfig> selected_transition_config_list; // = TypedArray<TransitionConfig>();
 	TypedArray<TransitionConfig> copied_transition_config_list; // = TypedArray<TransitionConfig>();
-	TypedArray<StringName> bakcup_selected_state_name_list; // = TypedArray<StringName>();
+	TypedArray<StringName> backup_selected_state_name_list; // = TypedArray<StringName>();
 	Color activity_color;
 	PackedVector2Array disconnect_line = PackedVector2Array();
 	const Vector2 SCALE_DRAGGER_SIZE = Vector2(30.0f, 30.0f);
@@ -119,7 +119,7 @@ private:
 	void __set_copied_transition_list(const TypedArray<TransitionConfig> &p_to_set);
 	void __set_copied_state_config_list(const TypedArray<StateConfig> &p_to_set);
 	void __select_state_nodes(const TypedArray<StringName> &p_to_select_State_name_list);
-	void __select_mamually(const TypedArray<StateNode> &p_target_nodes);
+	void __select_manually(const TypedArray<StateNode> &p_target_nodes);
 	void __set_blocking_redraw(bool p_blocking_redraw) { blocking_redraw = p_blocking_redraw; }
 	// ========功能=========
 	void try_disconnect(const Vector2 &p_pos1, const Vector2 &p_pos2);
@@ -302,7 +302,7 @@ public:
 	// TODO:: p_as_action ?? currently change target Fsm is not action, to avoid mark scene as dirty and request save.
 	void edit_fsm_config(const Ref<FSMConfig> &p_fsm_config, HBoxContainer *p_path_button_container, const Ref<FSMConfig> &p_root_config, bool p_as_action = false);
 
-	void debug_highlight_active_state(const StringName &p_state_name, bool p_deactive_all);
+	void debug_highlight_active_state(const StringName &p_state_name, bool p_deactivate_all);
 
 	static FSMEditor *create_fsm_editor(HBoxContainer *p_path_btn_container, bool p_debug_mode);
 };

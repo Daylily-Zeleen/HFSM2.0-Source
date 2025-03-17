@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  comparation_expression.cpp                                            */
+/*  compare_expression.cpp                                            */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                   Hierarchical Finite State Machine                    */
@@ -27,7 +27,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#include "comparation_expression.h"
+#include "compare_expression.h"
 
 #ifdef TOOLS_ENABLED
 #ifdef GDEXTENSION_BUILD
@@ -38,34 +38,34 @@
 #endif // TOOLS_ENABLED
 namespace HFSM2 {
 
-#define _type_convertable_check(m_variable, m_value_type) \
+#define _type_convertible_check(m_variable, m_value_type) \
 	CRASH_COND(!Variant::can_convert(m_value_type, (m_variable)->get_variable_type()))
 
 #ifdef TOOLS_ENABLED
-#define type_convertable_check(m_variable, m_value_type)   \
+#define type_convertible_check(m_variable, m_value_type)   \
 	if (Engine::get_singleton()->is_editor_hint()) {       \
-		_type_convertable_check(m_variable, m_value_type); \
+		_type_convertible_check(m_variable, m_value_type); \
 	}
 #else
-#define type_convertable_check(m_variable, m_value_type) _type_convertable_check(m_variable, m_value_type)
+#define type_convertible_check(m_variable, m_value_type) _type_convertible_check(m_variable, m_value_type)
 #endif // TOOLS_ENABLED
 
-// ComparationExpression
-ComparationExpression::ComparationExpression(const Ref<Variable> &p_variable, Comparator p_comparator) :
+// CompareExpression
+CompareExpression::CompareExpression(const Ref<Variable> &p_variable, Comparator p_comparator) :
 		VariableExpression(p_variable) {
 	ERR_FAIL_COND(!(p_comparator >= 0 && p_comparator < 6));
 	comparator = p_comparator;
 }
 
-// ConstantComparationExpression
-ConstantComparationExpression::ConstantComparationExpression(
+// ConstantCompareExpression
+ConstantCompareExpression::ConstantCompareExpression(
 		const Ref<Variable> &p_variable, Comparator p_comparator, const Variant &p_value) :
-		ComparationExpression(p_variable, p_comparator) {
-	type_convertable_check(variable, p_value.get_type());
+		CompareExpression(p_variable, p_comparator) {
+	type_convertible_check(variable, p_value.get_type());
 	value = p_value;
 }
 
-bool ConstantComparationExpression::get_result(bool p_and_mode,
+bool ConstantCompareExpression::get_result(bool p_and_mode,
 		bool &r_result) {
 	r_result = compare_with(variable, comparator, value);
 	// 与 + 假  or 或 + 真
@@ -76,15 +76,15 @@ bool ConstantComparationExpression::get_result(bool p_and_mode,
 	}
 }
 
-// VariableComparationExpression
-VariableComparationExpression::VariableComparationExpression(
+// VariableCompareExpression
+VariableCompareExpression::VariableCompareExpression(
 		const Ref<Variable> &p_variable, Comparator p_comparator, const Ref<Variable> &p_value) :
-		ComparationExpression(p_variable, p_comparator) {
-	type_convertable_check(variable, p_value->get_variable_type());
+		CompareExpression(p_variable, p_comparator) {
+	type_convertible_check(variable, p_value->get_variable_type());
 	value = p_value;
 }
 
-bool VariableComparationExpression::get_result(bool p_and_mode,
+bool VariableCompareExpression::get_result(bool p_and_mode,
 		bool &r_result) {
 	r_result = compare_with(variable, comparator, value.ptr());
 	// 与 + 假  or 或 + 真

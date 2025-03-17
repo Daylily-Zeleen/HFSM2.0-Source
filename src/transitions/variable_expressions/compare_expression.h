@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  comparation_expression.h                                              */
+/*  compare_expression.h                                              */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                   Hierarchical Finite State Machine                    */
@@ -37,7 +37,7 @@ namespace HFSM2 {
  * @brief 比较表达式基类
  *
  */
-class ComparationExpression : public VariableExpression {
+class CompareExpression : public VariableExpression {
 public:
 	enum Comparator {
 		COMPARATOR_EQUAL,
@@ -51,8 +51,8 @@ public:
 protected:
 	Comparator comparator = COMPARATOR_EQUAL;
 
-	ComparationExpression(const Ref<Variable> &p_variable, Comparator p_op);
-	virtual ~ComparationExpression() = default;
+	CompareExpression(const Ref<Variable> &p_variable, Comparator p_op);
+	virtual ~CompareExpression() = default;
 
 	bool compare_with(const Ref<Variable> &p_a, Comparator p_cmp, const Variant &p_b);
 	bool compare_with(const Ref<Variable> &p_a, Comparator p_cmp, const Variable *p_b);
@@ -62,9 +62,9 @@ protected:
  * @brief 与常量比较的表达式
  *
  */
-class ConstantComparationExpression : public ComparationExpression {
+class ConstantCompareExpression : public CompareExpression {
 public:
-	ConstantComparationExpression(const Ref<Variable> &p_variable, Comparator p_op, const Variant &p_value);
+	ConstantCompareExpression(const Ref<Variable> &p_variable, Comparator p_op, const Variant &p_value);
 	bool get_result(bool p_and_mode, bool &r_result) override;
 
 private:
@@ -74,9 +74,9 @@ private:
  * @brief 与变量比较的表达式
  *
  */
-class VariableComparationExpression : public ComparationExpression {
+class VariableCompareExpression : public CompareExpression {
 public:
-	VariableComparationExpression(const Ref<Variable> &p_variable, Comparator p_op, const Ref<Variable> &p_value);
+	VariableCompareExpression(const Ref<Variable> &p_variable, Comparator p_op, const Ref<Variable> &p_value);
 
 	bool get_result(bool p_and_mode, bool &r_result) override;
 
@@ -85,7 +85,7 @@ private:
 };
 
 #pragma region 内联实现
-inline bool ComparationExpression::compare_with(const Ref<Variable> &p_a, Comparator p_cmp, const Variant &p_b) {
+inline bool CompareExpression::compare_with(const Ref<Variable> &p_a, Comparator p_cmp, const Variant &p_b) {
 	switch (p_cmp) {
 		case COMPARATOR_EQUAL:
 			return p_a->get_value() == p_b;
@@ -104,7 +104,7 @@ inline bool ComparationExpression::compare_with(const Ref<Variable> &p_a, Compar
 	}
 }
 
-inline bool ComparationExpression::compare_with(const Ref<Variable> &p_a, Comparator p_cmp, const Variable *p_b) {
+inline bool CompareExpression::compare_with(const Ref<Variable> &p_a, Comparator p_cmp, const Variable *p_b) {
 	return compare_with(p_a, p_cmp, p_b->get_value());
 }
 

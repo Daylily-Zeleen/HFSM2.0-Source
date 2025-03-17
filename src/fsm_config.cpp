@@ -125,7 +125,7 @@ void FSMConfig::add_variable_config(const Ref<VariableConfig> &p_variable_config
 	emit_changed();
 }
 
-// 未删除相关的 TransitionConfig, 需要在编辑器里处理 undoredo
+// 未删除相关的 TransitionConfig, 需要在编辑器里处理 Undo Redo
 void FSMConfig::remove_state_config(const Ref<StateConfig> &p_state_config) {
 	state_config_list.erase(p_state_config);
 

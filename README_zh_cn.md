@@ -33,7 +33,7 @@
 7. 你可以通过使用"Debugger"面板的“HFSM”标签页来帮助你进行调试（必须有调试进程才会出现该标签页）。该标签页的左侧是运行中的`HFSM`节点路径，双击选择一个`HFSM`将在右侧显式它的运行情况。
 8. 根据设计意图，你不应该访问该插件中名为`xxxConfig`的类，他们用于设计时存储状态机的结构与信息，并用于运行时构建`HFSM`。
 
-    ```
+    ``` GDScript
     FSMConfig
     StateConfig
     TransitionConfig

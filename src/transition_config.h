@@ -74,7 +74,7 @@ public:
 		TRANSITION_TYPE_MAX,
 	};
 
-	enum AuotoTtransitMode : uint8_t {
+	enum AutoTransitMode : uint8_t {
 		AUTO_TRANSIT_MODE_DELAY_TIMER,
 		AUTO_TRANSIT_MODE_ANIMATION_FINISH,
 		AUTO_TRANSIT_MODE_FSM_EXIT,
@@ -99,8 +99,8 @@ public:
 	TransitionType get_type() const;
 
 	// Auto
-	void set_auto_mode(AuotoTtransitMode p_auto_mode);
-	AuotoTtransitMode get_auto_mode() const;
+	void set_auto_mode(AutoTransitMode p_auto_mode);
+	AutoTransitMode get_auto_mode() const;
 	void set_auto_delay_msec(uint64_t p_delay_msec);
 	uint64_t get_auto_delay_msec() const;
 	void set_auto_times(uint64_t p_times);
@@ -137,7 +137,7 @@ private:
 	TransitionType type = TRANSITION_TYPE_AUTO;
 
 	// Auto
-	AuotoTtransitMode auto_mode = AUTO_TRANSIT_MODE_DELAY_TIMER;
+	AutoTransitMode auto_mode = AUTO_TRANSIT_MODE_DELAY_TIMER;
 	uint64_t auto_delay_msec = 1000; // 延迟时间
 	uint64_t auto_times = 5; // 重复次数
 
@@ -159,4 +159,4 @@ private:
 }; // namespace HFSM2
 
 VARIANT_ENUM_CAST(HFSM2::TransitionConfig::TransitionType);
-VARIANT_ENUM_CAST(HFSM2::TransitionConfig::AuotoTtransitMode);
+VARIANT_ENUM_CAST(HFSM2::TransitionConfig::AutoTransitMode);

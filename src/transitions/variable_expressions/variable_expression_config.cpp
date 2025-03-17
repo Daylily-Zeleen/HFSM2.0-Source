@@ -62,9 +62,9 @@ VariableExpression *VariableExpressionConfig::create_variable_expression(HFSM *p
 		}
 	} else {
 		if (variable_as_value) {
-			return memnew(VariableComparationExpression(v, comparator, value));
+			return memnew(VariableCompareExpression(v, comparator, value));
 		} else {
-			return memnew(ConstantComparationExpression(v, comparator, value));
+			return memnew(ConstantCompareExpression(v, comparator, value));
 		}
 	}
 }

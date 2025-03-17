@@ -93,7 +93,7 @@ private:
 	String str_localize(const String &p_en_key) const;
 
 	const bool debug_mode = false;
-	bool debug_actived = false;
+	bool debug_activated = false;
 
 public:
 	static Ref<ImageTexture> (*get_empty_icon)();
@@ -107,8 +107,8 @@ public:
 	Ref<class StateConfig> get_state_config() const;
 	static StateNode *create_state_node(const Ref<StateConfig> &p_target_state_config, const Ref<FSMConfig> &p_nested_fsm_config, bool p_debug = false);
 
-	void set_debug_actived(bool p_actived);
-	bool is_debug_actived() const;
+	void set_debug_activated(bool p_activated);
+	bool is_debug_activated() const;
 
 	StateNode(bool p_debug_mode = false);
 };

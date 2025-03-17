@@ -63,9 +63,9 @@ void HFSMEditor::initialize() {
 	vbox->set_anchors_preset(LayoutPreset::PRESET_FULL_RECT);
 	auto up_panel_container = memnew(PanelContainer);
 	vbox->add_child(up_panel_container);
-	auto up_margin_contianer = memnew(MarginContainer);
+	auto up_margin_container = memnew(MarginContainer);
 
-	up_panel_container->add_child(up_margin_contianer);
+	up_panel_container->add_child(up_margin_container);
 	path_button_container = memnew(HBoxContainer);
 	auto up_label = memnew(Label);
 	up_label->set_text(HFSMEditorPlugin::str_localize("Path: "));
@@ -77,17 +77,17 @@ void HFSMEditor::initialize() {
 	fsm_editor->connect("_edit_fsm_requested", TCALLABLE(_edit_fsm_requested));
 	vbox->add_child(fsm_editor);
 
-	auto botton_h_box = memnew(HBoxContainer);
-	vbox->add_child(botton_h_box);
+	auto button_h_box = memnew(HBoxContainer);
+	vbox->add_child(button_h_box);
 	hint_label = memnew(Label);
 	hint_label->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
-	botton_h_box->add_child(hint_label);
+	button_h_box->add_child(hint_label);
 
 	history_label = memnew(Label);
 	history_label->set_h_size_flags(SizeFlags::SIZE_SHRINK_END);
-	botton_h_box->add_child(history_label);
+	button_h_box->add_child(history_label);
 	if (debug_mode) {
-		botton_h_box->hide();
+		button_h_box->hide();
 	}
 
 	//
@@ -167,11 +167,11 @@ void HFSMEditor::debug_highlight_activate_state(const PackedStringArray &p_activ
 		}
 	}
 
-	StringName actived_state;
+	StringName activated_state;
 	if (p_active_path.size() > 0) {
-		actived_state = p_active_path[p_active_path.size() - 1];
+		activated_state = p_active_path[p_active_path.size() - 1];
 	}
-	fsm_editor->debug_highlight_active_state(actived_state, idx != p_active_path.size() - 1);
+	fsm_editor->debug_highlight_active_state(activated_state, idx != p_active_path.size() - 1);
 }
 
 HFSM *HFSMEditor::get_editing_hfsm() { return cast_to<HFSM>(hfsm); }
@@ -242,8 +242,8 @@ HFSMEditor *HFSMEditor::create_hfsm_editor(bool p_debug_mode) {
 	return ret;
 }
 
-void HFSMEditor::_inspector_property_edited(const String &p_properrty) {
-	if (!debug_mode && p_properrty == "root_fsm_config") {
+void HFSMEditor::_inspector_property_edited(const String &p_property) {
+	if (!debug_mode && p_property == "root_fsm_config") {
 		ERR_FAIL_COND(!get_editing_hfsm());
 		if (editing_root_fsm_config != get_editing_hfsm()->get_root_fsm_config()) {
 			call_deferred(TNAMEOF(edit_hfsm), get_editing_hfsm());
@@ -264,7 +264,7 @@ void HFSMEditor::_change_hint() {
 			R"(Holding "Alt" and "Middle Button" to draw a line to disconnect Transitions.)",
 			"\"Convert To Sub-FSM\" only activated when selecting at least one State and click at a selected State.",
 			"A FSM(Finite State Machine) only have a Enty State.",
-			"A Entry State can't be change to Noramal or Exit State.",
+			"A Entry State can't be change to Normal or Exit State.",
 			"If you set a Normal or Exit State to Entry State, it will change the existing Entry State to Normal State first.",
 			"Select and inspect a State, you can set its animation in inspector.",
 			"The expression of ExpressionTransition is base on its HFSM node, you can use all built-in singletons in expression.",
@@ -320,10 +320,10 @@ void HFSMEditor::_bind_methods() {
 	GDBIND_METHOD(__do_history);
 	GDBIND_METHOD(__undo_history);
 
-	GDBIND_CALBACK(_inspector_edited_object_changed);
-	GDBIND_CALBACK(_inspector_property_edited);
-	GDBIND_CALBACK(_edit_fsm_requested);
-	GDBIND_CALBACK(_change_hint);
+	GDBIND_CALLBACK(_inspector_edited_object_changed);
+	GDBIND_CALLBACK(_inspector_property_edited);
+	GDBIND_CALLBACK(_edit_fsm_requested);
+	GDBIND_CALLBACK(_change_hint);
 }
 
 HFSMEditor::HFSMEditor(bool p_debug_mode) :

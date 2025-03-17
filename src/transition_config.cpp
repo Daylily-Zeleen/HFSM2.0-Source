@@ -30,7 +30,6 @@
 #include "transition_config.h"
 #include "transitions/auto_transition.h"
 #include "transitions/expression_transition.h"
-#include "transitions/transition.h"
 #include "transitions/variable_expressions/trigger_expression.h"
 #include "transitions/variable_expressions/variable_expression.h"
 #include "transitions/variable_expressions_transition.h"
@@ -78,7 +77,7 @@ namespace HFSM2 {
 	"{\n"                                                                                              \
 	"	// <summary>\n"                                                                                  \
 	"	// Will be called every time when the HFSM update( or physics update)\n"                         \
-	"	// Your must to overried this method to determine whether transit to the to state or not.\n"     \
+	"	// Your must to overrid this method to determine whether transit to the to state or not.\n"      \
 	"	// </summary>\n"                                                                                 \
 	"	// <returns> Can transit or not.</returns>\n"                                                    \
 	"	private bool _can_transit()\n"                                                                   \
@@ -242,13 +241,13 @@ void TransitionConfig::set_type(TransitionType p_type) {
 TransitionConfig::TransitionType TransitionConfig::get_type() const { return type; }
 
 // Auto
-void TransitionConfig::set_auto_mode(AuotoTtransitMode p_auto_mode) {
+void TransitionConfig::set_auto_mode(AutoTransitMode p_auto_mode) {
 	ERR_FAIL_COND(p_auto_mode < 0 || p_auto_mode >= AUTO_TRANSIT_MODE_MAX);
 	auto_mode = p_auto_mode;
 	emit_changed();
 	notify_property_list_changed();
 }
-TransitionConfig::AuotoTtransitMode TransitionConfig::get_auto_mode() const { return auto_mode; }
+TransitionConfig::AutoTransitMode TransitionConfig::get_auto_mode() const { return auto_mode; }
 void TransitionConfig::set_auto_delay_msec(uint64_t p_delay_time) {
 	auto_delay_msec = p_delay_time;
 	emit_changed();
@@ -442,7 +441,7 @@ Ref<TransitionConfig> TransitionConfig::debug_deserialize(const Array &p_data, c
 	}
 
 	ret->type = TransitionType(p_data[2].operator int());
-	ret->auto_mode = AuotoTtransitMode(p_data[3].operator int());
+	ret->auto_mode = AutoTransitMode(p_data[3].operator int());
 	ret->auto_delay_msec = p_data[4];
 	ret->auto_times = p_data[5];
 

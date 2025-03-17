@@ -40,7 +40,7 @@ using namespace godot;
 
 #include "../../variable_config.h"
 
-#include "comparation_expression.h"
+#include "compare_expression.h"
 
 namespace HFSM2 {
 
@@ -66,7 +66,7 @@ public:
 		TRIGGER_TYPE_MAX,
 	};
 
-	using Comparator = ComparationExpression::Comparator;
+	using Comparator = CompareExpression::Comparator;
 
 	void set_variable_config(const Ref<VariableConfig> &p_variable_config);
 	Ref<VariableConfig> get_variable_config() const;

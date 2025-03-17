@@ -42,7 +42,6 @@
 #include "src/state.h"
 #include "src/state_config.h"
 #include "src/transition_config.h"
-#include "src/transitions/auto_transition.h"
 #include "src/transitions/transition.h"
 #include "src/transitions/variable_expressions/variable_expression_config.h"
 #include "src/variable.h"
@@ -56,7 +55,6 @@
 
 #ifdef GDEXTENSION_BUILD
 #include "editor/hfsm_debugger_plugin.h"
-#include "godot_cpp/classes/editor_plugin.hpp"
 
 #else
 #include <editor/editor_plugin.h>

@@ -29,10 +29,6 @@
 
 #pragma once
 
-#include "../hfsm_global.h"
-
-#include <type_traits>
-
 #ifdef GDEXTENSION_BUILD
 #ifdef TOOLS_ENABLED
 #include <godot_cpp/classes/engine.hpp>

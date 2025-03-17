@@ -94,7 +94,7 @@ void HFSM::_bind_methods() {
 	GDBIND_METHOD(set_var, "variable_name", "value");
 	GDBIND_METHOD(set_trigger, "trigger_name");
 	GDBIND_METHOD(set_boolean, "boolean_name", "value");
-	GDBIND_METHOD(set_integer, "interger_name", "value");
+	GDBIND_METHOD(set_integer, "integer_name", "value");
 	GDBIND_METHOD(set_float, "float_name", "value");
 	GDBIND_METHOD(set_string, "string_name", "value");
 
@@ -111,7 +111,7 @@ void HFSM::_bind_methods() {
 
 	GDADD_PROPERTY_RESOURCE(root_fsm_config);
 
-	GDBIND_CALBACK(_animation_finished);
+	GDBIND_CALLBACK(_animation_finished);
 
 #ifdef ROLLBACK_NET_CODE
 	BIND_VIRTUAL_METHOD(HFSM, _save_state);
@@ -219,7 +219,7 @@ void HFSM::set_var(const StringName &p_variable_name, const Variant &p_value) {
 
 void HFSM::set_trigger(const StringName &p_trigger_name) { _SET_VAR(p_trigger_name, true); }
 void HFSM::set_boolean(const StringName &p_boolean_name, bool p_value) { _SET_VAR(p_boolean_name, p_value); }
-void HFSM::set_integer(const StringName &p_interger_name, int64_t p_value) { _SET_VAR(p_interger_name, p_value); }
+void HFSM::set_integer(const StringName &p_integer_name, int64_t p_value) { _SET_VAR(p_integer_name, p_value); }
 void HFSM::set_float(const StringName &p_float_name, double p_value) { _SET_VAR(p_float_name, p_value); }
 void HFSM::set_string(const StringName &p_string_name, const String &p_value) { _SET_VAR(p_string_name, p_value); }
 
@@ -493,13 +493,13 @@ void HFSM::_network_despawn() { return _root_fsm->_network_despawn(); }
 
 #endif
 
-void HFSM::set_animation_player(AnimationPlayer *p_animtion_player) {
+void HFSM::set_animation_player(AnimationPlayer *p_animation_player) {
 	static const StringName sn = "animation_finished";
 	auto cb = TCALLABLE(_animation_finished);
 	if (animation_player && animation_player->is_connected(sn, cb)) {
 		animation_player->disconnect(sn, cb);
 	}
-	animation_player = p_animtion_player;
+	animation_player = p_animation_player;
 	if (animation_player && !animation_player->is_connected(sn, cb)) {
 		animation_player->connect(sn, cb);
 	}

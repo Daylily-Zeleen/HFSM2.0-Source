@@ -91,7 +91,7 @@ public:
 	void set_var(const StringName &p_variable_name, const Variant &p_value = Variant());
 	void set_trigger(const StringName &p_trigger_name);
 	void set_boolean(const StringName &p_boolean_name, bool p_value);
-	void set_integer(const StringName &p_interger_name, int64_t p_value);
+	void set_integer(const StringName &p_integer_name, int64_t p_value);
 	void set_float(const StringName &p_float_name, double p_value);
 	void set_string(const StringName &p_string_name, const String &p_value);
 
@@ -125,7 +125,7 @@ public:
 	void set_root_fsm_config(const Ref<FSMConfig> &p_root_fsm_config);
 	Ref<FSMConfig> get_root_fsm_config() const;
 
-	void set_animation_player(AnimationPlayer *p_animtion_player);
+	void set_animation_player(AnimationPlayer *p_animation_player);
 	AnimationPlayer *get_animation_player() const { return animation_player; }
 
 #ifdef ROLLBACK_NET_CODE

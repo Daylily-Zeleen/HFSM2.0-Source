@@ -63,7 +63,7 @@ class State : public RefCounted {
 protected:
 	static void _bind_methods();
 
-	virtual void initialize(); // Will be caled after setup internal properties.
+	virtual void initialize(); // Will be called after setup internal properties.
 	virtual void enter();
 	virtual void update(real_t p_delta);
 	virtual void physics_update(real_t p_delta);
@@ -183,7 +183,7 @@ public:
 	TransitionBase *try_transit();
 
 	// For construct, don't call this in any cases.
-	void _add_transition(TransitionBase *p_transtition) { transition_list.append(p_transtition); }
+	void _add_transition(TransitionBase *p_transition) { transition_list.append(p_transition); }
 };
 
 #pragma region 内联实现

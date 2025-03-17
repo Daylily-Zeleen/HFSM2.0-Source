@@ -27,13 +27,6 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-/*
-** EPITECH PROJECT, 2022
-** HFSM
-** File description:
-** state.cpp
-*/
-
 #include "state.h"
 #include "fsm.h"
 #include "hfsm.h"
