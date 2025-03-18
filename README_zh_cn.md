@@ -16,8 +16,8 @@
 5. 多种转换条件。
 6. 两种开发模式：信号回调与状态脚本.
 7. 能够作为动画状态机使用。
-8. 能够附加GDSCript/CSharpScript来实现状态逻辑。
-9. 能够附加GDSCript/CSharpScript来实现转换流逻辑。
+8. 能够附加GDScript/CSharpScript来实现状态逻辑。
+9. 能够附加GDScript/CSharpScript来实现转换流逻辑。
 
 ## Some usage hints
 
